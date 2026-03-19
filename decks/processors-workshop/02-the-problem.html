@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Problem — Processors: Beyond Guardrails</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Black box pulsing animation ===== */
+        .black-box {
+            animation: boxPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes boxPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(99, 102, 241, 0); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.06); }
+        }
+
+        /* ===== Input/Output arrows ===== */
+        .io-flow {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .io-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .io-label-text {
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+        }
+
+        .io-arrow {
+            font-size: 2rem;
+            color: var(--text-dim);
+            animation: arrowBounce 2s ease-in-out infinite;
+        }
+
+        .io-arrow.right {
+            animation-delay: 1s;
+        }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(6px); }
+        }
+
+        /* ===== Pain points ===== */
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .pain-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .pain-card:hover {
+            border-color: var(--red);
+            transform: translateY(-2px);
+        }
+
+        .pain-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .pain-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .pain-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* Scatter thought bubbles */
+        .thought-scatter {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .thought-bubble {
+            position: absolute;
+            font-size: 0.8rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            border: 1px solid var(--red-dim);
+            background: var(--bg-card);
+            color: var(--red);
+            white-space: nowrap;
+            opacity: 0;
+            animation: thoughtAppear 6s ease-in-out infinite;
+        }
+
+        @keyframes thoughtAppear {
+            0%   { opacity: 0; transform: scale(0.8); }
+            20%  { opacity: 0.7; transform: scale(1); }
+            80%  { opacity: 0.7; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Processors: Beyond Guardrails</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-everything-is-a-processor.html">Insight</a>
+        <a href="04-five-phases.html">Phases</a>
+        <a href="05-the-ui.html">UI</a>
+        <a href="06-building-processors.html">Building</a>
+        <a href="06b-performance.html">Perf</a>
+        <a href="06c-enterprise-flow.html">Flow</a>
+        <a href="07-built-ins.html">Built-ins</a>
+        <a href="08-wrap-up.html">Wrap-up</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <!-- Scene 1: The black box -->
+        <div class="section centered fade-on-scroll" id="black-box">
+            <p class="section-label">The Problem</p>
+            <h2>Your agent is a <span class="red">black box</span></h2>
+            <p class="mt-2" style="max-width: 600px;">Messages go in. Responses come out. What happens in between?</p>
+
+            <div class="io-flow mt-4">
+                <div class="io-label">
+                    <span class="io-label-text">user message</span>
+                    <span class="io-arrow">→</span>
+                </div>
+
+                <div class="black-box">
+                    <div class="thought-scatter">
+                        <span class="thought-bubble" style="top: 10%; left: 15%; animation-delay: 0s;">PII leak?</span>
+                        <span class="thought-bubble" style="top: 30%; right: 10%; animation-delay: 1.5s;">off-topic?</span>
+                        <span class="thought-bubble" style="bottom: 30%; left: 10%; animation-delay: 3s;">wrong tone?</span>
+                        <span class="thought-bubble" style="bottom: 10%; right: 15%; animation-delay: 4.5s;">hallucination?</span>
+                    </div>
+                    <span class="black-box-question">?</span>
+                    <span class="black-box-sub">agent.generate()</span>
+                </div>
+
+                <div class="io-label">
+                    <span class="io-arrow right">→</span>
+                    <span class="io-label-text">response</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 2: The pain points -->
+        <div class="section centered fade-on-scroll" id="pain-points">
+            <h2>What you can't control <span class="dim">today</span></h2>
+            <p class="mt-2">Without processors, you'd need to build all of this yourself.</p>
+
+            <div class="pain-grid mt-4 stagger-in">
+                <div class="pain-card">
+                    <div class="pain-icon">🛡️</div>
+                    <div class="pain-title">Safety</div>
+                    <div class="pain-desc">PII detection, content moderation, prompt injection — bolted on after the fact</div>
+                </div>
+                <div class="pain-card">
+                    <div class="pain-icon">🎯</div>
+                    <div class="pain-title">Quality</div>
+                    <div class="pain-desc">Brand voice, topic relevance, output validation — no standard hook point</div>
+                </div>
+                <div class="pain-card">
+                    <div class="pain-icon">🧠</div>
+                    <div class="pain-title">Memory</div>
+                    <div class="pain-desc">Thread history, working memory, semantic recall — separate systems to wire up</div>
+                </div>
+                <div class="pain-card">
+                    <div class="pain-icon">⚡</div>
+                    <div class="pain-title">Performance</div>
+                    <div class="pain-desc">Token limits, context pruning, caching — custom code for each agent</div>
+                </div>
+                <div class="pain-card">
+                    <div class="pain-icon">🔁</div>
+                    <div class="pain-title">Recovery</div>
+                    <div class="pain-desc">Guardrails that retry, self-correction loops — hard to build reliably</div>
+                </div>
+                <div class="pain-card">
+                    <div class="pain-icon">📊</div>
+                    <div class="pain-title">Observability</div>
+                    <div class="pain-desc">What happened between input and output? Good luck debugging</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>initKeyNav("01-intro.html", "03-everything-is-a-processor.html");</script>
+</body>
+</html>

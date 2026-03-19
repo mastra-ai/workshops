@@ -1,0 +1,434 @@
+    <meta charset="UTF-8">
+    <title>Streaming — Agent Harness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Model Grid ===== */
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .model-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .model-card:hover { border-color: var(--border-light); }
+        .model-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+        .model-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .model-provider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .model-card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .model-card-provider {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        .model-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .model-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+        }
+
+        .model-stat-label { color: var(--text-dim); }
+        .model-stat-value { font-family: var(--font-mono); color: var(--text-secondary); }
+
+        .model-auth-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            padding: 0.15rem 0.45rem;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+        }
+
+        .model-auth-badge.api-key { background: var(--green-dim); color: var(--green); }
+        .model-auth-badge.oauth { background: var(--accent-dim); color: var(--accent); }
+        .model-auth-badge.none { background: var(--red-dim); color: var(--red); }
+
+        /* ===== Streaming visualization ===== */
+        .stream-viz {
+            margin-top: 2rem;
+            max-width: 700px;
+        }
+
+        .stream-tokens {
+            display: flex;
+            gap: 2px;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 120px;
+            align-content: flex-start;
+        }
+
+        .stream-token {
+            display: inline-block;
+            padding: 2px 4px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 2px;
+            animation: tokenAppear 0.15s ease;
+        }
+
+        @keyframes tokenAppear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .stream-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .stream-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stream-stat-label { color: var(--text-dim); }
+        .stream-stat-value { font-family: var(--font-mono); color: var(--text-primary); }
+
+        /* Callout */
+        .callout {
+            background: var(--accent-dim);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .callout-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Agent Harness</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-spectrum.html">Spectrum</a>
+        <a href="03-the-harness.html">The Harness</a>
+        <a href="04-prompts-and-context.html">Prompts</a>
+        <a href="05-workspace.html">Workspace</a>
+        <a href="06-memory.html">Memory</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-protocols.html">Protocols</a>
+        <a href="10-streaming.html">Streaming</a>
+        <a href="11-policies.html">Policies</a>
+        <a href="12-checklist.html">Checklist</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <!-- Section 1: Streaming -->
+        <div class="section" id="streaming">
+            <p class="section-label">Streaming & Multi-Model</p>
+            <h2>One harness, many models</h2>
+            <p>Every component emits events. Streaming is not optional. And the harness is interrupted at any time — design for resumability by default.</p>
+
+            <div class="stream-viz">
+                <div class="demo-controls">
+                    <button class="demo-btn" id="stream-start">▶ Stream</button>
+                    <button class="demo-btn reset" id="stream-reset" style="display:none;">↺ Reset</button>
+                </div>
+                <div class="stream-tokens" id="stream-tokens"></div>
+                <div class="stream-stats">
+                    <div class="stream-stat-item">
+                        <span class="stream-stat-label">Tokens:</span>
+                        <span class="stream-stat-value" id="stream-count">0</span>
+                    </div>
+                    <div class="stream-stat-item">
+                        <span class="stream-stat-label">Speed:</span>
+                        <span class="stream-stat-value" id="stream-speed">—</span>
+                    </div>
+                    <div class="stream-stat-item">
+                        <span class="stream-stat-label">TTFT:</span>
+                        <span class="stream-stat-value" id="stream-ttft">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout fade-on-scroll" style="margin-top: 2rem;">
+                <div class="callout-label">Key Design Point</div>
+                Interrupts happen. The agent might be 500 tokens into a response when the user steers. The harness must handle abort gracefully — save what was streamed, clean up, and restart with the new context.
+            </div>
+        </div>
+
+        <!-- Section 2: Multi-model -->
+        <div class="section" id="multi-model">
+            <p class="section-label">Model Strategy</p>
+            <h2>Mix models deliberately</h2>
+            <p>Different models for different jobs. The harness routes per mode, supports both API keys and OAuth, and tracks cost across all providers.</p>
+
+            <div class="model-grid fade-on-scroll">
+                <div class="model-card selected">
+                    <div class="model-card-header">
+                        <div class="model-provider-dot" style="background: #a855f7;"></div>
+                        <div>
+                            <div class="model-card-name">Claude Opus 4.6</div>
+                            <div class="model-card-provider">Anthropic</div>
+                        </div>
+                    </div>
+                    <div class="model-stats">
+                        <div class="model-stat"><span class="model-stat-label">Use</span><span class="model-stat-value">BUILD mode</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Strength</span><span class="model-stat-value">Reasoning</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value">$15/1M in</span></div>
+                    </div>
+                    <div class="model-auth-badge oauth">● OAuth (Claude Max)</div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <div class="model-provider-dot" style="background: #6366f1;"></div>
+                        <div>
+                            <div class="model-card-name">GPT-5.3 Codex</div>
+                            <div class="model-card-provider">OpenAI</div>
+                        </div>
+                    </div>
+                    <div class="model-stats">
+                        <div class="model-stat"><span class="model-stat-label">Use</span><span class="model-stat-value">PLAN mode</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Strength</span><span class="model-stat-value">Code analysis</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value">$12/1M in</span></div>
+                    </div>
+                    <div class="model-auth-badge oauth">● OAuth (Codex Plan)</div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <div class="model-provider-dot" style="background: #22c55e;"></div>
+                        <div>
+                            <div class="model-card-name">ZAI-GLM 4.7</div>
+                            <div class="model-card-provider">Cerebras</div>
+                        </div>
+                    </div>
+                    <div class="model-stats">
+                        <div class="model-stat"><span class="model-stat-label">Use</span><span class="model-stat-value">FAST mode</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Strength</span><span class="model-stat-value">Speed</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value">$0.60/1M in</span></div>
+                    </div>
+                    <div class="model-auth-badge api-key">● API Key</div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <div class="model-provider-dot" style="background: #eab308;"></div>
+                        <div>
+                            <div class="model-card-name">Gemini 2.5 Flash</div>
+                            <div class="model-card-provider">Google</div>
+                        </div>
+                    </div>
+                    <div class="model-stats">
+                        <div class="model-stat"><span class="model-stat-label">Use</span><span class="model-stat-value">OM Observer</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Strength</span><span class="model-stat-value">Compression</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value">$0.15/1M in</span></div>
+                    </div>
+                    <div class="model-auth-badge api-key">● API Key</div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <div class="model-provider-dot" style="background: #f97316;"></div>
+                        <div>
+                            <div class="model-card-name">Moonshot Kimi</div>
+                            <div class="model-card-provider">Moonshot AI</div>
+                        </div>
+                    </div>
+                    <div class="model-stats">
+                        <div class="model-stat"><span class="model-stat-label">Use</span><span class="model-stat-value">Cost-sensitive</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Strength</span><span class="model-stat-value">Budget coding</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value">$0.30/1M in</span></div>
+                    </div>
+                    <div class="model-auth-badge api-key">● API Key</div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <div class="model-provider-dot" style="background: #555;"></div>
+                        <div>
+                            <div class="model-card-name">Your Model</div>
+                            <div class="model-card-provider">Any Provider</div>
+                        </div>
+                    </div>
+                    <div class="model-stats">
+                        <div class="model-stat"><span class="model-stat-label">Use</span><span class="model-stat-value">Custom mode</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Strength</span><span class="model-stat-value">Your choice</span></div>
+                        <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value">Varies</span></div>
+                    </div>
+                    <div class="model-auth-badge none">● Not configured</div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Section 3: Bridge to policies -->
+        <div class="section" id="streaming-bridge" style="text-align: center; align-items: center;">
+            <h2 id="streaming-bridge-title">Multiple models, multiple costs</h2>
+            <div class="intro-arrows" style="margin-top: 2rem;">
+                <button class="intro-arrow" id="streaming-bridge-prev" disabled>←</button>
+                <button class="intro-arrow" id="streaming-bridge-next">→</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// ===== STREAMING VISUALIZATION =====
+    (function () {
+        const tokensEl = document.getElementById('stream-tokens');
+        const countEl = document.getElementById('stream-count');
+        const speedEl = document.getElementById('stream-speed');
+        const ttftEl = document.getElementById('stream-ttft');
+        const startBtn = document.getElementById('stream-start');
+        const resetBtn = document.getElementById('stream-reset');
+
+        const sampleText = "Let me look at the authentication module. I can see the issue — the token refresh logic doesn't handle expired refresh tokens. When the access token expires and the refresh token is also invalid, the middleware silently fails instead of redirecting to login. I'll fix this by adding a check for the refresh token expiry and returning a 401 with a clear error message. Let me also add a test case for this scenario to prevent regression.";
+
+        const tokens = sampleText.split(/(\s+)/).filter(t => t.trim());
+        let running = false;
+
+        async function streamTokens() {
+            running = true;
+            startBtn.style.display = 'none';
+            resetBtn.style.display = '';
+
+            const startTime = Date.now();
+            let firstToken = true;
+
+            for (let i = 0; i < tokens.length; i++) {
+                if (!running) break;
+
+                const el = document.createElement('span');
+                el.className = 'stream-token';
+                el.textContent = tokens[i] + ' ';
+                tokensEl.appendChild(el);
+
+                if (firstToken) {
+                    ttftEl.textContent = (Date.now() - startTime) + 'ms';
+                    firstToken = false;
+                }
+
+                countEl.textContent = i + 1;
+                const elapsed = (Date.now() - startTime) / 1000;
+                speedEl.textContent = Math.round((i + 1) / elapsed) + ' tok/s';
+
+                await wait(30 + Math.random() * 40);
+            }
+
+            if (running) {
+                running = false;
+            }
+        }
+
+        function reset() {
+            running = false;
+            tokensEl.innerHTML = '';
+            countEl.textContent = '0';
+            speedEl.textContent = '—';
+            ttftEl.textContent = '—';
+            startBtn.style.display = '';
+            resetBtn.style.display = 'none';
+        }
+
+        startBtn.onclick = streamTokens;
+        resetBtn.onclick = reset;
+    })();
+
+    // ===== BRIDGE TO POLICIES =====
+    (function () {
+        const title = document.getElementById('streaming-bridge-title');
+        const prevBtn = document.getElementById('streaming-bridge-prev');
+        const nextBtn = document.getElementById('streaming-bridge-next');
+
+        const slides = [
+            'Multiple models, multiple costs',
+            'Who controls what runs?',
+        ];
+
+        let current = 0;
+
+        function render(idx) {
+            title.style.opacity = '0';
+            title.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                title.textContent = slides[idx];
+                title.style.opacity = '1';
+                title.style.transform = 'translateY(0)';
+            }, 300);
+
+            prevBtn.disabled = idx === 0;
+            if (idx === slides.length - 1) {
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.onclick = () => { current++; render(current); };
+            }
+        }
+
+        title.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        prevBtn.onclick = () => { if (current > 0) { current--; render(current); } };
+        nextBtn.onclick = () => { current++; render(current); };
+    })();
+</script>
+
+<script>initKeyNav("09-protocols.html", "11-policies.html");</script>
+</body>
+</html>

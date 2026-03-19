@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+    <title>Intro — Building Agents That Never Forget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - var(--topnav-height));
+            padding: 2rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 50%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .hero-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-dim);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .hero-author-info {
+            text-align: left;
+        }
+
+        .hero-author-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .hero-author-role {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        /* Workshop arc */
+        .hero-arc {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin: 2rem 0 1rem;
+        }
+
+        .arc-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .arc-section:hover {
+            border-color: var(--border-light);
+        }
+
+        .arc-section .arc-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .arc-section .arc-title { font-weight: 700; font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .arc-section .arc-desc { font-size: 0.82rem; color: var(--text-dim); }
+        .arc-section .arc-presenter { font-size: 0.75rem; font-family: var(--font-mono); color: var(--accent); margin-top: 0.5rem; }
+
+        .arc-section.om { border-color: rgba(34, 197, 94, 0.3); }
+        .arc-section.harness { border-color: rgba(99, 102, 241, 0.3); }
+        .arc-section.prod { border-color: rgba(234, 179, 8, 0.3); }
+
+        .arc-arrow {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+        }
+
+        /* Floating component labels */
+        .hero-components {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-chip {
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: chipIn 0.4s ease forwards;
+        }
+
+        .hero-chip.accent { border-color: rgba(99, 102, 241, 0.3); color: var(--accent); }
+        .hero-chip.purple { border-color: rgba(168, 85, 247, 0.3); color: var(--purple); }
+        .hero-chip.green { border-color: rgba(34, 197, 94, 0.3); color: var(--green); }
+        .hero-chip.yellow { border-color: rgba(234, 179, 8, 0.3); color: var(--yellow); }
+        .hero-chip.orange { border-color: rgba(249, 115, 22, 0.3); color: var(--orange); }
+        .hero-chip.cyan { border-color: rgba(6, 182, 212, 0.3); color: var(--cyan); }
+
+        @keyframes chipIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-footer {
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .hero-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .hero-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .hero-begin {
+            margin-top: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Building Agents That Never Forget</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-the-insight.html">Insight</a>
+        <a href="04-the-harness.html">Harness</a>
+        <a href="05-prompts-and-context.html">Prompts</a>
+        <a href="06-workspace.html">Workspace</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-mastracode.html">MastraCode</a>
+        <a href="10-the-proof.html">Proof</a>
+        <a href="11-thank-you.html">Thanks</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+        <div class="hero">
+            <h1>Building Agents<br>That Never Forget</h1>
+            <p class="hero-subtitle">Observational Memory + Harness Architecture</p>
+            <p class="hero-tagline">From human-inspired memory to a steerable, observable, multi-model harness</p>
+
+            <div class="hero-arc">
+                <div class="arc-section om">
+                    <div class="arc-icon">🕉️</div>
+                    <div class="arc-title">Observational Memory</div>
+                    <div class="arc-desc">Why agents forget &amp; how to fix it</div>
+                </div>
+                <div class="arc-arrow">→</div>
+                <div class="arc-section harness">
+                    <div class="arc-icon">🔧</div>
+                    <div class="arc-title">The Harness</div>
+                    <div class="arc-desc">Stateful Orchestrator of Agents</div>
+                </div>
+                <div class="arc-arrow">→</div>
+                <div class="arc-section prod">
+                    <div class="arc-icon"><img src="https://code.mastra.ai/img/mastracode-logo-dark.svg" alt="MastraCode" style="height: 1.8rem; vertical-align: middle;"></div>
+                    <div class="arc-desc">Production coding agent</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 2.5rem; margin-top: 1.75rem;">
+                <div class="hero-author">
+                    <img src="https://ca.slack-edge.com/T06CB4A5FT9-U06CK1L4Y94-2d0f896aa4f3-512" class="hero-avatar" style="border: 2px solid var(--accent); object-fit: cover;">
+                    <div class="hero-author-info">
+                        <div class="hero-author-name">Abhi Aiyer</div>
+                        <div class="hero-author-role">Founder / CTO, Mastra</div>
+                    </div>
+                </div>
+                <div class="hero-author">
+                    <img src="https://ca.slack-edge.com/T06CB4A5FT9-U06EWAAAJLC-d6b437454be2-512" class="hero-avatar" style="border: 2px solid var(--accent); object-fit: cover;">
+                    <div class="hero-author-info">
+                        <div class="hero-author-name">Shane Thomas</div>
+                        <div class="hero-author-role">Founder / CPO, Mastra</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-footer">
+                <span>mastra.ai</span>
+                <a href="https://github.com/mastra-ai/mastra" target="_blank">github.com/mastra-ai/mastra</a>
+                <a href="https://discord.gg/mastra" target="_blank">discord.gg/mastra</a>
+            </div>
+
+            <a href="02-the-problem.html" class="hero-begin" style="text-decoration: none;">Begin →</a>
+        </div>
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>initKeyNav(null, "02-the-problem.html");</script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastra Presentations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a; --bg-card: #16161e; --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0; --accent: #6366f1; --accent-hover: #818cf8;
+            --border: rgba(255,255,255,0.06); --border-light: rgba(255,255,255,0.1);
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .index-wrapper { text-align: center; max-width: 900px; padding: 2rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2.5rem; }
+        .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; text-align: left; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-decoration: none; transition: border-color 0.2s, transform 0.2s; }
+        .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .card h4 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .card p { color: var(--text-secondary); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="index-wrapper">
+        <h1>Mastra Presentations</h1>
+        <p class="subtitle">Company presentation hub</p>
+        <div class="deck-grid">
+        <a href="decks/component-showcase/index.html" class="card"><h4>Component Showcase</h4><p>8 slides</p></a>
+        <a href="decks/harness-workshop/index.html" class="card"><h4>Agent Harness</h4><p>12 slides</p></a>
+        <a href="decks/om-workshop/index.html" class="card"><h4>Building Agents That Never Forget</h4><p>11 slides</p></a>
+        <a href="decks/processors-workshop/index.html" class="card"><h4>Processors: Beyond Guardrails</h4><p>10 slides</p></a>
+        </div>
+    </div>
+</body>
+</html>

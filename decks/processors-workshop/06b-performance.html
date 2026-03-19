@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Perf — Processors: Beyond Guardrails</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .perf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .perf-card {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .perf-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .perf-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .perf-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .perf-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .perf-body {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .perf-code {
+            display: inline;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            background: rgba(99, 102, 241, 0.12);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        .perf-example {
+            margin-top: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .perf-label {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .perf-label.fast { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+        .perf-label.parallel { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+        .perf-label.smart { background: rgba(251, 146, 60, 0.15); color: var(--orange); }
+        .perf-label.stream { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+
+        .perf-bottom {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 14px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+
+        .perf-bottom.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .perf-bottom-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .perf-bottom-body {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Processors: Beyond Guardrails</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-everything-is-a-processor.html">Insight</a>
+        <a href="04-five-phases.html">Phases</a>
+        <a href="05-the-ui.html">UI</a>
+        <a href="06-building-processors.html">Building</a>
+        <a href="06b-performance.html">Perf</a>
+        <a href="06c-enterprise-flow.html">Flow</a>
+        <a href="07-built-ins.html">Built-ins</a>
+        <a href="08-wrap-up.html">Wrap-up</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <div class="section centered fade-on-scroll" id="performance">
+            <p class="section-label">Thinking About Performance</p>
+            <h2>Not every check needs an <span class="accent">LLM</span></h2>
+            <p>Six strategies to keep your processor pipelines fast and cost-effective.</p>
+
+            <div class="perf-grid" id="perf-grid">
+
+                <div class="perf-card" data-delay="0">
+                    <div class="perf-label fast">Fast</div>
+                    <div class="perf-title">Regex pre-filters</div>
+                    <div class="perf-body">
+                        Run pattern matching first — PII, profanity, format validation.
+                        <strong>Costs $0, runs in microseconds.</strong> Only hit the LLM if regex passes.
+                    </div>
+                    <div class="perf-example">
+                        .then(regexPreFilter) // μs<br>
+                        .parallel([topicGuard, moderation]) // LLM
+                    </div>
+                </div>
+
+                <div class="perf-card" data-delay="100">
+                    <div class="perf-label fast">Fast</div>
+                    <div class="perf-title">Use fast safeguard models</div>
+                    <div class="perf-body">
+                        Classification tasks don't need your main model.
+                        <span class="perf-code">gpt-oss-safeguard-20b</span> is purpose-built for safety checks — faster and cheaper.
+                    </div>
+                    <div class="perf-example">
+                        model: 'openrouter/openai/gpt-oss-safeguard-20b'
+                    </div>
+                </div>
+
+                <div class="perf-card" data-delay="200">
+                    <div class="perf-label parallel">Parallel</div>
+                    <div class="perf-title">Run independent checks concurrently</div>
+                    <div class="perf-body">
+                        Topic classification and content moderation don't depend on each other.
+                        <span class="perf-code">.parallel()</span> runs them at the same time — total latency = slowest check, not sum of all.
+                    </div>
+                    <div class="perf-example">
+                        .parallel([topicGuard, piiGuard, moderation])
+                    </div>
+                </div>
+
+                <div class="perf-card" data-delay="300">
+                    <div class="perf-label smart">Smart</div>
+                    <div class="perf-title">Route to cheaper models per step</div>
+                    <div class="perf-body">
+                        <span class="perf-code">processInputStep</span> can swap models dynamically. Use your best model for the first reasoning step, then downgrade for tool result processing.
+                    </div>
+                    <div class="perf-example">
+                        step 0 → gpt-5.2 (reasoning)<br>
+                        step 1+ → gpt-5-nano (tool results)
+                    </div>
+                </div>
+
+                <div class="perf-card" data-delay="400">
+                    <div class="perf-label smart">Smart</div>
+                    <div class="perf-title">Only check what matters</div>
+                    <div class="perf-body">
+                        <span class="perf-code">.branch()</span> makes processing conditional. Don't run an LLM drift check on every step — check every 5th step instead.
+                    </div>
+                    <div class="perf-example">
+                        .branch([<br>
+                        &nbsp;&nbsp;[ctx => ctx.stepNumber % 5 === 0, driftMonitor],<br>
+                        ])
+                    </div>
+                </div>
+
+                <div class="perf-card" data-delay="500">
+                    <div class="perf-label stream">Stream</div>
+                    <div class="perf-title">Stream-time early termination</div>
+                    <div class="perf-body">
+                        <span class="perf-code">processOutputStream</span> can abort mid-generation. If the response exceeds a token budget or triggers a safety flag, stop immediately — don't wait for the full response.
+                    </div>
+                    <div class="perf-example">
+                        if (state.tokens > MAX) abort('Budget exceeded');
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="perf-bottom" id="perf-bottom">
+                <div class="perf-bottom-title">The performance hierarchy</div>
+                <div class="perf-bottom-body">
+                    <strong>Regex</strong> (μs, $0) →
+                    <strong>Safeguard model</strong> (ms, ¢) →
+                    <strong>Parallel LLM checks</strong> (latency of slowest) →
+                    <strong>Full model only for generation</strong>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+
+    // Staggered card animation
+    const cards = document.querySelectorAll('.perf-card');
+    const bottom = document.getElementById('perf-bottom');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const delay = parseInt(entry.target.dataset.delay || '0');
+                setTimeout(() => {
+                    entry.target.classList.add('visible');
+                }, delay);
+            }
+        });
+    }, { threshold: 0.2 });
+
+    cards.forEach(card => observer.observe(card));
+
+    // Show bottom after cards
+    setTimeout(() => {
+        if (bottom) bottom.classList.add('visible');
+    }, 800);
+</script>
+<script>initKeyNav("06-building-processors.html", "06c-enterprise-flow.html");</script>
+</body>
+</html>

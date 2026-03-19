@@ -1,0 +1,2209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+        <meta charset="UTF-8">
+    <title>Insight — Building Agents That Never Forget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+      /* ===== Drop sidebar, full width ===== */
+      .page {
+        display: block;
+      }
+      .main {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 0 4rem;
+      }
+
+      /* ===== Full-screen centered sections ===== */
+      .section {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .section.wide {
+        max-width: 1100px;
+      }
+
+      /* ===== Human memory visual ===== */
+      .memory-comparison {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 2.5rem;
+        align-items: center;
+      }
+
+      .memory-box {
+        text-align: center;
+        padding: 2.5rem 2rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+      }
+
+      .memory-box .memory-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+      }
+      .memory-box .memory-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+      }
+      .memory-box .memory-desc {
+        font-size: 1rem;
+        color: var(--text-dim);
+        line-height: 1.6;
+      }
+      .memory-arrow {
+        font-size: 2.5rem;
+        color: var(--accent);
+      }
+
+      /* ===== Architecture layout ===== */
+      .arch-layout {
+        display: flex;
+        gap: 1.25rem;
+        justify-content: center;
+        align-items: stretch;
+      }
+
+      .arch-panel {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-card);
+        min-width: 200px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        width: 260px;
+        overflow: hidden;
+      }
+
+      .arch-panel.observer-panel {
+        border-color: rgba(99, 102, 241, 0.3);
+      }
+
+      .arch-panel.reflector-panel {
+        border-color: rgba(168, 85, 247, 0.25);
+      }
+
+      .arch-panel-header {
+        padding: 0.6rem 1rem;
+        font-weight: 700;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .arch-panel-body {
+        padding: 0.6rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        flex: 1;
+      }
+
+      /* Threshold progress bars */
+      .threshold-bar {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        width: 100%;
+      }
+
+      .threshold-bar-fill {
+        height: 100%;
+        border-radius: 0;
+        transition:
+          width 0.3s ease,
+          background 0.3s ease;
+        width: 0%;
+      }
+
+      .threshold-bar-fill.msg-fill {
+        background: var(--yellow);
+        opacity: 0.5;
+      }
+
+      .threshold-bar-fill.msg-fill.hot {
+        background: var(--orange);
+        opacity: 0.8;
+      }
+
+      .threshold-bar-fill.obs-fill {
+        background: var(--green);
+        opacity: 0.4;
+      }
+
+      .threshold-bar-fill.obs-fill.hot {
+        background: var(--orange);
+        opacity: 0.7;
+      }
+
+      .agent-card {
+        text-align: center;
+        padding: 1.75rem 1.5rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        width: 200px;
+      }
+
+      .agent-card .agent-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .agent-card .agent-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+      }
+      .agent-card .agent-role {
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        line-height: 1.4;
+      }
+      .agent-card .agent-trigger {
+        font-size: 0.78rem;
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border);
+      }
+      .agent-card.observer {
+        border-color: rgba(99, 102, 241, 0.3);
+      }
+      .agent-card.reflector {
+        border-color: rgba(168, 85, 247, 0.25);
+      }
+      .flow-arrow {
+        font-size: 1.5rem;
+        color: var(--text-dim);
+      }
+
+      /* ===== Demo controls ===== */
+      .demo-controls {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+      .demo-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.65rem 1.4rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: var(--font-sans);
+        transition: background 0.2s;
+      }
+      .demo-btn:hover {
+        background: var(--accent-hover);
+      }
+      .demo-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .demo-btn.reset {
+        background: transparent;
+        border: 1px solid var(--border-light);
+        color: var(--text-dim);
+      }
+      .demo-btn.reset:hover {
+        color: var(--text-secondary);
+        border-color: var(--text-dim);
+      }
+
+      .speed-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.82rem;
+        color: var(--text-dim);
+      }
+      .speed-control input[type='range'] {
+        width: 80px;
+        accent-color: var(--accent);
+      }
+
+      /* ===== Demo section: full viewport ===== */
+      /* Safari needs explicit heights — no flex/grid inheritance tricks */
+      .section.demo-section {
+        padding: 1rem 0;
+        justify-content: flex-start;
+        min-height: unset;
+        height: calc(100vh - var(--topnav-height));
+        max-height: calc(100vh - var(--topnav-height));
+        overflow: hidden;
+      }
+
+      .demo-controls {
+        flex-shrink: 0;
+      }
+
+      .demo-stage {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        /* Explicit height: viewport minus topnav, padding, controls, and arrow */
+        height: calc(100vh - var(--topnav-height) - 2rem - 60px - 50px);
+        transition: grid-template-columns 0.3s ease;
+      }
+
+      .demo-stage.three-col {
+        grid-template-columns: 1fr 1fr 280px;
+      }
+
+      /* Chat panel — explicit height from grid row */
+      .demo-chat-panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        max-height: 100%;
+        overflow: hidden;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+
+      .demo-chat-panel .panel-header {
+        padding: 0.6rem 1rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-dim);
+        border-bottom: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.02);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .demo-chat-panel .panel-header .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+      }
+
+      .demo-chat-panel .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .chat-bubble {
+        padding: 0.5rem 0.85rem;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        max-width: 88%;
+        animation: bubbleIn 0.15s ease;
+      }
+
+      @keyframes bubbleIn {
+        from { opacity: 0; transform: translateY(4px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      .chat-bubble.user {
+        background: var(--accent-dim);
+        color: var(--accent);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+      }
+
+      .chat-bubble.assistant {
+        background: rgba(34, 197, 94, 0.06);
+        color: var(--text-secondary);
+        border: 1px solid rgba(34, 197, 94, 0.1);
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+      }
+
+      .chat-bubble.system-event {
+        background: rgba(249, 115, 22, 0.06);
+        color: var(--text-dim);
+        border: 1px solid rgba(249, 115, 22, 0.1);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        align-self: center;
+        border-radius: 20px;
+        padding: 0.3rem 0.85rem;
+      }
+
+      .demo-chat-panel .chat-footer {
+        border-top: 1px solid var(--border);
+        padding: 0.5rem;
+      }
+
+      /* Context window — explicit height from grid row */
+      .demo-stage .context-window {
+        max-width: none;
+        height: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .demo-stage .cw-block.observations {
+        max-height: 30%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .demo-stage .cw-block.observations .cw-block-content {
+        overflow-y: auto;
+        min-height: 0;
+        flex: 1;
+      }
+
+      .demo-stage .cw-block.messages {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .demo-stage .cw-block.messages .cw-block-content {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+      }
+
+      /* Buffer queue (third column, buffering mode only) */
+      .buffer-queue {
+        display: none;
+        flex-direction: column;
+        height: 100%;
+        max-height: 100%;
+        overflow: hidden;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+
+      .buffer-queue.visible {
+        display: flex;
+      }
+
+      .buffer-queue-header {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        border-bottom: 1px solid var(--border);
+        background: var(--accent-dim);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .buffer-queue-header .buffer-pct-display {
+        font-family: var(--font-mono);
+        font-weight: 400;
+        font-size: 0.7rem;
+      }
+
+      .buffer-queue-content {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        padding: 0.5rem 0.75rem;
+      }
+
+      .buffer-queue-bar {
+        padding: 0.5rem 1rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .buffer-bar-track {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .buffer-bar-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 2px;
+        transition: width 0.4s ease;
+        width: 0%;
+      }
+
+      /* ===== Bar-style messages and observations ===== */
+      .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 2px 0;
+        animation: fadeInMsg 0.3s ease;
+      }
+
+      .bar-label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        width: 52px;
+        flex-shrink: 0;
+        text-align: right;
+      }
+
+      .bar-label.user {
+        color: var(--yellow);
+      }
+      .bar-label.assistant {
+        color: var(--accent);
+      }
+      .bar-label.tool {
+        color: var(--orange);
+      }
+      .bar-label.obs {
+        color: var(--green);
+        width: auto;
+        white-space: nowrap;
+      }
+
+      .bar-fill {
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+        min-width: 8px;
+      }
+
+      .bar-fill.user {
+        background: var(--yellow);
+        opacity: 0.5;
+      }
+      .bar-fill.assistant {
+        background: var(--accent);
+        opacity: 0.4;
+      }
+      .bar-fill.tool {
+        background: var(--orange);
+        opacity: 0.6;
+      }
+      .bar-fill.obs {
+        background: var(--green);
+        opacity: 0.5;
+      }
+
+      /* Tool bars are chunkier to show noise */
+      .bar-item.tool-bar .bar-fill {
+        height: 10px;
+        opacity: 0.7;
+      }
+
+      /* Observation bars are compact */
+      .bar-item.obs-bar .bar-fill {
+        height: 5px;
+      }
+
+      /* Buffer queue bars */
+      .buffer-obs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 2px 0;
+        animation: fadeInMsg 0.3s ease;
+      }
+
+      .buffer-obs .bar-label {
+        color: var(--accent);
+        opacity: 0.5;
+      }
+      .buffer-obs .bar-fill {
+        background: var(--accent);
+        opacity: 0.3;
+      }
+
+      /* Activated: flash green then fade out of buffer */
+      .buffer-obs.activating {
+        animation: bufActivate 0.5s ease forwards;
+      }
+
+      .buffer-obs.activating .bar-fill {
+        background: var(--green);
+        opacity: 0.6;
+      }
+
+      @keyframes bufActivate {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          max-height: 0;
+          padding: 0;
+          overflow: hidden;
+        }
+      }
+
+      /* Message removal animation */
+      .bar-item.removing {
+        opacity: 0;
+        transform: translateX(-20px);
+        max-height: 0;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+      }
+
+      /* Observation block entrance */
+      .cw-block.observations {
+        transition:
+          max-height 0.5s ease,
+          opacity 0.5s ease;
+      }
+
+      .cw-block.observations.entering {
+        animation: obsBlockEnter 0.6s ease forwards;
+      }
+
+      @keyframes obsBlockEnter {
+        0% {
+          opacity: 0;
+          max-height: 0;
+        }
+        100% {
+          opacity: 1;
+          max-height: 600px;
+        }
+      }
+
+      /* Individual observation glow on appear */
+      .cw-observation.appearing {
+        animation: obsGlow 0.6s ease forwards;
+      }
+
+      @keyframes obsGlow {
+        0% {
+          opacity: 0;
+          background: rgba(34, 197, 94, 0.2);
+          transform: translateY(-4px);
+        }
+        50% {
+          opacity: 1;
+          background: rgba(34, 197, 94, 0.1);
+        }
+        100% {
+          opacity: 1;
+          background: transparent;
+          transform: translateY(0);
+        }
+      }
+
+      /* Glow pulse on observations block — shows model "sees" them every turn */
+      .cw-block.observations.active-glow {
+        box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.25);
+      }
+
+      .cw-block.observations.active-glow .cw-block-header {
+        animation: glowPulse 1.2s ease;
+      }
+
+      @keyframes glowPulse {
+        0% {
+          background: rgba(34, 197, 94, 0.18);
+        }
+        40% {
+          background: rgba(34, 197, 94, 0.35);
+        }
+        100% {
+          background: rgba(34, 197, 94, 0.18);
+        }
+      }
+
+      /* ===== Human Memory Animation ===== */
+      .hm-stage {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        justify-content: center;
+        height: 420px;
+        position: relative;
+      }
+
+      .hm-stream {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .hm-event {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        animation: slideInRight 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .hm-event.fading {
+        opacity: 0.15;
+        transform: scale(0.95);
+        transition: all 0.5s ease;
+      }
+
+      .hm-event.gone {
+        opacity: 0;
+        max-height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .hm-result-columns {
+        display: flex;
+        gap: 2rem;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+
+      .hm-result-columns.visible {
+        opacity: 1;
+      }
+
+      .hm-retained,
+      .hm-forgotten {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 260px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .hm-col-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .hm-col-label.green {
+        color: var(--green);
+      }
+      .hm-col-label.red {
+        color: var(--red);
+      }
+
+      .hm-memory {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 1.05rem;
+        color: var(--green);
+        background: var(--green-dim);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        animation: slideInRight 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .hm-forgot {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 1.05rem;
+        color: var(--red);
+        background: var(--red-dim);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        animation: slideInRight 0.3s ease;
+        white-space: nowrap;
+        opacity: 0.7;
+      }
+
+      .hm-narration {
+        text-align: center;
+        max-width: 550px;
+        margin: 1.5rem auto 0;
+        min-height: 3rem;
+      }
+
+      .hm-narration p {
+        font-size: 1.2rem;
+        color: var(--text-dim);
+        line-height: 1.6;
+        transition: opacity 0.3s ease;
+      }
+
+      .hm-narration p strong {
+        color: var(--text-secondary);
+      }
+
+      /* ===== Intro text slider ===== */
+      #intro-thought {
+        position: relative;
+        overflow: hidden;
+      }
+
+      #intro-thought .section-label {
+        position: relative;
+        z-index: 2;
+      }
+
+      .intro-text {
+        transition: opacity 0.3s ease;
+        min-height: 3.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .intro-scatter {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+
+      .intro-scatter.hidden {
+        opacity: 0;
+      }
+
+      .scatter-item {
+        position: absolute;
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        opacity: 0;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 4px 12px;
+        border-radius: 20px;
+        white-space: nowrap;
+        animation:
+          scatterIn 0.5s ease forwards,
+          scatterFloat 4s ease-in-out infinite;
+      }
+
+      @keyframes scatterIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8) translateY(0);
+        }
+        to {
+          opacity: 0.65;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      @keyframes scatterFloat {
+        0%,
+        100% {
+          transform: translateY(0px) translateX(0px);
+        }
+        33% {
+          transform: translateY(-14px) translateX(6px);
+        }
+        66% {
+          transform: translateY(-6px) translateX(-8px);
+        }
+      }
+
+      /* LLM scatter: bar-item style pills */
+      .scatter-bar {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 3px 10px;
+        border-radius: 6px;
+        opacity: 0;
+        white-space: nowrap;
+        animation:
+          scatterIn 0.5s ease forwards,
+          scatterFloat 4s ease-in-out infinite;
+      }
+
+      .scatter-bar .sb-label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .scatter-bar .sb-fill {
+        height: 6px;
+        border-radius: 3px;
+      }
+
+      .scatter-bar.user {
+        background: rgba(234, 179, 8, 0.06);
+        border: 1px solid rgba(234, 179, 8, 0.15);
+      }
+      .scatter-bar.user .sb-label {
+        color: var(--yellow);
+      }
+      .scatter-bar.user .sb-fill {
+        background: var(--yellow);
+        opacity: 0.5;
+      }
+
+      .scatter-bar.assistant {
+        background: rgba(99, 102, 241, 0.06);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+      }
+      .scatter-bar.assistant .sb-label {
+        color: var(--accent);
+      }
+      .scatter-bar.assistant .sb-fill {
+        background: var(--accent);
+        opacity: 0.4;
+      }
+
+      .scatter-bar.tool {
+        background: rgba(249, 115, 22, 0.06);
+        border: 1px solid rgba(249, 115, 22, 0.15);
+      }
+      .scatter-bar.tool .sb-label {
+        color: var(--orange);
+      }
+      .scatter-bar.tool .sb-fill {
+        background: var(--orange);
+        opacity: 0.6;
+        height: 10px;
+      }
+        .intro-text.fading {
+            opacity: 0;
+        }
+
+        /* ===== Context rot + caching cards ===== */
+        .card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card pre {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .card.compact-result {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card.compact-result p {
+            font-size: 1.1rem;
+            color: var(--green);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .card.red-tint {
+            background: var(--red-dim);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .card.red-tint .card-title { color: var(--red); }
+
+        .card.green-tint {
+            background: var(--green-dim);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .card.green-tint .card-title { color: var(--green); }
+
+        .card p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+      .intro-arrows {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+      }
+
+      .intro-arrow {
+        background: none;
+        border: 1px solid var(--border-light);
+        color: var(--text-dim);
+        font-size: 1.2rem;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: var(--font-sans);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+
+      .intro-arrow:hover:not(:disabled) {
+        color: var(--text-secondary);
+        border-color: var(--text-dim);
+      }
+
+      .intro-arrow:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+      }
+
+      /* Inline explanation blocks */
+      .inline-note {
+        font-size: 1rem;
+        color: var(--text-dim);
+        max-width: 700px;
+        line-height: 1.6;
+        margin-top: 1.5rem;
+      }
+
+      .inline-note strong {
+        color: var(--text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Building Agents That Never Forget</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-the-insight.html">Insight</a>
+        <a href="04-the-harness.html">Harness</a>
+        <a href="05-prompts-and-context.html">Prompts</a>
+        <a href="06-workspace.html">Workspace</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-mastracode.html">MastraCode</a>
+        <a href="10-the-proof.html">Proof</a>
+        <a href="11-thank-you.html">Thanks</a>
+    </div>
+</nav>
+
+    <div class="page">
+      <main class="main">
+        <!-- Scene 0: Static intro — big text with arrows -->
+        <div class="section" id="intro-thought">
+          <div class="intro-scatter" id="intro-scatter"></div>
+          <div class="intro-scatter hidden" id="intro-scatter-llm"></div>
+          <p class="section-label">The Insight</p>
+          <h2 class="intro-text" id="intro-text">While exploring how to solve this, we had an insight.</h2>
+          <div class="intro-arrows">
+            <button class="intro-arrow left" id="intro-prev" disabled>←</button>
+            <button class="intro-arrow right" id="intro-next">→</button>
+            <button class="intro-arrow" id="intro-continue" style="display: none">↓</button>
+          </div>
+        </div>
+
+        <!-- Scene 1: Human Memory (auto-play on scroll) -->
+        <div class="section" id="human-memory">
+          <h2 id="hm-heading">What if forgetting is a feature?</h2>
+
+          <div class="hm-stage mt-4">
+            <div class="hm-stream" id="hm-stream"></div>
+            <div class="hm-result-columns" id="hm-results">
+              <div class="hm-retained" id="hm-retained">
+                <div class="hm-col-label green">Remembered</div>
+              </div>
+              <div class="hm-forgotten" id="hm-forgotten">
+                <div class="hm-col-label red">Forgotten</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="intro-arrows" style="margin-top:1.5rem;">
+            <button class="intro-arrow" onclick="document.getElementById('bridge').scrollIntoView({behavior:'smooth'})">↓</button>
+          </div>
+        </div>
+
+        <!-- Scene 1.5: Bridge (arrow text slider) -->
+        <div class="section" id="bridge">
+          <h2 class="intro-text" id="bridge-text">What if agents worked this way?</h2>
+          <div class="intro-arrows">
+            <button class="intro-arrow" id="bridge-prev" disabled>←</button>
+            <button class="intro-arrow" id="bridge-next">→</button>
+            <button class="intro-arrow" id="bridge-continue" style="display:none;">↓</button>
+          </div>
+        </div>
+
+        <!-- Scene 2: Architecture -->
+        <div class="section" id="architecture">
+          <p class="section-label">Architecture</p>
+          <h2>Three agents, one memory</h2>
+
+          <div class="arch-layout mt-4 fade-on-scroll">
+            <!-- Left: Actor — raw messages -->
+            <div class="arch-panel">
+              <div class="arch-panel-header">
+                💬 Actor <span style="font-weight: 400; font-size: 0.82rem; color: var(--text-dim)">— your agent</span>
+              </div>
+              <div class="arch-panel-body">
+                <div class="bar-item">
+                  <div class="bar-label user">user</div>
+                  <div class="bar-fill user" style="width: 35%"></div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar-label assistant">asst</div>
+                  <div class="bar-fill assistant" style="width: 50%"></div>
+                </div>
+                <div class="bar-item tool-bar">
+                  <div class="bar-label tool">tool</div>
+                  <div class="bar-fill tool" style="width: 80%"></div>
+                </div>
+                <div class="bar-item tool-bar">
+                  <div class="bar-label tool">tool</div>
+                  <div class="bar-fill tool" style="width: 95%"></div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar-label assistant">asst</div>
+                  <div class="bar-fill assistant" style="width: 40%"></div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar-label user">user</div>
+                  <div class="bar-fill user" style="width: 25%"></div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar-label assistant">asst</div>
+                  <div class="bar-fill assistant" style="width: 55%"></div>
+                </div>
+                <div class="bar-item tool-bar">
+                  <div class="bar-label tool">tool</div>
+                  <div class="bar-fill tool" style="width: 90%"></div>
+                </div>
+                <div class="bar-item">
+                  <div class="bar-label user">user</div>
+                  <div class="bar-fill user" style="width: 30%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Middle: Observer — observations -->
+            <div class="arch-panel observer-panel">
+              <div class="arch-panel-header"><span class="accent">👁️ Observer</span></div>
+              <div class="arch-panel-body">
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">📍 trip</div>
+                  <div class="bar-fill obs" style="width: 30%"></div>
+                </div>
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">🥬 diet</div>
+                  <div class="bar-fill obs" style="width: 22%"></div>
+                </div>
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">💰 budget</div>
+                  <div class="bar-fill obs" style="width: 25%"></div>
+                </div>
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">✈️ flights</div>
+                  <div class="bar-fill obs" style="width: 18%"></div>
+                </div>
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">🏨 hotels</div>
+                  <div class="bar-fill obs" style="width: 20%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Reflector — condensed observations -->
+            <div class="arch-panel reflector-panel">
+              <div class="arch-panel-header"><span style="color: #a855f7">🔄 Reflector</span></div>
+              <div class="arch-panel-body">
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">📋 trip plan</div>
+                  <div class="bar-fill obs" style="width: 35%"></div>
+                </div>
+                <div class="bar-item obs-bar">
+                  <div class="bar-label obs">👤 preferences</div>
+                  <div class="bar-fill obs" style="width: 28%"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <p style="text-align:center; color:var(--text-dim); font-size:0.95rem; margin-top:1.5rem; line-height:1.5; max-width:700px; margin-left:auto; margin-right:auto;">
+            The Observer and Reflector are the <strong style="color:var(--text-secondary);">subconscious mind</strong> of your agent — always running, never interrupting.
+          </p>
+          <div class="intro-arrows" style="margin-top:1.5rem;">
+            <button class="intro-arrow" onclick="document.getElementById('context-demo').scrollIntoView({behavior:'smooth'})">↓</button>
+          </div>
+        </div>
+
+        <!-- Scene 3: Interactive Context Window Demo -->
+        <div class="section wide demo-section" id="context-demo">
+          <div class="demo-controls">
+            <button class="demo-btn" id="demo-start">▶ Start</button>
+            <button class="demo-btn" id="demo-pause" style="display: none">⏸ Pause</button>
+            <button class="demo-btn reset" id="demo-reset" style="display: none">↺ Reset</button>
+
+            <div class="mode-toggle">
+              <button class="active" id="mode-blocking">Blocking</button>
+              <button id="mode-buffering">Buffering</button>
+            </div>
+
+            <div class="speed-control">
+              <label>Speed:</label>
+              <input type="range" id="speed-slider" min="1" max="5" value="3" />
+              <span id="speed-label">1×</span>
+            </div>
+          </div>
+
+          <div class="demo-stage" id="demo-stage">
+            <!-- Col 1: Chat UI -->
+            <div class="demo-chat-panel">
+              <div class="panel-header"><span class="dot"></span> Chat</div>
+              <div class="chat-messages" id="chat-messages"></div>
+              <div class="chat-footer">
+                <div id="processing-area"></div>
+              </div>
+            </div>
+
+            <!-- Col 2: Context Window -->
+            <div class="context-window" id="context-window">
+              <div class="context-window-header">
+                <span>Context Window</span>
+                <span class="cw-header-right">
+                  <span id="cache-status"
+                    ><span class="cache-indicator hit"><span class="cache-dot"></span> HIT</span></span
+                  >
+                  <span class="token-count" id="cw-total">~500 tok</span>
+                </span>
+              </div>
+              <div class="cw-block system">
+                <div class="cw-block-header">
+                  <span>System Prompt</span>
+                  <span class="block-tokens">~500 tok</span>
+                </div>
+              </div>
+              <div class="cw-block observations" id="obs-block" style="display: none">
+                <div class="cw-block-header">
+                  <span>📋 Observations</span>
+                  <span class="block-tokens" id="obs-tokens">0 tok</span>
+                </div>
+                <div class="threshold-bar"><div class="threshold-bar-fill obs-fill" id="obs-bar-fill"></div></div>
+                <div class="cw-block-content" id="obs-content"></div>
+              </div>
+              <div class="cw-block messages">
+                <div class="cw-block-header">
+                  <span>💬 Messages</span>
+                  <span class="block-tokens" id="msg-tokens">0 tok</span>
+                </div>
+                <div class="threshold-bar"><div class="threshold-bar-fill msg-fill" id="msg-bar-fill"></div></div>
+                <div class="cw-block-content" id="msg-content"></div>
+              </div>
+            </div>
+
+            <!-- Col 3: Buffer Queue (buffering mode only) -->
+            <div class="buffer-queue" id="buffer-queue">
+              <div class="buffer-queue-header">
+                <span>👁️ Observer Buffer</span>
+                <span class="buffer-pct-display" id="buffer-pct">0%</span>
+              </div>
+              <div class="buffer-queue-content" id="buffer-content"></div>
+              <div class="buffer-queue-bar">
+                <div class="buffer-bar-track">
+                  <div class="buffer-bar-fill" id="buffer-bar-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scene 3b: Prompt Caching -->
+        <div class="section" id="prompt-caching" style="min-height: auto; padding-top: 2rem; padding-bottom: 1rem;">
+            <div class="fade-on-scroll">
+                <h2>OM has a stable context window</h2>
+                <p class="inline-note" style="margin-top:0; margin-bottom:0.5rem;">That means prompt caching works on every turn. Dynamic retrieval breaks it.</p>
+
+                <div class="grid-2 mt-4">
+                    <div class="card red-tint">
+                        <div class="card-title">Retrieval-based</div>
+                        <p>Context changes every turn. Cache miss on every request. Full price for every token.</p>
+                    </div>
+                    <div class="card green-tint">
+                        <div class="card-title">Stable context</div>
+                        <p>Observations stay consistent. Cache hit on every turn. Up to 10× cheaper.</p>
+                    </div>
+                </div>
+
+                <p class="inline-note mt-4">30k cached/stable tokens are cheaper than repeated 5k dynamically uncached tokens.</p>
+            </div>
+          <div style="display:flex; justify-content:center; width:100%; padding:0.75rem 0;">
+            <button class="intro-arrow" onclick="document.getElementById('context-rot').scrollIntoView({behavior:'smooth'})">↓</button>
+          </div>
+        </div>
+
+        <!-- Scene 3c: Context Rot -->
+        <div class="section" id="context-rot" style="min-height: auto; padding-top: 2rem; padding-bottom: 1rem;">
+            <div class="fade-on-scroll">
+                <h2>Most tokens in an agent's context are noise</h2>
+                <p class="subtitle">Tool call JSON is 5–40× larger than the useful information it contains.</p>
+
+                <div class="grid-2 mt-4">
+                    <div class="card">
+                        <div class="card-title">What the tool returns</div>
+                        <pre><code>{
+  "status": "success",
+  "data": {
+    "flights": [{
+      "airline": "Delta",
+      "flight": "DL1234",
+      "departure": "2025-03-15T08:00:00Z",
+      "arrival": "2025-03-15T11:30:00Z",
+      "price": 342.50,
+      "cabin": "economy",
+      "stops": 0,
+      "duration": "3h30m",
+      "aircraft": "Boeing 737"
+    }]
+  }
+}</code></pre>
+                    </div>
+                    <div class="card compact-result">
+                        <div class="card-title">What actually matters</div>
+                        <p>Direct flight to NYC on March 15, $342, 3.5 hours</p>
+                    </div>
+                </div>
+
+                <p style="text-align:center; max-width:600px; margin:1.5rem auto 0; color:var(--text-secondary); font-size:1.05rem; line-height:1.6;">
+                    This is <strong style="color:var(--red);">context rot</strong> — noisy tool calls with irrelevant tokens instead of the information your agent actually needs.
+                </p>
+            </div>
+          <div style="display:flex; justify-content:center; width:100%; padding:0.75rem 0;">
+            <button class="intro-arrow" onclick="document.getElementById('closing').scrollIntoView({behavior:'smooth'})">↓</button>
+          </div>
+        </div>
+
+        <!-- Scene 4: Closing -->
+        <div class="section" id="closing">
+          <h2>The idea makes sense. But we needed hard data to be sure.</h2>
+          <div class="intro-arrows" style="margin-top:2rem;">
+            <a href="04-the-harness.html" class="intro-arrow">→</a>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+
+      (function () {
+        // ===== CONFIG =====
+        const SYSTEM_TOKENS = 500;
+        const THRESHOLD = 400; // message threshold — very low for demo (real default: 30k)
+        const OBS_THRESHOLD = 600; // observation threshold — (real default: 40k)
+        const BUFFER_STEPS = 5; // buffer triggers every 1/5
+        const REPLACE_PCT = 0.8; // at 100%, replace 80% of messages
+
+        // ===== STATE =====
+        let mode = 'blocking';
+        let running = false;
+        let aborted = false;
+        let paused = false;
+        let msgIdx = 0;
+        let ctxMsgs = []; // messages currently in context
+        let unobservedTok = 0;
+        let obsTotalTok = 0;
+        let observerRanBefore = false;
+        let bufferStepsDone = 0; // how many buffer steps completed (0-5)
+        let speed = 1;
+
+        // ===== SCRIPT =====
+        const script = [
+          { role: 'user', text: 'Hey! Can you help me plan a trip to Japan?' },
+          { role: 'assistant', text: "I'd love to help! When are you thinking of going?" },
+          { role: 'user', text: 'Late March, 2 weeks. Cherry blossoms, temples, amazing food.' },
+          {
+            role: 'assistant',
+            text: "Late March is perfect for cherry blossoms! I'd suggest Tokyo first — Ueno Park and Shinjuku Gyoen are stunning during hanami. Then shinkansen to Kyoto for temples.",
+          },
+          { role: 'user', text: 'What about food recs?' },
+          {
+            role: 'assistant',
+            text: 'Tokyo: Tsukiji Outer Market for sushi breakfast, Fuunji in Shinjuku for ramen. Kyoto: Nishiki Market, and definitely try kaiseki — multi-course traditional Japanese dining.',
+          },
+          { role: 'user', text: "I'm vegetarian actually, is that a problem?" },
+          {
+            role: 'assistant',
+            text: "Japan's tricky for vegetarians — dashi (fish stock) is everywhere. But shojin ryori (Buddhist temple cuisine) is fully vegetarian and incredible. Get the HappyCow app too.",
+          },
+          { role: 'user', text: 'Budget? Mid-range, not luxury.' },
+          {
+            role: 'assistant',
+            text: '~$150-200/day for mid-range. Business hotels or ryokans. 14-day JR Pass is ~$450. Book early — cherry blossom season is peak.',
+          },
+          { role: 'user', text: 'Look up flights from San Francisco?' },
+          {
+            role: 'assistant',
+            text: 'Searching flights SFO → Tokyo...',
+            tool: true,
+            toolOutput:
+              '{"status":"success","data":{"flights":[{"airline":"ANA","price":1250,"duration":"11h15m","stops":0},{"airline":"JAL","price":1180,"duration":"11h30m","stops":0},{"airline":"United","price":980,"duration":"14h45m","stops":1}],"search_params":{"origin":"SFO","destination":"TYO","dates":"Mar 18 - Apr 1","class":"economy"}}}',
+          },
+          {
+            role: 'assistant',
+            text: "ANA direct $1,250, JAL direct $1,180, or United $980 with a stop. I'd go JAL or ANA — incredible service.",
+          },
+          { role: 'user', text: 'JAL it is. Hotels near Shinjuku?' },
+          {
+            role: 'assistant',
+            text: 'Checking hotels near Shinjuku...',
+            tool: true,
+            toolOutput:
+              '{"status":"success","data":{"hotels":[{"name":"Hotel Gracery Shinjuku","stars":4,"price_per_night":165,"rating":4.3,"amenities":["wifi","restaurant"]},{"name":"Granbell Hotel","stars":3,"price_per_night":120,"rating":4.1},{"name":"Keio Plaza","stars":5,"price_per_night":280,"rating":4.5,"amenities":["wifi","pool","spa"]}],"check_in":"2026-03-18","check_out":"2026-03-25"}}',
+          },
+          {
+            role: 'assistant',
+            text: 'Hotel Gracery at $165/night — the one with Godzilla! Or Granbell at $120. Both by the station.',
+          },
+          { role: 'user', text: 'Any day trips from Kyoto?' },
+          {
+            role: 'assistant',
+            text: 'Nara (45 min, deer park, Todai-ji), Osaka (15 min, Dotonbori street food), Himeji Castle (1 hr, beautiful).',
+          },
+          { role: 'user', text: 'Check train times Kyoto to Nara?' },
+          {
+            role: 'assistant',
+            text: 'Looking up trains...',
+            tool: true,
+            toolOutput:
+              '{"status":"success","data":{"routes":[{"operator":"JR Nara Line","duration":"45m","price":"¥720","frequency":"every 15min"},{"operator":"Kintetsu Railway","duration":"35m","price":"¥640","frequency":"every 10min","note":"faster, more frequent"}],"station_from":"Kyoto Station","station_to":"Nara Station"}}',
+          },
+          {
+            role: 'assistant',
+            text: 'Kintetsu Railway — 35 min, every 10 min, ¥640. Or JR Nara Line 45 min (covered by JR Pass).',
+          },
+        ];
+
+        // ===== DOM =====
+        const $ = id => document.getElementById(id);
+        const chatEl = $('chat-messages');
+        const msgEl = $('msg-content');
+        const obsBlock = $('obs-block');
+        const obsEl = $('obs-content');
+        const obsTokEl = $('obs-tokens');
+        const msgTokEl = $('msg-tokens');
+        const cwTotalEl = $('cw-total');
+
+        const cacheEl = $('cache-status');
+        const procEl = $('processing-area');
+        const startBtn = $('demo-start');
+        const pauseBtn = $('demo-pause');
+        const resetBtn = $('demo-reset');
+        const modeBlockBtn = $('mode-blocking');
+        const modeBufBtn = $('mode-buffering');
+        const speedSlider = $('speed-slider');
+        const speedLbl = $('speed-label');
+        const bufPctEl = $('buffer-pct');
+        const bufQueueEl = $('buffer-queue');
+        const bufContentEl = $('buffer-content');
+        const bufBarFill = $('buffer-bar-fill');
+        const demoStage = $('demo-stage');
+        const msgBarFill = $('msg-bar-fill');
+        const obsBarFill = $('obs-bar-fill');
+
+        // ===== HELPERS =====
+        const tok = s => Math.ceil((s || '').length / 3.5);
+        const wait = ms =>
+          new Promise(r => {
+            const id = setTimeout(r, ms / speed);
+          });
+        const stamp = () =>
+          new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        function updateUI() {
+          const mt = ctxMsgs.reduce((s, m) => s + tok(m.text) + tok(m.toolOut), 0);
+          msgTokEl.textContent = mt + ' tok';
+          obsTokEl.textContent = obsTotalTok + ' tok';
+          cwTotalEl.textContent = '~' + (SYSTEM_TOKENS + obsTotalTok + mt) + ' tok';
+
+          // Message threshold bar
+          const msgPct = Math.min(100, (unobservedTok / THRESHOLD) * 100);
+          msgBarFill.style.width = msgPct + '%';
+          msgBarFill.classList.toggle('hot', msgPct > 75);
+
+          // Observation threshold bar
+          const obsPct = Math.min(100, (obsTotalTok / OBS_THRESHOLD) * 100);
+          obsBarFill.style.width = obsPct + '%';
+          obsBarFill.classList.toggle('hot', obsPct > 75);
+        }
+
+        function setCache(t) {
+          const l = { hit: 'HIT', miss: 'MISS', partial: 'PARTIAL' };
+          cacheEl.innerHTML = `<span class="cache-indicator ${t}"><span class="cache-dot"></span> ${l[t]}</span>`;
+        }
+
+        function bubble(role, text) {
+          const d = document.createElement('div');
+          d.className = 'chat-bubble ' + role;
+          d.textContent = text;
+          chatEl.appendChild(d);
+          chatEl.scrollTop = chatEl.scrollHeight;
+        }
+
+        function sysEvent(text) {
+          const d = document.createElement('div');
+          d.className = 'chat-bubble system-event';
+          d.textContent = text;
+          chatEl.appendChild(d);
+          chatEl.scrollTop = chatEl.scrollHeight;
+        }
+
+        // Max width for bars (as % of container)
+        const MAX_BAR_W = 85;
+        const TOK_SCALE = 2; // tokens-to-percent multiplier
+
+        function barWidth(tokens) {
+          return Math.min(MAX_BAR_W, Math.max(3, (tokens * TOK_SCALE) / 3)) + '%';
+        }
+
+        function cwMsg(role, text, isTool) {
+          const d = document.createElement('div');
+          d.className = 'bar-item' + (isTool ? ' tool-bar' : '');
+
+          const label = document.createElement('div');
+          label.className = 'bar-label ' + role;
+          label.textContent = isTool ? 'tool' : role;
+
+          const bar = document.createElement('div');
+          bar.className = 'bar-fill ' + (isTool ? 'tool' : role);
+          bar.style.width = barWidth(tok(text));
+
+          d.appendChild(label);
+          d.appendChild(bar);
+          msgEl.appendChild(d);
+          msgEl.scrollTop = msgEl.scrollHeight;
+          return d;
+        }
+
+        function cwObs(label) {
+          const d = document.createElement('div');
+          d.className = 'bar-item obs-bar';
+
+          const lbl = document.createElement('div');
+          lbl.className = 'bar-label obs';
+          lbl.textContent = label;
+
+          const bar = document.createElement('div');
+          bar.className = 'bar-fill obs';
+          // Observations are compact — fixed moderate width
+          bar.style.width = 15 + Math.random() * 25 + '%';
+
+          d.appendChild(lbl);
+          d.appendChild(bar);
+          obsEl.appendChild(d);
+          obsEl.scrollTop = obsEl.scrollHeight;
+        }
+
+        function showProc(type, text) {
+          const d = document.createElement('div');
+          d.className = 'processing-indicator ' + type;
+          d.textContent = text;
+          procEl.innerHTML = '';
+          procEl.appendChild(d);
+        }
+        function hideProc() {
+          procEl.innerHTML = '';
+        }
+
+        // Pulse the observations block to show the model "sees" them
+        function pulseObs() {
+          obsBlock.classList.add('active-glow');
+          setTimeout(() => obsBlock.classList.remove('active-glow'), 1600);
+        }
+
+        // ===== OBSERVATION GENERATION =====
+        const emittedObs = new Set();
+        let obsCounter = 0;
+
+        // Labeled observations — each keyword match produces a short label
+        const OBS_RULES = [
+          { test: s => s.includes('japan') || s.includes('cherry'), label: '📍 trip' },
+          { test: s => s.includes('vegetarian'), label: '🥬 diet' },
+          { test: s => s.includes('budget') || s.includes('$150'), label: '💰 budget' },
+          { test: s => s.includes('"flights"'), label: '✈️ flights' },
+          { test: s => s.includes('"hotels"'), label: '🏨 hotels' },
+          { test: s => s.includes('nara') || s.includes('day trip'), label: '🚃 trips' },
+          { test: s => s.includes('"routes"'), label: '🚃 trains' },
+        ];
+
+        function makeObs(msgs) {
+          const all = msgs
+            .map(m => m.text + ' ' + m.toolOut)
+            .join(' ')
+            .toLowerCase();
+          const o = [];
+
+          for (const rule of OBS_RULES) {
+            if (rule.test(all) && !emittedObs.has(rule.label)) {
+              emittedObs.add(rule.label);
+              o.push({ label: rule.label });
+            }
+          }
+
+          // Always produce at least one observation per cycle
+          if (!o.length) {
+            obsCounter++;
+            const label = 'obs ' + obsCounter;
+            o.push({ label });
+          }
+          return o;
+        }
+
+        // ===== OBSERVER: BLOCKING =====
+        async function observerBlocking() {
+          const isFirst = !observerRanBefore;
+          showProc('observer', '👁️ Observer processing messages…');
+          sysEvent('⚡ Observer triggered — threshold hit');
+          await wait(1800);
+          const obs = makeObs(ctxMsgs);
+
+          // Animate removal of messages
+          const els = msgEl.querySelectorAll('.bar-item');
+          els.forEach(e => e.classList.add('removing'));
+          await wait(500);
+          msgEl.innerHTML = '';
+
+          // Cache changes after context window shifts
+          setCache(isFirst ? 'miss' : 'partial');
+
+          // Show observations block with entrance animation
+          if (obsBlock.style.display === 'none') {
+            obsBlock.style.display = '';
+            obsBlock.classList.add('entering');
+            await wait(300);
+          }
+
+          // Add observations one by one
+          for (const o of obs) {
+            cwObs(o.label);
+            obsTotalTok += 40; // ~40 tok per observation (compact)
+            await wait(300);
+          }
+
+          ctxMsgs = [];
+          unobservedTok = 0;
+          observerRanBefore = true;
+
+          hideProc();
+          updateUI();
+          setCache('partial');
+          sysEvent(
+            isFirst
+              ? '✓ Messages → observations. Context window stable.'
+              : '✓ New observations appended. Existing prefix cached.',
+          );
+          pulseObs();
+        }
+
+        // ===== BUFFER QUEUE HELPERS =====
+        let pendingBufferObs = []; // observations waiting in the buffer queue
+
+        function addBufferObs(label) {
+          const d = document.createElement('div');
+          d.className = 'buffer-obs';
+
+          const lbl = document.createElement('div');
+          lbl.className = 'bar-label';
+          lbl.textContent = label;
+
+          const bar = document.createElement('div');
+          bar.className = 'bar-fill';
+          bar.style.width = 15 + Math.random() * 25 + '%';
+          bar.style.height = '5px';
+          bar.style.borderRadius = '3px';
+
+          d.appendChild(lbl);
+          d.appendChild(bar);
+          bufContentEl.appendChild(d);
+          bufContentEl.scrollTop = bufContentEl.scrollHeight;
+          return d;
+        }
+
+        function updateBufferBar(pct) {
+          bufBarFill.style.width = pct + '%';
+          bufPctEl.textContent = pct + '%';
+        }
+
+        // ===== OBSERVER: BUFFERING =====
+        async function observerBuffer() {
+          bufferStepsDone++;
+          const pct = Math.round((bufferStepsDone / BUFFER_STEPS) * 100);
+          updateBufferBar(pct);
+
+          // Generate observations from recent messages and add to buffer queue
+          const recentMsgs = ctxMsgs.slice(-Math.ceil(ctxMsgs.length / BUFFER_STEPS));
+          const obs = makeObs(recentMsgs);
+          for (const o of obs) {
+            addBufferObs(o.label);
+            pendingBufferObs.push(o);
+          }
+
+          if (bufferStepsDone < BUFFER_STEPS) {
+            sysEvent('🔄 Background buffer: ' + pct + '% (async)');
+            return;
+          }
+
+          // 100% — activate instantly (async buffering never blocks)
+          const isFirst = !observerRanBefore;
+          sysEvent('⚡ Buffer full — activating instantly');
+
+          const cutCount = Math.ceil(ctxMsgs.length * REPLACE_PCT);
+          ctxMsgs.splice(0, cutCount);
+
+          // Remove old message bars and rebuild remaining
+          const els = Array.from(msgEl.querySelectorAll('.bar-item'));
+          els.slice(0, Math.min(cutCount, els.length)).forEach(el => el.classList.add('removing'));
+          setTimeout(() => {
+            msgEl.innerHTML = '';
+            for (const m of ctxMsgs) cwMsg(m.role, m.text, m.isTool);
+            // Cache updates after context window visually shifts
+            setCache(isFirst ? 'miss' : 'partial');
+            pulseObs();
+          }, 400);
+
+          // Show observations block
+          if (obsBlock.style.display === 'none') {
+            obsBlock.style.display = '';
+            obsBlock.classList.add('entering');
+          }
+
+          // Activate ~60% of buffered observations, keep the rest in the queue
+          const activateCount = Math.max(1, Math.ceil(pendingBufferObs.length * 0.6));
+          const toActivate = pendingBufferObs.splice(0, activateCount);
+
+          // Flash activated ones in buffer queue, then remove
+          const bufferEls = Array.from(bufContentEl.querySelectorAll('.buffer-obs'));
+          bufferEls.slice(0, Math.min(activateCount, bufferEls.length)).forEach(el => el.classList.add('activating'));
+          setTimeout(() => {
+            bufferEls.slice(0, activateCount).forEach(el => el.remove());
+          }, 500);
+
+          // Add observations to context window immediately
+          for (const o of toActivate) {
+            cwObs(o.label);
+            obsTotalTok += 40;
+          }
+
+          unobservedTok = ctxMsgs.reduce((s, m) => s + tok(m.text) + tok(m.toolOut), 0);
+          observerRanBefore = true;
+          bufferStepsDone = 0;
+          updateBufferBar(0);
+
+          updateUI();
+        }
+
+        // ===== PAUSE HELPER =====
+        async function waitWhilePaused() {
+          while (paused && !aborted) {
+            await new Promise(r => setTimeout(r, 100));
+          }
+        }
+
+        // ===== PREFILL — start with some messages already in context =====
+        function prefill() {
+          const count = 5; // seed first 5 messages
+          for (let i = 0; i < count && i < script.length; i++) {
+            const m = script[i];
+            msgIdx = i + 1;
+
+            bubble(m.role, m.text);
+            cwMsg(m.role, m.text, false);
+            const t = tok(m.text);
+            unobservedTok += t;
+            ctxMsgs.push({ role: m.role, text: m.text, toolOut: m.toolOutput || '', isTool: false });
+
+            if (m.tool && m.toolOutput) {
+              cwMsg('tool', m.toolOutput, true);
+              unobservedTok += tok(m.toolOutput);
+            }
+          }
+          updateUI();
+        }
+
+        // ===== MAIN LOOP =====
+        async function run() {
+          running = true;
+          aborted = false;
+          paused = false;
+          startBtn.style.display = 'none';
+          pauseBtn.style.display = '';
+          resetBtn.style.display = '';
+          modeBlockBtn.disabled = true;
+          modeBufBtn.disabled = true;
+
+          while (!aborted) {
+            await waitWhilePaused();
+            if (aborted) break;
+
+            const m = script[msgIdx % script.length];
+            msgIdx++;
+
+            bubble(m.role, m.text);
+            await wait(250);
+
+            cwMsg(m.role, m.text, false);
+            const t = tok(m.text);
+            unobservedTok += t;
+            ctxMsgs.push({ role: m.role, text: m.text, toolOut: m.toolOutput || '', isTool: false });
+
+            if (m.tool && m.toolOutput) {
+              await wait(350);
+              cwMsg('tool', m.toolOutput, true);
+              unobservedTok += tok(m.toolOutput);
+            }
+
+            updateUI();
+            // New messages appended after stable prefix = cache hit
+            if (observerRanBefore) {
+              setCache('hit');
+              pulseObs();
+            }
+
+            // Check if observer should trigger
+            if (mode === 'blocking') {
+              if (unobservedTok >= THRESHOLD) {
+                await wait(400);
+                await observerBlocking();
+              }
+            } else {
+              const stepThreshold = (THRESHOLD / BUFFER_STEPS) * (bufferStepsDone + 1);
+              if (unobservedTok >= stepThreshold) {
+                await wait(200);
+                await observerBuffer();
+              }
+            }
+
+            await wait(500);
+          }
+
+          running = false;
+        }
+
+        // ===== RESET =====
+        function reset() {
+          aborted = true;
+          running = false;
+          paused = false;
+          msgIdx = 0;
+          ctxMsgs = [];
+          unobservedTok = 0;
+          obsTotalTok = 0;
+          observerRanBefore = false;
+          bufferStepsDone = 0;
+          pendingBufferObs = [];
+          emittedObs.clear();
+          obsCounter = 0;
+
+          chatEl.innerHTML = '';
+          msgEl.innerHTML = '';
+          obsEl.innerHTML = '';
+          obsBlock.style.display = 'none';
+          obsBlock.classList.remove('entering');
+          procEl.innerHTML = '';
+          bufContentEl.innerHTML = '';
+          updateBufferBar(0);
+          setCache('hit');
+          prefill();
+
+          startBtn.style.display = '';
+          pauseBtn.style.display = 'none';
+          resetBtn.style.display = 'none';
+          modeBlockBtn.disabled = false;
+          modeBufBtn.disabled = false;
+        }
+
+        function togglePause() {
+          paused = !paused;
+          pauseBtn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+        }
+
+        // ===== EVENTS =====
+        startBtn.onclick = run;
+        pauseBtn.onclick = togglePause;
+        resetBtn.onclick = reset;
+
+        modeBlockBtn.onclick = () => {
+          mode = 'blocking';
+          modeBlockBtn.classList.add('active');
+          modeBufBtn.classList.remove('active');
+          bufQueueEl.classList.remove('visible');
+          demoStage.classList.remove('three-col');
+        };
+
+        modeBufBtn.onclick = () => {
+          mode = 'buffering';
+          modeBufBtn.classList.add('active');
+          modeBlockBtn.classList.remove('active');
+          bufQueueEl.classList.add('visible');
+          demoStage.classList.add('three-col');
+        };
+
+        const speeds = [0.5, 0.75, 1, 1.5, 2];
+        speedSlider.oninput = () => {
+          speed = speeds[speedSlider.value - 1];
+          speedLbl.textContent = speed + '×';
+        };
+
+        prefill();
+      })();
+
+      // ===== HUMAN MEMORY — AUTO-PLAY ON SCROLL =====
+      (function () {
+        const stream = document.getElementById('hm-stream');
+        const retained = document.getElementById('hm-retained');
+        const heading = document.getElementById('hm-heading');
+        let played = false;
+
+        const experiences = [
+          '🪥 Brushed your teeth for 2 minutes',
+          '☕ Made coffee this morning',
+          '🔑 Put keys in your pocket',
+          '🚗 Drove to work — same route',
+          '🚪 Walked through the front door',
+          '📧 Read 47 emails',
+          '🗣️ Had a meeting about Q3',
+          '🚶 Walked between 3 rooms',
+          '🍕 Ate lunch at desk',
+          '💡 Had a breakthrough idea',
+          '👟 Tied your shoes',
+          "📞 Called mom — she's visiting Friday",
+          '🧴 Washed hands — left hand held the soap',
+          '🚗 Drove home — traffic on I-90',
+          '💡 Flipped a light switch',
+          '📺 Watched TV for 2 hours',
+          '🗣️ Partner mentioned they feel sick',
+        ];
+
+        const memories = [
+          '☕ Made coffee this morning',
+          '🚗 Drove to work — same route',
+          '📧 Read 47 emails',
+          '🗣️ Had a meeting about Q3',
+          '🍕 Ate lunch at desk',
+          '💡 Had a breakthrough idea',
+          '📞 Mom visiting Friday',
+          '🚗 Drove home — traffic on I-90',
+          '📺 Watched TV for 2 hours',
+          '🗣️ Partner is sick — check on them',
+        ];
+
+        const forgotten = [
+          '🚪 Which door you walked through',
+          '👟 Tying your shoes',
+          '🔑 Putting keys in your pocket',
+          '💡 Flipping a light switch',
+          '🚶 Steps between rooms',
+          '🧴 Which hand held the soap',
+          '🪥 How long you brushed your teeth',
+        ];
+
+        async function playAll() {
+          if (played) return;
+          played = true;
+
+          // Pause before starting — let "What if forgetting is a feature?" sit
+          await new Promise(r => setTimeout(r, 2200));
+
+          // Phase 1: Stream experiences
+          heading.textContent = 'A day happens…';
+          for (let i = 0; i < experiences.length; i++) {
+            const el = document.createElement('div');
+            el.className = 'hm-event';
+            el.textContent = experiences[i];
+            stream.appendChild(el);
+            stream.scrollTop = stream.scrollHeight;
+            await new Promise(r => setTimeout(r, 200));
+          }
+
+          await new Promise(r => setTimeout(r, 600));
+
+          // Phase 2: Transition
+          heading.textContent = 'For people: events stay. Noise fades.';
+          await new Promise(r => setTimeout(r, 800));
+
+          // Phase 3: Show columns
+          const results = document.getElementById('hm-results');
+          const forgottenEl = document.getElementById('hm-forgotten');
+          results.classList.add('visible');
+
+          const maxLen = Math.max(memories.length, forgotten.length);
+          for (let i = 0; i < maxLen; i++) {
+            if (i < memories.length) {
+              const el = document.createElement('div');
+              el.className = 'hm-memory';
+              el.textContent = memories[i];
+              retained.appendChild(el);
+            }
+            if (i < forgotten.length) {
+              const el = document.createElement('div');
+              el.className = 'hm-forgot';
+              el.textContent = forgotten[i];
+              forgottenEl.appendChild(el);
+            }
+            await new Promise(r => setTimeout(r, 150));
+          }
+        }
+
+        // Trigger when section scrolls into view
+        const observer = new IntersectionObserver(
+          entries => {
+            if (entries[0].isIntersecting && !played) {
+              playAll();
+            }
+          },
+          { threshold: 0.85 },
+        );
+
+        observer.observe(document.getElementById('human-memory'));
+      })();
+
+      // ===== INTRO TEXT SLIDER =====
+      (function () {
+        const slides = [
+          'While exploring how to solve this, we had an insight.',
+          "We don't remember every little thing that happens to us.",
+          'But we send the last 100+ messages to an LLM and expect it to figure out what matters.',
+          'Why do humans thrive with lossy memory, while agents drown in context they can instantly comprehend?',
+        ];
+
+        const trivial = [
+          '🚪 Which door I walked through',
+          '👟 Tying my shoes',
+          '🔑 Keys in my pocket',
+          '💡 Flipping a light switch',
+          '🚶 Steps between rooms',
+          '🧴 Which hand held the soap',
+          '🪥 How long I brushed my teeth',
+          '🚰 Turning on the faucet',
+          '🧥 Putting on my jacket',
+          '🔒 Locking the door behind me',
+          '🪜 Which stair I stepped on',
+          '☕ Stirring my coffee',
+        ];
+
+        const llmBars = [
+          { role: 'user', label: 'USER', w: 60 },
+          { role: 'assistant', label: 'ASST', w: 90 },
+          { role: 'tool', label: 'TOOL', w: 140 },
+          { role: 'user', label: 'USER', w: 45 },
+          { role: 'tool', label: 'TOOL', w: 160 },
+          { role: 'assistant', label: 'ASST', w: 70 },
+          { role: 'tool', label: 'TOOL', w: 120 },
+          { role: 'user', label: 'USER', w: 55 },
+          { role: 'assistant', label: 'ASST', w: 80 },
+          { role: 'tool', label: 'TOOL', w: 150 },
+          { role: 'user', label: 'USER', w: 40 },
+          { role: 'assistant', label: 'ASST', w: 100 },
+        ];
+
+        const scatterEl = document.getElementById('intro-scatter');
+        const scatterLlmEl = document.getElementById('intro-scatter-llm');
+        const textEl = document.getElementById('intro-text');
+        const prevBtn = document.getElementById('intro-prev');
+        const nextBtn = document.getElementById('intro-next');
+        const continueBtn = document.getElementById('intro-continue');
+        let idx = 0;
+
+        const positions = [
+          { top: '8%', left: '4%' },
+          { top: '10%', right: '6%' },
+          { top: '25%', left: '2%' },
+          { top: '22%', right: '3%' },
+          { top: '62%', left: '5%' },
+          { top: '68%', right: '4%' },
+          { top: '80%', left: '3%' },
+          { top: '76%', right: '8%' },
+          { top: '42%', left: '1%' },
+          { top: '48%', right: '2%' },
+          { top: '90%', left: '10%' },
+          { top: '88%', right: '12%' },
+        ];
+
+        // Build trivial scatter
+        trivial.forEach((text, i) => {
+          const el = document.createElement('div');
+          el.className = 'scatter-item';
+          el.textContent = text;
+          const delay = i * 0.1;
+          const floatDur = 3.5 + (i % 4) * 0.5;
+          const floatDelay = (i * 0.3) % 2;
+          el.style.animation =
+            'scatterIn 0.5s ' +
+            delay +
+            's ease forwards, scatterFloat ' +
+            floatDur +
+            's ' +
+            floatDelay +
+            's ease-in-out infinite';
+          const pos = positions[i % positions.length];
+          if (pos.top) el.style.top = pos.top;
+          if (pos.left) el.style.left = pos.left;
+          if (pos.right) el.style.right = pos.right;
+          scatterEl.appendChild(el);
+        });
+
+        // Build LLM bar scatter
+        llmBars.forEach((bar, i) => {
+          const el = document.createElement('div');
+          el.className = 'scatter-bar ' + bar.role;
+          const delay = i * 0.1;
+          const floatDur = 3.5 + (i % 4) * 0.5;
+          const floatDelay = (i * 0.3) % 2;
+          el.style.animation =
+            'scatterIn 0.5s ' +
+            delay +
+            's ease forwards, scatterFloat ' +
+            floatDur +
+            's ' +
+            floatDelay +
+            's ease-in-out infinite';
+          const pos = positions[i % positions.length];
+          if (pos.top) el.style.top = pos.top;
+          if (pos.left) el.style.left = pos.left;
+          if (pos.right) el.style.right = pos.right;
+
+          const lbl = document.createElement('span');
+          lbl.className = 'sb-label';
+          lbl.textContent = bar.label;
+
+          const fill = document.createElement('span');
+          fill.className = 'sb-fill';
+          fill.style.width = bar.w + 'px';
+
+          el.appendChild(lbl);
+          el.appendChild(fill);
+          scatterLlmEl.appendChild(el);
+        });
+
+        function show(newIdx) {
+          textEl.classList.add('fading');
+          setTimeout(() => {
+            idx = newIdx;
+            textEl.textContent = slides[idx];
+            textEl.classList.remove('fading');
+            prevBtn.disabled = idx === 0;
+            nextBtn.disabled = idx === slides.length - 1;
+            scatterEl.classList.toggle('hidden', idx !== 1);
+            scatterLlmEl.classList.toggle('hidden', idx !== 2);
+            const isLast = idx === slides.length - 1;
+            nextBtn.style.display = isLast ? 'none' : '';
+            continueBtn.style.display = isLast ? '' : 'none';
+          }, 300);
+        }
+
+        prevBtn.onclick = () => {
+          if (idx > 0) show(idx - 1);
+        };
+        nextBtn.onclick = () => {
+          if (idx < slides.length - 1) show(idx + 1);
+        };
+        continueBtn.onclick = () => {
+          document.getElementById('human-memory').scrollIntoView({ behavior: 'smooth' });
+        };
+      })();
+
+      // ===== BRIDGE TEXT SLIDER =====
+      (function () {
+        const slides = [
+          'What if agents worked this way?',
+          'We had to know. So we built it.',
+          'Turns out it works really well.',
+        ];
+
+        const textEl = document.getElementById('bridge-text');
+        const prevBtn = document.getElementById('bridge-prev');
+        const nextBtn = document.getElementById('bridge-next');
+        const continueBtn = document.getElementById('bridge-continue');
+        let idx = 0;
+
+        function show(newIdx) {
+          textEl.classList.add('fading');
+          setTimeout(() => {
+            idx = newIdx;
+            textEl.textContent = slides[idx];
+            textEl.classList.remove('fading');
+            prevBtn.disabled = idx === 0;
+            nextBtn.disabled = idx === slides.length - 1;
+            const isLast = idx === slides.length - 1;
+            nextBtn.style.display = isLast ? 'none' : '';
+            continueBtn.style.display = isLast ? '' : 'none';
+          }, 300);
+        }
+
+        prevBtn.onclick = () => { if (idx > 0) show(idx - 1); };
+        nextBtn.onclick = () => { if (idx < slides.length - 1) show(idx + 1); };
+        continueBtn.onclick = () => {
+          document.getElementById('architecture').scrollIntoView({ behavior: 'smooth' });
+        };
+      })();
+    </script>
+<script>initKeyNav("02-the-problem.html", "04-the-harness.html");</script>
+  </body>
+</html>

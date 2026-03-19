@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+    <title>Interactive — Component Showcase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Mode Toggle ===== */
+        .mode-toggle {
+            display: inline-flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .mode-toggle button {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+        }
+
+        .mode-toggle button.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        #mode-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            min-height: 60px;
+            line-height: 1.6;
+        }
+
+        /* ===== Toggle Switches ===== */
+        .toggle-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 400px;
+            overflow: hidden;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.on {
+            background: var(--accent);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.on::after {
+            transform: translateX(20px);
+        }
+
+        /* ===== Status Bar ===== */
+        .status-bar {
+            display: flex;
+            gap: 2rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }
+
+        .status-item {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .status-label {
+            color: var(--text-dim);
+        }
+
+        .status-value {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* ===== Buffer Progress ===== */
+        .buffer-progress {
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .buffer-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s;
+        }
+
+        .buffer-progress-fill.active {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="01-overview.html" class="topnav-brand">Component Showcase</a>
+    <div class="topnav-sections">
+        <a href="01-overview.html">Overview</a>
+        <a href="02-typography.html">Typography</a>
+        <a href="03-cards-grids.html">Cards & Grids</a>
+        <a href="04-code-blocks.html">Code</a>
+        <a href="05-tui-context.html">TUI & Context</a>
+        <a href="06-charts-stats.html">Charts & Stats</a>
+        <a href="07-interactive.html">Interactive</a>
+        <a href="08-animations.html">Animations</a>
+    </div>
+</nav>
+<div class="page">
+  <main class="main">
+
+    <!-- Section 1: Mode Toggle -->
+    <section id="mode-toggle">
+      <div class="section-label">INTERACTIVE</div>
+      <h2>Mode Toggle</h2>
+      <div class="mode-toggle">
+        <button class="active">Build</button>
+        <button>Plan</button>
+        <button>Fast</button>
+        <button>Review</button>
+        <button>Triage</button>
+      </div>
+      <div id="mode-content">Full access to all tools. Read, write, execute commands. For implementation work.</div>
+    </section>
+
+    <!-- Section 2: Prompt Toggle -->
+    <section id="prompt-toggle">
+      <div class="section-label">PROMPT TOGGLES</div>
+      <h2>Toggle Switches</h2>
+      <div class="toggle-container">
+        <div class="toggle-row">
+          <span class="toggle-label">Environment</span>
+          <div class="toggle-switch on"></div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Tools</span>
+          <div class="toggle-switch on"></div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Memory</span>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Skills</span>
+          <div class="toggle-switch"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Status Bar -->
+    <section id="status-bar">
+      <div class="section-label">STATUS DISPLAYS</div>
+      <h2>Status Bar &amp; Progress</h2>
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="status-label">Mode</span>
+          <span class="status-value">Build</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Tokens</span>
+          <span class="status-value">2,847</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Status</span>
+          <span class="status-value">Active</span>
+        </div>
+      </div>
+      <div class="buffer-progress">
+        <div class="buffer-progress-fill active" style="width: 65%"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function() {
+  const modes = {
+    Build: "Full access to all tools. Read, write, execute commands. For implementation work.",
+    Plan: "Read-only analysis and planning. Creates implementation plans for review.",
+    Fast: "Quick responses without tool usage. For simple questions and conversations.",
+    Review: "Code review mode. Reads code and provides feedback without modifications.",
+    Triage: "Issue analysis and routing. Categorizes and prioritizes incoming tasks."
+  };
+  const buttons = document.querySelectorAll('.mode-toggle button');
+  const content = document.getElementById('mode-content');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      content.textContent = modes[btn.textContent.trim()];
+    });
+  });
+})();
+
+document.querySelectorAll('.toggle-switch').forEach(sw => {
+  sw.addEventListener('click', () => sw.classList.toggle('on'));
+});
+</script>
+
+<script src="shared.js"></script>
+<script>initKeyNav("06-charts-stats.html", "08-animations.html");</script>
+</body>
+</html>

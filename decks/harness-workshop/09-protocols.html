@@ -1,0 +1,400 @@
+    <meta charset="UTF-8">
+    <title>Protocols — Agent Harness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Event Stream ===== */
+        .event-stream-demo {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            height: 450px;
+        }
+
+        .event-stream-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-stream-header {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .event-stream-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem 0.75rem;
+            min-height: 0;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.35rem 0;
+            font-size: 0.82rem;
+            animation: fadeInMsg 0.3s ease;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .event-item:last-child { border-bottom: none; }
+
+        .event-time {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            flex-shrink: 0;
+            width: 55px;
+            text-align: right;
+        }
+
+        .event-type {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            flex-shrink: 0;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .event-type.agent { background: var(--accent-dim); color: var(--accent); }
+        .event-type.tool { background: var(--orange-dim); color: var(--orange); }
+        .event-type.message { background: var(--yellow-dim); color: var(--yellow); }
+        .event-type.memory { background: var(--green-dim); color: var(--green); }
+        .event-type.subagent { background: var(--purple-dim); color: var(--purple); }
+        .event-type.mode { background: var(--cyan-dim); color: var(--cyan); }
+
+        .event-detail {
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        /* SubAgent diagram */
+        .subagent-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .subagent-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            width: 200px;
+            transition: all 0.3s;
+        }
+
+        .subagent-card.parent {
+            border-color: rgba(99, 102, 241, 0.3);
+            width: 240px;
+        }
+
+        .subagent-card.child {
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .subagent-card .sa-icon { font-size: 1.5rem; margin-bottom: 0.35rem; }
+        .subagent-card .sa-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.15rem; }
+        .subagent-card .sa-desc { font-size: 0.78rem; color: var(--text-dim); }
+
+        .subagent-children {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .subagent-arrow {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+        }
+
+        /* Callout */
+        .callout {
+            background: var(--accent-dim);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .callout-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Agent Harness</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-spectrum.html">Spectrum</a>
+        <a href="03-the-harness.html">The Harness</a>
+        <a href="04-prompts-and-context.html">Prompts</a>
+        <a href="05-workspace.html">Workspace</a>
+        <a href="06-memory.html">Memory</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-protocols.html">Protocols</a>
+        <a href="10-streaming.html">Streaming</a>
+        <a href="11-policies.html">Policies</a>
+        <a href="12-checklist.html">Checklist</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <!-- Section 1: Events -->
+        <div class="section wide" id="events">
+            <p class="section-label">The Connective Tissue</p>
+            <h2>Every action. Every state change. Observable.</h2>
+            <p>The harness emits events for everything. If it's not emitting events, you're flying blind. Click Start to watch a simulated agent run.</p>
+
+            <div class="demo-controls">
+                <button class="demo-btn" id="evt-start">▶ Start</button>
+                <button class="demo-btn reset" id="evt-reset" style="display:none;">↺ Reset</button>
+            </div>
+
+            <div class="event-stream-demo">
+                <div class="event-stream-panel">
+                    <div class="event-stream-header">Event Stream</div>
+                    <div class="event-stream-body" id="evt-stream"></div>
+                </div>
+                <div class="event-stream-panel">
+                    <div class="event-stream-header">Subscribers</div>
+                    <div class="event-stream-body" style="padding: 1rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Who's listening?</div>
+                            <div class="event-item" style="border: none; padding: 0.25rem 0;">
+                                <span class="event-type agent" style="min-width: 60px;">TUI</span>
+                                <span class="event-detail">Renders messages, tool calls, approvals</span>
+                            </div>
+                            <div class="event-item" style="border: none; padding: 0.25rem 0;">
+                                <span class="event-type memory" style="min-width: 60px;">OM</span>
+                                <span class="event-detail">Tracks token accumulation, triggers compaction</span>
+                            </div>
+                            <div class="event-item" style="border: none; padding: 0.25rem 0;">
+                                <span class="event-type tool" style="min-width: 60px;">Hooks</span>
+                                <span class="event-detail">Policy checks, notifications, logging</span>
+                            </div>
+                            <div class="event-item" style="border: none; padding: 0.25rem 0;">
+                                <span class="event-type mode" style="min-width: 60px;">Cost</span>
+                                <span class="event-detail">Token counting, usage persistence</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Event count</div>
+                            <div style="font-family: var(--font-mono); font-size: 2rem; color: var(--accent);" id="evt-count">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: MCP + SubAgents -->
+        <div class="section" id="mcp-subagents">
+            <p class="section-label">Protocols & Tasks</p>
+            <h2>MCP & SubAgents</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div>
+                    <h3>MCP — Model Context Protocol</h3>
+                    <p style="font-size: 0.95rem;">Protocols are now load-bearing. MCP servers provide tools dynamically — the harness connects on startup, discovers available tools, and makes them available to the agent.</p>
+                    <pre><code>// mcp.json
+{
+  "playwright": {
+    "command": "npx",
+    "args": ["@playwright/mcp"]
+  },
+  "github": {
+    "command": "npx",
+    "args": ["@github/mcp-server"]
+  }
+}</code></pre>
+                </div>
+
+                <div>
+                    <h3>SubAgents</h3>
+                    <p style="font-size: 0.95rem;">Tasks are the atomic unit of work, executed by constrained sub-agents. Each has its own thread, tools, and system prompt.</p>
+                    <div class="subagent-diagram fade-on-scroll" style="margin-top: 1rem;">
+                        <div class="subagent-card parent">
+                            <div class="sa-icon">🤖</div>
+                            <div class="sa-name">Main Agent</div>
+                            <div class="sa-desc">Orchestrates via subagent tool</div>
+                        </div>
+                        <div class="subagent-arrow">↓ spawns</div>
+                        <div class="subagent-children">
+                            <div class="subagent-card child">
+                                <div class="sa-icon">🔍</div>
+                                <div class="sa-name">Explore</div>
+                                <div class="sa-desc">Read-only investigation</div>
+                            </div>
+                            <div class="subagent-card child">
+                                <div class="sa-icon">📋</div>
+                                <div class="sa-name">Plan</div>
+                                <div class="sa-desc">Analysis & design</div>
+                            </div>
+                            <div class="subagent-card child">
+                                <div class="sa-icon">⚡</div>
+                                <div class="sa-name">Execute</div>
+                                <div class="sa-desc">Full tool access</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Section 3: Bridge to streaming -->
+        <div class="section" id="protocols-bridge" style="text-align: center; align-items: center;">
+            <h2 id="protocols-bridge-title">Events flow out. Protocols connect in.</h2>
+            <div class="intro-arrows" style="margin-top: 2rem;">
+                <button class="intro-arrow" id="protocols-bridge-prev" disabled>←</button>
+                <button class="intro-arrow" id="protocols-bridge-next">→</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// ===== EVENT STREAM ANIMATION =====
+    (function () {
+        const stream = document.getElementById('evt-stream');
+        const countEl = document.getElementById('evt-count');
+        const startBtn = document.getElementById('evt-start');
+        const resetBtn = document.getElementById('evt-reset');
+
+        let running = false;
+        let count = 0;
+
+        const events = [
+            { time: '0.00s', type: 'agent', label: 'agent_start', detail: 'Operation started' },
+            { time: '0.01s', type: 'message', label: 'message_start', detail: 'Assistant message begin' },
+            { time: '0.12s', type: 'message', label: 'text_delta', detail: '"Let me look at the..."' },
+            { time: '0.34s', type: 'tool', label: 'tool_start', detail: 'view("src/auth/login.ts")' },
+            { time: '0.35s', type: 'tool', label: 'tool_update', detail: 'Reading 240 lines...' },
+            { time: '0.41s', type: 'tool', label: 'tool_end', detail: '240 lines, 0 errors' },
+            { time: '0.42s', type: 'message', label: 'text_delta', detail: '"Found the issue..."' },
+            { time: '0.68s', type: 'tool', label: 'tool_start', detail: 'string_replace_lsp(...)' },
+            { time: '0.69s', type: 'tool', label: 'approval_req', detail: '⚠️ Waiting for user...' },
+            { time: '1.20s', type: 'tool', label: 'tool_end', detail: 'Approved. 0 diagnostics.' },
+            { time: '1.21s', type: 'message', label: 'text_delta', detail: '"Fixed. Running tests..."' },
+            { time: '1.45s', type: 'tool', label: 'tool_start', detail: 'execute_command("npm test")' },
+            { time: '1.46s', type: 'tool', label: 'shell_output', detail: 'PASS src/auth/login.test.ts' },
+            { time: '3.12s', type: 'tool', label: 'tool_end', detail: '47 tests passed' },
+            { time: '3.13s', type: 'memory', label: 'om_status', detail: '12,400 / 30,000 tokens' },
+            { time: '3.20s', type: 'message', label: 'message_end', detail: 'Response complete' },
+            { time: '3.21s', type: 'mode', label: 'usage_update', detail: '+2,340 tokens ($0.012)' },
+            { time: '3.22s', type: 'agent', label: 'agent_end', detail: 'reason: complete' },
+        ];
+
+        async function runStream() {
+            running = true;
+            startBtn.style.display = 'none';
+            resetBtn.style.display = '';
+
+            for (const evt of events) {
+                if (!running) break;
+
+                const el = document.createElement('div');
+                el.className = 'event-item';
+                el.innerHTML = `
+                    <span class="event-time">${evt.time}</span>
+                    <span class="event-type ${evt.type}">${evt.label}</span>
+                    <span class="event-detail">${evt.detail}</span>
+                `;
+                stream.appendChild(el);
+                stream.scrollTop = stream.scrollHeight;
+
+                count++;
+                countEl.textContent = count;
+
+                await wait(250);
+            }
+        }
+
+        function reset() {
+            running = false;
+            count = 0;
+            stream.innerHTML = '';
+            countEl.textContent = '0';
+            startBtn.style.display = '';
+            resetBtn.style.display = 'none';
+        }
+
+        startBtn.onclick = runStream;
+        resetBtn.onclick = reset;
+    })();
+
+    // ===== BRIDGE TO STREAMING =====
+    (function () {
+        const title = document.getElementById('protocols-bridge-title');
+        const prevBtn = document.getElementById('protocols-bridge-prev');
+        const nextBtn = document.getElementById('protocols-bridge-next');
+
+        const slides = [
+            'Events flow out. Protocols connect in.',
+            'But the agent still needs to talk to models',
+        ];
+
+        let current = 0;
+
+        function render(idx) {
+            title.style.opacity = '0';
+            title.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                title.textContent = slides[idx];
+                title.style.opacity = '1';
+                title.style.transform = 'translateY(0)';
+            }, 300);
+
+            prevBtn.disabled = idx === 0;
+            if (idx === slides.length - 1) {
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.onclick = () => { current++; render(current); };
+            }
+        }
+
+        title.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        prevBtn.onclick = () => { if (current > 0) { current--; render(current); } };
+        nextBtn.onclick = () => { current++; render(current); };
+    })();
+</script>
+
+<script>initKeyNav("08-steering.html", "10-streaming.html");</script>
+</body>
+</html>

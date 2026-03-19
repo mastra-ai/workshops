@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Intro — Processors: Beyond Guardrails</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .section {
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Animated processor chips floating behind title */
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero-chip {
+            position: absolute;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-dim);
+            white-space: nowrap;
+            opacity: 0;
+            animation: chipFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes chipFloat {
+            0%   { opacity: 0; transform: translateY(20px) scale(0.9); }
+            15%  { opacity: 0.4; transform: translateY(0) scale(1); }
+            85%  { opacity: 0.4; transform: translateY(-12px) scale(1); }
+            100% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .authors {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .author-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .author-card img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+
+        .author-card .author-info {
+            text-align: left;
+        }
+
+        .author-card .author-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .author-card .author-title {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        /* Hosts section */
+        .hosts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-top: 2.5rem;
+            max-width: 700px;
+        }
+
+        .host-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            transition: border-color 0.3s;
+        }
+
+        .host-card:hover {
+            border-color: var(--accent);
+        }
+
+        .host-card img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            margin-bottom: 1.25rem;
+        }
+
+        .host-card .host-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .host-card .host-title {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .host-card .host-blurb {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Processors: Beyond Guardrails</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-everything-is-a-processor.html">Insight</a>
+        <a href="04-five-phases.html">Phases</a>
+        <a href="05-the-ui.html">UI</a>
+        <a href="06-building-processors.html">Building</a>
+        <a href="06b-performance.html">Perf</a>
+        <a href="06c-enterprise-flow.html">Flow</a>
+        <a href="07-built-ins.html">Built-ins</a>
+        <a href="08-wrap-up.html">Wrap-up</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+        <div class="section" id="title" style="position: relative;">
+
+            <div class="hero-bg">
+                <span class="hero-chip" style="top: 18%; left: 12%; animation-delay: 0s;">processInput</span>
+                <span class="hero-chip" style="top: 30%; right: 15%; animation-delay: 1.2s;">ModerationProcessor</span>
+                <span class="hero-chip" style="bottom: 25%; left: 20%; animation-delay: 0.6s;">processOutputStep</span>
+                <span class="hero-chip" style="top: 45%; left: 8%; animation-delay: 2s;">WorkingMemory</span>
+                <span class="hero-chip" style="bottom: 35%; right: 10%; animation-delay: 0.9s;">processOutputStream</span>
+                <span class="hero-chip" style="top: 22%; right: 30%; animation-delay: 1.8s;">PIIDetector</span>
+                <span class="hero-chip" style="bottom: 20%; left: 35%; animation-delay: 2.4s;">TokenLimiter</span>
+                <span class="hero-chip" style="top: 55%; right: 22%; animation-delay: 0.3s;">MessageHistory</span>
+                <span class="hero-chip" style="bottom: 40%; right: 35%; animation-delay: 1.5s;">processOutputResult</span>
+                <span class="hero-chip" style="top: 15%; left: 40%; animation-delay: 2.1s;">SemanticRecall</span>
+            </div>
+
+            <div class="hero-content">
+                <p class="section-label">Mastra Workshop</p>
+                <h1>Guardrails and beyond</h1>
+                <p class="subtitle">Control the agent loop with Mastra Processors</p>
+                <div class="authors">
+                    <div class="author-card">
+                        <img src="daniel.png" alt="Daniel Lew">
+                        <div class="author-info">
+                            <div class="author-name">Daniel Lew</div>
+                            <div class="author-title">Software Engineer</div>
+                        </div>
+                    </div>
+                    <div class="author-card">
+                        <img src="alex.png" alt="Alex Booker">
+                        <div class="author-info">
+                            <div class="author-name">Alex Booker</div>
+                            <div class="author-title">Developer Experience</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#hosts" class="intro-arrow">→</a>
+            </div>
+        </div>
+
+        <div class="section fade-on-scroll" id="hosts">
+            <p class="section-label">Your Hosts</p>
+            <h2>Meet the <span class="accent">speakers</span></h2>
+
+            <div class="hosts-grid">
+                <div class="host-card">
+                    <img src="daniel.png" alt="Daniel Lew">
+                    <div class="host-name">Daniel Lew</div>
+                    <div class="host-title">Software Engineer, Mastra</div>
+                    <div class="host-blurb">Based in Waterloo, Canada. Previously at Netlify and Gatsby.</div>
+                </div>
+                <div class="host-card">
+                    <img src="alex.png" alt="Alex Booker">
+                    <div class="host-name">Alex Booker</div>
+                    <div class="host-title">Developer Experience, Mastra</div>
+                    <div class="host-blurb">Based in London, UK. Developer educator, previously at Clerk.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>initKeyNav(null, "02-the-problem.html");</script>
+</body>
+</html>

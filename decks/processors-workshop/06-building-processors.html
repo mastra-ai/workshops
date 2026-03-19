@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Building — Processors: Beyond Guardrails</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .example-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .example-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .example-tab:hover {
+            border-color: var(--border-light);
+        }
+
+        .example-tab.active {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--text-primary);
+        }
+
+        .example-tab .tab-num {
+            font-size: 0.72rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .example-tab.active .tab-num {
+            background: var(--accent);
+            color: white;
+        }
+
+        .example-panel {
+            display: none;
+        }
+
+        .example-panel.active {
+            display: block;
+        }
+
+        .code-with-annotation {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .annotation-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .annotation-card {
+            padding: 1rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .annotation-card .ann-title {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .annotation-card .ann-body {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Processors: Beyond Guardrails</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-everything-is-a-processor.html">Insight</a>
+        <a href="04-five-phases.html">Phases</a>
+        <a href="05-the-ui.html">UI</a>
+        <a href="06-building-processors.html">Building</a>
+        <a href="06b-performance.html">Perf</a>
+        <a href="06c-enterprise-flow.html">Flow</a>
+        <a href="07-built-ins.html">Built-ins</a>
+        <a href="08-wrap-up.html">Wrap-up</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <div class="section fade-on-scroll" id="building">
+            <p class="section-label">Hands-On</p>
+            <h2>Building <span class="accent">processors</span></h2>
+            <p>Three progressive examples — guardrails, per-phase power, enterprise pipelines.</p>
+
+            <div class="example-tabs mt-3" id="example-tabs">
+                <div class="example-tab active" data-example="0" onclick="showExample(0)">
+                    <span class="tab-num">00</span>
+                    Guardrails
+                </div>
+                <div class="example-tab" data-example="1" onclick="showExample(1)">
+                    <span class="tab-num">01</span>
+                    Every Phase
+                </div>
+                <div class="example-tab" data-example="2" onclick="showExample(2)">
+                    <span class="tab-num">02</span>
+                    Enterprise Pipeline
+                </div>
+            </div>
+
+            <!-- Example 00: Guardrails -->
+            <div class="example-panel active" id="example-0">
+                <div class="code-with-annotation">
+                    <div>
+                        <div class="code-highlight-block">
+                            <div class="code-header">
+                                <span class="filename">processors/topic-guard.ts</span>
+                                <span style="color: var(--green);">processInput + typed metadata</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">type</span> <span class="type">TopicGuardMetadata</span> = {</span>
+<span class="code-line">  category: <span class="type">string</span>; confidence: <span class="type">number</span>;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="keyword">export class</span> <span class="type">TopicGuard</span></span>
+<span class="code-line">  <span class="keyword">implements</span> <span class="type">Processor</span>&lt;<span class="string">'topic-guard'</span>, <span class="type">TopicGuardMetadata</span>&gt; {</span>
+<span class="code-line">  <span class="keyword">readonly</span> id = <span class="string">'topic-guard'</span>;</span>
+<span class="code-line">  <span class="keyword">private</span> classifierAgent = <span class="keyword">new</span> <span class="type">Agent</span>({</span>
+<span class="code-line">    model: <span class="string">'openrouter/openai/gpt-oss-safeguard-20b'</span>,</span>
+<span class="code-line">    <span class="comment">// ↑ fast safeguard model, not the main agent model</span></span>
+<span class="code-line">  });</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="keyword">async</span> <span class="function">processInput</span>({ messages, abort }) {</span>
+<span class="code-line">    <span class="keyword">const</span> { object } = <span class="keyword">await</span> <span class="keyword">this</span>.classifierAgent.<span class="function">generate</span>(text, {</span>
+<span class="code-line">      structuredOutput: z.<span class="function">object</span>({ onTopic: z.<span class="function">boolean</span>(), ... }),</span>
+<span class="code-line">    });</span>
+<span class="code-line">    <span class="keyword">if</span> (!object.onTopic) {</span>
+<span class="code-line">      <span class="function">abort</span>(<span class="string">`Off-topic: ${object.category}`</span>, {</span>
+<span class="code-line">        metadata: { category: object.category, confidence: object.confidence },</span>
+<span class="code-line">      });</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="keyword">return</span> messages;</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/pii-guard.ts</span>
+                                <span style="color: var(--cyan);">regex only — no LLM!</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">export class</span> <span class="type">PIIGuard</span></span>
+<span class="code-line">  <span class="keyword">implements</span> <span class="type">Processor</span>&lt;<span class="string">'pii-guard'</span>, <span class="type">PIIGuardMetadata</span>&gt; {</span>
+<span class="code-line">  <span class="keyword">async</span> <span class="function">processInput</span>({ messages, abort }) {</span>
+<span class="code-line">    <span class="comment">// Pure regex — runs in microseconds, costs $0</span></span>
+<span class="code-line">    <span class="keyword">for</span> (<span class="keyword">const</span> [type, pattern] <span class="keyword">of</span> PII_PATTERNS) {</span>
+<span class="code-line">      <span class="keyword">if</span> (pattern.<span class="function">test</span>(text)) detectedTypes.<span class="function">push</span>(type);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="keyword">if</span> (detectedTypes.length &gt; 0)</span>
+<span class="code-line">      <span class="function">abort</span>(<span class="string">'PII detected'</span>, {</span>
+<span class="code-line">        metadata: { detectedTypes, severity: <span class="string">'critical'</span> },</span>
+<span class="code-line">      });</span>
+<span class="code-line">  }</span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/compliance-pipeline.ts</span>
+                                <span style="color: var(--purple);">parallel workflow</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">export const</span> compliancePipeline = <span class="function">createWorkflow</span>({</span>
+<span class="code-line">  id: <span class="string">'compliance-pipeline'</span>,</span>
+<span class="code-line">  inputSchema: ProcessorStepSchema,</span>
+<span class="code-line">  outputSchema: ProcessorStepSchema,</span>
+<span class="code-line">})</span>
+<span class="code-line">  .<span class="function">parallel</span>([topicGuardStep, piiGuardStep, moderationStep])</span>
+<span class="code-line">  .<span class="function">map</span>(mergeResults)</span>
+<span class="code-line">  .<span class="function">commit</span>();</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="comment">// Agent config:</span></span>
+<span class="code-line">inputProcessors: [compliancePipeline]</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="annotation-stack">
+                        <div class="annotation-card" style="border-left-color: var(--green);">
+                            <div class="ann-title" style="color: var(--green);">Typed Metadata</div>
+                            <div class="ann-body"><code>Processor&lt;TId, TMetadata&gt;</code> — the second generic types what <code>abort()</code> metadata contains. Structured data about what triggered the tripwire.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--cyan);">
+                            <div class="ann-title" style="color: var(--cyan);">No LLM Needed</div>
+                            <div class="ann-body">PII Guard uses pure regex — runs in microseconds, costs nothing. Not every guard needs an LLM call.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--purple);">
+                            <div class="ann-title" style="color: var(--purple);">Parallel Workflow</div>
+                            <div class="ann-body"><code>.parallel()</code> runs all three checks concurrently. If any calls <code>abort()</code>, the pipeline stops with that processor's typed metadata.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--orange);">
+                            <div class="ann-title" style="color: var(--orange);">Safeguard Model</div>
+                            <div class="ann-body">Uses <code>gpt-oss-safeguard-20b</code> for classification — fast, cheap, purpose-built for safety checks.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 01: Every Phase -->
+            <div class="example-panel" id="example-1">
+                <div class="code-with-annotation">
+                    <div>
+                        <div class="code-highlight-block">
+                            <div class="code-header">
+                                <span class="filename">processors/model-router.ts</span>
+                                <span style="color: var(--green);">processInputStep</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">async</span> <span class="function">processInputStep</span>({ stepNumber }) {</span>
+<span class="code-line">  <span class="keyword">if</span> (stepNumber === 0) <span class="keyword">return</span>; <span class="comment">// keep gpt-5.2</span></span>
+<span class="code-line">  <span class="keyword">return</span> { model: <span class="string">'openai/gpt-5-nano'</span> }; <span class="comment">// downgrade</span></span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/tool-dependency-enforcer.ts</span>
+                                <span style="color: var(--green);">processInputStep</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="comment">// create_order requires search_products + check_inventory</span></span>
+<span class="code-line"><span class="keyword">const</span> TOOL_DEPENDENCIES = {</span>
+<span class="code-line">  create_order: [<span class="string">'search_products'</span>, <span class="string">'check_inventory'</span>],</span>
+<span class="code-line">  process_refund: [<span class="string">'lookup_order'</span>],</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="keyword">async</span> <span class="function">processInputStep</span>({ steps, tools }) {</span>
+<span class="code-line">  <span class="keyword">const</span> calledTools = collectToolCalls(steps);</span>
+<span class="code-line">  <span class="keyword">const</span> activeTools = Object.<span class="function">keys</span>(tools)</span>
+<span class="code-line">    .<span class="function">filter</span>(t =&gt; depsMetFor(t, calledTools));</span>
+<span class="code-line">  <span class="keyword">return</span> { activeTools };</span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/task-drift-monitor.ts</span>
+                                <span style="color: var(--orange);">processOutputStep</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">async</span> <span class="function">processOutputStep</span>({ text, stepNumber, state, abort }) {</span>
+<span class="code-line">  <span class="keyword">if</span> (stepNumber &lt; 2 || stepNumber % 2 !== 0) <span class="keyword">return</span>;</span>
+<span class="code-line">  <span class="keyword">const</span> { object } = <span class="keyword">await</span> evaluator.<span class="function">generate</span>(..., {</span>
+<span class="code-line">    structuredOutput: z.<span class="function">object</span>({ alignmentScore: z.<span class="function">number</span>() }),</span>
+<span class="code-line">  });</span>
+<span class="code-line">  <span class="keyword">if</span> (object.alignmentScore &lt; 0.5)</span>
+<span class="code-line">    <span class="function">abort</span>(<span class="string">'Drifted from task'</span>, {</span>
+<span class="code-line">      retry: <span class="keyword">true</span>,</span>
+<span class="code-line">      metadata: { driftScore: object.alignmentScore },</span>
+<span class="code-line">    });</span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/cost-tracker.ts</span>
+                                <span style="color: var(--red);">processOutputStream</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">async</span> <span class="function">processOutputStream</span>({ part, state, writer, abort }) {</span>
+<span class="code-line">  <span class="keyword">if</span> (part.type === <span class="string">'text-delta'</span>) {</span>
+<span class="code-line">    state.tokens += Math.<span class="function">ceil</span>(part.payload.text.length / 4);</span>
+<span class="code-line">    <span class="keyword">await</span> writer.<span class="function">custom</span>({</span>
+<span class="code-line">      type: <span class="string">'data-cost-update'</span>,</span>
+<span class="code-line">      data: { tokens: state.tokens, cost: ... },</span>
+<span class="code-line">    });</span>
+<span class="code-line">    <span class="keyword">if</span> (state.tokens &gt; MAX_TOKENS) <span class="function">abort</span>(<span class="string">'Budget exceeded'</span>);</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="keyword">return</span> part;</span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="annotation-stack">
+                        <div class="annotation-card" style="border-left-color: var(--green);">
+                            <div class="ann-title" style="color: var(--green);">processInputStep</div>
+                            <div class="ann-body">Runs before <em>every</em> LLM call. Can swap <code>model</code>, filter <code>activeTools</code>, modify <code>systemMessages</code>. The most powerful per-step hook.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--orange);">
+                            <div class="ann-title" style="color: var(--orange);">processOutputStep</div>
+                            <div class="ann-body">After each LLM response, before tool execution. Gets <code>stepNumber</code>, <code>text</code>, <code>toolCalls</code>. Perfect for periodic quality checks with <code>abort({ retry: true })</code>.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--red);">
+                            <div class="ann-title" style="color: var(--red);">processOutputStream</div>
+                            <div class="ann-body">Real-time chunk processing. <code>writer.custom()</code> emits <code>data-*</code> events to the client. Can <code>abort()</code> mid-stream if budget/safety is violated.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--cyan);">
+                            <div class="ann-title" style="color: var(--cyan);">state</div>
+                            <div class="ann-body">Mutable object that persists across all method calls within a single request. Track original intent, token counts, flags.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 02: Enterprise Pipeline -->
+            <div class="example-panel" id="example-2">
+                <div class="code-with-annotation">
+                    <div>
+                        <div class="code-highlight-block">
+                            <div class="code-header">
+                                <span class="filename">processors/input-pipeline.ts</span>
+                                <span style="color: var(--green);">layered defense</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="comment">// Cheap first → expensive in parallel</span></span>
+<span class="code-line"><span class="keyword">export const</span> inputPipeline = <span class="function">createWorkflow</span>({...})</span>
+<span class="code-line">  .<span class="function">then</span>(regexPreFilter)  <span class="comment">// microseconds, no LLM</span></span>
+<span class="code-line">  .<span class="function">parallel</span>([topicGuard, moderationProcessor])</span>
+<span class="code-line">  .<span class="function">map</span>(mergeResults)</span>
+<span class="code-line">  .<span class="function">commit</span>();</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/output-pipeline.ts</span>
+                                <span style="color: var(--orange);">conditional branching</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="comment">// Only check drift every 5th step</span></span>
+<span class="code-line"><span class="keyword">export const</span> outputPipeline = <span class="function">createWorkflow</span>({...})</span>
+<span class="code-line">  .<span class="function">branch</span>([</span>
+<span class="code-line">    [ctx =&gt; ctx.stepNumber % 5 === 0, driftMonitor],</span>
+<span class="code-line">  ])</span>
+<span class="code-line">  .<span class="function">map</span>(mergeResults)</span>
+<span class="code-line">  .<span class="function">commit</span>();</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">processors/wrap-up-enforcer.ts</span>
+                                <span style="color: var(--cyan);">shared constant</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">import</span> { MAX_STEPS } <span class="keyword">from</span> <span class="string">'../constants'</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="keyword">async</span> <span class="function">processInputStep</span>({ stepNumber, systemMessages }) {</span>
+<span class="code-line">  <span class="keyword">if</span> (stepNumber &lt; MAX_STEPS - 2) <span class="keyword">return</span>;</span>
+<span class="code-line">  <span class="keyword">return</span> {</span>
+<span class="code-line">    systemMessages: [...systemMessages, {</span>
+<span class="code-line">      role: <span class="string">'system'</span>,</span>
+<span class="code-line">      content: <span class="string">`Wrap up. ${MAX_STEPS - stepNumber} steps left.`</span>,</span>
+<span class="code-line">    }],</span>
+<span class="code-line">  };</span>
+<span class="code-line">}</span></code></pre>
+                        </div>
+
+                        <div class="code-highlight-block" style="margin-top: 1rem;">
+                            <div class="code-header">
+                                <span class="filename">agents/enterprise-agent.ts</span>
+                                <span style="color: var(--purple);">full config</span>
+                            </div>
+                            <pre><code><span class="code-line"><span class="keyword">export const</span> enterpriseAgent = <span class="keyword">new</span> <span class="type">Agent</span>({</span>
+<span class="code-line">  model: <span class="string">'openai/gpt-5.2'</span>,</span>
+<span class="code-line">  maxSteps: MAX_STEPS,</span>
+<span class="code-line">  inputProcessors: [</span>
+<span class="code-line">    inputPipeline,     <span class="comment">// regex → parallel LLM</span></span>
+<span class="code-line">    <span class="keyword">new</span> <span class="type">ModelRouter</span>(),  <span class="comment">// step 0: 5.2, 1+: nano</span></span>
+<span class="code-line">    <span class="keyword">new</span> <span class="type">ToolDependencyEnforcer</span>(),</span>
+<span class="code-line">    <span class="keyword">new</span> <span class="type">WrapUpEnforcer</span>(),</span>
+<span class="code-line">  ],</span>
+<span class="code-line">  outputProcessors: [</span>
+<span class="code-line">    outputPipeline,           <span class="comment">// drift every 5th step</span></span>
+<span class="code-line">    <span class="keyword">new</span> <span class="type">OrderConfirmation</span>(), <span class="comment">// fire webhook on order</span></span>
+<span class="code-line">    <span class="keyword">new</span> <span class="type">EscalationDetector</span>(),<span class="comment">// flag for human review</span></span>
+<span class="code-line">  ],</span>
+<span class="code-line">  maxProcessorRetries: 3,</span>
+<span class="code-line">});</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="annotation-stack">
+                        <div class="annotation-card" style="border-left-color: var(--green);">
+                            <div class="ann-title" style="color: var(--green);">Layered Defense</div>
+                            <div class="ann-body">Regex pre-filter runs first (free). Only if it passes do the expensive LLM checks run — and those run in parallel.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--orange);">
+                            <div class="ann-title" style="color: var(--orange);">Conditional Branching</div>
+                            <div class="ann-body"><code>.branch()</code> only runs drift monitoring every 5th step. Don't pay for checks you don't need every time.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--cyan);">
+                            <div class="ann-title" style="color: var(--cyan);">Wrap-Up Enforcer</div>
+                            <div class="ann-body">Uses the same <code>MAX_STEPS</code> constant as the agent. Prevents getting cut off mid-task by injecting wrap-up instructions.</div>
+                        </div>
+                        <div class="annotation-card" style="border-left-color: var(--purple);">
+                            <div class="ann-title" style="color: var(--purple);">onFinish Side Effects</div>
+                            <div class="ann-body"><code>processOutputResult</code> as an onFinish hook — fire webhooks on orders, detect escalations with a nano model. Business logic, not observability.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+
+    function showExample(idx) {
+        document.querySelectorAll('.example-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`example-${idx}`).classList.add('active');
+        document.querySelector(`.example-tab[data-example="${idx}"]`).classList.add('active');
+    }
+</script>
+<script>initKeyNav("05-the-ui.html", "06b-performance.html");</script>
+</body>
+</html>

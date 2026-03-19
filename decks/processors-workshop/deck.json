@@ -1,0 +1,15 @@
+{
+  "title": "Processors: Beyond Guardrails",
+  "slides": [
+    { "file": "01-intro.html", "nav": "Intro" },
+    { "file": "02-the-problem.html", "nav": "Problem" },
+    { "file": "03-everything-is-a-processor.html", "nav": "Insight" },
+    { "file": "04-five-phases.html", "nav": "Phases" },
+    { "file": "05-the-ui.html", "nav": "UI" },
+    { "file": "06-building-processors.html", "nav": "Building" },
+    { "file": "06b-performance.html", "nav": "Perf" },
+    { "file": "06c-enterprise-flow.html", "nav": "Flow" },
+    { "file": "07-built-ins.html", "nav": "Built-ins" },
+    { "file": "08-wrap-up.html", "nav": "Wrap-up" }
+  ]
+}

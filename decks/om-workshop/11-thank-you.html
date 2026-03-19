@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+    <title>Thanks — Building Agents That Never Forget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .page { display: block; }
+        .main {
+            margin-left: 0;
+            max-width: 100%;
+            padding: 0 4rem;
+        }
+
+        /* PINK EVERYTHING */
+        body {
+            background: radial-gradient(ellipse at 50% 0%, rgba(255, 110, 180, 0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(255, 60, 150, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 20% 70%, rgba(255, 140, 200, 0.08) 0%, transparent 50%),
+                        var(--bg-primary);
+        }
+
+        .topnav {
+            border-bottom-color: rgba(255, 110, 180, 0.3);
+        }
+
+        .topnav-sections a.active,
+        .topnav-sections a:hover {
+            color: #ff6eb4 !important;
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - var(--topnav-height));
+            padding: 2rem 2rem;
+            gap: 2rem;
+        }
+
+        .pizza {
+            font-size: 6rem;
+            line-height: 1;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(255, 110, 180, 0.5));
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff3c96 0%, #ff6eb4 30%, #ffb6d9 60%, #ff6eb4 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pinkShimmer 4s ease-in-out infinite;
+            text-shadow: 0 0 60px rgba(255, 110, 180, 0.3);
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            color: #ffb6d9;
+            max-width: 600px;
+        }
+
+        .hero .subtitle strong {
+            color: #ff6eb4;
+            -webkit-text-fill-color: #ff6eb4;
+            text-shadow: 0 0 20px rgba(255, 110, 180, 0.4);
+        }
+
+        .pizza-plea {
+            margin-top: 1.5rem;
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            background: rgba(255, 110, 180, 0.08);
+            border: 2px solid #ff6eb4;
+            color: #ff8ec6;
+            font-size: 1.1rem;
+            font-weight: 500;
+            max-width: 520px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease forwards 0.8s;
+            box-shadow: 0 0 30px rgba(255, 110, 180, 0.15),
+                        inset 0 0 30px rgba(255, 110, 180, 0.05);
+        }
+
+        .pizza-plea em {
+            color: #ff3c96;
+            font-style: italic;
+        }
+
+        .links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            animation: fadeUp 0.6s ease forwards 1.2s;
+        }
+
+        .links a {
+            color: #ff8ec6;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+        }
+
+        .links a:hover {
+            color: #fff;
+            background: rgba(255, 110, 180, 0.2);
+            text-shadow: 0 0 10px rgba(255, 110, 180, 0.5);
+        }
+
+        /* Pink sparkle particles */
+        .sparkles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff6eb4;
+            border-radius: 50%;
+            animation: sparkleFloat linear infinite;
+            box-shadow: 0 0 6px #ff6eb4, 0 0 12px rgba(255, 110, 180, 0.4);
+        }
+
+        .sparkle:nth-child(1) { left: 10%; animation-duration: 6s; animation-delay: 0s; width: 3px; height: 3px; }
+        .sparkle:nth-child(2) { left: 20%; animation-duration: 8s; animation-delay: 1s; width: 5px; height: 5px; }
+        .sparkle:nth-child(3) { left: 35%; animation-duration: 7s; animation-delay: 2s; }
+        .sparkle:nth-child(4) { left: 50%; animation-duration: 9s; animation-delay: 0.5s; width: 3px; height: 3px; }
+        .sparkle:nth-child(5) { left: 65%; animation-duration: 6s; animation-delay: 3s; width: 5px; height: 5px; }
+        .sparkle:nth-child(6) { left: 75%; animation-duration: 8s; animation-delay: 1.5s; }
+        .sparkle:nth-child(7) { left: 85%; animation-duration: 7s; animation-delay: 2.5s; width: 3px; height: 3px; }
+        .sparkle:nth-child(8) { left: 45%; animation-duration: 10s; animation-delay: 0.8s; width: 6px; height: 6px; }
+        .sparkle:nth-child(9) { left: 5%; animation-duration: 9s; animation-delay: 4s; }
+        .sparkle:nth-child(10) { left: 92%; animation-duration: 7s; animation-delay: 1.2s; width: 4px; height: 4px; }
+
+        .hero {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-16px) rotate(5deg); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pinkShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-20px) scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Building Agents That Never Forget</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-the-insight.html">Insight</a>
+        <a href="04-the-harness.html">Harness</a>
+        <a href="05-prompts-and-context.html">Prompts</a>
+        <a href="06-workspace.html">Workspace</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-mastracode.html">MastraCode</a>
+        <a href="10-the-proof.html">Proof</a>
+        <a href="11-thank-you.html">Thanks</a>
+    </div>
+</nav>
+
+<div class="sparkles">
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+    <div class="sparkle"></div>
+</div>
+
+<div class="page">
+    <main class="main">
+        <div class="hero">
+            <div class="pizza">🍕</div>
+            <h1>Thank You, Denise!</h1>
+            <p class="subtitle">
+                We're incredibly grateful to have this event at <strong>Gradient</strong>.
+                Seriously — thank you for making this happen.
+            </p>
+            <div class="pizza-plea">
+                🙏 &nbsp;Now please, Denise — buy some <em>really</em> good pizza for once.
+            </div>
+            <div class="links">
+                <a href="https://mastra.ai" target="_blank">mastra.ai</a>
+                <a href="https://github.com/mastra-ai" target="_blank">GitHub</a>
+                <a href="https://discord.gg/mastra" target="_blank">Discord</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>initKeyNav("10-the-proof.html", null);</script>
+</body>
+</html>

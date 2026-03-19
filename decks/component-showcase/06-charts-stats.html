@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+    <title>Charts & Stats — Component Showcase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .flow + .flow {
+            margin-top: 1.5rem;
+        }
+        .cache-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        .processing-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="01-overview.html" class="topnav-brand">Component Showcase</a>
+    <div class="topnav-sections">
+        <a href="01-overview.html">Overview</a>
+        <a href="02-typography.html">Typography</a>
+        <a href="03-cards-grids.html">Cards & Grids</a>
+        <a href="04-code-blocks.html">Code</a>
+        <a href="05-tui-context.html">TUI & Context</a>
+        <a href="06-charts-stats.html">Charts & Stats</a>
+        <a href="07-interactive.html">Interactive</a>
+        <a href="08-animations.html">Animations</a>
+    </div>
+</nav>
+<div class="page">
+  <main class="main">
+
+    <!-- Section 1: Bar Charts -->
+    <section class="section" id="bar-charts">
+      <div class="section-label">CHARTS &amp; STATS</div>
+      <h2>Bar Charts</h2>
+      <div class="bar-chart" style="max-width:600px; margin-top:2rem;">
+        <div class="bar-row">
+          <div class="bar-label">Accuracy</div>
+          <div class="bar-track">
+            <div class="bar-fill accent" style="width:92%">
+              <span class="bar-value">92%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Speed</div>
+          <div class="bar-track">
+            <div class="bar-fill green" style="width:78%">
+              <span class="bar-value">78%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Cost</div>
+          <div class="bar-track">
+            <div class="bar-fill yellow" style="width:45%">
+              <span class="bar-value">45%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Latency</div>
+          <div class="bar-track">
+            <div class="bar-fill red" style="width:23%">
+              <span class="bar-value">23%</span>
+            </div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Coverage</div>
+          <div class="bar-track">
+            <div class="bar-fill dim" style="width:65%">
+              <span class="bar-value">65%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Flow Diagrams -->
+    <section class="section" id="flow">
+      <div class="section-label">FLOW DIAGRAMS</div>
+      <h2>Process Flows</h2>
+      <div class="flow">
+        <div class="flow-node accent">Input</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">Process</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node purple">Analyze</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">Output</div>
+      </div>
+      <div class="flow">
+        <div class="flow-node">User Query</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node accent">Agent</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">Tools</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node purple">Memory</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">Response</div>
+      </div>
+    </section>
+
+    <!-- Section 3: Callout & Roadmap -->
+    <section class="section" id="callout-roadmap">
+      <div class="section-label">CALLOUTS &amp; ROADMAPS</div>
+      <h2>Information Displays</h2>
+      <div class="callout">
+        <div class="callout-label">PRO TIP</div>
+        Use callout boxes to highlight important information that readers shouldn't miss.
+      </div>
+      <div class="roadmap-list">
+        <div class="roadmap-item">
+          <div class="roadmap-marker">✅</div>
+          <div class="roadmap-content">
+            <h4>Setup Complete</h4>
+            <p>Project scaffolding and dependencies installed</p>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-marker">🔄</div>
+          <div class="roadmap-content">
+            <h4>In Progress</h4>
+            <p>Building component library and documentation</p>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-marker">📋</div>
+          <div class="roadmap-content">
+            <h4>Planned</h4>
+            <p>Testing, optimization, and deployment</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Cache Indicators -->
+    <section class="section" id="cache">
+      <div class="section-label">STATUS INDICATORS</div>
+      <h2>Cache &amp; Processing</h2>
+      <div class="cache-row">
+        <div class="cache-indicator hit"><span class="cache-dot"></span>CACHE HIT</div>
+        <div class="cache-indicator miss"><span class="cache-dot"></span>CACHE MISS</div>
+        <div class="cache-indicator partial"><span class="cache-dot"></span>PARTIAL</div>
+      </div>
+      <div class="processing-row">
+        <div class="processing-indicator observer">Observing...</div>
+        <div class="processing-indicator reflector">Reflecting...</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+<script src="shared.js"></script>
+<script>initKeyNav("05-tui-context.html", "07-interactive.html");</script>
+</body>
+</html>

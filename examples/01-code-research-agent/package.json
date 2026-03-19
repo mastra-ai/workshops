@@ -1,0 +1,23 @@
+{
+  "name": "04-code-research-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "mastra dev"
+  },
+  "dependencies": {
+    "@mastra/core": "^1.0.0",
+    "@mastra/memory": "^1.0.0",
+    "@mastra/libsql": "^1.0.0",
+    "mastra": "^1.0.0",
+    "zod": "^3.23.0",
+    "execa": "^9.0.0",
+    "strip-ansi": "^7.1.0",
+    "tree-kill": "^1.2.2",
+    "js-tiktoken": "^1.0.18"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.5.0"
+  }
+}

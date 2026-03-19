@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+    <title>Steering — Building Agents That Never Forget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Arrows ===== */
+        .intro-arrows {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .intro-arrow {
+            background: none;
+            border: 1px solid var(--border-light);
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-sans);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .intro-arrow:hover:not(:disabled) {
+            color: var(--text-secondary);
+            border-color: var(--text-dim);
+        }
+
+        .intro-arrow:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* ===== TUI Demo ===== */
+        .tui-demo {
+            max-width: 700px;
+            margin: 2rem auto 0;
+        }
+
+        .tui-window {
+            font-size: 0.82rem;
+        }
+
+        .tui-body {
+            min-height: 350px;
+            max-height: 450px;
+        }
+
+        .tui-line {
+            margin-bottom: 0.15rem;
+        }
+
+        .tui-line.dim { color: var(--text-dim); }
+        .tui-line.accent { color: var(--accent); }
+        .tui-line.green { color: var(--green); }
+        .tui-line.yellow { color: var(--yellow); }
+        .tui-line.orange { color: var(--orange); }
+        .tui-line.red { color: var(--red); }
+
+        .tui-line.tool-call {
+            color: var(--orange);
+            padding: 0.25rem 0.5rem;
+            background: var(--orange-dim);
+            border-radius: 4px;
+            display: inline-block;
+            margin: 0.2rem 0;
+        }
+
+        .tui-approval {
+            background: rgba(234, 179, 8, 0.08);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .tui-approval-title {
+            font-weight: 700;
+            color: var(--yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        .tui-approval-options {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tui-approval-btn {
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tui-approval-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .tui-approval-btn.approve {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--green);
+        }
+
+        .tui-approval-btn.deny {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red);
+        }
+
+        .tui-approval-btn.active {
+            background: var(--green-dim);
+            border-color: var(--green);
+        }
+
+        /* Steer input */
+        .tui-steer-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+
+        .tui-steer-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 0.4rem 0.75rem;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            outline: none;
+        }
+
+        .tui-steer-input input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Interrupt badge */
+        .interrupt-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            animation: fadeInMsg 0.3s ease;
+        }
+
+        .interrupt-badge.steer { background: var(--accent-dim); color: var(--accent); }
+        .interrupt-badge.abort { background: var(--red-dim); color: var(--red); }
+        .interrupt-badge.followup { background: var(--green-dim); color: var(--green); }
+
+        /* Scenario tabs */
+        .scenario-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin: 2rem 0 1rem;
+        }
+
+        .scenario-tab {
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scenario-tab:hover { color: var(--text-secondary); border-color: var(--border-light); }
+        .scenario-tab.active { color: var(--text-primary); background: var(--accent-dim); border-color: var(--accent); }
+
+        /* Callout */
+        .callout {
+            background: var(--accent-dim);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .callout-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        /* ===== Plan Demo ===== */
+        .plan-demo {
+            margin-top: 2rem;
+            max-width: 640px;
+        }
+
+        .plan-card {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .plan-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--accent-dim);
+        }
+
+        .plan-card-icon { font-size: 1.5rem; }
+
+        .plan-card-title {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .plan-card-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        .plan-card-body { padding: 1.25rem; }
+
+        .plan-title-row {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .plan-content {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .plan-content p { margin-bottom: 0.75rem; max-width: none; }
+        .plan-content ol { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+        .plan-content li { padding: 0.15rem 0; }
+
+        .plan-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .plan-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .plan-btn:hover { border-color: var(--border-light); }
+        .plan-btn.approve:hover { background: var(--green-dim); color: var(--green); border-color: rgba(34, 197, 94, 0.3); }
+        .plan-btn.deny:hover { background: var(--red-dim); color: var(--red); border-color: rgba(239, 68, 68, 0.3); }
+        .plan-btn.edit:hover { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(234, 179, 8, 0.3); }
+
+        .plan-btn.chosen { opacity: 1; }
+        .plan-btn.faded { opacity: 0.3; pointer-events: none; }
+
+        .plan-result {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            min-height: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Building Agents That Never Forget</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-the-insight.html">Insight</a>
+        <a href="04-the-harness.html">Harness</a>
+        <a href="05-prompts-and-context.html">Prompts</a>
+        <a href="06-workspace.html">Workspace</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-mastracode.html">MastraCode</a>
+        <a href="10-the-proof.html">Proof</a>
+        <a href="11-thank-you.html">Thanks</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <!-- Section 1: Overview -->
+        <div class="section" id="hitl-overview">
+            <p class="section-label">Human-in-the-Loop</p>
+            <h2>The harness should ask, not just act</h2>
+            <p>Users need to interrupt, bail, and queue the next message. Interrupts aren't edge cases — they're core UX.</p>
+
+            <div class="card-grid fade-on-scroll" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="card" style="border-color: rgba(99, 102, 241, 0.2);">
+                    <div class="card-icon">📋</div>
+                    <h4>Plan Approval</h4>
+                    <p>Agent submits a plan. You approve, deny, or edit before any code changes.</p>
+                </div>
+                <div class="card" style="border-color: rgba(234, 179, 8, 0.2);">
+                    <div class="card-icon">🛡️</div>
+                    <h4>Tool Approval</h4>
+                    <p>Approve, deny, or always-allow tool calls before they execute.</p>
+                </div>
+                <div class="card" style="border-color: rgba(239, 68, 68, 0.2);">
+                    <div class="card-icon">⛔</div>
+                    <h4>Abort</h4>
+                    <p>Kill the current operation. Or steer mid-stream to redirect the agent.</p>
+                </div>
+                <div class="card" style="border-color: rgba(34, 197, 94, 0.2);">
+                    <div class="card-icon">📨</div>
+                    <h4>Follow-Up</h4>
+                    <p>Queue a message while the agent is busy. Sent after current op finishes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Plan Approval -->
+        <div class="section" id="plan-approval">
+            <p class="section-label">Plan Approval</p>
+            <h2>The agent submits. You decide.</h2>
+            <p>In PLAN mode, the agent explores and designs — then submits a plan for your approval before any code changes happen.</p>
+
+            <div class="plan-demo" id="plan-demo">
+                <div class="plan-card">
+                    <div class="plan-card-header">
+                        <span class="plan-card-icon">📋</span>
+                        <div>
+                            <div class="plan-card-title">submit_plan</div>
+                            <div class="plan-card-subtitle">Agent is requesting approval</div>
+                        </div>
+                    </div>
+                    <div class="plan-card-body">
+                        <div class="plan-title-row">
+                            <strong>Add rate limiting to API endpoints</strong>
+                        </div>
+                        <div class="plan-content">
+                            <p><strong>Overview</strong><br>Add Redis-backed rate limiting middleware to all public API routes.</p>
+                            <p><strong>Steps</strong></p>
+                            <ol>
+                                <li><code>src/api/middleware/rate-limit.ts</code> — Create rate limiter using existing Redis client</li>
+                                <li><code>src/api/index.ts</code> — Register middleware before route handlers</li>
+                                <li><code>src/api/middleware/rate-limit.test.ts</code> — Add tests for limit enforcement and Redis failure fallback</li>
+                                <li><code>src/config/defaults.ts</code> — Add configurable limits (100 req/min default)</li>
+                            </ol>
+                            <p><strong>Verification</strong><br><code>npm test</code> and <code>tsc --noEmit</code></p>
+                        </div>
+                    </div>
+                    <div class="plan-card-actions" id="plan-actions">
+                        <button class="plan-btn approve" id="plan-approve">✓ Approve</button>
+                        <button class="plan-btn deny" id="plan-deny">✗ Deny</button>
+                        <button class="plan-btn edit" id="plan-edit">✎ Edit</button>
+                    </div>
+                </div>
+                <div class="plan-result" id="plan-result"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: Interactive TUI Demo -->
+        <div class="section wide" id="tui-demo">
+            <p class="section-label">Tool Approval, Steer & Ask</p>
+            <h2>Interactive steering demo</h2>
+            <p>Click through each scenario to see how the harness handles user interrupts.</p>
+
+            <div class="scenario-tabs">
+                <button class="scenario-tab active" data-scenario="approval">Tool Approval</button>
+                <button class="scenario-tab" data-scenario="steer">Steer Mid-Stream</button>
+                <button class="scenario-tab" data-scenario="ask">Ask User (Option D)</button>
+            </div>
+
+            <div class="tui-demo">
+                <div class="tui-window">
+                    <div class="tui-titlebar">
+                        <div class="tui-dots">
+                            <div class="tui-dot red"></div>
+                            <div class="tui-dot yellow"></div>
+                            <div class="tui-dot green"></div>
+                        </div>
+                        <div class="tui-title">Mastra Code — steering demo</div>
+                    </div>
+                    <div class="tui-body" id="tui-body"></div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+
+    // ===== TUI SCENARIO DEMO =====
+    (function () {
+        const body = document.getElementById('tui-body');
+        const tabs = document.querySelectorAll('.scenario-tab');
+
+        const scenarios = {
+            approval: [
+                { type: 'user', text: '> Delete all test fixtures and rebuild them' },
+                { type: 'agent', text: 'I\'ll remove the old fixtures and create new ones.' },
+                { type: 'tool', text: '⚡ execute_command("rm -rf tests/fixtures/")' },
+                { type: 'approval', title: '⚠️ Tool Approval Required', detail: 'execute_command wants to run: rm -rf tests/fixtures/', options: ['✓ Approve', '✗ Deny', '✓ Always allow shell'] },
+                { type: 'approved', text: '✓ Approved — executing...' },
+                { type: 'result', text: '   Done. Removed 24 fixture files.' },
+                { type: 'agent', text: 'Fixtures removed. Now creating new ones from the schema...' },
+                { type: 'tool', text: '⚡ write_file("tests/fixtures/users.json")' },
+                { type: 'result', text: '   ✓ Created — 0 diagnostics' },
+            ],
+            steer: [
+                { type: 'user', text: '> Refactor the auth module to use JWT' },
+                { type: 'agent', text: 'I\'ll start by reading the current auth implementation...' },
+                { type: 'tool', text: '⚡ view("src/auth/index.ts")' },
+                { type: 'result', text: '   240 lines loaded' },
+                { type: 'agent', text: 'I see session-based auth. Let me read the middleware too...' },
+                { type: 'tool', text: '⚡ view("src/auth/middleware.ts")' },
+                { type: 'interrupt', badge: 'steer', text: '↯ STEER' },
+                { type: 'user', text: '> Actually, just add JWT as an option alongside sessions' },
+                { type: 'agent-steer', text: '↩ Previous operation aborted. Adjusting approach...' },
+                { type: 'agent', text: 'Got it — I\'ll add JWT as an alternative strategy, keeping sessions intact.' },
+            ],
+            ask: [
+                { type: 'user', text: '> Set up the database for this project' },
+                { type: 'agent', text: 'I need to know a few things first.' },
+                { type: 'question', title: '❓ Which database do you want to use?', options: ['A) PostgreSQL', 'B) SQLite', 'C) MongoDB', ''] },
+                { type: 'option-d', text: '> Actually, use LibSQL — it\'s SQLite-compatible but with replication' },
+                { type: 'agent', text: 'Great choice. LibSQL with Turso it is. Let me set that up...' },
+                { type: 'tool', text: '⚡ execute_command("pnpm add @libsql/client")' },
+                { type: 'result', text: '   Added 1 package' },
+                { type: 'agent', text: 'Installed. Creating the connection module now...' },
+            ],
+        };
+
+        function renderScenario(id) {
+            body.innerHTML = '';
+            const lines = scenarios[id];
+            let delay = 0;
+
+            lines.forEach((line) => {
+                delay += 200;
+                setTimeout(() => {
+                    const el = document.createElement('div');
+
+                    switch (line.type) {
+                        case 'user':
+                            el.className = 'tui-line accent';
+                            el.textContent = line.text;
+                            break;
+                        case 'option-d':
+                            el.className = 'tui-line green';
+                            el.style.fontWeight = '700';
+                            el.textContent = line.text;
+                            break;
+                        case 'agent':
+                            el.className = 'tui-line';
+                            el.textContent = line.text;
+                            break;
+                        case 'agent-steer':
+                            el.className = 'tui-line dim';
+                            el.style.fontStyle = 'italic';
+                            el.textContent = line.text;
+                            break;
+                        case 'tool':
+                            el.className = 'tui-line tool-call';
+                            el.textContent = line.text;
+                            break;
+                        case 'result':
+                            el.className = 'tui-line dim';
+                            el.textContent = line.text;
+                            break;
+                        case 'approved':
+                            el.className = 'tui-line green';
+                            el.textContent = line.text;
+                            break;
+                        case 'approval':
+                            el.className = 'tui-approval';
+                            el.innerHTML = `
+                                <div class="tui-approval-title">${line.title}</div>
+                                <div class="tui-line dim">${line.detail}</div>
+                                <div class="tui-approval-options">
+                                    ${line.options.map((o, i) =>
+                                        `<button class="tui-approval-btn ${i === 0 ? 'approve' : ''}">${o}</button>`
+                                    ).join('')}
+                                </div>
+                            `;
+                            break;
+                        case 'interrupt':
+                            el.innerHTML = `<span class="interrupt-badge ${line.badge}">${line.text}</span>`;
+                            break;
+                        case 'question':
+                            el.className = 'tui-approval';
+                            el.innerHTML = `
+                                <div class="tui-approval-title">${line.title}</div>
+                                <div class="tui-approval-options" style="flex-direction: column; align-items: flex-start;">
+                                    ${line.options.map((o) =>
+                                        o ? `<div class="tui-line" style="padding: 0.15rem 0;">${o}</div>` :
+                                        `<div class="tui-steer-input"><span class="dim">D)</span> <input type="text" placeholder="Type your own answer..." disabled></div>`
+                                    ).join('')}
+                                </div>
+                            `;
+                            break;
+                    }
+
+                    body.appendChild(el);
+                    body.scrollTop = body.scrollHeight;
+                }, delay);
+
+                delay += (line.type === 'approval' || line.type === 'question') ? 600 : 300;
+            });
+        }
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                tabs.forEach((t) => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderScenario(tab.dataset.scenario);
+            });
+        });
+
+        renderScenario('approval');
+    })();
+
+    // ===== PLAN APPROVAL DEMO =====
+    (function () {
+        const approveBtn = document.getElementById('plan-approve');
+        const denyBtn = document.getElementById('plan-deny');
+        const editBtn = document.getElementById('plan-edit');
+        const result = document.getElementById('plan-result');
+        const btns = [approveBtn, denyBtn, editBtn];
+
+        function choose(chosen, text) {
+            btns.forEach(b => {
+                if (b === chosen) b.classList.add('chosen');
+                else b.classList.add('faded');
+            });
+            result.innerHTML = text;
+        }
+
+        function reset() {
+            btns.forEach(b => b.classList.remove('chosen', 'faded'));
+            result.innerHTML = '';
+        }
+
+        approveBtn.onclick = () => {
+            choose(approveBtn, '<span class="green">✓ Plan approved.</span> Harness switches to <strong>BUILD</strong> mode and starts implementing.');
+        };
+        denyBtn.onclick = () => {
+            choose(denyBtn, '<span class="red">✗ Plan denied.</span> Agent stays in PLAN mode. You can give feedback and ask for a revised plan.');
+        };
+        editBtn.onclick = () => {
+            choose(editBtn, '<span class="yellow">✎ Editing plan.</span> You can modify the plan text directly, then approve the revised version.');
+        };
+
+        btns.forEach(b => {
+            b.addEventListener('click', () => {
+                if (b.classList.contains('chosen')) {
+                    setTimeout(reset, 2000);
+                }
+            });
+        });
+    })();
+
+
+</script>
+<script>initKeyNav("07-modes.html", "09-mastracode.html");</script>
+
+</body>
+</html>

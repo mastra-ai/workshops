@@ -1,0 +1,623 @@
+    <meta charset="UTF-8">
+    <title>Memory — Agent Harness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Context Growth Animation ===== */
+        .growth-stage {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+            height: 480px;
+            margin-top: 1.5rem;
+        }
+
+        .growth-context {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .growth-context-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .growth-context-header span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+        }
+
+        .growth-token-count {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            transition: color 0.3s;
+        }
+
+        .growth-token-count.warning { color: var(--orange); }
+        .growth-token-count.danger { color: var(--red); }
+
+        .growth-bars {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem 0.75rem;
+            min-height: 0;
+        }
+
+        .growth-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 2px 0;
+            animation: fadeInMsg 0.3s ease;
+        }
+
+        .growth-bar-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: 52px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .growth-bar-label.user { color: var(--yellow); }
+        .growth-bar-label.asst { color: var(--accent); }
+        .growth-bar-label.tool { color: var(--orange); }
+        .growth-bar-label.obs { color: var(--green); }
+
+        .growth-bar-fill {
+            height: 6px;
+            border-radius: 3px;
+            min-width: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .growth-bar-fill.user { background: var(--yellow); opacity: 0.5; }
+        .growth-bar-fill.asst { background: var(--accent); opacity: 0.4; }
+        .growth-bar-fill.tool { background: var(--orange); opacity: 0.6; }
+        .growth-bar-fill.obs { background: var(--green); opacity: 0.5; }
+
+        .growth-bar-item.tool-bar .growth-bar-fill { height: 10px; opacity: 0.7; }
+
+        .growth-bar-item.removing {
+            opacity: 0;
+            transform: translateX(-20px);
+            max-height: 0;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        /* Threshold bar at bottom */
+        .growth-threshold {
+            padding: 0.5rem 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .growth-threshold-track {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .growth-threshold-fill {
+            height: 100%;
+            background: var(--yellow);
+            opacity: 0.5;
+            border-radius: 3px;
+            transition: width 0.3s ease, background 0.3s;
+            width: 0%;
+        }
+
+        .growth-threshold-fill.warning { background: var(--orange); opacity: 0.7; }
+        .growth-threshold-fill.danger { background: var(--red); opacity: 0.8; }
+        .growth-threshold-fill.compacting { background: var(--green); opacity: 0.6; animation: compactPulse 0.6s ease infinite; }
+
+        @keyframes compactPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .growth-threshold-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        /* Side panel: cache + info */
+        .growth-side {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .growth-info-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            flex: 1;
+        }
+
+        .growth-info-box h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .growth-cache-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .growth-cache-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .growth-cache-dot.hit { background: var(--green); }
+        .growth-cache-dot.miss { background: var(--red); }
+
+        .growth-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .growth-stat:last-child { border-bottom: none; }
+
+        .growth-stat-value {
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+        }
+
+        .growth-event {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            padding: 0.3rem 0;
+            animation: fadeInMsg 0.3s ease;
+        }
+
+        .growth-event.compact { color: var(--green); font-weight: 600; }
+
+        /* Callout */
+        .callout {
+            background: var(--accent-dim);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .callout-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .section.demo-section {
+            padding: 1rem 0;
+            justify-content: flex-start;
+            min-height: unset;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Agent Harness</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-spectrum.html">Spectrum</a>
+        <a href="03-the-harness.html">The Harness</a>
+        <a href="04-prompts-and-context.html">Prompts</a>
+        <a href="05-workspace.html">Workspace</a>
+        <a href="06-memory.html">Memory</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-protocols.html">Protocols</a>
+        <a href="10-streaming.html">Streaming</a>
+        <a href="11-policies.html">Policies</a>
+        <a href="12-checklist.html">Checklist</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <!-- Section 1: Why memory matters -->
+        <div class="section" id="why-memory">
+            <p class="section-label">Memory</p>
+            <h2>Memory has three jobs</h2>
+
+            <div class="card-grid fade-on-scroll" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="card">
+                    <div class="card-icon">💾</div>
+                    <h4>Recall</h4>
+                    <p>Every message stored. Resume any thread. The foundation everything else is built on.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🗜️</div>
+                    <h4>Compression</h4>
+                    <p>Context grows. Compression shrinks it. The Observer/Reflector runs in the background.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💰</div>
+                    <h4>Caching</h4>
+                    <p>Stable prompt prefix = prompt cache hits. Compression preserves the prefix so caches stay warm.</p>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Section 2: Context growth animation -->
+        <div class="section wide demo-section" id="growth-demo">
+            <p class="section-label">Watch It Happen</p>
+            <h2>Context grows. Observational Memory manages it.</h2>
+            <p class="inline-note" style="margin-bottom: 1rem;">Watch the context window fill up. When it hits the threshold, the Observer compresses messages into observations — no retrieval, no queries.</p>
+
+            <div class="demo-controls">
+                <button class="demo-btn" id="growth-start">▶ Start</button>
+                <button class="demo-btn" id="growth-pause" style="display:none;">⏸ Pause</button>
+                <button class="demo-btn reset" id="growth-reset" style="display:none;">↺ Reset</button>
+                <div class="speed-control">
+                    <label>Speed:</label>
+                    <input type="range" id="growth-speed" min="1" max="5" value="3">
+                    <span id="growth-speed-label">1×</span>
+                </div>
+            </div>
+
+            <div class="growth-stage">
+                <div class="growth-context">
+                    <div class="growth-context-header">
+                        <span>Context Window</span>
+                        <span class="growth-token-count" id="growth-tokens">0 / 30,000 tokens</span>
+                    </div>
+                    <div class="growth-bars" id="growth-bars"></div>
+                    <div class="growth-threshold">
+                        <div class="growth-threshold-track">
+                            <div class="growth-threshold-fill" id="growth-fill"></div>
+                        </div>
+                        <div class="growth-threshold-label">
+                            <span>0%</span>
+                            <span>Observer threshold: 30k</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="growth-side">
+                    <div class="growth-info-box">
+                        <h4>Prompt Cache</h4>
+                        <div class="growth-cache-status">
+                            <div class="growth-cache-dot hit" id="cache-dot"></div>
+                            <span id="cache-label">HIT — stable prefix</span>
+                        </div>
+                        <div class="growth-stat">
+                            <span>Cache hits</span>
+                            <span class="growth-stat-value" id="cache-hits">0</span>
+                        </div>
+                        <div class="growth-stat">
+                            <span>Cache misses</span>
+                            <span class="growth-stat-value" id="cache-misses">0</span>
+                        </div>
+                    </div>
+                    <div class="growth-info-box" style="flex: 2;">
+                        <h4>Event Log</h4>
+                        <div id="event-log" style="overflow-y: auto; max-height: 200px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Bridge to modes -->
+        <div class="section" id="mem-bridge" style="text-align: center; align-items: center;">
+            <h2 id="mem-bridge-title">Memory keeps the agent running</h2>
+            <div class="intro-arrows" style="margin-top: 2rem;">
+                <button class="intro-arrow" id="mem-bridge-prev" disabled>←</button>
+                <button class="intro-arrow" id="mem-bridge-next">→</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+// ===== CONTEXT GROWTH ANIMATION =====
+    (function () {
+        const barsEl = document.getElementById('growth-bars');
+        const tokensEl = document.getElementById('growth-tokens');
+        const fillEl = document.getElementById('growth-fill');
+        const cacheDot = document.getElementById('cache-dot');
+        const cacheLabel = document.getElementById('cache-label');
+        const cacheHitsEl = document.getElementById('cache-hits');
+        const cacheMissesEl = document.getElementById('cache-misses');
+
+        const eventLog = document.getElementById('event-log');
+        const startBtn = document.getElementById('growth-start');
+        const pauseBtn = document.getElementById('growth-pause');
+        const resetBtn = document.getElementById('growth-reset');
+        const speedSlider = document.getElementById('growth-speed');
+        const speedLabel = document.getElementById('growth-speed-label');
+
+        const THRESHOLD = 30000;
+        let tokens = 0;
+        let running = false;
+        let paused = false;
+        let step = 0;
+        let cacheHits = 0;
+        let cacheMisses = 0;
+
+        let compactions = 0;
+
+        const script = [
+            { role: 'user', text: 'Fix the auth bug in login.ts', t: 120 },
+            { role: 'asst', text: 'Let me look at the file...', t: 80 },
+            { role: 'tool', text: 'view("src/auth/login.ts") → 240 lines', t: 2800 },
+            { role: 'asst', text: 'Found the issue — missing token refresh', t: 150 },
+            { role: 'tool', text: 'string_replace_lsp(...) → 2 diagnostics', t: 1200 },
+            { role: 'asst', text: 'Fixed. Running tests...', t: 90 },
+            { role: 'tool', text: 'execute_command("npm test") → 47 tests', t: 4200 },
+            { role: 'asst', text: 'All tests pass. Also checking types...', t: 100 },
+            { role: 'tool', text: 'execute_command("tsc --noEmit") → clean', t: 3800 },
+            { role: 'user', text: 'Now add rate limiting to the API', t: 110 },
+            { role: 'asst', text: 'Let me explore the API structure...', t: 90 },
+            { role: 'tool', text: 'search_content("rateLimit") → 0 matches', t: 800 },
+            { role: 'tool', text: 'view("src/api/middleware/") → 5 files', t: 3200 },
+            { role: 'asst', text: 'No existing rate limiting. I\'ll add it...', t: 160 },
+            { role: 'tool', text: 'write_file("src/api/middleware/rate-limit.ts")', t: 2400 },
+            { role: 'tool', text: 'string_replace_lsp("src/api/index.ts")', t: 1800 },
+            { role: 'asst', text: 'Rate limiting added. Testing...', t: 100 },
+            { role: 'tool', text: 'execute_command("npm test") → 52 tests', t: 5200 },
+            { role: 'user', text: 'Add Redis caching for the rate limiter', t: 130 },
+            { role: 'tool', text: 'search_content("redis") → package.json', t: 900 },
+            { role: 'tool', text: 'view("src/lib/redis.ts") → 80 lines', t: 2600 },
+            { role: 'asst', text: 'Integrating Redis store for rate limits...', t: 140 },
+            { role: 'tool', text: 'string_replace_lsp(rate-limit.ts)', t: 3100 },
+            { role: 'tool', text: 'execute_command("npm test") → all pass', t: 4800 },
+        ];
+
+        function getSpeed() {
+            const v = parseInt(speedSlider.value);
+            const speeds = { 1: 0.25, 2: 0.5, 3: 1, 4: 2, 5: 4 };
+            speedLabel.textContent = speeds[v] + '×';
+            return speeds[v];
+        }
+
+        function addBar(role, text, t) {
+            const item = document.createElement('div');
+            const isToolBar = role === 'tool' && t > 2000;
+            item.className = `growth-bar-item${isToolBar ? ' tool-bar' : ''}`;
+            const widthPct = Math.min(95, Math.max(5, (t / 5000) * 95));
+            item.innerHTML = `
+                <span class="growth-bar-label ${role}">${role}</span>
+                <div class="growth-bar-fill ${role}" style="width: ${widthPct}%"></div>
+            `;
+            item.title = text;
+            barsEl.appendChild(item);
+            barsEl.scrollTop = barsEl.scrollHeight;
+        }
+
+        function addEvent(text, cls) {
+            const el = document.createElement('div');
+            el.className = `growth-event${cls ? ' ' + cls : ''}`;
+            el.textContent = text;
+            eventLog.appendChild(el);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        function updateUI() {
+            const pct = Math.min(100, (tokens / THRESHOLD) * 100);
+            tokensEl.textContent = `${tokens.toLocaleString()} / ${THRESHOLD.toLocaleString()} tokens`;
+            fillEl.style.width = pct + '%';
+
+            if (pct > 85) {
+                fillEl.classList.add('danger');
+                fillEl.classList.remove('warning');
+                tokensEl.classList.add('danger');
+                tokensEl.classList.remove('warning');
+            } else if (pct > 60) {
+                fillEl.classList.add('warning');
+                fillEl.classList.remove('danger');
+                tokensEl.classList.add('warning');
+                tokensEl.classList.remove('danger');
+            } else {
+                fillEl.classList.remove('warning', 'danger');
+                tokensEl.classList.remove('warning', 'danger');
+            }
+        }
+
+        function setCacheHit(isHit) {
+            cacheDot.className = 'growth-cache-dot ' + (isHit ? 'hit' : 'miss');
+            cacheLabel.textContent = isHit ? 'HIT — stable prefix' : 'MISS — prefix changed';
+            if (isHit) cacheHits++; else cacheMisses++;
+            cacheHitsEl.textContent = cacheHits;
+            cacheMissesEl.textContent = cacheMisses;
+        }
+
+        async function doCompaction() {
+            fillEl.classList.add('compacting');
+            addEvent('🔄 Observer triggered — compressing messages...', 'compact');
+
+            // Animate bars being removed
+            const bars = barsEl.querySelectorAll('.growth-bar-item');
+            const toRemove = Math.floor(bars.length * 0.7);
+            for (let i = 0; i < toRemove; i++) {
+                bars[i].classList.add('removing');
+            }
+
+            await wait(800 / getSpeed());
+
+            // Remove animated bars
+            barsEl.querySelectorAll('.removing').forEach((b) => b.remove());
+
+            // Add observation bars
+            const obsTokens = Math.floor(tokens * 0.15);
+            tokens = obsTokens + Math.floor(tokens * 0.15);
+
+            for (let i = 0; i < 3; i++) {
+                const item = document.createElement('div');
+                item.className = 'growth-bar-item';
+                const w = 20 + Math.random() * 40;
+                item.innerHTML = `
+                    <span class="growth-bar-label obs">obs</span>
+                    <div class="growth-bar-fill obs" style="width: ${w}%"></div>
+                `;
+                barsEl.insertBefore(item, barsEl.firstChild);
+            }
+
+            compactions++;
+            addEvent(`✓ Compressed to ${tokens.toLocaleString()} tokens (${compactions}x)`, 'compact');
+            fillEl.classList.remove('compacting', 'danger', 'warning');
+            setCacheHit(false);
+            addEvent('⚠ Cache miss — observations changed prefix');
+            updateUI();
+        }
+
+        async function runAnimation() {
+            running = true;
+            paused = false;
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = '';
+            resetBtn.style.display = '';
+
+            while (step < script.length && running) {
+                if (paused) {
+                    await wait(100);
+                    continue;
+                }
+
+                const s = script[step];
+                tokens += s.t;
+                addBar(s.role, s.text, s.t);
+                addEvent(`${s.role}: ${s.text}`);
+                setCacheHit(true);
+                updateUI();
+
+                // Check threshold
+                if (tokens >= THRESHOLD * 0.9) {
+                    await wait(400 / getSpeed());
+                    await doCompaction();
+                }
+
+                step++;
+                await wait(500 / getSpeed());
+            }
+
+            if (running) {
+                addEvent('✓ Session complete');
+                running = false;
+                pauseBtn.style.display = 'none';
+            }
+        }
+
+        function reset() {
+            running = false;
+            paused = false;
+            step = 0;
+            tokens = 0;
+            cacheHits = 0;
+            cacheMisses = 0;
+            compactions = 0;
+            barsEl.innerHTML = '';
+            eventLog.innerHTML = '';
+            fillEl.style.width = '0%';
+            fillEl.classList.remove('warning', 'danger', 'compacting');
+            tokensEl.textContent = '0 / 30,000 tokens';
+            tokensEl.classList.remove('warning', 'danger');
+            cacheDot.className = 'growth-cache-dot hit';
+            cacheLabel.textContent = 'HIT — stable prefix';
+            cacheHitsEl.textContent = '0';
+            cacheMissesEl.textContent = '0';
+
+            startBtn.style.display = '';
+            pauseBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+        }
+
+        startBtn.onclick = runAnimation;
+        pauseBtn.onclick = () => {
+            paused = !paused;
+            pauseBtn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+        };
+        resetBtn.onclick = reset;
+        speedSlider.oninput = getSpeed;
+    })();
+
+    // ===== BRIDGE TO MODES =====
+    (function () {
+        const title = document.getElementById('mem-bridge-title');
+        const prevBtn = document.getElementById('mem-bridge-prev');
+        const nextBtn = document.getElementById('mem-bridge-next');
+
+        const slides = [
+            "Memory keeps the agent running",
+            "But what should it be doing?",
+            "Let's look at how modes guide intent",
+        ];
+
+        let current = 0;
+
+        function render(idx) {
+            title.style.opacity = '0';
+            title.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                title.textContent = slides[idx];
+                title.style.opacity = '1';
+                title.style.transform = 'translateY(0)';
+            }, 300);
+
+            prevBtn.disabled = idx === 0;
+            if (idx === slides.length - 1) {
+                nextBtn.disabled = false;
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => { current++; render(current); };
+            }
+        }
+
+        title.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        prevBtn.onclick = () => { if (current > 0) { current--; render(current); } };
+        nextBtn.onclick = () => { current++; render(current); };
+    })();
+</script>
+
+<script>initKeyNav("05-workspace.html", "07-modes.html");</script>
+</body>
+</html>

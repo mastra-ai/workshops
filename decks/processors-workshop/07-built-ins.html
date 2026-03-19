@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Built-ins — Processors: Beyond Guardrails</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .category-section {
+            margin-bottom: 2rem;
+        }
+
+        .chip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Processors: Beyond Guardrails</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-everything-is-a-processor.html">Insight</a>
+        <a href="04-five-phases.html">Phases</a>
+        <a href="05-the-ui.html">UI</a>
+        <a href="06-building-processors.html">Building</a>
+        <a href="06b-performance.html">Perf</a>
+        <a href="06c-enterprise-flow.html">Flow</a>
+        <a href="07-built-ins.html">Built-ins</a>
+        <a href="08-wrap-up.html">Wrap-up</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <div class="section fade-on-scroll" id="built-ins">
+            <p class="section-label">Battery Included</p>
+            <h2>Built-in <span class="accent">processors</span></h2>
+            <p>Mastra ships processors you can use out of the box — or as inspiration for your own.</p>
+
+            <div class="mt-4">
+                <!-- Safety -->
+                <div class="category-section stagger-in">
+                    <div class="category-badge" style="background: var(--red-dim); color: var(--red);">
+                        🛡️ Safety
+                    </div>
+                    <div class="chip-grid">
+                        <div class="processor-chip">
+                            <span class="chip-icon">🔒</span>
+                            <div>
+                                <div class="chip-name">PIIDetector</div>
+                                <div class="chip-desc">Detects & redacts personal information</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">⚖️</span>
+                            <div>
+                                <div class="chip-name">ModerationProcessor</div>
+                                <div class="chip-desc">Content safety classification</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🚫</span>
+                            <div>
+                                <div class="chip-name">PromptInjectionDetector</div>
+                                <div class="chip-desc">Blocks injection attempts</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🔤</span>
+                            <div>
+                                <div class="chip-name">UnicodeNormalizer</div>
+                                <div class="chip-desc">Normalizes encoding attacks</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🧹</span>
+                            <div>
+                                <div class="chip-name">SystemPromptScrubber</div>
+                                <div class="chip-desc">Detects & blocks system prompt leakage</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance -->
+                <div class="category-section stagger-in">
+                    <div class="category-badge" style="background: var(--yellow-dim); color: var(--yellow);">
+                        ⚡ Performance
+                    </div>
+                    <div class="chip-grid">
+                        <div class="processor-chip">
+                            <span class="chip-icon">📏</span>
+                            <div>
+                                <div class="chip-name">TokenLimiter</div>
+                                <div class="chip-desc">Enforces context window limits</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">📦</span>
+                            <div>
+                                <div class="chip-name">BatchParts</div>
+                                <div class="chip-desc">Batches streaming parts efficiently</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">✂️</span>
+                            <div>
+                                <div class="chip-name">ToolCallFilter</div>
+                                <div class="chip-desc">Strips tool calls from message context</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Intelligence -->
+                <div class="category-section stagger-in">
+                    <div class="category-badge" style="background: var(--accent-dim); color: var(--accent);">
+                        🧠 Intelligence
+                    </div>
+                    <div class="chip-grid">
+                        <div class="processor-chip">
+                            <span class="chip-icon">📋</span>
+                            <div>
+                                <div class="chip-name">StructuredOutput</div>
+                                <div class="chip-desc">Schema-based response formatting</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🎯</span>
+                            <div>
+                                <div class="chip-name">SkillsProcessor</div>
+                                <div class="chip-desc">Dynamic skill-based routing</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🔍</span>
+                            <div>
+                                <div class="chip-name">ToolSearchProcessor</div>
+                                <div class="chip-desc">Dynamic tool discovery per step</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🌍</span>
+                            <div>
+                                <div class="chip-name">LanguageDetector</div>
+                                <div class="chip-desc">Detects & routes by language</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory -->
+                <div class="category-section stagger-in">
+                    <div class="category-badge" style="background: var(--green-dim); color: var(--green);">
+                        💾 Memory
+                    </div>
+                    <div class="chip-grid">
+                        <div class="processor-chip">
+                            <span class="chip-icon">📜</span>
+                            <div>
+                                <div class="chip-name">MessageHistory</div>
+                                <div class="chip-desc">Thread-based message persistence</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">📝</span>
+                            <div>
+                                <div class="chip-name">WorkingMemory</div>
+                                <div class="chip-desc">Cross-conversation scratchpad</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🔎</span>
+                            <div>
+                                <div class="chip-name">SemanticRecall</div>
+                                <div class="chip-desc">Vector-based context retrieval</div>
+                            </div>
+                        </div>
+                        <div class="processor-chip">
+                            <span class="chip-icon">🧬</span>
+                            <div>
+                                <div class="chip-name">ObservationalMemory</div>
+                                <div class="chip-desc">Human-inspired observe & reflect</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>initKeyNav("06c-enterprise-flow.html", "08-wrap-up.html");</script>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+    <title>Harness — Building Agents That Never Forget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* ===== Intro text slider ===== */
+        .harness-intro {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - var(--topnav-height));
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .harness-intro-text {
+            z-index: 2;
+            position: relative;
+            background: var(--bg-primary);
+            padding: 1.5rem 3rem;
+            border-radius: 16px;
+        }
+
+        .harness-intro h2 {
+            font-size: 3rem;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .harness-intro h2.fading {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .harness-intro .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .harness-intro .subtitle.fading {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        /* Floating concern chips */
+        .concern-cloud {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .concern-chip {
+            position: absolute;
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+            padding: 0.3rem 0.7rem;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            opacity: 0;
+            white-space: nowrap;
+            animation: chipFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes chipFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .concern-chip.visible {
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        .concern-chip.gathered {
+            position: relative;
+            left: auto !important;
+            top: auto !important;
+            opacity: 1;
+            animation: none;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .concern-cloud.gathered {
+            position: relative;
+            inset: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            max-width: 750px;
+            margin: 2rem auto 0;
+            z-index: 2;
+        }
+
+        .concern-chip.accent { border-color: rgba(99, 102, 241, 0.3); color: var(--accent); }
+        .concern-chip.purple { border-color: rgba(168, 85, 247, 0.3); color: var(--purple); }
+        .concern-chip.green { border-color: rgba(34, 197, 94, 0.3); color: var(--green); }
+        .concern-chip.yellow { border-color: rgba(234, 179, 8, 0.3); color: var(--yellow); }
+        .concern-chip.orange { border-color: rgba(249, 115, 22, 0.3); color: var(--orange); }
+        .concern-chip.cyan { border-color: rgba(6, 182, 212, 0.3); color: var(--cyan); }
+        .concern-chip.red { border-color: rgba(239, 68, 68, 0.3); color: var(--red); }
+
+        .intro-nav {
+            z-index: 3;
+            position: relative;
+            margin-top: 3rem;
+        }
+
+        .intro-arrows {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .intro-arrow {
+            background: none;
+            border: 1px solid var(--border-light);
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-sans);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .intro-arrow:hover:not(:disabled) {
+            color: var(--text-secondary);
+            border-color: var(--text-dim);
+        }
+
+        .intro-arrow:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* ===== Architecture Grid ===== */
+        .arch-section {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .arch-root {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: var(--accent-dim);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .arch-root.visible { opacity: 1; transform: translateY(0); }
+
+        .arch-connector {
+            width: 1px;
+            height: 24px;
+            background: var(--border-light);
+            margin-bottom: 1rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .arch-connector.visible { opacity: 1; }
+
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .arch-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.3s;
+        }
+
+        .arch-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .arch-card:hover {
+            border-color: var(--border-light);
+        }
+
+        .arch-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .arch-card-icon { font-size: 1.15rem; }
+
+        .arch-card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .arch-card-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+
+        .arch-chip {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .arch-card-ref {
+            display: inline-block;
+            margin-top: 0.6rem;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .arch-card-ref:hover { color: var(--accent); }
+
+
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="01-intro.html" class="topnav-brand">Building Agents That Never Forget</a>
+    <div class="topnav-sections">
+        <a href="01-intro.html">Intro</a>
+        <a href="02-the-problem.html">Problem</a>
+        <a href="03-the-insight.html">Insight</a>
+        <a href="04-the-harness.html">Harness</a>
+        <a href="05-prompts-and-context.html">Prompts</a>
+        <a href="06-workspace.html">Workspace</a>
+        <a href="07-modes.html">Modes</a>
+        <a href="08-steering.html">Steering</a>
+        <a href="09-mastracode.html">MastraCode</a>
+        <a href="10-the-proof.html">Proof</a>
+        <a href="11-thank-you.html">Thanks</a>
+    </div>
+</nav>
+
+<div class="page">
+    <main class="main">
+
+        <!-- Section 1: Arrow-click intro -->
+        <div class="harness-intro" id="harness-intro">
+            <div class="concern-cloud" id="concern-cloud"></div>
+            <div class="harness-intro-text">
+                <h2 id="intro-title">What is an agent harness?</h2>
+                <p class="subtitle" id="intro-subtitle"></p>
+            </div>
+            <div class="intro-nav" style="z-index: 2; position: relative;">
+                <div class="intro-arrows">
+                    <button class="intro-arrow" id="intro-prev" disabled>←</button>
+                    <button class="intro-arrow" id="intro-next">→</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Architecture overview -->
+        <div class="section arch-section" id="hierarchy">
+            <p class="section-label">The Architecture</p>
+            <h2>How it all fits together</h2>
+
+            <div class="arch-root" id="arch-root">⚙️ Harness</div>
+            <div class="arch-connector" id="arch-conn"></div>
+
+            <div class="arch-grid" id="arch-grid">
+                <div class="arch-card">
+                    <div class="arch-card-header">
+                        <span class="arch-card-icon">🤖</span>
+                        <span class="arch-card-title">Agent</span>
+                    </div>
+                    <div class="arch-card-items">
+                        <span class="arch-chip">System Prompts</span>
+                        <span class="arch-chip">Memory</span>
+                        <span class="arch-chip">Tools</span>
+                        <span class="arch-chip">Skills</span>
+                    </div>
+                    <a href="05-prompts-and-context.html" class="arch-card-ref">→ Prompts</a>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-card-header">
+                        <span class="arch-card-icon">🎛️</span>
+                        <span class="arch-card-title">Modes</span>
+                    </div>
+                    <div class="arch-card-items">
+                        <span class="arch-chip">Build</span>
+                        <span class="arch-chip">Plan</span>
+                        <span class="arch-chip">Fast</span>
+                        <span class="arch-chip">Review</span>
+                        <span class="arch-chip">Triage</span>
+                    </div>
+                    <a href="07-modes.html" class="arch-card-ref">→ Modes</a>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-card-header">
+                        <span class="arch-card-icon">📁</span>
+                        <span class="arch-card-title">Workspace</span>
+                    </div>
+                    <div class="arch-card-items">
+                        <span class="arch-chip">Filesystem</span>
+                        <span class="arch-chip">Sandbox</span>
+                    </div>
+                    <a href="06-workspace.html" class="arch-card-ref">→ Workspace</a>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-card-header">
+                        <span class="arch-card-icon">🛡️</span>
+                        <span class="arch-card-title">Steering</span>
+                    </div>
+                    <div class="arch-card-items">
+                        <span class="arch-chip">Tool Approval</span>
+                        <span class="arch-chip">Steer / Abort</span>
+                        <span class="arch-chip">Ask User</span>
+                    </div>
+                    <a href="08-steering.html" class="arch-card-ref">→ Steering</a>
+                </div>
+                <div class="arch-card">
+                    <div class="arch-card-header">
+                        <span class="arch-card-icon">📡</span>
+                        <span class="arch-card-title">Events & Streaming</span>
+                    </div>
+                    <div class="arch-card-items">
+                        <span class="arch-chip">Protocols</span>
+                        <span class="arch-chip">Multi-Model</span>
+                    </div>
+                    
+                </div>
+                <div class="arch-card">
+                    <div class="arch-card-header">
+                        <span class="arch-card-icon">💰</span>
+                        <span class="arch-card-title">Policies & Cost</span>
+                    </div>
+                    <div class="arch-card-items">
+                        <span class="arch-chip">Permissions</span>
+                        <span class="arch-chip">Token Budget</span>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; width:100%; padding:1.5rem 0;">
+                <a href="05-prompts-and-context.html" class="intro-arrow" id="arch-continue" style="opacity:0; transition: opacity 0.4s ease;">→</a>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+
+    // ===== INTRO SLIDER WITH CONCERN CLOUD =====
+    (function () {
+        const title = document.getElementById('intro-title');
+        const subtitle = document.getElementById('intro-subtitle');
+        const cloud = document.getElementById('concern-cloud');
+        const prevBtn = document.getElementById('intro-prev');
+        const nextBtn = document.getElementById('intro-next');
+
+        const concerns = [
+            { text: 'thread management', cls: 'accent' },
+            { text: 'tool approval', cls: 'yellow' },
+            { text: 'prompt assembly', cls: 'purple' },
+            { text: 'model routing', cls: 'cyan' },
+            { text: 'abort / steer', cls: 'red' },
+            { text: 'cost tracking', cls: 'orange' },
+            { text: 'memory compaction', cls: 'green' },
+            { text: 'event emission', cls: 'accent' },
+            { text: 'MCP connections', cls: 'purple' },
+            { text: 'subagent spawn', cls: 'cyan' },
+            { text: 'stream parsing', cls: 'yellow' },
+            { text: 'tool policies', cls: 'orange' },
+            { text: 'mode switching', cls: 'green' },
+            { text: 'file sandboxing', cls: 'red' },
+            { text: 'skills discovery', cls: 'accent' },
+            { text: 'token counting', cls: 'yellow' },
+            { text: 'follow-up queue', cls: 'purple' },
+            { text: 'YOLO mode', cls: 'red' },
+            { text: 'session grants', cls: 'green' },
+            { text: 'LSP diagnostics', cls: 'cyan' },
+            { text: 'prompt caching', cls: 'orange' },
+            { text: 'observation threshold', cls: 'green' },
+            { text: 'auth / OAuth', cls: 'accent' },
+            { text: 'hook system', cls: 'purple' },
+            { text: 'plan approval', cls: 'yellow' },
+            { text: 'workspace init', cls: 'cyan' },
+            { text: 'resume threads', cls: 'orange' },
+            { text: 'multi-modal input', cls: 'accent' },
+            { text: 'error recovery', cls: 'red' },
+            { text: 'thinking level', cls: 'purple' },
+        ];
+
+        // Pre-create chips positioned to avoid the center text area
+        function randEdge() {
+            // Pick positions that avoid the center band (30%-70% horizontal, 30%-70% vertical)
+            let x, y;
+            if (Math.random() < 0.5) {
+                // Left or right edge
+                x = Math.random() < 0.5 ? (2 + Math.random() * 22) : (72 + Math.random() * 22);
+                y = 5 + Math.random() * 85;
+            } else {
+                // Top or bottom edge
+                x = 5 + Math.random() * 85;
+                y = Math.random() < 0.5 ? (3 + Math.random() * 22) : (72 + Math.random() * 22);
+            }
+            return { x, y };
+        }
+
+        const chips = concerns.map((c, i) => {
+            const el = document.createElement('span');
+            el.className = `concern-chip ${c.cls}`;
+            el.textContent = c.text;
+            const pos = randEdge();
+            el.style.left = pos.x + '%';
+            el.style.top = pos.y + '%';
+            el.style.animationDelay = (Math.random() * 4) + 's';
+            cloud.appendChild(el);
+            return el;
+        });
+
+        const slides = [
+            {
+                title: 'What is an agent harness?',
+                subtitle: '',
+                showChips: false,
+            },
+            {
+                title: 'Actually, it\'s a lot of things',
+                subtitle: '',
+                showChips: true,
+            },
+            {
+                title: 'Thankfully, there\'s a Mastra primitive for that!',
+                subtitle: '',
+                showChips: 'gathered',
+            },
+        ];
+
+        let current = 0;
+
+        function render(idx) {
+            const slide = slides[idx];
+
+            title.classList.add('fading');
+            subtitle.classList.add('fading');
+
+            setTimeout(() => {
+                title.textContent = slide.title;
+                subtitle.textContent = slide.subtitle;
+                title.classList.remove('fading');
+                subtitle.classList.remove('fading');
+
+                if (slide.showChips === 'gathered') {
+                    // Animate chips from scattered to structured list
+                    cloud.classList.add('gathered');
+                    chips.forEach((chip, i) => {
+                        chip.classList.add('visible');
+                        setTimeout(() => chip.classList.add('gathered'), i * 30);
+                    });
+                } else if (slide.showChips) {
+                    cloud.classList.remove('gathered');
+                    chips.forEach((chip) => chip.classList.remove('gathered'));
+                    chips.forEach((chip, i) => {
+                        setTimeout(() => chip.classList.add('visible'), i * 40);
+                    });
+                } else {
+                    cloud.classList.remove('gathered');
+                    chips.forEach((chip) => {
+                        chip.classList.remove('visible', 'gathered');
+                    });
+                }
+            }, 400);
+
+            prevBtn.disabled = idx === 0;
+            if (idx === slides.length - 1) {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => {
+                    document.getElementById('hierarchy').scrollIntoView({ behavior: 'smooth' });
+                };
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => { current++; render(current); };
+            }
+        }
+
+        prevBtn.onclick = () => { if (current > 0) { current--; render(current); } };
+        nextBtn.onclick = () => { current++; render(current); };
+
+        render(0);
+    })();
+
+    // ===== ARCHITECTURE GRID STAGGER ANIMATION =====
+    (function () {
+        const root = document.getElementById('arch-root');
+        const conn = document.getElementById('arch-conn');
+        const cards = document.querySelectorAll('.arch-card');
+        const arrow = document.getElementById('arch-continue');
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                root.classList.add('visible');
+                setTimeout(() => conn.classList.add('visible'), 200);
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.add('visible'), 400 + i * 100);
+                });
+                setTimeout(() => {
+                    if (arrow) arrow.style.opacity = '1';
+                }, 400 + cards.length * 100 + 200);
+                observer.disconnect();
+            }
+        }, { threshold: 0.3 });
+        observer.observe(document.getElementById('hierarchy'));
+    })();
+
+
+</script>
+<script>initKeyNav("03-the-insight.html", "05-prompts-and-context.html");</script>
+
+</body>
+</html>
