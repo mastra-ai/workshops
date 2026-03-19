@@ -191,55 +191,55 @@
             <p>Click each item to check it off. This is the bar.</p>
 
             <div class="checklist" id="checklist">
-                <div class="checklist-item" data-ref="02">
+                <div class="checklist-item" data-ref="03">
                     <div class="checklist-box">✓</div>
                     <div class="checklist-text">Stateful, resumable execution</div>
                     <div class="checklist-ref">→ Harness</div>
                 </div>
                 <div class="checklist-item" data-ref="04">
                     <div class="checklist-box">✓</div>
-                    <div class="checklist-text">Right workspace primitives + tools</div>
-                    <div class="checklist-ref">→ Workspace</div>
-                </div>
-                <div class="checklist-item" data-ref="08">
-                    <div class="checklist-box">✓</div>
-                    <div class="checklist-text">Event emission throughout</div>
-                    <div class="checklist-ref">→ Protocols</div>
-                </div>
-                <div class="checklist-item" data-ref="09">
-                    <div class="checklist-box">✓</div>
-                    <div class="checklist-text">Streaming UX across form factors</div>
-                    <div class="checklist-ref">→ Streaming</div>
-                </div>
-                <div class="checklist-item" data-ref="09">
-                    <div class="checklist-box">✓</div>
-                    <div class="checklist-text">Multi-model and multi-modal</div>
-                    <div class="checklist-ref">→ Streaming</div>
-                </div>
-                <div class="checklist-item" data-ref="03">
-                    <div class="checklist-box">✓</div>
                     <div class="checklist-text">Dynamic, tuned system prompts</div>
                     <div class="checklist-ref">→ Prompts</div>
                 </div>
+                <div class="checklist-item" data-ref="05">
+                    <div class="checklist-box">✓</div>
+                    <div class="checklist-text">Right workspace primitives + tools</div>
+                    <div class="checklist-ref">→ Workspace</div>
+                </div>
                 <div class="checklist-item" data-ref="06">
+                    <div class="checklist-box">✓</div>
+                    <div class="checklist-text">Context Rot mitigation — compaction + offloading</div>
+                    <div class="checklist-ref">→ Memory</div>
+                </div>
+                <div class="checklist-item" data-ref="07">
                     <div class="checklist-box">✓</div>
                     <div class="checklist-text">Modes that rewire agent behavior</div>
                     <div class="checklist-ref">→ Modes</div>
                 </div>
-                <div class="checklist-item" data-ref="07">
+                <div class="checklist-item" data-ref="08">
                     <div class="checklist-box">✓</div>
                     <div class="checklist-text">Real HITL — interrupts, bailing, free-form input</div>
                     <div class="checklist-ref">→ Steering</div>
                 </div>
+                <div class="checklist-item" data-ref="09">
+                    <div class="checklist-box">✓</div>
+                    <div class="checklist-text">Event emission throughout</div>
+                    <div class="checklist-ref">→ Protocols</div>
+                </div>
                 <div class="checklist-item" data-ref="10">
+                    <div class="checklist-box">✓</div>
+                    <div class="checklist-text">Streaming UX across form factors</div>
+                    <div class="checklist-ref">→ Streaming</div>
+                </div>
+                <div class="checklist-item" data-ref="11">
                     <div class="checklist-box">✓</div>
                     <div class="checklist-text">Tool policies + cost tracking</div>
                     <div class="checklist-ref">→ Policies</div>
                 </div>
-                <div class="checklist-item" data-ref="05">
+                <div class="checklist-item" data-ref="10">
                     <div class="checklist-box">✓</div>
-                    <div class="checklist-text">Memory architecture designed upfront</div>
-                    <div class="checklist-ref">→ Memory</div>
+                    <div class="checklist-text">Multi-model and multi-modal</div>
+                    <div class="checklist-ref">→ Streaming</div>
                 </div>
             </div>
 
@@ -254,7 +254,37 @@
             </div>
         </div>
 
-        <!-- Section 2: Closing -->
+        <!-- Section 2: Long-horizon & future -->
+        <div class="section" id="whats-next">
+            <p class="section-label">What's Next</p>
+            <h2>The harness keeps evolving</h2>
+            <p class="inline-note fade-on-scroll" style="margin-bottom: 2rem; max-width: 700px;">Everything we covered today is table stakes. The frontier is <strong>long-horizon autonomous execution</strong> — agents that run for hours, self-verify, and recover from failure without human intervention.</p>
+
+            <div class="card-grid fade-on-scroll" style="grid-template-columns: repeat(2, 1fr); max-width: 800px;">
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h4>Long-Horizon Execution</h4>
+                    <p>Agents that plan ahead, execute across many turns, and self-verify progress. The harness manages checkpoints, rollback, and recovery.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧬</div>
+                    <h4>Model–Harness Co-evolution</h4>
+                    <p>Models get better at tool use → harnesses give them more tools → models train on richer harness traces. A feedback loop that compounds.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🤖</div>
+                    <h4>Parallel Agent Orchestration</h4>
+                    <p>Subagents that run in parallel, share context through the harness, and coordinate without stepping on each other.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔧</div>
+                    <h4>Dynamic Tool Assembly</h4>
+                    <p>The harness decides which tools to surface based on the current task — not a static list, but a context-aware toolkit.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Closing -->
         <div class="section closing" id="closing">
             <h2>Now go build it.</h2>
             <p style="max-width: 600px; margin: 1rem auto; text-align: center;">

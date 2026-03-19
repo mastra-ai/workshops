@@ -263,23 +263,24 @@
         <!-- Section 1: Why memory matters -->
         <div class="section" id="why-memory">
             <p class="section-label">Memory</p>
-            <h2>Memory has three jobs</h2>
+            <h2>Context is precious. Context Rot is real.</h2>
+            <p class="inline-note fade-on-scroll" style="margin-bottom: 2rem;">As the context window fills up, model performance degrades — reasoning gets worse, instructions get lost, costs spike. This is <strong>Context Rot</strong>. The harness needs strategies to fight it.</p>
 
             <div class="card-grid fade-on-scroll" style="grid-template-columns: repeat(3, 1fr);">
                 <div class="card">
-                    <div class="card-icon">💾</div>
-                    <h4>Recall</h4>
-                    <p>Every message stored. Resume any thread. The foundation everything else is built on.</p>
+                    <div class="card-icon">🗜️</div>
+                    <h4>Compaction</h4>
+                    <p>When context fills up, intelligently summarize and compress — don't just truncate. The agent keeps working with a clean window.</p>
                 </div>
                 <div class="card">
-                    <div class="card-icon">🗜️</div>
-                    <h4>Compression</h4>
-                    <p>Context grows. Compression shrinks it. The Observer/Reflector runs in the background.</p>
+                    <div class="card-icon">📤</div>
+                    <h4>Tool Call Offloading</h4>
+                    <p>Large tool outputs clutter context without adding value. Keep head + tail, offload the rest to the filesystem for on-demand access.</p>
                 </div>
                 <div class="card">
                     <div class="card-icon">💰</div>
-                    <h4>Caching</h4>
-                    <p>Stable prompt prefix = prompt cache hits. Compression preserves the prefix so caches stay warm.</p>
+                    <h4>Prompt Caching</h4>
+                    <p>Stable prompt prefix = cache hits. Compaction preserves the prefix so caches stay warm and costs stay low.</p>
                 </div>
             </div>
 
@@ -586,8 +587,8 @@
         const nextBtn = document.getElementById('mem-bridge-next');
 
         const slides = [
-            "Memory keeps the agent running",
-            "But what should it be doing?",
+            "Memory fights Context Rot so the agent stays sharp",
+            "But what should the agent be doing?",
             "Let's look at how modes guide intent",
         ];
 
