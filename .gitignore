@@ -2,3 +2,8 @@ node_modules/
 dist/
 .DS_Store
 *.log
+**/.svelte-kit
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+**/build

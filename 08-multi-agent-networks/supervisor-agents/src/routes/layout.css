@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+:root {
+  --app-canvas: #f7f6f3;
+  --app-panel: rgba(255, 255, 255, 0.9);
+  --app-border: rgba(24, 24, 27, 0.08);
+  --app-accent: #f3b760;
+  color: #18181b;
+  background: var(--app-canvas);
+  font-family:
+    'SF Pro Display',
+    'SF Pro Text',
+    'Geist Sans',
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+html {
+  background: var(--app-canvas);
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at top left, rgba(243, 183, 96, 0.15), transparent 32%),
+    radial-gradient(circle at top right, rgba(24, 24, 27, 0.04), transparent 26%),
+    var(--app-canvas);
+  color: #18181b;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(24, 24, 27, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 24, 27, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
+  opacity: 0.28;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(243, 183, 96, 0.35);
+  color: #18181b;
+}
