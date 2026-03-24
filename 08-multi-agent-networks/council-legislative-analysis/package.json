@@ -1,0 +1,29 @@
+{
+  "name": "workshop-council-legislative-analysis",
+  "type": "module",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "cli": "npx tsx src/index.ts"
+  },
+  "description": "Council pattern example: multi-agent legislative analysis modeled after government committee review",
+  "dependencies": {
+    "@ai-sdk/openai": "^1.2.0",
+    "@mastra/core": "^1.15.0",
+    "next": "^15.5.12",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3"
+  }
+}
