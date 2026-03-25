@@ -8,13 +8,12 @@
   --app-accent: #f3b760;
   color: #18181b;
   background: var(--app-canvas);
-  font-family:
-    'SF Pro Display',
-    'SF Pro Text',
-    'Geist Sans',
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Greed", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-feature-settings: "ss01", "ss02";
 }
 
 html {

@@ -1,5 +1,5 @@
 import type { UIMessageStreamWriter } from 'ai';
-import type { DelegationCompleteContext, DelegationStartContext, MessageFilterContext } from '@mastra/core/agent';
+import type { DelegationCompleteContext, DelegationStartContext } from '@mastra/core/agent';
 import { buildDelegationPrompt, summarizeScopedContext } from '../agents/supervisor-shared';
 import {
   buildCompletedDelegationEvent,
@@ -106,7 +106,6 @@ export const createDelegationTraceState = () => {
         feedback: JSON.stringify(completedEvent),
       };
     },
-    messageFilter: ({ messages }: Pick<MessageFilterContext, 'messages'>) => messages.slice(-6),
   };
 };
 

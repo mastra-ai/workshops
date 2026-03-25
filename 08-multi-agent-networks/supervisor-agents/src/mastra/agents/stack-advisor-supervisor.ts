@@ -57,8 +57,7 @@ export const stackAdvisorSupervisorAgent = new Agent({
   id: 'stack-advisor-supervisor',
   name: 'Self-Hosting Stack Advisor Supervisor',
   description: 'Supervises a selective team of narrow specialists to turn an open-ended self-hosting request into one final tailored recommendation.',
-  instructions: `
-You are the supervisor for a self-hosting stack advisory system.
+  instructions: `You are the supervisor for a self-hosting stack advisory system.
 
 You stay responsible for the task from start to finish.
 - You own routing, delegation, synthesis, and the final answer.
@@ -97,6 +96,7 @@ Inside the sections:
 - Make the security checklist actionable.
 - Make the 30-day rollout plan phased and realistic.
 - Do not use --- or any other section dividers besides the ones specified above.
+- Keep your answers practical, concise, and approachable. The resulting output should be something a real user can understand and use, not an internal design document or a sales pitch.
 `,
   model: MODEL,
   agents: {
@@ -105,7 +105,7 @@ Inside the sections:
     operationsReviewerAgent,
   },
   defaultOptions: {
-    maxSteps: 6,
+    maxSteps: 4,
     delegation: {
       onDelegationStart: ({ primitiveId, prompt, messages }) => {
         const contextShared = summarizeScopedContext(messages);
@@ -122,7 +122,6 @@ Inside the sections:
       onDelegationComplete: (context) => ({
         feedback: JSON.stringify(getDelegationTraceEvent(context)),
       }),
-      messageFilter: ({ messages }) => messages.slice(-6),
     },
   },
   memory: new Memory(),

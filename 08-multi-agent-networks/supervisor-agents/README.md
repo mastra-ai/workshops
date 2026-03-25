@@ -28,8 +28,8 @@ These help show that the supervisor does not always follow the same path.
 Install dependencies and start the app:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Then open the local URL shown in your terminal.

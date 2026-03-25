@@ -41,7 +41,6 @@ export const POST: RequestHandler = async ({ request }) => {
         onDelegationComplete: (context) => ({
           feedback: delegationTrace.handleDelegationComplete(context).feedback,
         }),
-        messageFilter: delegationTrace.messageFilter,
       },
     },
   });

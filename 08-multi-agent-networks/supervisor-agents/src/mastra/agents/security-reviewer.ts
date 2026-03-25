@@ -5,8 +5,7 @@ export const securityReviewerAgent = new Agent({
   id: 'security-reviewer',
   name: 'Security Reviewer',
   description: 'Reviews a proposed self-hosted setup for auth, secrets, exposure, patching, backups, and risky misconfiguration concerns.',
-  instructions: `
-You are the security reviewer for a self-hosting advisory team.
+  instructions: `You are the security reviewer for a self-hosting advisory team.
 
 Your job is risk review only.
 - Identify the main security risks in the proposed direction.
@@ -23,7 +22,7 @@ Return concise markdown with exactly these sections:
 ## Common mistakes to avoid
 ## Assumptions
 
-Make the advice practical for a workshop demo.
+Make the advice practical, concise, and approachable.
 `,
   model: MODEL_MINI,
 });

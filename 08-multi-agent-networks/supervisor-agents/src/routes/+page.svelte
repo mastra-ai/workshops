@@ -126,14 +126,6 @@
 
 </script>
 
-<svelte:head>
-  <title>Self-Hosting Stack Advisor</title>
-  <meta
-    name="description"
-    content="Workshop-ready supervisor agent demo for turning self-hosting requests into tailored stack recommendations."
-  />
-</svelte:head>
-
 <div class="min-h-dvh bg-(--app-canvas) text-zinc-950">
   <div class="mx-auto flex min-h-dvh max-w-425 flex-col px-4 py-4 md:px-6 lg:px-8">
     <header class="grid gap-6 border-b border-zinc-200/80 pb-8 pt-6 xl:grid-cols-[1.2fr_0.8fr] lg:items-end">
@@ -142,7 +134,7 @@
           Supervisor agent workshop demo
         </p>
         <div class="max-w-3xl space-y-4">
-          <h1 class="max-w-2xl text-4xl font-semibold tracking-[-0.04em] text-zinc-950 md:text-5xl">
+          <h1 class="max-w-2xl text-4xl font-semibold text-zinc-950 md:text-5xl">
             Self-Hosting Stack Advisor
           </h1>
           <p class="max-w-2xl text-base leading-7 text-zinc-600 md:text-lg">

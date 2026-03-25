@@ -35,7 +35,7 @@
     <div class="flex items-center justify-between mt-1">
       <h2 class="text-lg font-semibold tracking-tight text-zinc-950">Supervisor timeline</h2>
       {#if busy}
-        <div class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-amber-700">
+        <div class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[0.68rem] font-semibold uppercase text-amber-700">
           <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500"></span>
           Live
         </div>

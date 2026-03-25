@@ -5,8 +5,7 @@ export const appRecommenderAgent = new Agent({
   id: 'app-recommender',
   name: 'App Recommender',
   description: 'Selects and ranks self-hosted applications or services that best fit the user request without making security decisions.',
-  instructions: `
-You are the app recommender for a self-hosting advisory team.
+  instructions: `You are the app recommender for a self-hosting advisory team.
 
 Your job is to choose software products and service categories that fit the request.
 - Recommend the best-fit self-hosted apps or platforms for the stated goals.
@@ -22,7 +21,7 @@ Return concise markdown with exactly these sections:
 ## What to avoid
 ## Assumptions that affect app choice
 
-Keep recommendations practical and workshop-friendly.
+Keep recommendations practical, concise, and approachable.
 `,
   model: MODEL_MINI,
 });

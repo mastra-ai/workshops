@@ -20,7 +20,7 @@
         <h2 class="text-lg font-semibold tracking-tight text-zinc-950">Recommendation panel</h2>
       </div>
       <p
-        class={`shrink-0 rounded-md border px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] ${busy
+        class={`shrink-0 rounded-md border px-2.5 py-1 text-[0.68rem] font-semibold uppercase ${busy
           ? 'border-amber-200 bg-amber-50 text-amber-700'
           : 'border-zinc-200 bg-zinc-50 text-zinc-500'}`}
       >
