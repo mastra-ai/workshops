@@ -2,6 +2,12 @@
 
 import { useState, useRef, useCallback } from 'react';
 
+interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+}
+
 interface CommitteeAnalysis {
   domain: string;
   summary: string;
@@ -9,6 +15,8 @@ interface CommitteeAnalysis {
   risks: string[];
   recommendations: string[];
   impactRating: string;
+  usage?: TokenUsage;
+  durationMs?: number;
 }
 
 interface Deliberation {
@@ -18,6 +26,8 @@ interface Deliberation {
   counterArguments: string[];
   revisedRecommendations: string[];
   revisedImpactRating: string;
+  usage?: TokenUsage;
+  durationMs?: number;
 }
 
 interface HistoryEntry {
@@ -28,6 +38,8 @@ interface HistoryEntry {
   report: string;
   committees: CommitteeAnalysis[];
   deliberations: Deliberation[];
+  usage?: TokenUsage;
+  totalDurationMs?: number;
 }
 
 const COMMITTEES = [
@@ -95,6 +107,11 @@ function renderMarkdown(md: string): string {
   return html;
 }
 
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
 function CommitteeCard({
   committee,
   analysis,
@@ -147,6 +164,12 @@ function CommitteeCard({
             >
               {isDone ? 'Complete' : isActive ? 'Analyzing...' : 'Waiting...'}
             </div>
+            {isDone && analysis?.usage && (
+              <div className="text-[0.6rem] text-zinc-400 mt-1 font-mono flex gap-2">
+                <span>{analysis.usage.totalTokens.toLocaleString()} tok</span>
+                {analysis.durationMs != null && <span>{formatDuration(analysis.durationMs)}</span>}
+              </div>
+            )}
           </div>
           <div className="flex flex-col items-end gap-1.5">
             {isActive && (
@@ -216,7 +239,10 @@ function CommitteeCard({
 
           {tab === 'analysis' && (
             <>
-              <p className="text-zinc-600">{analysis.summary}</p>
+              <div
+                className="text-zinc-600 report-content text-[0.8rem] leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(analysis.summary) }}
+              />
 
               <div>
                 <h4 className="text-[0.65rem] font-medium uppercase tracking-wider text-emerald-600 mb-1">
@@ -259,6 +285,15 @@ function CommitteeCard({
                   ))}
                 </ul>
               </div>
+
+              {analysis.usage && (
+                <div className="mt-2 pt-2 border-t border-cream-dark flex gap-3 text-[0.6rem] font-mono text-zinc-400">
+                  <span>{analysis.usage.inputTokens.toLocaleString()} in</span>
+                  <span>{analysis.usage.outputTokens.toLocaleString()} out</span>
+                  <span>{analysis.usage.totalTokens.toLocaleString()} total</span>
+                  {analysis.durationMs != null && <span>{formatDuration(analysis.durationMs)}</span>}
+                </div>
+              )}
             </>
           )}
 
@@ -309,6 +344,13 @@ function CommitteeCard({
               {ratingChanged && (
                 <div className="mt-2 text-[0.7rem] text-zinc-500 italic">
                   Rating changed from {analysis.impactRating} to {deliberation.revisedImpactRating} after deliberation
+                </div>
+              )}
+
+              {deliberation.usage && (
+                <div className="mt-2 pt-2 border-t border-cream-dark flex gap-3 text-[0.6rem] font-mono text-zinc-400">
+                  <span>{deliberation.usage.totalTokens.toLocaleString()} tok</span>
+                  {deliberation.durationMs != null && <span>{formatDuration(deliberation.durationMs)}</span>}
                 </div>
               )}
             </>
@@ -380,6 +422,8 @@ function HistoryPanel({
                     {' \u00b7 '}
                     {stepCount} agent calls
                     {entry.deliberated && ' \u00b7 with deliberation'}
+                    {entry.usage && ` \u00b7 ${entry.usage.totalTokens.toLocaleString()} tokens`}
+                    {entry.totalDurationMs != null && ` \u00b7 ${formatDuration(entry.totalDurationMs)}`}
                   </div>
                 </button>
               </div>
@@ -454,6 +498,8 @@ export default function Page() {
   const [committees, setCommittees] = useState<CommitteeAnalysis[]>([]);
   const [deliberations, setDeliberations] = useState<Deliberation[]>([]);
   const [deliberate, setDeliberate] = useState(false);
+  const [usage, setUsage] = useState<TokenUsage | null>(null);
+  const [totalDurationMs, setTotalDurationMs] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
@@ -466,6 +512,8 @@ export default function Page() {
     setCommittees(entry.committees);
     setDeliberations(entry.deliberations);
     setDeliberate(entry.deliberated);
+    setUsage(entry.usage || null);
+    setTotalDurationMs(entry.totalDurationMs || null);
     setActiveHistoryId(entry.id);
     setError('');
     setTimeout(() => {
@@ -489,6 +537,8 @@ export default function Page() {
     setDocTitle('');
     setCommittees([]);
     setDeliberations([]);
+    setUsage(null);
+    setTotalDurationMs(null);
     setActiveHistoryId(null);
 
     try {
@@ -543,6 +593,8 @@ export default function Page() {
             setReport(data.report);
             setCommittees(resultCommittees);
             setDeliberations(resultDeliberations);
+            setUsage(data.usage || null);
+            setTotalDurationMs(data.totalDurationMs || null);
             if (data.title) setDocTitle(data.title);
 
             // Add to history
@@ -554,6 +606,8 @@ export default function Page() {
               report: data.report,
               committees: resultCommittees,
               deliberations: resultDeliberations,
+              usage: data.usage || undefined,
+              totalDurationMs: data.totalDurationMs || undefined,
             };
             setHistory(prev => [entry, ...prev]);
             setActiveHistoryId(entry.id);
@@ -581,6 +635,8 @@ export default function Page() {
     setStatusMessage('');
     setCommittees([]);
     setDeliberations([]);
+    setUsage(null);
+    setTotalDurationMs(null);
     setActiveHistoryId(null);
   };
 
@@ -681,7 +737,7 @@ export default function Page() {
                   committee={c}
                   analysis={committees[i]}
                   deliberation={deliberations[i]}
-                  isActive={stage === 'analyzing' || stage === 'deliberating'}
+                  isActive={stage === 'analyzing'}
                   isDone={stage === 'done'}
                 />
               ))}
@@ -691,8 +747,8 @@ export default function Page() {
             {deliberate && (
               <div
                 className={`mt-3 bg-amber-50 border border-amber-200 text-zinc-800 px-4 py-3.5 flex items-center gap-3 transition-opacity duration-500 ${
-                  stage === 'analyzing' || stage === 'deliberating' || stage === 'done' ? 'opacity-100' : 'opacity-30'
-                } ${stage === 'analyzing' ? 'animate-subtle-pulse' : ''}`}
+                  stage === 'deliberating' || stage === 'done' ? 'opacity-100' : 'opacity-30'
+                } ${stage === 'deliberating' ? 'animate-subtle-pulse' : ''}`}
               >
                 <div className="text-xl">💬</div>
                 <div>
@@ -702,12 +758,12 @@ export default function Page() {
                   <div className="text-[0.65rem] mt-0.5 text-amber-700">
                     {stage === 'done'
                       ? 'Deliberation complete'
-                      : stage === 'analyzing'
+                      : stage === 'deliberating'
                         ? 'Committees reviewing each others findings...'
                         : 'Waiting for initial analyses...'}
                   </div>
                 </div>
-                {stage === 'analyzing' && (
+                {stage === 'deliberating' && (
                   <div className="ml-auto w-3 h-3 border-[1.5px] border-amber-200 border-t-amber-600 rounded-full animate-spin" />
                 )}
               </div>
@@ -716,8 +772,8 @@ export default function Page() {
             {/* Synthesizer bar */}
             <div
               className={`mt-3 bg-navy text-cream px-4 py-3.5 flex items-center gap-3 transition-opacity duration-500 ${
-                stage === 'analyzing' || stage === 'done' ? 'opacity-100' : 'opacity-30'
-              } ${stage === 'analyzing' ? 'animate-subtle-pulse' : ''}`}
+                stage === 'synthesizing' || stage === 'done' ? 'opacity-100' : 'opacity-30'
+              } ${stage === 'synthesizing' ? 'animate-subtle-pulse' : ''}`}
             >
               <div className="text-xl">📋</div>
               <div>
@@ -727,7 +783,7 @@ export default function Page() {
                 <div className="text-[0.65rem] mt-0.5 text-gold">
                   {stage === 'done'
                     ? 'Report finalized'
-                    : stage === 'analyzing'
+                    : stage === 'synthesizing'
                       ? deliberate
                         ? 'Compiling analyses and deliberation...'
                         : 'Compiling committee reports...'
@@ -736,8 +792,37 @@ export default function Page() {
                         : 'Waiting for committee reports...'}
                 </div>
               </div>
-              {stage === 'analyzing' && (
+              {stage === 'synthesizing' && (
                 <div className="ml-auto w-3 h-3 border-[1.5px] border-cream/30 border-t-gold rounded-full animate-spin" />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Token Usage & Timing */}
+        {stage === 'done' && usage && (
+          <div className="mb-8 bg-white border border-cream-dark p-4 relative">
+            <span className="absolute -top-2.5 left-5 bg-white px-2 text-[0.65rem] tracking-[0.2em] text-zinc-400 font-medium">
+              USAGE &amp; TIMING
+            </span>
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-zinc-400">Input</span>
+                <span className="font-mono text-zinc-700">{usage.inputTokens.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-zinc-400">Output</span>
+                <span className="font-mono text-zinc-700">{usage.outputTokens.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-zinc-400">Total Tokens</span>
+                <span className="font-mono font-medium text-navy">{usage.totalTokens.toLocaleString()}</span>
+              </div>
+              {totalDurationMs != null && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="text-[0.65rem] font-medium uppercase tracking-wider text-zinc-400">Total Time</span>
+                  <span className="font-mono font-medium text-navy">{formatDuration(totalDurationMs)}</span>
+                </div>
               )}
             </div>
           </div>
