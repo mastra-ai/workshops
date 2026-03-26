@@ -11,8 +11,9 @@
   },
   "description": "Council pattern example: multi-agent legislative analysis modeled after government committee review",
   "dependencies": {
-    "@ai-sdk/openai": "^1.2.0",
+    "@ai-sdk/openai": "^3.0.48",
     "@mastra/core": "^1.15.0",
+    "ai": "^6.0.138",
     "next": "^15.5.12",
     "react": "19.1.1",
     "react-dom": "19.1.1",

@@ -1,4 +1,6 @@
 import { mastra } from '@/mastra';
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
 
 function stripHtml(html: string): string {
   let text = html.replace(/<script[\s\S]*?<\/script>/gi, '');
@@ -94,6 +96,15 @@ async function fetchCongressGov(
   return { title, text };
 }
 
+async function inferTitle(text: string): Promise<string> {
+  const snippet = text.slice(0, 3000);
+  const { text: title } = await generateText({
+    model: openai('gpt-4o-mini'),
+    prompt: `What is the title of this document? Respond with ONLY the title, nothing else. If it's legislation, include the bill number if present.\n\n${snippet}`,
+  });
+  return title.trim().replace(/^["']|["']$/g, '') || 'Untitled Document';
+}
+
 async function fetchGenericUrl(url: string): Promise<{ title: string; text: string }> {
   const response = await fetch(url, {
     headers: {
@@ -135,11 +146,9 @@ export async function POST(request: Request) {
         let text: string;
 
         if (rawText) {
-          // Plain text input — extract title from first line or use default
-          const lines = rawText.trim().split('\n');
-          const firstLine = lines[0].replace(/^#+\s*/, '').trim();
-          title = firstLine.length > 0 && firstLine.length <= 200 ? firstLine : 'Pasted Document';
           text = rawText.trim();
+          send('status', { stage: 'fetching', message: 'Inferring document title...' });
+          title = await inferTitle(text);
 
           send('status', {
             stage: 'fetched',
@@ -158,6 +167,12 @@ export async function POST(request: Request) {
 
           title = doc.title;
           text = doc.text;
+
+          // If HTML title extraction gave a poor result, infer with LLM
+          if (!title || title === 'Untitled Document') {
+            send('status', { stage: 'fetching', message: 'Inferring document title...' });
+            title = await inferTitle(text);
+          }
 
           send('status', {
             stage: 'fetched',
@@ -183,14 +198,47 @@ export async function POST(request: Request) {
           : 'legislativeCouncilWorkflow';
         const workflow = mastra.getWorkflow(workflowId);
         const run = await workflow.createRun();
+        const totalStart = Date.now();
         const result = await run.start({ inputData: { title, text } });
+        const totalDurationMs = Date.now() - totalStart;
 
         if (result.status === 'success') {
+          // Aggregate token usage from all steps
+          const committees = result.result.committees || [];
+          const deliberations = result.result.deliberations ?? [];
+          const synthUsage = result.result.usage || { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+          const synthDurationMs = result.result.durationMs || 0;
+
+          const totalUsage = {
+            inputTokens: synthUsage.inputTokens,
+            outputTokens: synthUsage.outputTokens,
+            totalTokens: synthUsage.totalTokens,
+          };
+
+          for (const c of committees) {
+            if (c.usage) {
+              totalUsage.inputTokens += c.usage.inputTokens;
+              totalUsage.outputTokens += c.usage.outputTokens;
+              totalUsage.totalTokens += c.usage.totalTokens;
+            }
+          }
+
+          for (const d of deliberations) {
+            if (d.usage) {
+              totalUsage.inputTokens += d.usage.inputTokens;
+              totalUsage.outputTokens += d.usage.outputTokens;
+              totalUsage.totalTokens += d.usage.totalTokens;
+            }
+          }
+
           send('result', {
             report: result.result.report,
-            committees: result.result.committees,
-            deliberations: result.result.deliberations ?? [],
+            committees,
+            deliberations,
             title,
+            usage: totalUsage,
+            totalDurationMs,
+            synthDurationMs,
           });
         } else {
           send('error', { message: 'Workflow failed. Check server logs for details.' });
