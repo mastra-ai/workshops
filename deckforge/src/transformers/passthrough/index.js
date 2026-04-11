@@ -52,9 +52,14 @@ function createRenderer() {
       const cols = renderedItems.length <= 2 ? 2 : renderedItems.length <= 3 ? 3 : renderedItems.length <= 4 ? 2 : 3;
       let html = `<div class="card-grid" style="grid-template-columns: repeat(${cols}, 1fr);">\n`;
       for (const itemHtml of renderedItems) {
-        const match = itemHtml.match(/<p>\s*<strong>(.+?)<\/strong>\s*[-–:.]?\s*([\s\S]*?)<\/p>/);
+        const match = itemHtml.match(/<p>\s*<strong>(.+?)<\/strong>\s*([\s\S]*?)<\/p>/);
         if (match) {
-          html += `  <div class="card fade-on-scroll">\n    <h4>${match[1]}</h4>\n    <p>${match[2].trim()}</p>\n  </div>\n`;
+          // Strip leading separator noise (hyphen, en-dash, em-dash, colon,
+          // period) — authors write `**Title** — body` in markdown purely as
+          // a visual affordance; in card form the separator is redundant.
+          const body = match[2].replace(/^[\s\-\u2013\u2014:.]+/, '').trim();
+          const bodyHtml = body ? `\n    <p>${body}</p>` : '';
+          html += `  <div class="card fade-on-scroll">\n    <h4>${match[1]}</h4>${bodyHtml}\n  </div>\n`;
         } else {
           html += `  <div class="card fade-on-scroll">\n    ${itemHtml}\n  </div>\n`;
         }
