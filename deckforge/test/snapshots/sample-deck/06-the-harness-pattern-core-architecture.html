@@ -62,20 +62,20 @@
       <div class="section fade-on-scroll" id="the-harness-pattern-core-architecture">
         <h2>Core Architecture</h2>
 <p>The harness is the middleware layer between your AI models and your institutional systems. It handles:</p>
-<ul>
-<li><p><strong>Authentication &amp; authorization</strong></p>
-<ul>
-<li><p>who can deploy agents, what data they can access</p></li>
-</ul></li>
-<li><p><strong>Observability</strong> </p>
-<ul>
-<li><p>logging none of the agent actions for audit and compliance</p></li>
-</ul></li>
-<li><p><strong>Guardrails</strong></p>
-<ul>
-<li><p>policy enforcement at the infrastructure level, not the prompt level</p></li>
-</ul></li>
-</ul>
+<div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
+  <div class="card fade-on-scroll">
+    <h4>Authentication &amp; authorization</h4>
+    <p>who can deploy agents, what data they can access</p>
+  </div>
+  <div class="card fade-on-scroll">
+    <h4>Observability</h4>
+    <p>logging none of the agent actions for audit and compliance</p>
+  </div>
+  <div class="card fade-on-scroll">
+    <h4>Guardrails</h4>
+    <p>policy enforcement at the infrastructure level, not the prompt level</p>
+  </div>
+</div>
 <div class="code-block fade-on-scroll">
   <div class="code-header">
     <span class="code-filename"></span>

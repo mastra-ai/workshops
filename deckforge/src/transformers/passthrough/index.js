@@ -31,7 +31,34 @@ function createRenderer() {
     return `<p>${content}</p>\n`;
   };
 
+  // Recursively flatten any nested list that has exactly one item: the
+  // lone child becomes inline content of the parent item. A single
+  // sub-bullet is a visual dead weight — authors almost always mean "one
+  // sentence of context under this heading", not "a bulleted list of one".
+  function flattenSingleChildSublists(items) {
+    for (const item of items || []) {
+      if (!item.tokens) continue;
+      const out = [];
+      for (const sub of item.tokens) {
+        if (sub.type === 'list') {
+          if ((sub.items || []).length === 1) {
+            const only = sub.items[0];
+            flattenSingleChildSublists([only]);
+            out.push(...(only.tokens || []));
+          } else {
+            flattenSingleChildSublists(sub.items);
+            out.push(sub);
+          }
+        } else {
+          out.push(sub);
+        }
+      }
+      item.tokens = out;
+    }
+  }
+
   renderer.list = function (token) {
+    flattenSingleChildSublists(token.items);
     const items = token.items || [];
 
     const renderedItems = items.map(item => {
@@ -44,25 +71,40 @@ function createRenderer() {
       return inner.trim();
     });
 
-    const isCardList = renderedItems.every(html => {
-      return /^<p>\s*<strong>[\s\S]*?<\/p>\s*$/.test(html);
-    });
+    // A card list is any bullet list whose items all start with a bold
+    // heading paragraph. The body may be inline (`**Title** — body`) or a
+    // second paragraph (from a flattened single-child sub-bullet).
+    const isCardList = renderedItems.every(html => /^<p>\s*<strong>/.test(html));
 
     if (isCardList && renderedItems.length >= 2) {
       const cols = renderedItems.length <= 2 ? 2 : renderedItems.length <= 3 ? 3 : renderedItems.length <= 4 ? 2 : 3;
       let html = `<div class="card-grid" style="grid-template-columns: repeat(${cols}, 1fr);">\n`;
       for (const itemHtml of renderedItems) {
-        const match = itemHtml.match(/<p>\s*<strong>(.+?)<\/strong>\s*([\s\S]*?)<\/p>/);
-        if (match) {
-          // Strip leading separator noise (hyphen, en-dash, em-dash, colon,
-          // period) — authors write `**Title** — body` in markdown purely as
-          // a visual affordance; in card form the separator is redundant.
-          const body = match[2].replace(/^[\s\-\u2013\u2014:.]+/, '').trim();
-          const bodyHtml = body ? `\n    <p>${body}</p>` : '';
-          html += `  <div class="card fade-on-scroll">\n    <h4>${match[1]}</h4>${bodyHtml}\n  </div>\n`;
-        } else {
+        const match = itemHtml.match(/^<p>\s*<strong>([\s\S]*?)<\/strong>([\s\S]*?)<\/p>\s*([\s\S]*)$/);
+        if (!match) {
           html += `  <div class="card fade-on-scroll">\n    ${itemHtml}\n  </div>\n`;
+          continue;
         }
+        const title = match[1];
+        // Strip separator noise (hyphen, en-dash, em-dash, colon, period)
+        // between the title and the inline body — authors write
+        // `**Title** — body` purely as a visual affordance; redundant
+        // here.
+        const inlineBody = match[2].replace(/^[\s\-\u2013\u2014:.]+/, '').trim();
+        const trailing = match[3].trim();
+
+        let bodyHtml = '';
+        if (inlineBody) {
+          bodyHtml = `\n    <p>${inlineBody}</p>`;
+        } else if (trailing) {
+          // From a flattened single-child sub-bullet: typically a single
+          // `<p>` to unwrap so the card markup stays flat.
+          const onlyP = trailing.match(/^<p>([\s\S]*?)<\/p>\s*$/);
+          bodyHtml = onlyP
+            ? `\n    <p>${onlyP[1].trim()}</p>`
+            : `\n    ${trailing}`;
+        }
+        html += `  <div class="card fade-on-scroll">\n    <h4>${title}</h4>${bodyHtml}\n  </div>\n`;
       }
       html += `</div>\n`;
       return html;
