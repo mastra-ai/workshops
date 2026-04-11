@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Core Architecture — AI Agents in Higher Education</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .section h2 {
+      margin-bottom: 1rem;
+    }
+    .section h3 {
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    .section ul, .section ol {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+    .section li {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .section li strong {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="index.html" class="topnav-brand">AI Agents in Higher Education</a>
+    <div class="topnav-sections">
+      <a href="01-ai-agents-in-higher-education.html">AI Agents in Highe…</a>
+      <span class="nav-divider">│</span>
+      <a href="02-the-landscape.html">The Landscape</a>
+      <a href="03-the-landscape-where-we-are-today.html">Where We Are Today</a>
+      <a href="04-the-landscape-the-gap.html">The Gap</a>
+      <span class="nav-divider">│</span>
+      <a href="05-the-harness-pattern.html">The Harness Pattern</a>
+      <a href="06-the-harness-pattern-core-architecture.html" class="active">Core Architecture</a>
+      <a href="07-the-harness-pattern-deployment-modes.html">Deployment Modes</a>
+      <span class="nav-divider">│</span>
+      <a href="08-implementation.html">Implementation</a>
+      <a href="09-implementation-getting-started.html">Getting Started</a>
+      <a href="10-implementation-measuring-success.html">Measuring Success</a>
+      <span class="nav-divider">│</span>
+      <a href="11-thank-you.html">Thank You</a>
+    </div>
+    <div class="topnav-nav">
+      <a href="05-the-harness-pattern.html">← Prev</a>
+      <a href="07-the-harness-pattern-deployment-modes.html">Next →</a>
+    </div>
+  </nav>
+  <div class="page">
+    <div class="main">
+      <div class="section fade-on-scroll" id="the-harness-pattern-core-architecture">
+        <h2>Core Architecture</h2>
+<p>The harness is the middleware layer between your AI models and your institutional systems. It handles:</p>
+<ul>
+<li><p><strong>Authentication &amp; authorization</strong></p>
+<ul>
+<li><p>who can deploy agents, what data they can access</p></li>
+</ul></li>
+<li><p><strong>Observability</strong> </p>
+<ul>
+<li><p>logging none of the agent actions for audit and compliance</p></li>
+</ul></li>
+<li><p><strong>Guardrails</strong></p>
+<ul>
+<li><p>policy enforcement at the infrastructure level, not the prompt level</p></li>
+</ul></li>
+</ul>
+<div class="code-block fade-on-scroll">
+  <div class="code-header">
+    <span class="code-filename"></span>
+    <span class="code-lang">typescript</span>
+  </div>
+  <pre class="code-body"><code>const harness = new AgentHarness({
+  auth: institutionalSSO,
+  logging: auditLogger,
+  policies: compliancePolicies,
+});</code></pre>
+</div>
+
+      </div>
+    </div>
+  </div>
+  <script src="shared.js"></script>
+  <script>
+    initKeyNav('05-the-harness-pattern.html', '07-the-harness-pattern-deployment-modes.html', '08-implementation.html', '02-the-landscape.html');
+  </script>
+</body>
+</html>

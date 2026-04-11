@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "node bin/deckforge.js dev",
-    "build": "node bin/deckforge.js build"
+    "build": "node bin/deckforge.js build",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "chokidar": "^4.0.0",

@@ -1,0 +1,104 @@
+{
+  "title": "AI Agents in Higher Education",
+  "slides": [
+    {
+      "file": "01-ai-agents-in-higher-education.html",
+      "nav": "AI Agents in Highe…",
+      "title": "AI Agents in Higher Education",
+      "level": 1,
+      "group": null,
+      "groupIndex": 0,
+      "isGroupHeader": true
+    },
+    {
+      "file": "02-the-landscape.html",
+      "nav": "The Landscape",
+      "title": "The Landscape",
+      "level": 1,
+      "group": null,
+      "groupIndex": 1,
+      "isGroupHeader": true
+    },
+    {
+      "file": "03-the-landscape-where-we-are-today.html",
+      "nav": "Where We Are Today",
+      "title": "Where We Are Today",
+      "level": 2,
+      "group": "the-landscape",
+      "groupIndex": 1,
+      "isGroupHeader": false
+    },
+    {
+      "file": "04-the-landscape-the-gap.html",
+      "nav": "The Gap",
+      "title": "The Gap",
+      "level": 2,
+      "group": "the-landscape",
+      "groupIndex": 1,
+      "isGroupHeader": false
+    },
+    {
+      "file": "05-the-harness-pattern.html",
+      "nav": "The Harness Pattern",
+      "title": "The Harness Pattern",
+      "level": 1,
+      "group": null,
+      "groupIndex": 2,
+      "isGroupHeader": true
+    },
+    {
+      "file": "06-the-harness-pattern-core-architecture.html",
+      "nav": "Core Architecture",
+      "title": "Core Architecture",
+      "level": 2,
+      "group": "the-harness-pattern",
+      "groupIndex": 2,
+      "isGroupHeader": false
+    },
+    {
+      "file": "07-the-harness-pattern-deployment-modes.html",
+      "nav": "Deployment Modes",
+      "title": "Deployment Modes",
+      "level": 2,
+      "group": "the-harness-pattern",
+      "groupIndex": 2,
+      "isGroupHeader": false
+    },
+    {
+      "file": "08-implementation.html",
+      "nav": "Implementation",
+      "title": "Implementation",
+      "level": 1,
+      "group": null,
+      "groupIndex": 3,
+      "isGroupHeader": true
+    },
+    {
+      "file": "09-implementation-getting-started.html",
+      "nav": "Getting Started",
+      "title": "Getting Started",
+      "level": 2,
+      "group": "implementation",
+      "groupIndex": 3,
+      "isGroupHeader": false
+    },
+    {
+      "file": "10-implementation-measuring-success.html",
+      "nav": "Measuring Success",
+      "title": "Measuring Success",
+      "level": 2,
+      "group": "implementation",
+      "groupIndex": 3,
+      "isGroupHeader": false
+    },
+    {
+      "file": "11-thank-you.html",
+      "nav": "Thank You",
+      "title": "Thank You",
+      "level": 1,
+      "group": null,
+      "groupIndex": 4,
+      "isGroupHeader": true
+    }
+  ]
+}
