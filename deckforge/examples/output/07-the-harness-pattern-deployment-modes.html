@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Deployment Modes — AI Agents in Higher Education</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .section h2 {
+      margin-bottom: 1rem;
+    }
+    .section h3 {
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    .section ul, .section ol {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+    .section li {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .section li strong {
+      color: var(--text-primary);
+    }
+    .mode-panels {
+      margin-top: 2rem;
+      min-height: 180px;
+    }
+    .mode-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      padding: 1.75rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      border-left: 3px solid var(--accent);
+    }
+    .mode-panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .mode-panel h4 {
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+    .mode-panel .mode-tagline {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin: 0 0 0.75rem;
+    }
+    .mode-panel .mode-use {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    .mode-toggle.spaced {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    .mode-toggle.spaced button {
+      padding: 0.65rem 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="index.html" class="topnav-brand">AI Agents in Higher Education</a>
+    <div class="topnav-sections">
+      <a href="01-ai-agents-in-higher-education.html">AI Agents in Highe…</a>
+      <span class="nav-divider">│</span>
+      <a href="02-the-landscape.html">The Landscape</a>
+      <a href="03-the-landscape-where-we-are-today.html">Where We Are Today</a>
+      <a href="04-the-landscape-the-gap.html">The Gap</a>
+      <span class="nav-divider">│</span>
+      <a href="05-the-harness-pattern.html">The Harness Pattern</a>
+      <a href="06-the-harness-pattern-core-architecture.html">Core Architecture</a>
+      <a href="07-the-harness-pattern-deployment-modes.html" class="active">Deployment Modes</a>
+      <span class="nav-divider">│</span>
+      <a href="08-implementation.html">Implementation</a>
+      <a href="09-implementation-getting-started.html">Getting Started</a>
+      <a href="10-implementation-measuring-success.html">Measuring Success</a>
+      <span class="nav-divider">│</span>
+      <a href="11-thank-you.html">Thank You</a>
+    </div>
+    <div class="topnav-nav">
+      <a href="06-the-harness-pattern-core-architecture.html">← Prev</a>
+      <a href="08-implementation.html">Next →</a>
+    </div>
+  </nav>
+  <div class="page">
+    <div class="main">
+      <div class="section fade-on-scroll" id="the-harness-pattern-deployment-modes">
+        <h2>Deployment Modes</h2>
+<p>There are three modes that matter for universities:</p>
+<div class="mode-toggle spaced" role="tablist" aria-label="Deployment modes">
+  <button type="button" class="active" data-mode="supervised" role="tab" aria-selected="true">Supervised</button>
+  <button type="button" data-mode="autonomous" role="tab" aria-selected="false">Autonomous</button>
+  <button type="button" data-mode="collaborative" role="tab" aria-selected="false">Collaborative</button>
+</div>
+<div class="mode-panels">
+  <div class="mode-panel active" data-panel="supervised">
+    <h4>Supervised</h4>
+    <p class="mode-tagline">Agent drafts, human approves.</p>
+    <p class="mode-use">Ideal for admissions, financial aid</p>
+  </div>
+  <div class="mode-panel" data-panel="autonomous">
+    <h4>Autonomous</h4>
+    <p class="mode-tagline">Agent acts independently within strict guardrails.</p>
+    <p class="mode-use">Ideal for scheduling, FAQ responses</p>
+  </div>
+  <div class="mode-panel" data-panel="collaborative">
+    <h4>Collaborative</h4>
+    <p class="mode-tagline">Agent and human work together in real-time.</p>
+    <p class="mode-use">Ideal for research assistance, advising sessions</p>
+  </div>
+</div>
+<div class="callout fade-on-scroll">
+  <p>The mode should be chosen based on the <strong>consequence of error</strong>, not the complexity of the task.</p>
+
+</div>
+
+      </div>
+    </div>
+  </div>
+  <script src="shared.js"></script>
+  <script>
+    initKeyNav('06-the-harness-pattern-core-architecture.html', '08-implementation.html', '08-implementation.html', '02-the-landscape.html');
+    (function() {
+      const buttons = document.querySelectorAll('.mode-toggle[data-mode], .mode-toggle button[data-mode]');
+      const toggleButtons = document.querySelectorAll('.mode-toggle button[data-mode]');
+      const panels = document.querySelectorAll('.mode-panel[data-panel]');
+      toggleButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const mode = btn.dataset.mode;
+          toggleButtons.forEach(b => {
+            const active = b.dataset.mode === mode;
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          panels.forEach(p => {
+            p.classList.toggle('active', p.dataset.panel === mode);
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

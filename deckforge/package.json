@@ -1,0 +1,18 @@
+{
+  "name": "deckforge",
+  "version": "0.1.0",
+  "description": "Markdown-driven presentation framework with LLM-powered enhancement suggestions",
+  "type": "module",
+  "bin": {
+    "deckforge": "./bin/deckforge.js"
+  },
+  "scripts": {
+    "dev": "node bin/deckforge.js dev",
+    "build": "node bin/deckforge.js build"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "marked": "^15.0.0",
+    "ws": "^8.18.0"
+  }
+}

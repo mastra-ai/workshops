@@ -1,0 +1,20 @@
+# DeckForge Enhancement Advisor — Configuration
+#
+# Copy this to ~/.config/deckforge/config.toml and fill in your API keys.
+# Alternatively, set environment variables: ANTHROPIC_API_KEY, OPENAI_API_KEY
+
+default_provider = "anthropic"
+
+[providers.anthropic]
+api_key = "sk-ant-..."
+model = "claude-sonnet-4-20250514"
+
+[providers.openai]
+api_key = "sk-..."
+model = "gpt-4o"
+
+# You can add any OpenAI-compatible provider with a base_url:
+# [providers.ollama]
+# api_key = "unused"
+# model = "llama3"
+# base_url = "http://localhost:11434/v1"
