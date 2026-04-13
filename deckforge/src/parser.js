@@ -193,18 +193,23 @@ export function tokensToBlocks(markdown) {
   let pendingDirective = null;
   let line = 1;
   for (const token of tokens) {
-    if (token.type === 'space') continue;
+    if (token.type === 'space') {
+      if (token.raw) line += (token.raw.match(/\n/g) || []).length;
+      continue;
+    }
     if (token.type === 'html') {
       const raw = (token.raw || token.text || '').trim();
       const dir = parseDirective(raw);
       if (dir) {
         pendingDirective = dir;
+        if (token.raw) line += (token.raw.match(/\n/g) || []).length;
         continue;
       }
     }
     const block = tokenToBlock(token, pendingDirective, line);
     pendingDirective = null;
     if (block) blocks.push(block);
+    if (token.raw) line += (token.raw.match(/\n/g) || []).length;
   }
   return blocks;
 }

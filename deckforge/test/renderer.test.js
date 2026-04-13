@@ -70,16 +70,31 @@ test('css dedup: same transformer on two blocks → one css chunk', () => {
   assert.equal(rendered.transformerCss, '.x { color: red }');
 });
 
-test('unknown transformer → validation error', () => {
-  const blocks = [
-    { type: 'paragraph', data: { spans: [] }, directive: null, line: 1 },
-  ];
-  // Swap out the passthrough registry so paragraph has no transformer.
-  // Easier: rely on unknown block type to trip validation.
+test('invalid block type → validation error', () => {
   const badBlocks = [
     { type: 'not-a-type', data: {}, directive: null, line: 1 },
   ];
   assert.throws(() => renderSlide(mkSlide({ blocks: badBlocks })), /invalid block/);
+});
+
+test('unknown directive name → error with suggestion', () => {
+  const blocks = [
+    { type: 'paragraph', data: { spans: [], token: { type: 'paragraph', raw: 'hi', text: 'hi', tokens: [{ type: 'text', raw: 'hi', text: 'hi' }] } }, directive: { name: 'card-gird', params: {} }, line: 5 },
+  ];
+  assert.throws(
+    () => renderSlide(mkSlide({ blocks })),
+    /unknown transformer "card-gird"/
+  );
+});
+
+test('unknown directive name with no close match → lists available', () => {
+  const blocks = [
+    { type: 'paragraph', data: { spans: [], token: { type: 'paragraph', raw: 'hi', text: 'hi', tokens: [{ type: 'text', raw: 'hi', text: 'hi' }] } }, directive: { name: 'zzz-nonexistent', params: {} }, line: 1 },
+  ];
+  assert.throws(
+    () => renderSlide(mkSlide({ blocks })),
+    /unknown transformer "zzz-nonexistent"/
+  );
 });
 
 test('renderSlide: sample deck slide round-trips without throwing', () => {

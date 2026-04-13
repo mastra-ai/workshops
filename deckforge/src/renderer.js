@@ -17,8 +17,16 @@ import { passthroughByType } from './transformers/passthrough/index.js';
 import { validateBlock } from './ir.js';
 
 function lookupTransformer(block, transformers) {
-  if (block.directive && transformers[block.directive.name]) {
-    return transformers[block.directive.name];
+  if (block.directive) {
+    const name = block.directive.name;
+    if (transformers[name]) return transformers[name];
+    const known = Object.keys(transformers);
+    const suggestion = known.find(k => k.includes(name) || name.includes(k));
+    const hint = suggestion ? ` Did you mean "${suggestion}"?` : '';
+    throw new Error(
+      `unknown transformer "${name}" at line ${block.line}.${hint} ` +
+      `Available: ${known.join(', ') || '(none registered)'}`
+    );
   }
   return passthroughByType[block.type];
 }
