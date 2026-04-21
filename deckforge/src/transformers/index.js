@@ -15,6 +15,7 @@ import cardGrid from './card-grid.js';
 import statGrid from './stat-grid.js';
 import demoCardGrid from './demo-card-grid.js';
 import tuiWindow from './tui-window.js';
+import modeToggle from './mode-toggle.js';
 import { passthroughByType } from './passthrough/index.js';
 
 export const v1Transformers = {
@@ -23,6 +24,7 @@ export const v1Transformers = {
   'stat-grid': statGrid,
   'demo-card-grid': demoCardGrid,
   'tui-window': tuiWindow,
+  'mode-toggle': modeToggle,
 };
 
 export function resolveTransformer(block, registry = v1Transformers) {
@@ -32,5 +34,5 @@ export function resolveTransformer(block, registry = v1Transformers) {
   return passthroughByType[block.type] || null;
 }
 
-export { callout, cardGrid, statGrid, demoCardGrid, tuiWindow };
+export { callout, cardGrid, statGrid, demoCardGrid, tuiWindow, modeToggle };
 export default v1Transformers;
