@@ -6,6 +6,12 @@
  * name) that walks every `[data-df-mode-toggle]` wrapper on the slide, so
  * the script appears exactly once regardless of how many toggles the slide
  * contains.
+ *
+ * ARIA: follows the WAI-ARIA tab pattern — `role="tab"` on buttons with
+ * `aria-selected` / `aria-controls`; `role="tabpanel"` on panels with
+ * `aria-labelledby`. Arrow-left/right cycles focus between tabs in the same
+ * tablist (inactive tabs carry `tabindex="-1"` so Tab only lands on the
+ * active one).
  */
 
 import { renderSpans, escapeHtml } from './util.js';
@@ -16,19 +22,37 @@ function spansToText(spans) {
 
 const TOGGLE_JS = `(function(){
   document.querySelectorAll('[data-df-mode-toggle]').forEach(function(wrap){
-    var tabs = wrap.querySelectorAll('[data-df-mode-tab]');
+    var tabs = Array.prototype.slice.call(wrap.querySelectorAll('[data-df-mode-tab]'));
     var panels = wrap.querySelectorAll('[data-df-mode-panel]');
-    tabs.forEach(function(tab){
+    function activate(key){
+      tabs.forEach(function(t){
+        var on = t.getAttribute('data-df-mode-tab') === key;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.setAttribute('tabindex', on ? '0' : '-1');
+      });
+      panels.forEach(function(p){
+        var on = p.getAttribute('data-df-mode-panel') === key;
+        p.classList.toggle('active', on);
+        if (on) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
+      });
+    }
+    tabs.forEach(function(tab, idx){
       tab.addEventListener('click', function(){
-        var key = tab.getAttribute('data-df-mode-tab');
-        tabs.forEach(function(t){
-          t.classList.toggle('active', t.getAttribute('data-df-mode-tab') === key);
-        });
-        panels.forEach(function(p){
-          var active = p.getAttribute('data-df-mode-panel') === key;
-          p.classList.toggle('active', active);
-          if (active) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
-        });
+        activate(tab.getAttribute('data-df-mode-tab'));
+      });
+      tab.addEventListener('keydown', function(e){
+        var next = null;
+        if (e.key === 'ArrowRight') next = tabs[(idx + 1) % tabs.length];
+        else if (e.key === 'ArrowLeft') next = tabs[(idx - 1 + tabs.length) % tabs.length];
+        else if (e.key === 'Home') next = tabs[0];
+        else if (e.key === 'End') next = tabs[tabs.length - 1];
+        if (next) {
+          e.preventDefault();
+          e.stopPropagation();
+          activate(next.getAttribute('data-df-mode-tab'));
+          next.focus();
+        }
       });
     });
   });
@@ -67,16 +91,21 @@ export default {
 
     const tabs = items.map((item, i) => {
       const label = escapeHtml(spansToText(item.spans).trim());
-      const active = i === 0 ? ' active' : '';
-      return `    <button type="button" class="mode-toggle-tab${active}" data-df-mode-tab="${i}">${label}</button>`;
+      const active = i === 0;
+      const cls = `mode-toggle-tab${active ? ' active' : ''}`;
+      const tabId = `${wrapId}-tab-${i}`;
+      const panelId = `${wrapId}-panel-${i}`;
+      return `    <button type="button" id="${tabId}" class="${cls}" role="tab" aria-selected="${active}" aria-controls="${panelId}" tabindex="${active ? '0' : '-1'}" data-df-mode-tab="${i}">${label}</button>`;
     }).join('\n');
 
     const panels = items.map((item, i) => {
       const active = i === 0;
       const cls = `mode-toggle-panel${active ? ' active' : ''}`;
       const hidden = active ? '' : ' hidden';
+      const tabId = `${wrapId}-tab-${i}`;
+      const panelId = `${wrapId}-panel-${i}`;
       const children = item.children.map(c => `      <li>${renderSpans(c.spans)}</li>`).join('\n');
-      return `    <div class="${cls}" data-df-mode-panel="${i}"${hidden}>
+      return `    <div id="${panelId}" class="${cls}" role="tabpanel" aria-labelledby="${tabId}" data-df-mode-panel="${i}"${hidden}>
     <ul>
 ${children}
     </ul>

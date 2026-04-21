@@ -70,12 +70,33 @@ test('mode-toggle: render produces tabs and panels (2 modes)', () => {
   const block = nestedList('- Supervised\n  - human approves\n  - drafts only\n- Autonomous\n  - agent acts');
   const out = modeToggle.render(block, {}, { slideId: 's1', blockIndex: 0 });
   assert.match(out.html, /data-df-mode-toggle="mt-s1-0"/);
-  assert.match(out.html, /class="mode-toggle-tab active" data-df-mode-tab="0">Supervised</);
-  assert.match(out.html, /class="mode-toggle-tab" data-df-mode-tab="1">Autonomous</);
-  assert.match(out.html, /class="mode-toggle-panel active" data-df-mode-panel="0"/);
-  assert.match(out.html, /class="mode-toggle-panel" data-df-mode-panel="1" hidden/);
+  assert.match(out.html, /id="mt-s1-0-tab-0" class="mode-toggle-tab active"[^>]*data-df-mode-tab="0">Supervised</);
+  assert.match(out.html, /id="mt-s1-0-tab-1" class="mode-toggle-tab"[^>]*data-df-mode-tab="1">Autonomous</);
+  assert.match(out.html, /id="mt-s1-0-panel-0" class="mode-toggle-panel active"[^>]*data-df-mode-panel="0"/);
+  assert.match(out.html, /id="mt-s1-0-panel-1" class="mode-toggle-panel"[^>]*data-df-mode-panel="1" hidden/);
   assert.match(out.html, /<li>human approves<\/li>/);
   assert.match(out.html, /<li>agent acts<\/li>/);
+});
+
+test('mode-toggle: ARIA tab pattern attributes are present', () => {
+  const block = nestedList('- A\n  - a1\n- B\n  - b1');
+  const out = modeToggle.render(block, {}, { slideId: 's1', blockIndex: 0 });
+  assert.match(out.html, /role="tablist"/);
+  // Two tabs with role/aria-selected/aria-controls/tabindex.
+  assert.match(out.html, /role="tab" aria-selected="true" aria-controls="mt-s1-0-panel-0" tabindex="0"/);
+  assert.match(out.html, /role="tab" aria-selected="false" aria-controls="mt-s1-0-panel-1" tabindex="-1"/);
+  // Panels with role/aria-labelledby.
+  assert.match(out.html, /role="tabpanel" aria-labelledby="mt-s1-0-tab-0"/);
+  assert.match(out.html, /role="tabpanel" aria-labelledby="mt-s1-0-tab-1"/);
+});
+
+test('mode-toggle: tab-switch JS keeps aria-selected and tabindex in sync', () => {
+  const block = nestedList('- A\n  - a\n- B\n  - b');
+  const out = modeToggle.render(block, {}, { slideId: 's1', blockIndex: 0 });
+  assert.match(out.js, /setAttribute\('aria-selected'/);
+  assert.match(out.js, /setAttribute\('tabindex'/);
+  assert.match(out.js, /ArrowRight/);
+  assert.match(out.js, /ArrowLeft/);
 });
 
 test('mode-toggle: render handles 3 modes', () => {

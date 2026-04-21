@@ -17,12 +17,41 @@ import { passthroughByType } from './transformers/passthrough/index.js';
 import { v1Transformers } from './transformers/index.js';
 import { validateBlock } from './ir.js';
 
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  let prev = new Array(b.length + 1);
+  let curr = new Array(b.length + 1);
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[b.length];
+}
+
+function closestTransformerName(name, known) {
+  let best = null;
+  let bestDist = Infinity;
+  for (const k of known) {
+    const d = levenshtein(name, k);
+    if (d < bestDist) { bestDist = d; best = k; }
+  }
+  const threshold = Math.max(2, Math.floor(name.length / 3));
+  return bestDist <= threshold ? best : null;
+}
+
 function lookupTransformer(block, transformers) {
   if (block.directive) {
     const name = block.directive.name;
     if (transformers[name]) return transformers[name];
     const known = Object.keys(transformers);
-    const suggestion = known.find(k => k.includes(name) || name.includes(k));
+    const suggestion = closestTransformerName(name, known);
     const hint = suggestion ? ` Did you mean "${suggestion}"?` : '';
     throw new Error(
       `unknown transformer "${name}" at line ${block.line}.${hint} ` +

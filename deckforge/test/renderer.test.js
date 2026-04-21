@@ -77,13 +77,14 @@ test('invalid block type → validation error', () => {
   assert.throws(() => renderSlide(mkSlide({ blocks: badBlocks })), /invalid block/);
 });
 
-test('unknown directive name → error with suggestion', () => {
+test('unknown directive name → error with edit-distance suggestion', () => {
   const blocks = [
     { type: 'paragraph', data: { spans: [], token: { type: 'paragraph', raw: 'hi', text: 'hi', tokens: [{ type: 'text', raw: 'hi', text: 'hi' }] } }, directive: { name: 'card-gird', params: {} }, line: 5 },
   ];
   assert.throws(
     () => renderSlide(mkSlide({ blocks })),
-    /unknown transformer "card-gird"/
+    err => /unknown transformer "card-gird"/.test(err.message)
+         && /Did you mean "card-grid"\?/.test(err.message),
   );
 });
 

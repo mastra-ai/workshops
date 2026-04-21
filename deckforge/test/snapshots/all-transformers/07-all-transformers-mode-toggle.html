@@ -63,24 +63,24 @@
 <p>Two toggles on one slide to verify JS dedup (single <code><script></code> block).</p>
 <div class="mode-toggle-wrap" data-df-mode-toggle="mt-all-transformers-mode-toggle-2">
   <div class="mode-toggle" role="tablist">
-    <button type="button" class="mode-toggle-tab active" data-df-mode-tab="0">Supervised</button>
-    <button type="button" class="mode-toggle-tab" data-df-mode-tab="1">Autonomous</button>
-    <button type="button" class="mode-toggle-tab" data-df-mode-tab="2">Collaborative</button>
+    <button type="button" id="mt-all-transformers-mode-toggle-2-tab-0" class="mode-toggle-tab active" role="tab" aria-selected="true" aria-controls="mt-all-transformers-mode-toggle-2-panel-0" tabindex="0" data-df-mode-tab="0">Supervised</button>
+    <button type="button" id="mt-all-transformers-mode-toggle-2-tab-1" class="mode-toggle-tab" role="tab" aria-selected="false" aria-controls="mt-all-transformers-mode-toggle-2-panel-1" tabindex="-1" data-df-mode-tab="1">Autonomous</button>
+    <button type="button" id="mt-all-transformers-mode-toggle-2-tab-2" class="mode-toggle-tab" role="tab" aria-selected="false" aria-controls="mt-all-transformers-mode-toggle-2-panel-2" tabindex="-1" data-df-mode-tab="2">Collaborative</button>
   </div>
   <div class="mode-toggle-panels">
-    <div class="mode-toggle-panel active" data-df-mode-panel="0">
+    <div id="mt-all-transformers-mode-toggle-2-panel-0" class="mode-toggle-panel active" role="tabpanel" aria-labelledby="mt-all-transformers-mode-toggle-2-tab-0" data-df-mode-panel="0">
     <ul>
       <li>agent drafts, human approves</li>
       <li>ideal for admissions decisions</li>
     </ul>
   </div>
-    <div class="mode-toggle-panel" data-df-mode-panel="1" hidden>
+    <div id="mt-all-transformers-mode-toggle-2-panel-1" class="mode-toggle-panel" role="tabpanel" aria-labelledby="mt-all-transformers-mode-toggle-2-tab-1" data-df-mode-panel="1" hidden>
     <ul>
       <li>agent acts within strict guardrails</li>
       <li>ideal for scheduling and FAQs</li>
     </ul>
   </div>
-    <div class="mode-toggle-panel" data-df-mode-panel="2" hidden>
+    <div id="mt-all-transformers-mode-toggle-2-panel-2" class="mode-toggle-panel" role="tabpanel" aria-labelledby="mt-all-transformers-mode-toggle-2-tab-2" data-df-mode-panel="2" hidden>
     <ul>
       <li>agent and human work side-by-side</li>
       <li>ideal for research assistance</li>
@@ -90,17 +90,17 @@
 </div>
 <div class="mode-toggle-wrap" data-df-mode-toggle="mt-all-transformers-mode-toggle-3">
   <div class="mode-toggle" role="tablist">
-    <button type="button" class="mode-toggle-tab active" data-df-mode-tab="0">Development</button>
-    <button type="button" class="mode-toggle-tab" data-df-mode-tab="1">Production</button>
+    <button type="button" id="mt-all-transformers-mode-toggle-3-tab-0" class="mode-toggle-tab active" role="tab" aria-selected="true" aria-controls="mt-all-transformers-mode-toggle-3-panel-0" tabindex="0" data-df-mode-tab="0">Development</button>
+    <button type="button" id="mt-all-transformers-mode-toggle-3-tab-1" class="mode-toggle-tab" role="tab" aria-selected="false" aria-controls="mt-all-transformers-mode-toggle-3-panel-1" tabindex="-1" data-df-mode-tab="1">Production</button>
   </div>
   <div class="mode-toggle-panels">
-    <div class="mode-toggle-panel active" data-df-mode-panel="0">
+    <div id="mt-all-transformers-mode-toggle-3-panel-0" class="mode-toggle-panel active" role="tabpanel" aria-labelledby="mt-all-transformers-mode-toggle-3-tab-0" data-df-mode-panel="0">
     <ul>
       <li>hot reload on save</li>
       <li>error panel on bad directive</li>
     </ul>
   </div>
-    <div class="mode-toggle-panel" data-df-mode-panel="1" hidden>
+    <div id="mt-all-transformers-mode-toggle-3-panel-1" class="mode-toggle-panel" role="tabpanel" aria-labelledby="mt-all-transformers-mode-toggle-3-tab-1" data-df-mode-panel="1" hidden>
     <ul>
       <li>strict build, exits non-zero on error</li>
     </ul>
@@ -115,19 +115,37 @@
   <script>
 (function(){
   document.querySelectorAll('[data-df-mode-toggle]').forEach(function(wrap){
-    var tabs = wrap.querySelectorAll('[data-df-mode-tab]');
+    var tabs = Array.prototype.slice.call(wrap.querySelectorAll('[data-df-mode-tab]'));
     var panels = wrap.querySelectorAll('[data-df-mode-panel]');
-    tabs.forEach(function(tab){
+    function activate(key){
+      tabs.forEach(function(t){
+        var on = t.getAttribute('data-df-mode-tab') === key;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.setAttribute('tabindex', on ? '0' : '-1');
+      });
+      panels.forEach(function(p){
+        var on = p.getAttribute('data-df-mode-panel') === key;
+        p.classList.toggle('active', on);
+        if (on) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
+      });
+    }
+    tabs.forEach(function(tab, idx){
       tab.addEventListener('click', function(){
-        var key = tab.getAttribute('data-df-mode-tab');
-        tabs.forEach(function(t){
-          t.classList.toggle('active', t.getAttribute('data-df-mode-tab') === key);
-        });
-        panels.forEach(function(p){
-          var active = p.getAttribute('data-df-mode-panel') === key;
-          p.classList.toggle('active', active);
-          if (active) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
-        });
+        activate(tab.getAttribute('data-df-mode-tab'));
+      });
+      tab.addEventListener('keydown', function(e){
+        var next = null;
+        if (e.key === 'ArrowRight') next = tabs[(idx + 1) % tabs.length];
+        else if (e.key === 'ArrowLeft') next = tabs[(idx - 1 + tabs.length) % tabs.length];
+        else if (e.key === 'Home') next = tabs[0];
+        else if (e.key === 'End') next = tabs[tabs.length - 1];
+        if (next) {
+          e.preventDefault();
+          e.stopPropagation();
+          activate(next.getAttribute('data-df-mode-tab'));
+          next.focus();
+        }
       });
     });
   });
