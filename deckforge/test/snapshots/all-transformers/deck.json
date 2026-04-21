@@ -36,6 +36,33 @@
       "group": "all-transformers",
       "groupIndex": 0,
       "isGroupHeader": false
+    },
+    {
+      "file": "05-all-transformers-demo-card-grid.html",
+      "nav": "Demo Card Grid",
+      "title": "Demo Card Grid",
+      "level": 2,
+      "group": "all-transformers",
+      "groupIndex": 0,
+      "isGroupHeader": false
+    },
+    {
+      "file": "06-all-transformers-tui-windows.html",
+      "nav": "TUI Windows",
+      "title": "TUI Windows",
+      "level": 2,
+      "group": "all-transformers",
+      "groupIndex": 0,
+      "isGroupHeader": false
+    },
+    {
+      "file": "07-all-transformers-mode-toggle.html",
+      "nav": "Mode Toggle",
+      "title": "Mode Toggle",
+      "level": 2,
+      "group": "all-transformers",
+      "groupIndex": 0,
+      "isGroupHeader": false
     }
   ]
 }

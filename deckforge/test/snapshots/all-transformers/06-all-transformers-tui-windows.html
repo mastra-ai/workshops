@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Callouts — All Transformers</title>
+  <title>TUI Windows — All Transformers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,30 +31,28 @@
       color: var(--text-primary);
     }
   </style>
-  <style>
-.callout-green { background: var(--green-dim); border-color: rgba(34, 197, 94, 0.25); }
-.callout-yellow { background: var(--yellow-dim); border-color: rgba(234, 179, 8, 0.25); }
-.callout-orange { background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.25); }
-  </style>
 </head>
 <body>
   <!-- NAV_PLACEHOLDER: organizer will inject topnav here -->
   <div class="page">
     <div class="main">
-      <div class="section fade-on-scroll" id="all-transformers-callouts">
-        <h2>Callouts</h2>
-<p>A slide with four callouts to verify color variants coexist.</p>
-<div class="callout fade-on-scroll">
-  <p>Default accent callout — baseline.</p>
+      <div class="section fade-on-scroll" id="all-transformers-tui-windows">
+        <h2>TUI Windows</h2>
+<p>Two windows on one slide to verify CSS dedup (single <code><style></code> block).</p>
+<div class="tui-window fade-on-scroll">
+  <div class="tui-titlebar">
+    <div class="tui-dots"><span></span><span></span><span></span></div>
+    <div class="tui-title">session one</div>
+  </div>
+  <pre class="tui-body"><code>$ npm install
+$ npm test</code></pre>
 </div>
-<div class="callout callout-green fade-on-scroll">
-  <p>Positive callout.</p>
-</div>
-<div class="callout callout-yellow fade-on-scroll">
-  <p>Warning callout.</p>
-</div>
-<div class="callout callout-orange fade-on-scroll">
-  <p>Alert callout.</p>
+<div class="tui-window fade-on-scroll">
+  <div class="tui-titlebar">
+    <div class="tui-dots"><span></span><span></span><span></span></div>
+    <div class="tui-title">session two</div>
+  </div>
+  <pre class="tui-body"><code>$ deckforge build deck.md</code></pre>
 </div>
 
       </div>

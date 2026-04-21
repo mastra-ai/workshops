@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mode Toggle — All Transformers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .section h2 {
+      margin-bottom: 1rem;
+    }
+    .section h3 {
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    .section ul, .section ol {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+    .section li {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .section li strong {
+      color: var(--text-primary);
+    }
+  </style>
+  <style>
+.mode-toggle-wrap { margin-top: 1.5rem; }
+.mode-toggle-panels { margin-top: 1rem; }
+.mode-toggle-panel { display: none; }
+.mode-toggle-panel.active { display: block; }
+.mode-toggle-panel ul { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+  </style>
+</head>
+<body>
+  <!-- NAV_PLACEHOLDER: organizer will inject topnav here -->
+  <div class="page">
+    <div class="main">
+      <div class="section fade-on-scroll" id="all-transformers-mode-toggle">
+        <h2>Mode Toggle</h2>
+<p>Two toggles on one slide to verify JS dedup (single <code><script></code> block).</p>
+<div class="mode-toggle-wrap" data-df-mode-toggle="mt-all-transformers-mode-toggle-2">
+  <div class="mode-toggle" role="tablist">
+    <button type="button" class="mode-toggle-tab active" data-df-mode-tab="0">Supervised</button>
+    <button type="button" class="mode-toggle-tab" data-df-mode-tab="1">Autonomous</button>
+    <button type="button" class="mode-toggle-tab" data-df-mode-tab="2">Collaborative</button>
+  </div>
+  <div class="mode-toggle-panels">
+    <div class="mode-toggle-panel active" data-df-mode-panel="0">
+    <ul>
+      <li>agent drafts, human approves</li>
+      <li>ideal for admissions decisions</li>
+    </ul>
+  </div>
+    <div class="mode-toggle-panel" data-df-mode-panel="1" hidden>
+    <ul>
+      <li>agent acts within strict guardrails</li>
+      <li>ideal for scheduling and FAQs</li>
+    </ul>
+  </div>
+    <div class="mode-toggle-panel" data-df-mode-panel="2" hidden>
+    <ul>
+      <li>agent and human work side-by-side</li>
+      <li>ideal for research assistance</li>
+    </ul>
+  </div>
+  </div>
+</div>
+<div class="mode-toggle-wrap" data-df-mode-toggle="mt-all-transformers-mode-toggle-3">
+  <div class="mode-toggle" role="tablist">
+    <button type="button" class="mode-toggle-tab active" data-df-mode-tab="0">Development</button>
+    <button type="button" class="mode-toggle-tab" data-df-mode-tab="1">Production</button>
+  </div>
+  <div class="mode-toggle-panels">
+    <div class="mode-toggle-panel active" data-df-mode-panel="0">
+    <ul>
+      <li>hot reload on save</li>
+      <li>error panel on bad directive</li>
+    </ul>
+  </div>
+    <div class="mode-toggle-panel" data-df-mode-panel="1" hidden>
+    <ul>
+      <li>strict build, exits non-zero on error</li>
+    </ul>
+  </div>
+  </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+  <script src="shared.js"></script>
+  <script>
+(function(){
+  document.querySelectorAll('[data-df-mode-toggle]').forEach(function(wrap){
+    var tabs = wrap.querySelectorAll('[data-df-mode-tab]');
+    var panels = wrap.querySelectorAll('[data-df-mode-panel]');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        var key = tab.getAttribute('data-df-mode-tab');
+        tabs.forEach(function(t){
+          t.classList.toggle('active', t.getAttribute('data-df-mode-tab') === key);
+        });
+        panels.forEach(function(p){
+          var active = p.getAttribute('data-df-mode-panel') === key;
+          p.classList.toggle('active', active);
+          if (active) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
+        });
+      });
+    });
+  });
+})();
+  </script>
+  <!-- KEYNAV_PLACEHOLDER: organizer will inject initKeyNav call here -->
+</body>
+</html>
