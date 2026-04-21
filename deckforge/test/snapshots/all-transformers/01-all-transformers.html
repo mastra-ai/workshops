@@ -21,7 +21,22 @@
   </style>
 </head>
 <body>
-  <!-- NAV_PLACEHOLDER: organizer will inject topnav here -->
+  <nav class="topnav">
+    <a href="index.html" class="topnav-brand">All Transformers</a>
+    <div class="topnav-sections">
+      <a href="01-all-transformers.html" class="active">All Transformers</a>
+      <a href="02-all-transformers-callouts.html">Callouts</a>
+      <a href="03-all-transformers-card-grid.html">Card Grid</a>
+      <a href="04-all-transformers-stat-grid.html">Stat Grid</a>
+      <a href="05-all-transformers-demo-card-grid.html">Demo Card Grid</a>
+      <a href="06-all-transformers-tui-windows.html">TUI Windows</a>
+      <a href="07-all-transformers-mode-toggle.html">Mode Toggle</a>
+    </div>
+    <div class="topnav-nav">
+      <a class="disabled">← Prev</a>
+      <a href="02-all-transformers-callouts.html">Next →</a>
+    </div>
+  </nav>
   <div class="page">
     <div class="main">
       <div class="section centered fade-on-scroll" id="all-transformers">
@@ -32,6 +47,8 @@
     </div>
   </div>
   <script src="shared.js"></script>
-  <!-- KEYNAV_PLACEHOLDER: organizer will inject initKeyNav call here -->
+  <script>
+    initKeyNav(null, '02-all-transformers-callouts.html', null, null);
+  </script>
 </body>
 </html>

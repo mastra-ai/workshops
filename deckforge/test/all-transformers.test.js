@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 
 import { renderDeck } from '../src/renderer.js';
+import { organize } from '../src/organizer.js';
 
 const REPO_ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 
@@ -15,6 +16,9 @@ function freshTempDir(label) {
 test('integration: all-transformers fixture matches committed snapshot', () => {
   const out = freshTempDir('all-transformers');
   renderDeck(path.join(REPO_ROOT, 'test/fixtures/all-transformers.md'), out);
+  // The snapshot captures the post-organize output so `npm run build` output
+  // can be diffed against it directly (mirrors the sample-deck integration).
+  organize(out);
 
   const snapDir = path.join(REPO_ROOT, 'test/snapshots/all-transformers');
   if (process.env.UPDATE_SNAPSHOTS === '1' || !fs.existsSync(snapDir)) {
