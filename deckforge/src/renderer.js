@@ -14,6 +14,7 @@ import path from 'path';
 import { parseMarkdown } from './parser.js';
 import { defaultShells, resolveShell } from './shells/index.js';
 import { passthroughByType } from './transformers/passthrough/index.js';
+import { v1Transformers } from './transformers/index.js';
 import { validateBlock } from './ir.js';
 
 function lookupTransformer(block, transformers) {
@@ -37,7 +38,7 @@ function lookupTransformer(block, transformers) {
  * renderer can compose the final file.
  */
 export function renderSlide(slide, opts = {}) {
-  const transformers = opts.transformers || {};
+  const transformers = opts.transformers || v1Transformers;
   const shells = opts.shells || defaultShells;
 
   const cssByName = new Map();

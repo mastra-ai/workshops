@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node bin/deckforge.js dev",
     "build": "node bin/deckforge.js build",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js test/transformers/*.test.js"
   },
   "dependencies": {
     "chokidar": "^4.0.0",
