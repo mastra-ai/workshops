@@ -19,6 +19,6 @@ import { renderDeck } from './renderer.js';
 
 export { parseMarkdown };
 
-export function build(mdPath, outputDir) {
-  return renderDeck(mdPath, outputDir);
+export function build(mdPath, outputDir, opts = {}) {
+  return renderDeck(mdPath, outputDir, opts);
 }

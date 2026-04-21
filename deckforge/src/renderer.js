@@ -32,6 +32,23 @@ function lookupTransformer(block, transformers) {
   return passthroughByType[block.type];
 }
 
+const ERROR_PANEL_CSS = `.df-error-panel { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1.5rem; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.85rem; }
+.df-error-panel strong { color: #ef4444; display: block; margin-bottom: 0.5rem; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.df-error-panel pre { white-space: pre-wrap; word-break: break-word; margin: 0; color: var(--text-secondary); }`;
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function errorPanel(message, block) {
+  const lineHint = block && block.line ? ` (line ${block.line})` : '';
+  return `<div class="df-error-panel">\n  <strong>DeckForge error${lineHint}</strong>\n  <pre>${escapeHtml(message)}</pre>\n</div>\n`;
+}
+
 /**
  * Render a single slide IR into the inner body HTML + wrapper info.
  * Returns `{ html, css, js, sectionClass, styles }` so the deck-level
@@ -40,29 +57,53 @@ function lookupTransformer(block, transformers) {
 export function renderSlide(slide, opts = {}) {
   const transformers = opts.transformers || v1Transformers;
   const shells = opts.shells || defaultShells;
+  const mode = opts.mode === 'dev' ? 'dev' : 'build';
 
   const cssByName = new Map();
   const jsByName = new Map();
   const parts = [];
 
+  function handleBlockError(err, block) {
+    if (mode === 'build') throw err;
+    parts.push(errorPanel(err.message, block));
+    if (!cssByName.has('__df_error_panel__')) {
+      cssByName.set('__df_error_panel__', ERROR_PANEL_CSS);
+    }
+  }
+
   for (let i = 0; i < slide.blocks.length; i++) {
     const block = slide.blocks[i];
     const v = validateBlock(block);
-    if (!v.ok) throw new Error(`invalid block at slide=${slide.id} index=${i}: ${v.error}`);
-    const tx = lookupTransformer(block, transformers);
+    if (!v.ok) {
+      handleBlockError(new Error(`invalid block at slide=${slide.id} index=${i}: ${v.error}`), block);
+      continue;
+    }
+    let tx;
+    try {
+      tx = lookupTransformer(block, transformers);
+    } catch (err) {
+      handleBlockError(err, block);
+      continue;
+    }
     if (!tx) {
-      throw new Error(`no transformer for block type="${block.type}" on slide "${slide.id}"`);
+      handleBlockError(new Error(`no transformer for block type="${block.type}" on slide "${slide.id}"`), block);
+      continue;
     }
     const params = (block.directive && block.directive.params) || {};
-    const validated = tx.validate ? tx.validate(block, params) : { ok: true };
-    if (!validated.ok) {
-      throw new Error(`transformer ${tx.name} rejected block: ${validated.error}`);
+    try {
+      const validated = tx.validate ? tx.validate(block, params) : { ok: true };
+      if (!validated.ok) {
+        throw new Error(`transformer ${tx.name} rejected block: ${validated.error}`);
+      }
+      const ctx = { slideId: slide.id, blockIndex: i };
+      const out = tx.render(block, params, ctx);
+      parts.push(out.html || '');
+      if (out.css && !cssByName.has(tx.name)) cssByName.set(tx.name, out.css);
+      if (out.js && !jsByName.has(tx.name)) jsByName.set(tx.name, out.js);
+    } catch (err) {
+      handleBlockError(err, block);
+      continue;
     }
-    const ctx = { slideId: slide.id, blockIndex: i };
-    const out = tx.render(block, params, ctx);
-    parts.push(out.html || '');
-    if (out.css && !cssByName.has(tx.name)) cssByName.set(tx.name, out.css);
-    if (out.js && !jsByName.has(tx.name)) jsByName.set(tx.name, out.js);
   }
 
   const bodyHtml = parts.join('');

@@ -57,7 +57,7 @@ function injectDevFlag(outputDir) {
 function fullBuild(mdPath, outputDir, themeDir) {
   const start = Date.now();
   try {
-    const manifest = build(mdPath, outputDir);
+    const manifest = build(mdPath, outputDir, { mode: 'dev' });
     copyThemeAssets(themeDir, outputDir);
     injectDevFlag(outputDir);
     organize(outputDir);
@@ -190,7 +190,13 @@ export function buildDeck(mdPath, options = {}) {
   console.log(`  Source:  ${mdPath}`);
   console.log(`  Output:  ${outputDir}\n`);
 
-  const manifest = build(mdPath, outputDir);
+  let manifest;
+  try {
+    manifest = build(mdPath, outputDir, { mode: 'build' });
+  } catch (err) {
+    console.error(`  ✗ Build error: ${err.message}`);
+    process.exit(1);
+  }
   copyThemeAssets(themeDir, outputDir);
   organize(outputDir);
 
