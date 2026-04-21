@@ -12,11 +12,13 @@
 
 import callout from './callout.js';
 import cardGrid from './card-grid.js';
+import statGrid from './stat-grid.js';
 import { passthroughByType } from './passthrough/index.js';
 
 export const v1Transformers = {
   callout,
   'card-grid': cardGrid,
+  'stat-grid': statGrid,
 };
 
 export function resolveTransformer(block, registry = v1Transformers) {
@@ -26,5 +28,5 @@ export function resolveTransformer(block, registry = v1Transformers) {
   return passthroughByType[block.type] || null;
 }
 
-export { callout, cardGrid };
+export { callout, cardGrid, statGrid };
 export default v1Transformers;
