@@ -8,6 +8,8 @@ A hub for interactive HTML slide decks built with a shared design system. Dark-t
 |------|-------------|
 | [om-workshop](decks/om-workshop/) | "Building Agents That Never Forget" — Observational Memory + Harness Architecture workshop by Abhi Aiyer & Shane Thomas |
 | [processors-workshop](decks/processors-workshop/) | "Processors: Beyond Guardrails" — Mastra Processors framework workshop by Daniel Lew & Alex Booker |
+| [harness-workshop](decks/harness-workshop/) | "Agent Harness" — Anatomy of an agent harness, prompts, workspace, memory, modes, steering, protocols |
+| [browser-channels-workshop](decks/browser-channels-workshop/) | "Browser & Channels" — Deep dive on the Browser and Channels primitives. Built with [open-slide](https://github.com/1weiho/open-slide) (React); run `pnpm dev` from the deck directory to present. |
 | [component-showcase](decks/component-showcase/) | Reference deck demonstrating every available component, layout, and animation |
 
 ## Quick Start
@@ -23,6 +25,18 @@ open decks/component-showcase/index.html
 ```
 
 **Keyboard navigation:** ← → arrow keys move between slides.
+
+### open-slide decks
+
+Some decks (e.g. `browser-channels-workshop`) are React apps built with [open-slide](https://github.com/1weiho/open-slide) instead of vanilla HTML. They live alongside the HTML decks but run via a dev server:
+
+```bash
+cd decks/browser-channels-workshop
+pnpm install
+pnpm dev   # opens http://localhost:5173
+```
+
+The `deck.json` for these decks has `"engine": "open-slide"`; `flatten.js` recognizes the flag and skips the HTML flatten pipeline for them. The deck's `index.html` is a launcher page with run instructions.
 
 ## Creating a New Deck
 
@@ -85,9 +99,11 @@ See `decks/component-showcase/` for examples of every available component.
 │   ├── shared.css        # CSS variables, components, utilities (1600+ lines)
 │   └── shared.js         # Navigation, animations, helpers
 ├── decks/                # Each subdirectory is a self-contained deck
-│   ├── om-workshop/      # 11 slides + shared.css/js
-│   ├── processors-workshop/  # 10 slides + images + shared.css/js
-│   └── component-showcase/   # 8 slides + shared.css/js
+│   ├── om-workshop/                  # 11 slides + shared.css/js (HTML)
+│   ├── processors-workshop/          # 10 slides + images + shared.css/js (HTML)
+│   ├── harness-workshop/             # 12 slides + shared.css/js (HTML)
+│   ├── component-showcase/           # 8 slides + shared.css/js (HTML)
+│   └── browser-channels-workshop/    # 21 slides (open-slide / React)
 └── examples/             # Workshop code examples
 ```
 

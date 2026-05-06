@@ -150,10 +150,14 @@ ${slideLinks}
 
 function generateRootIndex(decks) {
   const deckLinks = decks
-    .map(
-      (d) =>
-        `        <a href="decks/${d.name}/index.html" class="card"><h4>${d.deck.title}</h4><p>${d.deck.slides.length} slides</p></a>`
-    )
+    .map((d) => {
+      const href = `decks/${d.name}/index.html`;
+      const badge =
+        d.deck.engine === "open-slide"
+          ? `<span class="badge">open-slide</span>`
+          : "";
+      return `        <a href="${href}" class="card"><h4>${d.deck.title}${badge}</h4><p>${d.deck.slides.length} slides</p></a>`;
+    })
     .join("\n");
 
   return `<!DOCTYPE html>
@@ -180,8 +184,9 @@ function generateRootIndex(decks) {
         .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; text-align: left; }
         .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-decoration: none; transition: border-color 0.2s, transform 0.2s; }
         .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .card h4 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .card h4 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
         .card p { color: var(--text-secondary); font-size: 0.9rem; }
+        .badge { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-dim, rgba(99,102,241,0.3)); padding: 0.15rem 0.5rem; border-radius: 999px; }
     </style>
 </head>
 <body>
@@ -219,6 +224,13 @@ function main() {
     const deck = JSON.parse(readFile(deckJsonPath));
     console.log(`  📦 ${name} (${deck.slides.length} slides)`);
     allDecks.push({ name, deck });
+
+    // open-slide decks are React apps run via `pnpm dev`; skip the HTML flatten
+    // pipeline and leave the deck's launcher index.html untouched.
+    if (deck.engine === "open-slide") {
+      console.log(`    ✓ open-slide deck (run \`pnpm dev\` in decks/${name})\n`);
+      continue;
+    }
 
     // Process each slide in-place
     let flattened = 0;
