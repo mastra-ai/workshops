@@ -22,8 +22,9 @@
         .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; text-align: left; }
         .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-decoration: none; transition: border-color 0.2s, transform 0.2s; }
         .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .card h4 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .card h4 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
         .card p { color: var(--text-secondary); font-size: 0.9rem; }
+        .badge { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-dim, rgba(99,102,241,0.3)); padding: 0.15rem 0.5rem; border-radius: 999px; }
     </style>
 </head>
 <body>
@@ -31,6 +32,7 @@
         <h1>Mastra Presentations</h1>
         <p class="subtitle">Company presentation hub</p>
         <div class="deck-grid">
+        <a href="decks/browser-channels-workshop/index.html" class="card"><h4>Browser & Channels Workshop<span class="badge">open-slide</span></h4><p>21 slides</p></a>
         <a href="decks/component-showcase/index.html" class="card"><h4>Component Showcase</h4><p>8 slides</p></a>
         <a href="decks/harness-workshop/index.html" class="card"><h4>Agent Harness</h4><p>12 slides</p></a>
         <a href="decks/om-workshop/index.html" class="card"><h4>Building Agents That Never Forget</h4><p>11 slides</p></a>
