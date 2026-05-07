@@ -1,42 +1,42 @@
 # Mastra Company Presentations
 
-A hub for interactive HTML slide decks built with a shared design system. Dark-themed, animated, pure vanilla HTML/CSS/JS. **No build step needed** — just open in a browser.
+Two flavors of decks live in this repo:
+
+1. **open-slide decks** — React, served by a single dev server at the repo root. Source lives in `slides/<deck-id>/`.
+2. **Legacy HTML decks** — vanilla HTML/CSS/JS with a flatten step. Source lives in `decks/<deck-id>/`.
 
 ## Decks
 
+### open-slide (React, run from repo root)
+
+| Deck (URL) | Description |
+|------------|-------------|
+| [`/s/browser-channels`](slides/browser-channels/) | "Browser & Channels" — deep dive on the Browser and Channels primitives. |
+| [`/s/om-workshop`](slides/om-workshop/) | "Building Agents That Never Forget" — Observational Memory + Harness Architecture. |
+
+```bash
+pnpm install
+pnpm dev      # http://localhost:5173 — dashboard lists all open-slide decks
+              # http://localhost:5173/s/<deck-id> for a specific deck
+pnpm build    # static production build into ./dist
+```
+
+Each deck is a single `slides/<deck-id>/index.tsx` exporting a `Page[]` plus optional `meta` and `notes`.
+
+### Legacy HTML (vanilla, no build server)
+
 | Deck | Description |
 |------|-------------|
-| [om-workshop](decks/om-workshop/) | "Building Agents That Never Forget" — Observational Memory + Harness Architecture workshop by Abhi Aiyer & Shane Thomas |
-| [processors-workshop](decks/processors-workshop/) | "Processors: Beyond Guardrails" — Mastra Processors framework workshop by Daniel Lew & Alex Booker |
-| [harness-workshop](decks/harness-workshop/) | "Agent Harness" — Anatomy of an agent harness, prompts, workspace, memory, modes, steering, protocols |
-| [browser-channels-workshop](decks/browser-channels-workshop/) | "Browser & Channels" — Deep dive on the Browser and Channels primitives. Built with [open-slide](https://github.com/1weiho/open-slide) (React); run `pnpm dev` from the deck directory to present. |
-| [component-showcase](decks/component-showcase/) | Reference deck demonstrating every available component, layout, and animation |
-
-## Quick Start
+| [decks/processors-workshop](decks/processors-workshop/) | "Processors: Beyond Guardrails" |
+| [decks/harness-workshop](decks/harness-workshop/) | "Agent Harness" |
+| [decks/component-showcase](decks/component-showcase/) | Reference deck for the legacy design system |
 
 ```bash
-# Open the hub
-open index.html
-
-# Or open a specific deck directly
-open decks/om-workshop/index.html
-open decks/processors-workshop/index.html
-open decks/component-showcase/index.html
+pnpm flatten          # bakes partials into each HTML slide + writes decks/index.html
+open decks/index.html # legacy hub page
 ```
 
-**Keyboard navigation:** ← → arrow keys move between slides.
-
-### open-slide decks
-
-Some decks (e.g. `browser-channels-workshop`) are React apps built with [open-slide](https://github.com/1weiho/open-slide) instead of vanilla HTML. They live alongside the HTML decks but run via a dev server:
-
-```bash
-cd decks/browser-channels-workshop
-pnpm install
-pnpm dev   # opens http://localhost:5173
-```
-
-The `deck.json` for these decks has `"engine": "open-slide"`; `flatten.js` recognizes the flag and skips the HTML flatten pipeline for them. The deck's `index.html` is a launcher page with run instructions.
+**Keyboard navigation:** ← → arrow keys move between slides (both flavors).
 
 ## Creating a New Deck
 

@@ -1,9 +1,24 @@
 {
-  "name": "mastra-presentations",
+  "name": "mastra-workshops",
+  "private": true,
   "version": "1.0.0",
-  "description": "Mastra company presentations — dark-themed interactive slide decks",
+  "description": "Mastra workshop decks (open-slide) and legacy HTML decks",
+  "type": "module",
   "scripts": {
-    "flatten": "node flatten.js"
+    "dev": "open-slide dev",
+    "build": "open-slide build",
+    "preview": "open-slide preview",
+    "sync:skills": "open-slide sync:skills",
+    "flatten": "node flatten.cjs"
   },
-  "private": true
+  "dependencies": {
+    "@open-slide/core": "^1.0.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "vite": "^5.4.10"
+  }
 }

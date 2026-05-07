@@ -151,12 +151,9 @@ ${slideLinks}
 function generateRootIndex(decks) {
   const deckLinks = decks
     .map((d) => {
-      const href = `decks/${d.name}/index.html`;
-      const badge =
-        d.deck.engine === "open-slide"
-          ? `<span class="badge">open-slide</span>`
-          : "";
-      return `        <a href="${href}" class="card"><h4>${d.deck.title}${badge}</h4><p>${d.deck.slides.length} slides</p></a>`;
+      // From decks/index.html, legacy decks live in sibling folders.
+      const href = `${d.name}/index.html`;
+      return `        <a href="${href}" class="card"><h4>${d.deck.title}</h4><p>${d.deck.slides.length} slides</p></a>`;
     })
     .join("\n");
 
@@ -191,8 +188,8 @@ function generateRootIndex(decks) {
 </head>
 <body>
     <div class="index-wrapper">
-        <h1>Mastra Presentations</h1>
-        <p class="subtitle">Company presentation hub</p>
+        <h1>Mastra Presentations — Legacy HTML decks</h1>
+        <p class="subtitle">Open-slide decks live at <code>/s/&lt;deck-id&gt;</code> (run <code>pnpm dev</code> at the repo root).</p>
         <div class="deck-grid">
 ${deckLinks}
         </div>
@@ -285,11 +282,12 @@ function main() {
     console.log(`    ${flattened} slides flattened\n`);
   }
 
-  // Generate root index
+  // Generate legacy hub at decks/index.html (the repo-root index.html is owned
+  // by open-slide now; this hub lists the legacy HTML decks only).
   const rootIndex = generateRootIndex(allDecks);
-  writeFile(path.join(__dirname, "index.html"), rootIndex);
-  console.log(`✅ Root index.html generated`);
-  console.log(`\n✨ Done! Open index.html in your browser.`);
+  writeFile(path.join(DECKS_DIR, "index.html"), rootIndex);
+  console.log(`✅ Legacy hub written to decks/index.html`);
+  console.log(`\n✨ Done! Open decks/index.html for legacy HTML decks.`);
 }
 
 main();
