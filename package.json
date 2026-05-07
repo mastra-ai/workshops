@@ -2,14 +2,13 @@
   "name": "mastra-workshops",
   "private": true,
   "version": "1.0.0",
-  "description": "Mastra workshop decks (open-slide) and legacy HTML decks",
+  "description": "Mastra workshop decks (open-slide / React)",
   "type": "module",
   "scripts": {
     "dev": "open-slide dev",
     "build": "open-slide build",
     "preview": "open-slide preview",
-    "sync:skills": "open-slide sync:skills",
-    "flatten": "node flatten.cjs"
+    "sync:skills": "open-slide sync:skills"
   },
   "dependencies": {
     "@open-slide/core": "^1.0.4",
