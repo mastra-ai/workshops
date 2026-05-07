@@ -1,3 +1,4 @@
+import { Fragment, useEffect, useState, type CSSProperties } from 'react';
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
 import abhiAvatar from './assets/abhi-avatar.jpg';
 
@@ -74,7 +75,7 @@ const Eyebrow = ({ children, color = palette.accent }: { children: React.ReactNo
   </div>
 );
 
-const TOTAL = 11;
+const TOTAL = 13;
 
 const Footer = ({ index }: { index: number }) => (
   <div
@@ -444,74 +445,246 @@ const TheInsight: Page = () => (
       }
     />
     <SubTitle>
-      Humans don't store everything. We compress, abstract, and forget — that's what makes us
-      coherent. Agents should work the same way.
+      Humans don't store everything. We compress, abstract, and forget — that's what makes us coherent. Three agents, one memory.
     </SubTitle>
 
-    <div style={{ marginTop: 56 }}>
-      <div
-        style={{
-          fontFamily: font.mono,
-          fontSize: 14,
-          letterSpacing: '0.2em',
-          color: palette.muted,
-          marginBottom: 20,
-          textTransform: 'uppercase',
-        }}
-      >
-        Architecture · three agents, one memory
-      </div>
-      <div style={{ display: 'flex', gap: 24 }}>
-        <Pill
-          icon="💬"
-          label="Actor"
-          desc={
-            <>
-              Your agent. Drives the conversation, calls tools, ships work. Sees only what it needs to act.
-            </>
-          }
-          accent={palette.green}
-        />
-        <Pill
-          icon="👁️"
-          label="Observer"
-          desc={
-            <>
-              Watches every turn. Extracts signal — entities, preferences, decisions. Always running, never interrupting.
-            </>
-          }
-          accent={palette.blue}
-        />
-        <Pill
-          icon="🔄"
-          label="Reflector"
-          desc={
-            <>
-              Compacts the observed signal into a stable working memory. The agent's subconscious mind.
-            </>
-          }
-          accent={palette.purple}
-        />
-      </div>
-
-      <div
-        style={{
-          marginTop: 40,
-          fontSize: 26,
-          color: palette.textSoft,
-          maxWidth: 1500,
-          lineHeight: 1.45,
-        }}
-      >
-        The <span style={{ color: palette.accent }}>Observer</span> and{' '}
-        <span style={{ color: palette.purple }}>Reflector</span> are the subconscious mind of your agent —
-        always running, never interrupting.
-      </div>
+    <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+      <Pill
+        icon="💬"
+        label="Actor"
+        desc="Drives the conversation, calls tools, ships work. Sees only what it needs to act."
+        accent={palette.green}
+      />
+      <Pill
+        icon="👁️"
+        label="Observer"
+        desc="Watches every turn. Extracts signal — entities, preferences, decisions. Always running."
+        accent={palette.blue}
+      />
+      <Pill
+        icon="🔄"
+        label="Reflector"
+        desc="Compacts observed signal into stable working memory. The agent's subconscious."
+        accent={palette.purple}
+      />
     </div>
+
+    <ObserverReflectorDemo />
 
     <Footer index={3} />
   </Stage>
 );
+
+// ─── Live Observer / Reflector demo (Insight slide) ──────────────────────────
+type Turn = { role: 'user' | 'asst'; text: string; obs?: string };
+const insightScript: Turn[] = [
+  { role: 'user', text: 'Planning a trip to Japan in March', obs: 'destination: Japan, timeframe: March (cherry blossom season)' },
+  { role: 'asst', text: 'Late March is peak cherry blossoms — Tokyo + Kyoto are the classic pair.' },
+  { role: 'user', text: "I'm vegetarian, is that hard there?", obs: 'constraint: vegetarian' },
+  { role: 'asst', text: 'Dashi is everywhere. Shojin ryori (Buddhist temple cuisine) is fully veg.' },
+  { role: 'user', text: 'Mid-range budget, not luxury', obs: 'budget: mid-range (~$150-200/day)' },
+  { role: 'asst', text: '~$150-200/day works. Business hotels or ryokans, 14-day JR Pass ~$450.' },
+  { role: 'user', text: 'Look up flights from SFO?' },
+  { role: 'asst', text: 'ANA $1,250 direct, JAL $1,180 direct, United $980 with a stop.', obs: 'preference: SFO origin · flight options surfaced' },
+  { role: 'user', text: 'JAL it is.', obs: 'decision: airline = JAL' },
+  { role: 'asst', text: 'Booked the search. Hotels near Shinjuku next?' },
+  { role: 'user', text: 'Yeah, Shinjuku.' },
+  { role: 'asst', text: 'Hotel Gracery $165 (the Godzilla one), Granbell $120, Keio Plaza $280.' },
+  { role: 'user', text: 'Day trips from Kyoto?' },
+  { role: 'asst', text: 'Nara, Osaka, Himeji. Kintetsu to Nara is 35 min, ¥640.', obs: 'interest: day trips from Kyoto' },
+];
+
+const RAW_LIMIT = 1200; // chars
+const OBS_THRESHOLD = 0.85;
+
+function ObserverReflectorDemo() {
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [observations, setObservations] = useState<string[]>([]);
+  const [step, setStep] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [compactions, setCompactions] = useState(0);
+
+  const rawChars = turns.reduce((sum, t) => sum + t.text.length, 0);
+  const rawPct = Math.min(100, (rawChars / RAW_LIMIT) * 100);
+
+  useEffect(() => {
+    if (!running) return;
+    if (step >= insightScript.length) {
+      setRunning(false);
+      return;
+    }
+    const t = setTimeout(() => {
+      const turn = insightScript[step];
+      setTurns(prev => [...prev, turn]);
+      if (turn.obs) setObservations(prev => [...prev, turn.obs!]);
+
+      // Reflector fires
+      if ((rawChars + turn.text.length) / RAW_LIMIT >= OBS_THRESHOLD) {
+        setTimeout(() => {
+          setTurns(prev => prev.slice(-2)); // keep last 2 turns
+          setCompactions(c => c + 1);
+        }, 500);
+      }
+      setStep(s => s + 1);
+    }, 750);
+    return () => clearTimeout(t);
+  }, [running, step, rawChars]);
+
+  const reset = () => {
+    setRunning(false);
+    setTurns([]);
+    setObservations([]);
+    setStep(0);
+    setCompactions(0);
+  };
+
+  const meterColor = rawPct > 85 ? palette.rose : rawPct > 60 ? palette.amber : palette.accent;
+
+  return (
+    <div
+      style={{
+        marginTop: 22,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderRadius: 14,
+        padding: '18px 22px',
+        maxWidth: 1500,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ fontFamily: font.mono, fontSize: 13, letterSpacing: '0.18em', textTransform: 'uppercase', color: palette.muted }}>
+          Live · chat → Observer → Reflector → compact
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {!running && step < insightScript.length && (
+            <DemoBtnInsight onClick={() => setRunning(true)}>{step === 0 ? '▶ Start' : '▶ Resume'}</DemoBtnInsight>
+          )}
+          {running && <DemoBtnInsight onClick={() => setRunning(false)}>⏸ Pause</DemoBtnInsight>}
+          {(step > 0) && <DemoBtnInsight onClick={reset}>↺ Reset</DemoBtnInsight>}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+        {/* Left: Actor's chat */}
+        <div>
+          <div style={subLabel}>Actor's view (raw context)</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontFamily: font.mono, fontSize: 12, color: palette.textSoft }}>
+            <span>{rawChars} / {RAW_LIMIT} chars</span>
+            <span style={{ color: meterColor }}>{compactions > 0 ? `compacted ${compactions}×` : 'building'}</span>
+          </div>
+          <div style={{ height: 8, background: palette.bg, border: `1px solid ${palette.border}`, borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+            <div style={{ height: '100%', width: `${rawPct}%`, background: meterColor, transition: 'width 0.4s, background 0.4s' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 200, overflow: 'hidden' }}>
+            {turns.slice(-6).map((t, i) => (
+              <div
+                key={i}
+                style={{
+                  fontSize: 13,
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  background: t.role === 'user' ? `${palette.green}14` : palette.bg,
+                  border: `1px solid ${palette.border}`,
+                  color: palette.textSoft,
+                  lineHeight: 1.4,
+                }}
+              >
+                <span style={{ fontFamily: font.mono, fontSize: 10, color: palette.muted, marginRight: 8, letterSpacing: '0.1em' }}>{t.role.toUpperCase()}</span>
+                {t.text}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Observer + Reflector */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div>
+            <div style={subLabel}>Observer (always running)</div>
+            <div
+              style={{
+                background: palette.bg,
+                border: `1px solid ${palette.blue}40`,
+                borderRadius: 8,
+                padding: '8px 12px',
+                minHeight: 100,
+                maxHeight: 130,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+              }}
+            >
+              {observations.length === 0 && (
+                <span style={{ fontFamily: font.mono, fontSize: 11, color: palette.muted, fontStyle: 'italic' }}>watching...</span>
+              )}
+              {observations.slice(-5).map((o, i) => (
+                <div key={i} style={{ fontFamily: font.mono, fontSize: 11, color: palette.textSoft, lineHeight: 1.5 }}>
+                  <span style={{ color: palette.blue }}>›</span> {o}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div style={subLabel}>Reflector (working memory)</div>
+            <div
+              style={{
+                background: palette.bg,
+                border: `1px solid ${palette.purple}40`,
+                borderRadius: 8,
+                padding: '8px 12px',
+                fontFamily: font.mono,
+                fontSize: 11,
+                color: palette.textSoft,
+                lineHeight: 1.6,
+                minHeight: 70,
+              }}
+            >
+              {compactions === 0 ? (
+                <span style={{ color: palette.muted, fontStyle: 'italic' }}>idle — fires at threshold</span>
+              ) : (
+                <>
+                  <div style={{ color: palette.purple, marginBottom: 4 }}>● Compacted {compactions}× — context replaced with summary:</div>
+                  <div>Trip: Japan, late March. Veg, mid-budget. JAL SFO→Tokyo. Hotels near Shinjuku. Kyoto + day trips next.</div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const subLabel: CSSProperties = {
+  fontFamily: font.mono,
+  fontSize: 11,
+  letterSpacing: '0.16em',
+  textTransform: 'uppercase',
+  color: palette.muted,
+  marginBottom: 6,
+};
+
+function DemoBtnInsight({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: 'transparent',
+        border: `1px solid ${palette.border}`,
+        color: palette.text,
+        fontFamily: font.mono,
+        fontSize: 12,
+        padding: '5px 12px',
+        borderRadius: 6,
+        cursor: 'pointer',
+        letterSpacing: '0.06em',
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // 04 — The Harness
@@ -1026,7 +1199,241 @@ const Stat = ({
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 11 — Thank you
+// 11 — Leaderboard
+// ════════════════════════════════════════════════════════════════════════════
+type LbRow = { rank: number; system: string; model: string; score: string; om?: boolean };
+const lbRows: LbRow[] = [
+  { rank: 1, system: 'OM', model: 'gpt-5-mini', score: '94.9%', om: true },
+  { rank: 2, system: 'OM', model: 'gemini-3-pro-preview', score: '93.3%', om: true },
+  { rank: 3, system: 'Hindsight', model: 'gemini-3-pro-preview', score: '91.4%' },
+  { rank: 4, system: 'OM', model: 'gemini-3-flash-preview', score: '89.2%', om: true },
+  { rank: 5, system: 'Hindsight', model: 'GPT-OSS 120B', score: '89.0%' },
+  { rank: 6, system: 'Supermemory', model: 'gemini-3-pro-preview', score: '85.2%' },
+  { rank: 7, system: 'Supermemory', model: 'gpt-5', score: '84.6%' },
+  { rank: 8, system: 'OM', model: 'gpt-4o', score: '84.2%', om: true },
+  { rank: 9, system: 'Hindsight', model: 'GPT-OSS 20B', score: '83.6%' },
+  { rank: 10, system: 'EmergenceMem Simple', model: 'gpt-4o', score: '82.4%' },
+  { rank: 11, system: 'Oracle', model: 'gpt-4o', score: '82.4%' },
+  { rank: 12, system: 'Supermemory', model: 'gpt-4o', score: '81.6%' },
+  { rank: 13, system: 'Mastra RAG', model: 'gpt-4o', score: '80.1%' },
+  { rank: 14, system: 'Zep', model: 'gpt-4o', score: '71.2%' },
+  { rank: 15, system: 'Full context', model: 'gpt-4o', score: '60.2%' },
+];
+
+const Leaderboard: Page = () => (
+  <Stage>
+    <Eyebrow>The Proof · Leaderboard</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          OM takes <span style={{ color: palette.accent }}>3 of the top 4 spots.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      The architecture wins, regardless of the model underneath. gpt-5-mini, gemini-3-pro, gemini-3-flash, gpt-4o — OM finishes near the top with each.
+    </SubTitle>
+
+    <div
+      style={{
+        marginTop: 28,
+        display: 'grid',
+        gridTemplateColumns: '64px 1fr 1fr 120px',
+        gap: 0,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderRadius: 14,
+        overflow: 'hidden',
+        fontFamily: font.mono,
+        fontSize: 18,
+      }}
+    >
+      <div style={hCell}>#</div>
+      <div style={hCell}>System</div>
+      <div style={hCell}>Model</div>
+      <div style={{ ...hCell, textAlign: 'right' }}>Score</div>
+      {lbRows.map((r, i) => {
+        const isOm = !!r.om;
+        const bg = isOm ? `${palette.accent}14` : i % 2 ? palette.surfaceHi : 'transparent';
+        const color = isOm ? palette.accent : palette.textSoft;
+        const weight = isOm ? 700 : 400;
+        return (
+          <Fragment key={r.rank}>
+            <div style={{ ...rCell, background: bg, color, fontWeight: weight }}>{r.rank}</div>
+            <div style={{ ...rCell, background: bg, color, fontWeight: weight }}>{r.system}</div>
+            <div style={{ ...rCell, background: bg, color }}>{r.model}</div>
+            <div style={{ ...rCell, background: bg, color, fontWeight: weight, textAlign: 'right' }}>{r.score}</div>
+          </Fragment>
+        );
+      })}
+    </div>
+
+    <Footer index={11} />
+  </Stage>
+);
+
+const hCell: CSSProperties = {
+  padding: '10px 18px',
+  fontSize: 14,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: palette.muted,
+  background: palette.surfaceHi,
+  borderBottom: `1px solid ${palette.border}`,
+};
+const rCell: CSSProperties = {
+  padding: '8px 18px',
+  borderBottom: `1px solid ${palette.border}`,
+  lineHeight: 1.3,
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// 12 — Category breakdowns
+// ════════════════════════════════════════════════════════════════════════════
+const Categories: Page = () => (
+  <Stage>
+    <Eyebrow>The Proof · Categories</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          OM wins <span style={{ color: palette.accent }}>every category that requires memory</span>.
+        </>
+      }
+    />
+
+    <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      {/* Same-model comparison (gemini-3-pro) */}
+      <div
+        style={{
+          background: palette.surface,
+          border: `1px solid ${palette.border}`,
+          borderRadius: 14,
+          padding: '18px 22px',
+        }}
+      >
+        <div style={catCaption}>Same model · gemini-3-pro</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1fr', fontFamily: font.mono, fontSize: 15 }}>
+          <div style={tHead}>Category</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>OM (5-mini)</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>SM (gpt-5)</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>OM (g3p)</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>HS (g3p)</div>
+          {[
+            ['Temporal reasoning', '95.5%', '81.2%', '94.0%', '91.0%', [true, false, false, false]],
+            ['Knowledge update', '96.2%', '87.2%', '94.9%', '94.9%', [true, false, false, false]],
+            ['Multi-session', '87.2%', '75.2%', '87.2%', '87.2%', [true, false, true, true]],
+          ].map((row, i) => {
+            const [label, ...rest] = row as [string, string, string, string, string, boolean[]];
+            const flags = (row as any)[5] as boolean[];
+            return (
+              <Fragment key={i}>
+                <div style={tCell}>{label}</div>
+                {(rest as string[]).slice(0, 4).map((v, j) => (
+                  <div
+                    key={j}
+                    style={{
+                      ...tCell,
+                      textAlign: 'right',
+                      color: flags[j] ? palette.accent : palette.textSoft,
+                      fontWeight: flags[j] ? 700 : 400,
+                    }}
+                  >
+                    {v}
+                  </div>
+                ))}
+              </Fragment>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Architecture comparison */}
+      <div
+        style={{
+          background: palette.surface,
+          border: `1px solid ${palette.border}`,
+          borderRadius: 14,
+          padding: '18px 22px',
+        }}
+      >
+        <div style={catCaption}>Per-category · OM vs Hindsight vs Supermemory</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr 1fr', fontFamily: font.mono, fontSize: 15 }}>
+          <div style={tHead}>Category</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>OM</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>Hindsight</div>
+          <div style={{ ...tHead, textAlign: 'right' }}>Supermemory</div>
+          {[
+            ['Single-session (user)', '97.1%', '97.1%', '98.6%', [false, false, true]],
+            ['Single-session (assistant)', '96.4%', '96.4%', '98.2%', [false, false, true]],
+            ['Single-session (preference)', '90.0%', '80.0%', '70.0%', [true, false, false]],
+            ['Knowledge update', '94.9%', '94.9%', '89.7%', [true, true, false]],
+            ['Temporal reasoning', '94.0%', '91.0%', '82.0%', [true, false, false]],
+            ['Multi-session', '87.2%', '87.2%', '76.7%', [true, true, false]],
+            ['Overall', '93.3%', '91.4%', '85.2%', [true, false, false]],
+          ].map((row, i) => {
+            const [label, om, hs, sm] = row as [string, string, string, string, boolean[]];
+            const flags = (row as any)[4] as boolean[];
+            const isOverall = label === 'Overall';
+            const cellStyle: CSSProperties = isOverall
+              ? { ...tCell, borderTop: `1px solid ${palette.border}`, marginTop: 4, paddingTop: 8, fontWeight: 700 }
+              : tCell;
+            return (
+              <Fragment key={i}>
+                <div style={cellStyle}>{label}</div>
+                {[om, hs, sm].map((v, j) => (
+                  <div
+                    key={j}
+                    style={{
+                      ...cellStyle,
+                      textAlign: 'right',
+                      color: flags[j] ? palette.accent : palette.textSoft,
+                      fontWeight: flags[j] || isOverall ? 700 : 400,
+                    }}
+                  >
+                    {v}
+                  </div>
+                ))}
+              </Fragment>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+
+    <div style={{ marginTop: 24, fontSize: 22, color: palette.textSoft, lineHeight: 1.4, maxWidth: 1500 }}>
+      Single-session questions don't need memory — every system ties. The moment a question reaches
+      across sessions, only architecture matters.{' '}
+      <span style={{ color: palette.accent }}>OM wins every memory category.</span>
+    </div>
+
+    <Footer index={12} />
+  </Stage>
+);
+
+const catCaption: CSSProperties = {
+  fontFamily: font.mono,
+  fontSize: 13,
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase',
+  color: palette.muted,
+  marginBottom: 12,
+};
+const tHead: CSSProperties = {
+  padding: '6px 8px',
+  fontSize: 12,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: palette.muted,
+  borderBottom: `1px solid ${palette.border}`,
+};
+const tCell: CSSProperties = {
+  padding: '6px 8px',
+  color: palette.textSoft,
+  lineHeight: 1.3,
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// 13 — Thank you
 // ════════════════════════════════════════════════════════════════════════════
 const ThankYou: Page = () => (
   <div
@@ -1080,7 +1487,7 @@ const ThankYou: Page = () => (
       </div>
     </div>
 
-    <Footer index={11} />
+    <Footer index={13} />
   </div>
 );
 
@@ -1122,7 +1529,13 @@ export const notes: (string | undefined)[] = [
   // 10 The Proof
   `LongMemEval — 500 questions, ~57M tokens of conversation, ~50 sessions per question. OM scored 84.2% with gpt-4o. Oracle — given only the conversations that contain the answer — scored 82.4%. We beat the oracle while ingesting everything. Then point at 94.9%: highest score ever recorded on the benchmark, OM + gpt-5-mini. The architecture wins; the model is interchangeable.`,
 
-  // 11 Thank you
+  // 11 Leaderboard
+  `Now show the rest of the leaderboard. OM takes 3 of the top 4 spots — gpt-5-mini, gemini-3-pro, gemini-3-flash. Same architecture, different models, all near the top. Hindsight, Supermemory, EmergenceMem, Oracle, Mastra RAG, Zep, Full context all sit below. The point: this isn't a model story, it's an architecture story.`,
+
+  // 12 Categories
+  `Two breakdowns. Left — same model (gemini-3-pro), OM beats Hindsight head-to-head on temporal reasoning and ties on knowledge update + multi-session. Right — per-category split. On single-session questions everyone ties (no memory needed). On knowledge update, temporal reasoning, multi-session — OM wins every one. Memory categories are where architecture matters; OM wins them all.`,
+
+  // 13 Thank you
   `Close with gratitude — Denise hosted this at Gradient. Plug links: mastra.ai, GitHub, Discord. Q&A.`,
 ];
 
@@ -1137,5 +1550,7 @@ export default [
   Steering,
   MastraCode,
   TheProof,
+  Leaderboard,
+  Categories,
   ThankYou,
 ] satisfies Page[];

@@ -740,7 +740,7 @@ const BuildingProcessors: Page = () => (
             "      abort('Off-topic',",
             '        { metadata: { category }})',
             '} }',
-          ]],
+          ], { tag: 'Typed Metadata', body: 'The second generic types what abort() metadata carries — structured info about what tripped the guard.', color: palette.green }],
           ['pii-guard.ts', 'regex only · μs · $0', [
             'class PIIGuard implements ... {',
             '  async processInput({ abort }) {',
@@ -748,7 +748,7 @@ const BuildingProcessors: Page = () => (
             '      if (p.test(text)) hits.push(t)',
             "    if (hits.length) abort('PII')",
             '} }',
-          ]],
+          ], { tag: 'No LLM Needed', body: 'Pure regex — runs in microseconds, costs nothing. Not every guard needs a model call.', color: palette.cyan }],
           ['compliance-pipeline.ts', 'parallel workflow', [
             'createWorkflow({...})',
             '  .parallel([topicGuard,',
@@ -756,7 +756,7 @@ const BuildingProcessors: Page = () => (
             '             moderation])',
             '  .map(mergeResults)',
             '  .commit()',
-          ]],
+          ], { tag: 'Parallel Workflow', body: '.parallel() runs all checks concurrently. First abort() wins and returns its typed metadata.', color: palette.purple }],
         ]}
       />
 
@@ -772,7 +772,7 @@ const BuildingProcessors: Page = () => (
             '  if (stepNumber === 0) return',
             "  return { model: 'gpt-5-nano' }",
             '}',
-          ]],
+          ], { tag: 'processInputStep', body: 'Runs before every LLM call. Can swap model, filter activeTools, modify systemMessages — the most powerful per-step hook.', color: palette.green }],
           ['tool-dependency-enforcer.ts', 'gate tools per step', [
             'const DEPS = {',
             '  create_order:',
@@ -782,7 +782,7 @@ const BuildingProcessors: Page = () => (
             '  const active = filterByDeps(...)',
             '  return { activeTools: active }',
             '}',
-          ]],
+          ], { tag: 'state', body: 'Mutable object that persists across method calls within a request. Track intent, token counts, flags.', color: palette.cyan }],
           ['cost-tracker.ts', 'processOutputStream · abort', [
             'async processOutputStream(',
             '  { part, state, abort }) {',
@@ -791,7 +791,7 @@ const BuildingProcessors: Page = () => (
             '  if (state.tokens > MAX)',
             "    abort('Budget exceeded')",
             '}',
-          ]],
+          ], { tag: 'processOutputStream', body: 'Real-time chunk processing. Can abort() mid-stream if budget or safety is violated.', color: palette.rose }],
         ]}
       />
 
@@ -807,7 +807,7 @@ const BuildingProcessors: Page = () => (
             '  .parallel([topicGuard,',
             '             moderation])',
             '  .map(mergeResults).commit()',
-          ]],
+          ], { tag: 'Layered Defense', body: 'Regex pre-filter runs first (free). Only if it passes do the expensive LLM checks run — and those run in parallel.', color: palette.green }],
           ['output-pipeline.ts', '.branch · conditional', [
             'createWorkflow({...})',
             '  .branch([',
@@ -815,7 +815,7 @@ const BuildingProcessors: Page = () => (
             '            === 0, driftMonitor],',
             '  ])',
             '  .map(mergeResults).commit()',
-          ]],
+          ], { tag: 'Conditional Branching', body: ".branch() only runs drift monitoring every 5th step. Don't pay for checks you don't need every time.", color: palette.amber }],
           ['enterprise-agent.ts', 'full config', [
             'new Agent({',
             '  inputProcessors: [',
@@ -827,7 +827,7 @@ const BuildingProcessors: Page = () => (
             '    new OrderConfirmation(),',
             '    new EscalationDetector() ],',
             '})',
-          ]],
+          ], { tag: 'onFinish Side Effects', body: 'processOutputResult fires once per request — webhooks on orders, escalation detection. Business logic, not observability.', color: palette.purple }],
         ]}
       />
     </div>
@@ -835,6 +835,9 @@ const BuildingProcessors: Page = () => (
     <Footer index={6} />
   </Stage>
 );
+
+type Annotation = { tag: string; body: string; color: string };
+type Snippet = [string, string, string[]] | [string, string, string[], Annotation];
 
 const ExampleColumn = ({
   num,
@@ -847,7 +850,7 @@ const ExampleColumn = ({
   title: string;
   subtitle: string;
   accent: string;
-  snippets: [string, string, string[]][];
+  snippets: Snippet[];
 }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
     <div
@@ -868,29 +871,50 @@ const ExampleColumn = ({
         <div style={{ fontFamily: font.mono, fontSize: 12, color: palette.muted }}>{subtitle}</div>
       </div>
     </div>
-    {snippets.map(([path, tag, lines]) => (
-      <div
-        key={path}
-        style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderRadius: 10,
-          padding: '10px 14px',
-          fontFamily: font.mono,
-          fontSize: 12,
-          color: palette.textSoft,
-          lineHeight: 1.55,
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, gap: 8 }}>
-          <span style={{ color: palette.muted, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{path}</span>
-          <span style={{ color: accent, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{tag}</span>
+    {snippets.map((snippet) => {
+      const [path, tag, lines, note] = snippet as [string, string, string[], Annotation?];
+      return (
+        <div key={path} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div
+            style={{
+              background: palette.surface,
+              border: `1px solid ${palette.border}`,
+              borderRadius: 10,
+              padding: '10px 14px',
+              fontFamily: font.mono,
+              fontSize: 12,
+              color: palette.textSoft,
+              lineHeight: 1.55,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, gap: 8 }}>
+              <span style={{ color: palette.muted, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{path}</span>
+              <span style={{ color: accent, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{tag}</span>
+            </div>
+            {lines.map((line, i) => (
+              <div key={i} style={{ whiteSpace: 'pre' }}>{line}</div>
+            ))}
+          </div>
+          {note && (
+            <div
+              style={{
+                borderLeft: `3px solid ${note.color}`,
+                background: 'rgba(255,255,255,0.02)',
+                padding: '6px 10px',
+                borderRadius: 4,
+              }}
+            >
+              <div style={{ fontFamily: font.mono, fontSize: 10, color: note.color, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+                {note.tag}
+              </div>
+              <div style={{ fontSize: 11, color: palette.textSoft, lineHeight: 1.4 }}>
+                {note.body}
+              </div>
+            </div>
+          )}
         </div>
-        {lines.map((line, i) => (
-          <div key={i} style={{ whiteSpace: 'pre' }}>{line}</div>
-        ))}
-      </div>
-    ))}
+      );
+    })}
   </div>
 );
 
