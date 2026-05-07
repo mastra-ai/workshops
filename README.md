@@ -1,110 +1,77 @@
 # Mastra Company Presentations
 
-Two flavors of decks live in this repo:
-
-1. **open-slide decks** — React, served by a single dev server at the repo root. Source lives in `slides/<deck-id>/`.
-2. **Legacy HTML decks** — vanilla HTML/CSS/JS with a flatten step. Source lives in `decks/<deck-id>/`.
+All decks are React modules served by [open-slide](https://github.com/vercel-labs/open-slide). One dev server, one build, one design language.
 
 ## Decks
 
-### open-slide (React, run from repo root)
+| Deck | URL | Description |
+|------|-----|-------------|
+| **Browser & Channels** | [`/s/browser-channels`](slides/browser-channels/) | Two primitives every agent needs: Browser to drive a screen, Channels to be reachable. |
+| **Building Agents That Never Forget** | [`/s/om-workshop`](slides/om-workshop/) | Observational Memory + Harness Architecture. |
+| **Agent Harness** | [`/s/harness-workshop`](slides/harness-workshop/) | What it is, why it matters, and what it enables. |
+| **Guardrails and Beyond** | [`/s/processors-workshop`](slides/processors-workshop/) | Control the agent loop with Mastra Processors. |
 
-| Deck (URL) | Description |
-|------------|-------------|
-| [`/s/browser-channels`](slides/browser-channels/) | "Browser & Channels" — deep dive on the Browser and Channels primitives. |
-| [`/s/om-workshop`](slides/om-workshop/) | "Building Agents That Never Forget" — Observational Memory + Harness Architecture. |
+## Running
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:5173 — dashboard lists all open-slide decks
-              # http://localhost:5173/s/<deck-id> for a specific deck
+pnpm dev      # http://localhost:5173 — dashboard lists every deck
+              # http://localhost:5173/s/<deck-id> jumps straight to one
 pnpm build    # static production build into ./dist
+pnpm preview  # serve the production build
 ```
 
-Each deck is a single `slides/<deck-id>/index.tsx` exporting a `Page[]` plus optional `meta` and `notes`.
-
-### Legacy HTML (vanilla, no build server)
-
-| Deck | Description |
-|------|-------------|
-| [decks/processors-workshop](decks/processors-workshop/) | "Processors: Beyond Guardrails" |
-| [decks/harness-workshop](decks/harness-workshop/) | "Agent Harness" |
-| [decks/component-showcase](decks/component-showcase/) | Reference deck for the legacy design system |
-
-```bash
-pnpm flatten          # bakes partials into each HTML slide + writes decks/index.html
-open decks/index.html # legacy hub page
-```
-
-**Keyboard navigation:** ← → arrow keys move between slides (both flavors).
+**Keyboard navigation:** ← → arrow keys move between slides.
 
 ## Creating a New Deck
 
-1. Create a directory under `decks/` with a `deck.json`:
+1. Add a directory under `slides/<deck-id>/` with an `index.tsx` that default-exports an array of `Page` components.
 
-```json
-{
-  "title": "My New Deck",
-  "slides": [
-    { "file": "01-intro.html", "nav": "Intro" },
-    { "file": "02-content.html", "nav": "Content" }
-  ]
-}
+```tsx
+import type { Page, SlideMeta } from '@open-slide/core';
+
+const Cover: Page = () => (
+  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <h1>Hello, world.</h1>
+  </div>
+);
+
+export const meta: SlideMeta = { title: 'My New Deck' };
+
+export const notes: (string | undefined)[] = [
+  `Speaker notes for slide 1.`,
+];
+
+export default [Cover] satisfies Page[];
 ```
 
-2. Create slide files — each is a complete HTML file:
+2. (Optional) Add a `slides/<deck-id>/deck.json` with per-slide nav labels.
+3. (Optional) Drop assets in `slides/<deck-id>/assets/` and import them.
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Intro — My New Deck</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="shared.css">
-    <style>/* per-slide styles */</style>
-</head>
-<body>
-<nav class="topnav">
-    <a href="01-intro.html" class="topnav-brand">My New Deck</a>
-    <div class="topnav-sections">
-        <a href="01-intro.html">Intro</a>
-        <a href="02-content.html">Content</a>
-    </div>
-</nav>
-<div class="page">
-    <main class="main">
-        <!-- your content -->
-    </main>
-</div>
-<script src="shared.js"></script>
-<script>initKeyNav(null, "02-content.html");</script>
-</body>
-</html>
-```
+The dashboard auto-discovers any deck under `slides/`.
 
-3. Copy `shared.css` and `shared.js` from `shared/` into your deck directory.
+### Design conventions
 
-4. Run `node flatten.js` to regenerate the root and deck index pages.
+The four shipping decks share a brand palette so they feel like one talk series:
 
-See `decks/component-showcase/` for examples of every available component.
+- Background `#020202`, foreground `#d9d9d9`, accent `#18fb6f`.
+- Geist for display + body, Geist Mono for code.
+- Canvas is fixed at 1920×1080. Every slide must fit without scrolling.
+
+Existing decks expose their tokens as named exports (`palette`, `font`, atoms like `Eyebrow`, `Footer`, `Pill`, `Stage`, `SectionTitle`, `SubTitle`). Copy from the most recent one when starting a new deck.
 
 ## Project Structure
 
 ```
-├── index.html            # Root hub page linking all decks
-├── flatten.js            # Regenerate index pages & copy shared assets
-├── shared/               # Source of truth for shared design system
-│   ├── shared.css        # CSS variables, components, utilities (1600+ lines)
-│   └── shared.js         # Navigation, animations, helpers
-├── decks/                # Each subdirectory is a self-contained deck
-│   ├── om-workshop/                  # 11 slides + shared.css/js (HTML)
-│   ├── processors-workshop/          # 10 slides + images + shared.css/js (HTML)
-│   ├── harness-workshop/             # 12 slides + shared.css/js (HTML)
-│   ├── component-showcase/           # 8 slides + shared.css/js (HTML)
-│   └── browser-channels-workshop/    # 21 slides (open-slide / React)
-└── examples/             # Workshop code examples
+├── slides/
+│   ├── browser-channels/
+│   ├── om-workshop/
+│   ├── harness-workshop/
+│   └── processors-workshop/
+├── examples/                       # Workshop code examples
+├── open-slide.config.ts
+├── package.json
+└── tsconfig.json
 ```
 
 ## Workshop Examples
@@ -118,6 +85,9 @@ See `decks/component-showcase/` for examples of every available component.
 | `examples/04-guardrails` | Basic guardrails processor example |
 | `examples/05-beyond-guardrails` | Advanced processor patterns beyond guardrails |
 | `examples/06-enterprise-pipeline` | Enterprise-grade processor pipeline |
+| `examples/07-harness-workshop` | Agent harness workshop example |
+| `examples/08-multi-agent-networks` | Council + supervisor multi-agent demos |
+| `examples/09-browser-channels-workshop` | Browser + Channels workshop example |
 
 Each example directory has its own `package.json`. Install and run individually — see each example's README for instructions.
 
