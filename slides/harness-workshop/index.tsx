@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
 import abhiAvatar from './assets/abhi-avatar.jpg';
 
@@ -402,13 +403,85 @@ const TheHarness: Page = () => (
       streams events, and enforces policy. The next nine slides walk each piece.
     </SubTitle>
 
-    <div style={{ marginTop: 56, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+    <div style={{ marginTop: 36, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
       <Pill icon="📝" label="Prompts" desc="Assembled per turn from env, mode, tools, tasks, skills." accent={palette.green} />
       <Pill icon="📁" label="Workspace" desc="Sandboxed filesystem and shell. Skills as a catalog." accent={palette.blue} />
       <Pill icon="🧠" label="Memory" desc="Compaction, offloading, prompt caching. Beat Context Rot." accent={palette.purple} />
       <Pill icon="🎛️" label="Modes" desc="Build, plan, fast, review, triage. Each rewires the agent." accent={palette.amber} />
       <Pill icon="🛡️" label="Steering" desc="Approve, deny, abort, ask. Interrupts are core UX." accent={palette.rose} />
       <Pill icon="📡" label="Protocols" desc="Events, MCP, subagents. Everything observable." accent={palette.cyan} />
+    </div>
+
+    <div
+      style={{
+        marginTop: 28,
+        fontFamily: font.mono,
+        fontSize: 12,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: palette.muted,
+        marginBottom: 10,
+      }}
+    >
+      …and the thirty other concerns the harness handles for you
+    </div>
+
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8,
+        maxWidth: 1500,
+      }}
+    >
+      {[
+        ['thread management', palette.accent],
+        ['tool approval', palette.amber],
+        ['prompt assembly', palette.purple],
+        ['model routing', palette.cyan],
+        ['abort / steer', palette.rose],
+        ['cost tracking', palette.amber],
+        ['memory compaction', palette.green],
+        ['event emission', palette.accent],
+        ['MCP connections', palette.purple],
+        ['subagent spawn', palette.cyan],
+        ['stream parsing', palette.amber],
+        ['tool policies', palette.amber],
+        ['mode switching', palette.green],
+        ['file sandboxing', palette.rose],
+        ['skills discovery', palette.accent],
+        ['token counting', palette.amber],
+        ['follow-up queue', palette.purple],
+        ['YOLO mode', palette.rose],
+        ['session grants', palette.green],
+        ['LSP diagnostics', palette.cyan],
+        ['prompt caching', palette.amber],
+        ['observation threshold', palette.green],
+        ['auth / OAuth', palette.accent],
+        ['hook system', palette.purple],
+        ['plan approval', palette.amber],
+        ['workspace init', palette.cyan],
+        ['resume threads', palette.amber],
+        ['multi-modal input', palette.accent],
+        ['error recovery', palette.rose],
+        ['thinking level', palette.purple],
+      ].map(([label, color]) => (
+        <span
+          key={label as string}
+          style={{
+            fontFamily: font.mono,
+            fontSize: 13,
+            color: color as string,
+            background: palette.surface,
+            border: `1px solid ${color}33`,
+            borderRadius: 6,
+            padding: '5px 10px',
+            letterSpacing: '0.04em',
+          }}
+        >
+          {label}
+        </span>
+      ))}
     </div>
 
     <Footer index={3} />
@@ -501,6 +574,7 @@ const PromptsContext: Page = () => (
             ['/pr-new', 'create PR'],
             ['/thread new', 'fresh conversation'],
             ['/sandbox ~/x', 'grant path access'],
+            ['/commit', 'stage + commit changes'],
           ].map(([cmd, desc]) => (
             <div
               key={cmd}
@@ -637,65 +711,246 @@ const Memory: Page = () => (
     />
     <SubTitle>
       As the window fills, models degrade — reasoning gets worse, instructions get lost, costs
-      spike. The harness needs strategies to fight it.
+      spike. Three strategies, one live demo.
     </SubTitle>
 
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22 }}>
+    <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
       <Pill
         icon="🗜️"
         label="Compaction"
-        desc="When context fills, intelligently summarize and compress — don't just truncate. Agent keeps working with a clean window."
+        desc="At threshold, summarize and compress — don't just truncate. Agent keeps a clean window."
         accent={palette.green}
       />
       <Pill
         icon="📤"
-        label="Tool-Call Offloading"
-        desc="Large tool outputs clutter context without adding value. Keep head + tail, offload the rest to disk for on-demand access."
+        label="Offloading"
+        desc="Large tool outputs clutter context. Keep head + tail; offload the body to disk on demand."
         accent={palette.blue}
       />
       <Pill
         icon="💰"
         label="Prompt Caching"
-        desc="Stable prefix = cache hits. Compaction preserves the prefix so caches stay warm and costs stay low."
+        desc="Stable prefix = cache hits. Compaction preserves the prefix; caches stay warm."
         accent={palette.amber}
       />
     </div>
 
-    <div
-      style={{
-        marginTop: 40,
-        background: palette.surface,
-        border: `1px solid ${palette.border}`,
-        borderRadius: 14,
-        padding: '24px 28px',
-        maxWidth: 1500,
-      }}
-    >
-      <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-        Before vs after compaction
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center' }}>
-        <ContextBar label="Before" pct={92} accent={palette.red} note="92% full · model degrading · cache thrashing" />
-        <ContextBar label="After" pct={34} accent={palette.green} note="34% · stable prefix · cache warm · agent fast" />
-      </div>
-    </div>
+    <LiveContextDemo />
 
     <Footer index={6} />
   </Stage>
 );
 
-const ContextBar = ({ label, pct, accent, note }: { label: string; pct: number; accent: string; note: string }) => (
-  <div>
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-      <span style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.16em', textTransform: 'uppercase' }}>{label}</span>
-      <span style={{ fontFamily: font.mono, fontSize: 14, color: accent }}>{pct}%</span>
+// ─── Live context-fill demo (Memory slide) ───────────────────────────────────
+type DemoBar = { id: number; role: 'user' | 'asst' | 'tool' | 'obs'; t: number };
+const demoScript: { role: 'user' | 'asst' | 'tool'; text: string; t: number }[] = [
+  { role: 'user', text: 'Fix the auth bug in login.ts', t: 120 },
+  { role: 'asst', text: 'Let me look at the file...', t: 80 },
+  { role: 'tool', text: 'view("src/auth/login.ts") → 240 lines', t: 2800 },
+  { role: 'asst', text: 'Found the issue — missing token refresh', t: 150 },
+  { role: 'tool', text: 'string_replace_lsp(...) → 2 diagnostics', t: 1200 },
+  { role: 'asst', text: 'Fixed. Running tests...', t: 90 },
+  { role: 'tool', text: 'execute_command("npm test") → 47 tests', t: 4200 },
+  { role: 'asst', text: 'All tests pass. Checking types...', t: 100 },
+  { role: 'tool', text: 'execute_command("tsc --noEmit") → clean', t: 3800 },
+  { role: 'user', text: 'Now add rate limiting to the API', t: 110 },
+  { role: 'asst', text: 'Exploring the API structure...', t: 90 },
+  { role: 'tool', text: 'search_content("rateLimit") → 0 matches', t: 800 },
+  { role: 'tool', text: 'view("src/api/middleware/") → 5 files', t: 3200 },
+  { role: 'asst', text: 'No existing rate limiting. Adding it...', t: 160 },
+  { role: 'tool', text: 'write_file("rate-limit.ts")', t: 2400 },
+  { role: 'tool', text: 'string_replace_lsp("api/index.ts")', t: 1800 },
+  { role: 'tool', text: 'execute_command("npm test") → 52 tests', t: 5200 },
+];
+
+const THRESHOLD = 30000;
+
+function LiveContextDemo() {
+  const [tokens, setTokens] = useState(0);
+  const [bars, setBars] = useState<DemoBar[]>([]);
+  const [hits, setHits] = useState(0);
+  const [misses, setMisses] = useState(0);
+  const [compactions, setCompactions] = useState(0);
+  const [step, setStep] = useState(0);
+  const [running, setRunning] = useState(false);
+  const idRef = useRef(0);
+
+  useEffect(() => {
+    if (!running) return;
+    if (step >= demoScript.length) {
+      setRunning(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      const s = demoScript[step];
+      const next = tokens + s.t;
+      const newBar: DemoBar = { id: idRef.current++, role: s.role, t: s.t };
+
+      if (next >= THRESHOLD * 0.9) {
+        // compaction
+        setBars(prev => {
+          const keep = prev.slice(-2);
+          const obsBars: DemoBar[] = [
+            { id: idRef.current++, role: 'obs', t: 1200 },
+            { id: idRef.current++, role: 'obs', t: 800 },
+            { id: idRef.current++, role: 'obs', t: 1500 },
+          ];
+          return [...obsBars, ...keep, newBar];
+        });
+        setTokens(Math.floor(next * 0.3));
+        setCompactions(c => c + 1);
+        setMisses(m => m + 1);
+      } else {
+        setBars(prev => [...prev, newBar]);
+        setTokens(next);
+        setHits(h => h + 1);
+      }
+      setStep(s => s + 1);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [running, step, tokens]);
+
+  const reset = () => {
+    setRunning(false);
+    setTokens(0);
+    setBars([]);
+    setHits(0);
+    setMisses(0);
+    setCompactions(0);
+    setStep(0);
+  };
+
+  const pct = Math.min(100, (tokens / THRESHOLD) * 100);
+  const fillColor = pct > 85 ? palette.rose : pct > 60 ? palette.amber : palette.accent;
+
+  return (
+    <div
+      style={{
+        marginTop: 22,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderRadius: 14,
+        padding: '18px 22px',
+        maxWidth: 1500,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ fontFamily: font.mono, fontSize: 13, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+          Live · Context fill → Compaction → Cache
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          {!running && step < demoScript.length && (
+            <DemoBtn onClick={() => setRunning(true)}>{step === 0 ? '▶ Start' : '▶ Resume'}</DemoBtn>
+          )}
+          {running && <DemoBtn onClick={() => setRunning(false)}>⏸ Pause</DemoBtn>}
+          {(step > 0 || tokens > 0) && <DemoBtn onClick={reset}>↺ Reset</DemoBtn>}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
+        {/* Left: meter + bars */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontFamily: font.mono, fontSize: 13, color: palette.textSoft }}>
+            <span>Context window</span>
+            <span style={{ color: pct > 85 ? palette.rose : palette.textSoft }}>
+              {tokens.toLocaleString()} / {THRESHOLD.toLocaleString()} tok
+            </span>
+          </div>
+          <div style={{ height: 14, background: palette.bg, border: `1px solid ${palette.border}`, borderRadius: 6, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: fillColor, transition: 'width 0.4s, background 0.4s' }} />
+          </div>
+
+          <div
+            style={{
+              marginTop: 10,
+              maxHeight: 160,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column-reverse',
+              gap: 3,
+            }}
+          >
+            {[...bars].slice(-12).reverse().map(b => (
+              <div key={b.id} style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: font.mono, fontSize: 11 }}>
+                <span style={{ width: 38, color: roleColor(b.role), letterSpacing: '0.06em' }}>{b.role}</span>
+                <div
+                  style={{
+                    height: 6,
+                    width: `${Math.min(95, Math.max(8, (b.t / 5000) * 95))}%`,
+                    background: roleColor(b.role),
+                    opacity: 0.7,
+                    borderRadius: 3,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: cache + counters */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <Counter label="cache hits" value={hits} color={palette.accent} />
+          <Counter label="cache misses" value={misses} color={palette.rose} />
+          <Counter label="compactions" value={compactions} color={palette.amber} />
+          <div
+            style={{
+              marginTop: 4,
+              padding: '8px 12px',
+              background: palette.bg,
+              border: `1px solid ${palette.border}`,
+              borderRadius: 8,
+              fontFamily: font.mono,
+              fontSize: 11,
+              color: palette.muted,
+              lineHeight: 1.5,
+            }}
+          >
+            Threshold: 90%. On trigger: compress to observations, reset prefix, mark cache miss once. Stable prefix → every other turn is a hit.
+          </div>
+        </div>
+      </div>
     </div>
-    <div style={{ height: 16, background: palette.surfaceHi2, borderRadius: 8, overflow: 'hidden' }}>
-      <div style={{ width: `${pct}%`, height: '100%', background: accent }} />
+  );
+}
+
+function roleColor(role: DemoBar['role']) {
+  switch (role) {
+    case 'user': return palette.cyan;
+    case 'asst': return palette.accent;
+    case 'tool': return palette.amber;
+    case 'obs': return palette.purple;
+  }
+}
+
+function DemoBtn({ children, onClick }: { children: ReactNode; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: 'transparent',
+        border: `1px solid ${palette.border}`,
+        color: palette.text,
+        fontFamily: font.mono,
+        fontSize: 12,
+        padding: '5px 12px',
+        borderRadius: 6,
+        cursor: 'pointer',
+        letterSpacing: '0.06em',
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Counter({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, padding: '6px 12px', background: palette.bg, border: `1px solid ${palette.border}`, borderRadius: 8 }}>
+      <span style={{ fontFamily: font.mono, fontSize: 11, color: palette.muted, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{label}</span>
+      <span style={{ fontFamily: font.display, fontSize: 22, fontWeight: 700, color }}>{value}</span>
     </div>
-    <div style={{ marginTop: 10, fontSize: 17, color: palette.textSoft }}>{note}</div>
-  </div>
-);
+  );
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // 07 — Modes
