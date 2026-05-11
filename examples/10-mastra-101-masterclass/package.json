@@ -1,0 +1,27 @@
+{
+  "name": "mastra-101-masterclass",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "PORT=4111 mastra dev",
+    "build": "mastra build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mastra/core": "latest",
+    "@mastra/evals": "latest",
+    "@mastra/libsql": "latest",
+    "@mastra/loggers": "latest",
+    "@mastra/mcp": "latest",
+    "@mastra/memory": "latest",
+    "@mastra/observability": "latest",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "mastra": "latest",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
