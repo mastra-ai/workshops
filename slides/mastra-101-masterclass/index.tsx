@@ -1259,38 +1259,69 @@ export const meta: SlideMeta = {
 };
 
 export const notes: (string | undefined)[] = [
-  `Set expectations: this is not a feature dump. It is a mental model plus practical build path for a real Mastra app.`,
-  `Walk through the agenda. Tell the room there are two checkpoints where they will design pieces of the system before seeing the production pattern.`,
-  `Mastra is the app runtime around a model. The core story is reason, act, remember, control, and operate. Use this framing throughout the talk.`,
-  `Give the primitive decision map. The goal is to reduce confusion later: agents decide, tools act, memory remembers, RAG retrieves, workflows orchestrate, processors control.`,
-  `Show the project anatomy in this repo. Point out that examples follow the same pattern: src/mastra/index.ts plus folders for agents, tools, workflows, processors, and scorers.`,
-  `Agents are for open-ended work. The model decides tool usage and loop count. Emphasize that instructions, tools, memory, model, and scorers are all part of the agent contract.`,
-  `Explain the loop: prompt, decide, act, stop. Keep this concrete; every future production concern plugs into one of those four points.`,
-  `A production agent should not be coupled to one model. Talk through model routing, streaming, runtime context, and cost-aware model selection.`,
-  `Tools are where side effects happen. Schema validation and narrow descriptions matter because they are the contract between model reasoning and the outside world. MCP is the interoperability layer.`,
-  `Tool design rules: narrow verbs, explicit schemas, no broad side-effect tools. Separate draft tools from commit tools when risk is meaningful.`,
-  `Checkpoint 1. Ask the audience to classify pieces of the support agent system, then resolve using the primitive map.`,
-  `Separate memory from RAG. Memory remembers interactions and users. RAG retrieves external knowledge. They often work together, but they solve different problems.`,
-  `Context architecture slide. Make clear that thread history, working memory, semantic recall, RAG, runtime context, and processor output have different lifetimes and trust levels.`,
-  `Workflows are for reliable, auditable processes. Agents decide; workflows orchestrate. Use workflows when order, branching, replay, or approval matters.`,
-  `Promote brittle prompt logic into workflow steps. Use the refund example to show the difference between agentic recommendation and deterministic business rule.`,
-  `Runtime context and auth make the same agent behave differently for different users. Human-in-the-loop gates are how you keep sensitive side effects under control.`,
-  `Checkpoint 2. Ask where control belongs for a high-risk refund. The key answer: model proposes, workflow/auth/policy/approval decide.`,
-  `Networks are useful when a task has real specialist boundaries. Add specialists when separation improves quality or control.`,
-  `Processors are the control points around the model loop and are better than prompt-only guardrails for redaction, validation, retries, cost control, and compliance.`,
-  `Observability must include quality, not only uptime. Walk through traces, logs, scorers, and CI as the production feedback loop.`,
-  `Turn traces into eval datasets. Pick one important metric first, sample intentionally, and promote production failures into regression tests.`,
-  `Mastra can serve normal APIs, streaming UIs, voice apps, browser agents, and workspace-heavy agents. The framework is not tied to a single UI.`,
-  `Deployment should preserve the exact primitives tested locally. Discuss production server, framework integration, cloud providers, Mastra Server, and ongoing operations.`,
-  `Deep dive: show how the composition root ties the runtime together. Emphasize Studio as the shortest debugging loop before there is a polished application UI.`,
-  `Deep dive: instructions are not the only contract. Use schemas when the next piece of code needs reliable shape, enums, fields, or review signals.`,
-  `Deep dive: MCP is interoperability, but it does not remove the need for trust boundaries. Narrow high-risk tools and trace every external call.`,
-  `Deep dive: RAG quality depends on chunking, metadata, retrieval, reranking, compression, and grounding. The answer model is only the last stage.`,
-  `Deep dive: storage choices should follow the data's job. Memory, vectors, workflow snapshots, and traces have different correctness and query requirements.`,
-  `Deep dive: workflows are easier to debug when each step is named, typed, and responsible for one thing. Suspension belongs at real-world handoff points.`,
-  `Deep dive: processors are runtime enforcement. Give concrete examples of redaction, routing, validation, enrichment, and policy enforcement.`,
-  `Deep dive: production readiness means bounding failure modes. Walk through blast radius, context safety, quality gates, limits, debug data, and ownership.`,
-  `Final recap. Close with the masterclass build order. This is the practical path: one agent, then memory/RAG, workflows, specialists, guardrails, and production telemetry.`,
+  `Open by framing the promise: this is not a catalog of APIs. The goal is to leave with a mental model for building a real agent application in Mastra. Say that the support/refund example in examples/10-mastra-101-masterclass is the concrete thread that will keep the abstract concepts grounded. The headline is "build agents that ship" because production work is about more than a model response. It is about tools, state, safety, traceability, and deployment.`,
+
+  `Use this as the map of the session. The parts are ordered the same way you would grow a production agent: understand the runtime, build one useful agent, give it state and orchestration, add control boundaries, and then operate it. Mention that the checkpoints are there to make the audience decide where each responsibility belongs before you reveal the implementation pattern. That keeps the talk from feeling like framework trivia.`,
+
+  `This is the central framing slide. Mastra is not competing with the model; it surrounds the model with the application concerns the model does not own. The LLM reasons, but the application still needs typed actions, durable memory, workflow control, policy enforcement, observability, and APIs. Use the five verbs on the right as the vocabulary for the rest of the presentation: reason, act, remember, control, operate. Everything else is a refinement of one of those verbs.`,
+
+  `Explain that the fastest way to get confused with agent frameworks is to use every primitive for every job. Give each primitive a clear job. Agents decide when the path is open-ended. Tools are typed side effects. Memory carries conversation and user state. RAG retrieves external knowledge. Workflows own repeatable control flow. Processors enforce runtime policy. In the follow-along, the support agent answers and drafts, tools look up orders and draft refunds, the workflow decides whether to submit, and processors handle PII and response metadata.`,
+
+  `Walk through src/mastra as the composition boundary. The entry file registers what the runtime can serve and observe. Agents, tools, workflows, processors, and scorers are separate because they change for different reasons. This is visible in examples/10-mastra-101-masterclass: index.ts wires the runtime, agents/support-agent.ts owns behavior, tools/order-tools.ts owns side effects, workflows/refund-workflow.ts owns refund control flow, and processors own enforcement.`,
+
+  `Define the agent contract. An agent is not just a prompt. It is instructions plus model plus tools plus memory plus processors plus scoring. In the support example, the agent can look up orders, search policy, draft refunds, and update tickets. It cannot submit money movement directly. That boundary is intentional: the model can recommend and prepare, but the application decides whether risky side effects can commit.`,
+
+  `Use this slide to demystify the agent loop. Each run starts with assembled context: user input, instructions, memory, runtime context, and tool definitions. The model decides whether to answer or call a tool. Mastra validates and executes the tool, then returns the result to the loop. The run stops when a final answer is produced, a limit is reached, a processor interrupts, or a workflow gate takes over. This loop is where production concerns attach.`,
+
+  `Make the point that model choice should be an implementation detail, not the application architecture. Streaming is about product experience and observability: users see progress and the app can react to tool and workflow events. Runtime context is what makes the same agent behave differently by tenant, role, or request. In the example, the workflow receives requesterRole and autoRefundLimitCents because authority should come from the request, not from a hard-coded prompt.`,
+
+  `Tools are where the agent touches the world. The important concept is that the model does not execute arbitrary code; it asks for a named capability with a schema. That makes arguments inspectable and validation possible. MCP expands the tool universe, but the same rule applies: tools must be scoped and observable. Point at lookup_order, draft_refund, update_ticket_status, and search_policy_knowledge_base in the follow-along as concrete examples.`,
+
+  `This slide is about tool design taste. Broad tools like doEverything hide intent and make traces hard to read. Narrow tools create a useful audit trail: the agent looked up an order, searched policy, drafted a refund, and updated a ticket. Separate plan from commit for high-risk operations. In the example, draft_refund is exposed to the agent, but submit_refund is deliberately owned by the workflow path, not by the conversational agent.`,
+
+  `Use this as an audience exercise. Ask them to classify the support system before seeing the full implementation. The job is the support agent. The allowed actions become tools. Policy documents become retrieval. Customer and conversation continuity become memory. Refund submission becomes workflow control. Quality expectations become scorers. The point is to practice decomposition: most production agent design is deciding where each responsibility should live.`,
+
+  `Separate memory and RAG very clearly. Memory is about the relationship and interaction history: what the user said, preferences, ongoing tasks, and prior commitments. RAG is about external knowledge: policies, docs, tickets, records, and code. They can both feed the prompt, but their lifetimes and trust levels differ. In the example, memory is configured on supportAgent; policy search is a tool over policyDocuments that behaves like a small local RAG system.`,
+
+  `This slide gives a deeper context model. Thread history is recent conversation. Working memory is durable user/task facts. Semantic recall retrieves relevant past messages when an embedder is configured. The knowledge base is external truth. Runtime context is request authority and environment. Processor output is enforcement metadata. Emphasize that dumping all context into one prompt is not architecture; deciding which context belongs where is architecture.`,
+
+  `Explain workflows as the answer to "what must happen in a known order?" Agents are good when the path is open-ended. Workflows are good when the business process matters. Refunds are the example: gather order context, draft a decision, apply approval rules, then submit or wait. Workflows give you typed steps, branching, suspension, replay, and better traceability than asking the model to remember every business rule in prose.`,
+
+  `Use the refund runbook to show where prompt logic becomes application logic. "The customer is asking for a refund" is a model interpretation. "Refunds over $100 require manager approval" is a business rule. The follow-along workflow encodes this distinction: draftRefundDecision creates a draft and risk classification, while approvalGateAndCommit decides whether the refund is submitted or the ticket waits for approval.`,
+
+  `Runtime context is how production authority enters the system. The model should not infer who is allowed to do what from the text alone. The workflow input includes requesterRole, autoRefundLimitCents, and approvedBy. Those values represent identity, role, and approval state. The agent can explain the outcome, but the workflow decides whether money movement is allowed. This is the key pattern for safe side effects.`,
+
+  `This is the second exercise. Read the scenario and ask where each responsibility belongs. The customer asks for a $240 refund, policy is ambiguous, there is a prior refund, and the support rep is a contractor. The desired answer is that the model can draft a helpful recommendation, but workflow, auth, policy, approval, and scorers decide whether the action can actually happen. This reinforces the "model proposes, system disposes" principle.`,
+
+  `Introduce multi-agent systems as a scaling pattern, not a default. Add agents when specialization creates real value: a policy reviewer can focus on compliance, an operations reviewer can focus on cost or fulfillment, and a supervisor can reconcile results. In the example, policy-reviewer is included as a specialist. It reviews recommendations against policy and approval requirements, but it does not submit refunds or update tickets.`,
+
+  `Processors are runtime hooks around the model loop. The main message is that prompts are not enforcement. If you must redact PII, validate output, block topics, route models, or add audit metadata, put that in processors. The example includes PIIRedactor as an input processor and SupportResponseFooter as an output processor. This is a small version of the larger guardrail patterns in examples/04, 05, and 06.`,
+
+  `Observability is not only server health. For agents, you need to know what context was used, what tools were called, what the model produced, what processors changed, and what scores were assigned. Mastra Studio and observability make the path inspectable. In the follow-along, LibSQL storage and DefaultExporter preserve traces for local Studio, while SensitiveDataFilter protects trace output from leaking sensitive values.`,
+
+  `Use this to explain how quality work becomes repeatable. A bad answer should not remain an anecdote. Capture the trace, label the failure, turn it into a scorer or dataset example, and use it as a release gate. The follow-along includes supportCompletenessScorer and policyGroundingScorer. The custom scorer checks whether refund answers mention policy and approval constraints when needed.`,
+
+  `Mastra does not dictate the UI. The same registered agents and workflows can be accessed through Studio, REST, client SDKs, framework integrations, streaming UIs, voice, browsers, or workspace-style apps. This matters because the framework primitives should survive product changes. You can prototype in Studio, then put the same supportAgent and refundWorkflow behind whatever interface the product needs.`,
+
+  `Deployment is the production extension of the local runtime. The same registered agents, tools, workflows, processors, memory, storage, and observability should be what you deploy. Do not treat local examples as throwaway prompt scripts. The follow-along uses persistent storage and explicit server config so it behaves like a small deployable service, not just a notebook demo.`,
+
+  `This deep dive connects code to the runtime. Show src/mastra/index.ts in the example. It registers agents, workflows, scorers, storage, logging, observability, and the server. Explain that this file is the composition root: it is where the pieces become a Mastra application. Studio is valuable because it lets you inspect and run the same registered pieces before building a polished UI.`,
+
+  `This slide is about precision. Instructions guide behavior, but schemas create reliable contracts for code. If a downstream system needs category, priority, confidence, citations, or whether human review is needed, ask for structured output or typed tool/workflow outputs. The support example uses Zod schemas in tools and workflows so order IDs, amounts, risk, status, and approval requirements are validated at boundaries.`,
+
+  `MCP is the interoperability story. It lets Mastra consume external tool servers or expose Mastra capabilities to other clients. The important nuance is that interoperability is not the same as trust. A remote tool can still be too broad or risky. For sensitive workflows, wrap MCP tools in narrow Mastra tools with local schemas, approvals, and telemetry. The follow-along keeps tools local to stay runnable, but the same pattern applies to MCP-backed tools.`,
+
+  `RAG quality is a pipeline, not a model setting. Before the model answers, you have to decide how documents are chunked, what metadata travels with them, which filters apply, whether hybrid retrieval is needed, whether results should be reranked, and how much context to inject. The example's search_policy_knowledge_base is intentionally small and transparent so the audience can see the retrieval idea without an external vector service.`,
+
+  `Storage choices should follow the job of the data. Conversation memory needs durable threads and messages. Vector search needs indexes and metadata. Workflow snapshots need resumability. Traces need auditability. The example uses LibSQL for a local, inspectable setup. It also includes a LibSQL vector store that turns on semantic recall when OPENAI_API_KEY is present, while still letting Studio start without provider credentials.`,
+
+  `Workflow implementation should be boring in the best way. Each step should have one responsibility and typed input/output. In refund-workflow.ts, gather-refund-context loads order and policy state, draft-refund-decision creates a risk-classified draft, and approval-gate-and-commit either submits or waits. This shape makes the business process readable, testable, and explainable to non-LLM engineers.`,
+
+  `Processors make policy visible in code. Give examples: PIIRedactor masks email, phone, and card-like values before the model sees them; SupportResponseFooter appends a consistent audit note after the response; other processors could route models, enforce tool dependencies, trim context, or retry invalid output. Emphasize that processors are not about making the model nicer; they are about enforcing runtime guarantees.`,
+
+  `Production readiness is a checklist of bounded failure modes. For tools, know the blast radius. For context, enforce tenant and permission boundaries. For quality, create scorers and regression sets. For operations, define token and latency budgets. For debugging, preserve trace IDs and prompt snapshots. For ownership, decide who updates prompts, tools, policies, and evals. This is what turns a cool agent demo into software someone can maintain.`,
+
+  `Close by returning to the build sequence. Start with one useful agent, then add memory and retrieval, promote repeatable or risky process into workflows, add specialist agents only when roles are genuinely distinct, harden with processors and runtime authority, and operate with traces and scorers. Point the room back to examples/10-mastra-101-masterclass as the code path that follows this sequence end to end.`,
 ];
 
 export default [
