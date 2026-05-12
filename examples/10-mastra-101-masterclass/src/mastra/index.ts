@@ -34,6 +34,6 @@ export const mastra = new Mastra({
     },
   }),
   server: {
-    port: 4111,
+    port: Number(process.env.PORT ?? 4111),
   },
 });

@@ -685,17 +685,18 @@ const ToolDesign: Page = () => (
         `lookupOrder`, `draftRefund`, `sendApprovalRequest`, `updateTicketStatus`. Each has a schema and a visible side
         effect.
       </Card>
-      <Card label="Best" title="Separate plan from commit" accent={palette.blue} minHeight={250}>
-        Let the model propose actions, then require workflow logic or approval before money, messages, or data changes.
+      <Card label="Best" title="Use the repo pattern" accent={palette.blue} minHeight={250}>
+        `supportAgent` can call `draftRefund`. Only `refundWorkflow` can reach `approvalGateAndCommit`, where policy and
+        approval decide submit vs wait.
       </Card>
     </Row>
     <div style={{ marginTop: 40 }}>
-      <Code>{`description: 'Create a draft refund. Does not submit it.'
-inputSchema: z.object({
-  orderId: z.string(),
-  amountCents: z.number().int().positive(),
-  reason: z.string().min(10),
-})`}</Code>
+      <Code>{`supportAgent.tools = { lookupOrder, draftRefund, updateTicketStatus }
+
+refundWorkflow
+  .then(gatherContext)
+  .then(draftRefundDecision)
+  .then(approvalGateAndCommit) // submits only if approved`}</Code>
     </div>
   </Stage>
 );
@@ -732,7 +733,7 @@ memory item, and RAG source?"`}</Code>
 const MemoryAndRag: Page = () => (
   <Stage index={12}>
     <Eyebrow>06 / Memory and RAG</Eyebrow>
-    <Title>Agents need two different context systems.</Title>
+    <Title>Agents need context, knowledge, and durable state.</Title>
     <Row>
       <Card label="Memory" title="Conversation state" accent={palette.green} minHeight={240}>
         Threads, resources, working memory, conversation history, semantic recall, and memory processors keep user context
@@ -857,19 +858,26 @@ if (refund.amount > runtimeContext.get('autoRefundLimit')) {
 const CheckpointTwo: Page = () => (
   <Stage index={17}>
     <Eyebrow>Checkpoint 2</Eyebrow>
-    <Title>Turn the support agent into a reliable system.</Title>
-    <Row>
-      <Card label="Scenario" title="Customer asks for a $240 refund" accent={palette.amber} minHeight={260}>
-        The order exists, policy is ambiguous, the customer has a prior refund, and the support rep is a contractor.
-      </Card>
-      <Card label="Question" title="Where does control live?" accent={palette.blue} minHeight={260}>
-        Decide which parts belong in agent instructions, runtime context, RAG, workflow branches, processors, approval,
-        and scorers.
-      </Card>
-      <Card label="Expected answer" title="Model proposes, system disposes" accent={palette.green} minHeight={260}>
-        The model can draft the recommendation. Workflow, auth, policy, and approval decide what actually happens.
-      </Card>
-    </Row>
+    <Title>For risky actions, split recommendation from authority.</Title>
+    <Split
+      left={
+        <Card label="Scenario" title="Customer asks for a $240 refund" accent={palette.amber} minHeight={520}>
+          The order exists, policy is ambiguous, the customer has a prior refund, and the support rep is a contractor.
+          The agent can help, but it should not be the component that decides whether money moves.
+        </Card>
+      }
+      right={
+        <Checklist
+          items={[
+            { label: 'Agent', desc: 'Drafts the customer-facing recommendation and explains missing context.' },
+            { label: 'RAG', desc: 'Retrieves refund policy and prior-refund rules from the knowledge base.' },
+            { label: 'Runtime context', desc: 'Carries requesterRole=contractor and the auto-refund limit.' },
+            { label: 'Workflow', desc: 'Applies approval rules and chooses submit vs waiting-on-approval.' },
+            { label: 'Scorers/processors', desc: 'Check grounding, required approval language, and response safety.' },
+          ]}
+        />
+      }
+    />
   </Stage>
 );
 
@@ -1033,7 +1041,7 @@ const SetupDeepDive: Page = () => (
             { label: 'Bootstrap the app', desc: 'Create the Mastra project and keep all runtime primitives under `src/mastra`.' },
             { label: 'Register primitives', desc: '`new Mastra()` is the composition root for agents, workflows, storage, telemetry, and server behavior.' },
             { label: 'Use Studio early', desc: 'Inspect prompts, tool calls, memory, workflow runs, traces, and response shape before wiring a production UI.' },
-            { label: 'Keep examples runnable', desc: 'A masterclass works best when every concept maps to a small local example.' },
+            { label: 'Hit the API directly', desc: 'Call the generated endpoints to confirm agents and workflows work outside Studio.' },
           ]}
         />
       }
@@ -1161,7 +1169,7 @@ const WorkflowImplementation: Page = () => (
           items={[
             { label: 'Give every step one responsibility', desc: 'Classify, retrieve, draft, review, approve, commit, or notify.' },
             { label: 'Pass typed data between steps', desc: 'Use schemas so downstream code knows what exists and what can fail.' },
-            { label: 'Snapshot important state', desc: 'Store enough context to replay, resume, explain, or debug the run.' },
+            { label: 'Carry business state explicitly', desc: 'Return fields like risk, requiresApproval, approvedBy, and status instead of hiding decisions in prose.' },
             { label: 'Suspend at real-world boundaries', desc: 'Approval, payment, manual review, and external callbacks belong in workflow control.' },
           ]}
         />
@@ -1262,100 +1270,100 @@ export const meta: SlideMeta = {
 // ════════════════════════════════════════════════════════════════════════════
 export const notes: (string | undefined)[] = [
   // 01 Cover
-  `Welcome. This is Mastra 101, but the goal is not to memorize a catalog of APIs. The goal is to leave with a mental model for building an agent application that can actually ship. We'll keep coming back to one concrete example: a support and refund system in examples/10-mastra-101-masterclass. The reason the headline says "build agents that ship" is that production agents are not just model responses. They are tools, state, safety, traceability, and deployment wrapped around a model.`,
+  `Welcome. This is Mastra 101, but the goal is not to memorize a catalog of APIs. The goal is to leave with a mental model for building an agent application that can actually ship. The three promises on the slide are the arc: understand the primitives, compose reliable systems, and operate them in production. We'll keep coming back to examples/10-mastra-101-masterclass, a TechMart support and refund system, because production agents are not just model responses. They are tools, memory, workflows, guardrails, observability, and deployment wrapped around a model.`,
 
   // 02 Run of show
-  `Here's the path for the session. We'll start with the runtime model, then build one useful agent, then add state and orchestration, then put control boundaries around it, and finally talk about how you operate it. The checkpoints are intentionally placed before the answers. I want you to decide where each responsibility belongs before we reveal the implementation pattern, because that decomposition skill is the real thing you need after today.`,
+  `Here's the path for the session. Part one frames the system: what Mastra is, what it replaces, and the mental model. Part two builds the core agent: project anatomy, the agent contract, model routing, streaming, tools, and MCP. Part three adds state and orchestration: memory, RAG, workflows, snapshots, suspend and resume, and human review. Part four scales the architecture with runtime context, auth, multi-agent networks, processors, and guardrails. Part five is operating it with observability, scorers, interfaces, deployment, and production readiness. Then we wrap and take questions. The checkpoints are placed before the answers because decomposition is the real skill.`,
 
   // 03 Mental model
-  `The simplest way to think about Mastra is this: the model reasons, but the application still has work to do. The model does not own typed actions, durable memory, workflow control, policy enforcement, observability, or APIs. Mastra gives those application concerns a home. The vocabulary on the right is the vocabulary for the rest of the talk: reason, act, remember, control, operate. Most of the framework is a refinement of one of those verbs.`,
+  `The simplest way to think about Mastra is this: the model reasons, but the application still has work to do. Reason means models generate, stream, call tools, and produce structured output. Act means tools, MCP, browsers, voice, and custom integrations touch the outside world. Remember means memory, storage, semantic recall, and RAG keep context available. Control means workflows, processors, auth, approvals, and runtime context shape execution. Operate means Studio, logs, traces, scorers, and deployment close the production loop. In the example project, supportAgent reasons, order and policy tools act, Memory plus LibSQL remember, refundWorkflow controls, and observability plus scorers operate it.`,
 
   // 04 Decision map
-  `The fastest way to get confused with agent frameworks is to use every primitive for every job. Give each primitive a clear job. Agents decide when the path is open-ended. Tools are typed side effects. Memory carries conversation and user state. RAG retrieves external knowledge. Workflows own repeatable control flow. Processors enforce runtime policy. In our support example, the agent answers and drafts, tools look up orders and policies, the workflow decides whether a refund can be submitted, and processors handle PII and response metadata.`,
+  `The fastest way to get confused with agent frameworks is to use every primitive for every job. Give each primitive a clear job. Use an agent when the steps are unknown and the model should decide what to do next. Use a tool when an agent or workflow needs a typed capability with side effects. Use memory when user, thread, or session state must survive across turns. Use RAG when the answer depends on external knowledge retrieved at runtime. Use a workflow when the path must be repeatable, auditable, resumable, or partly deterministic. Use a processor when prompt text should not be responsible for validation, redaction, routing, or retries. In the support example, supportAgent answers and drafts, order-tools.ts wraps side effects, memory tracks the customer, policy-tools.ts handles retrieval, refund-workflow.ts controls submission, and processors enforce PII and response metadata.`,
 
   // 05 Project anatomy
-  `This is the shape of a Mastra application. src/mastra is the composition boundary: it is where the runtime learns what it can serve and observe. Agents, tools, workflows, processors, and scorers are separate because they change for different reasons. In the follow-along, index.ts wires the runtime, agents/support-agent.ts owns behavior, tools/order-tools.ts owns side effects, workflows/refund-workflow.ts owns refund control flow, and processors own enforcement.`,
+  `This is the shape of a Mastra application. src/mastra is the composition boundary: it is where the runtime learns what it can serve and observe. The entry point, index.ts, calls new Mastra() and wires agents, workflows, storage, vectors, loggers, telemetry, and server behavior. The modules stay separate: agents hold instructions and models, tools wrap typed side effects, workflows define controlled processes, processors are input and output control points, and scorers are quality checks. Studio is the fast feedback loop: test prompts, inspect tool calls, run workflows, and iterate before building the UI. examples/10-mastra-101-masterclass follows this exact tree.`,
 
   // 06 Agents
-  `An agent is not just a prompt. It is instructions plus a model, tools, memory, processors, and scoring. In the support example, the agent can look up orders, search policy, draft refunds, and update tickets. Notice the boundary: it cannot submit money movement directly. That's intentional. The model can recommend and prepare, but the application decides whether risky side effects are allowed to commit.`,
+  `Use agents when the path is open-ended. An agent owns the goal, instructions, model, tools, memory, processors, scorers, and stop conditions. The slide shows the shape: id, name, instructions, model, tools, memory, and scorers. Agents can generate a full response, stream tokens and events while tools are resolving, or return structured output when the app needs data instead of prose. In examples/10-mastra-101-masterclass, support-agent.ts uses openai/gpt-5.2, lookupOrder, searchPolicyKnowledgeBase, draftRefund, updateTicketStatus, Memory, PIIRedactor, SupportResponseFooter, and two scorers. It can draft a refund, but it cannot submit money movement directly.`,
 
   // 07 Agent loop
-  `Every run starts by assembling context: the user's input, the agent instructions, memory, runtime context, and the available tool definitions. The model then decides whether to answer or call a tool. If it calls a tool, Mastra validates the arguments, executes the tool, and feeds the result back into the loop. The run stops when there is a final answer, a limit is reached, a processor interrupts, or a workflow gate takes over. This loop is where production concerns attach.`,
+  `Every run is a loop with observable state. Prompt means instructions, runtime context, memory, tools, retrieval, and user input become the model call. Decide means the model either answers, calls a tool, asks for structured output, or continues reasoning. Act means Mastra validates tool inputs, executes, captures outputs, and feeds results back. Stop means final output, configured limits, approval gates, errors, or workflow control end the run. The three questions are the production checklist: what can it do, what does it know, and how do we trust it? In supportAgent, maxSteps is 8, tools define the reachable world, memory and policy retrieval define context, and schemas, processors, approvals, traces, and scorers define control.`,
 
   // 08 Models and streaming
-  `Model choice should be an implementation detail, not your application architecture. Streaming is about product experience and observability: users see progress, and the app can react to tool and workflow events as they happen. Runtime context is what lets the same agent behave differently by tenant, role, or request. In the example, requesterRole and autoRefundLimitCents come from the request because authority should come from the system, not from a hard-coded prompt.`,
+  `Model choice should be swappable, while behavior stays typed. Model router means you reference provider/name and can change models without rewriting agent code. Provider breadth means the same app shape can use OpenAI, Anthropic, Google, Groq, Mistral, xAI, local providers, and more. Streaming events matter because the UI can show text, tool calls, workflow progress, and custom UI events while work is still resolving. Runtime context injects user, tenant, plan, auth, locale, or feature flags per request; the code sample shows tenantId and role. Cost control is routing simple steps to smaller models and saving larger models for hard reasoning. Fallback patterns keep the app stable while you experiment with model quality. In the example, supportAgent pins a default model, while refundWorkflow takes requesterRole and autoRefundLimitCents as runtime authority instead of burying those rules in a prompt.`,
 
   // 09 Tools and MCP
-  `Tools are where the agent touches the world. The important rule is that the model does not execute arbitrary code. It asks for a named capability with a schema. That means the arguments are inspectable, validation is possible, and the trace tells a story. MCP expands the tool universe, but the same rule applies: tools need to be scoped and observable. In the example, look at lookup_order, draft_refund, update_ticket_status, and search_policy_knowledge_base.`,
+  `Tools are the boundary between reasoning and action. Describe means give the model a precise capability and when to use it. Validate means use Zod schemas to constrain inputs before side effects run. Execute means the tool can call APIs, databases, browsers, filesystems, or internal services. Observe means trace arguments, results, latency, errors, and approvals. MCP adds interoperability: MCPClient pulls tools, resources, and prompts from existing MCP servers, while MCPServer exposes Mastra tools, workflows, and agents to external clients. In the example project, order-tools.ts implements lookup_order, draft_refund, and update_ticket_status; policy-tools.ts implements search_policy_knowledge_base with input and output schemas.`,
 
   // 10 Tool design
-  `Tool design is where a lot of production quality comes from. A broad tool like doEverything hides intent and makes traces hard to read. Narrow tools create an audit trail: the agent looked up an order, searched policy, drafted a refund, and updated a ticket. For high-risk operations, separate plan from commit. In our example, draft_refund is exposed to the agent, but submit_refund belongs to the workflow path.`,
+  `Tool design is where a lot of production quality comes from. doEverything is bad because broad tools hide intent, make traces useless, increase blast radius, and force the model to invent implicit arguments. Better is one verb and one resource: lookupOrder, draftRefund, sendApprovalRequest, updateTicketStatus. The project uses that better pattern for draftRefund. The best example is the repo boundary shown here: supportAgent.tools includes draftRefund, but it does not include approvalGateAndCommit or submitRefund. refundWorkflow chains gatherContext, draftRefundDecision, and approvalGateAndCommit. That final step checks policy and approval state, then either submits the refund or leaves the ticket waiting on approval.`,
 
   // 11 Checkpoint one
-  `Let's classify the support system before we look at the full implementation. What is the job? That's the support agent. What are the allowed actions? Those become tools. Where do the policy documents go? Retrieval. Where do customer continuity and conversation history go? Memory. Where does refund submission go? Workflow control. Where do quality expectations go? Scorers. Most production agent design is deciding where each responsibility should live.`,
+  `Let's classify the support system before we look at the full implementation. Name the job: the support agent owns resolving customer issues clearly. List allowed actions: read orders, draft refunds, update tickets, and answer policy questions; side effects like money movement need approval. Choose context sources: prompt context handles the immediate request, memory handles customer continuity, RAG handles policy docs, and runtime context handles authority. Define the first score: what would make the response clearly good or clearly wrong? In the example project, that maps to supportCompletenessScorer and policyGroundingScorer.`,
 
   // 12 Memory and RAG
-  `Memory and RAG both add context, but they are not the same thing. Memory is about the relationship and interaction history: what the user said, preferences, ongoing tasks, and prior commitments. RAG is about external knowledge: policies, docs, tickets, records, and code. They can both feed the prompt, but they have different lifetimes and different trust levels. In this example, memory is configured on supportAgent, while policy search is a tool over policyDocuments.`,
+  `Agents need three related pieces: context, knowledge, and durable state. Memory is conversation state: threads, resources, working memory, conversation history, semantic recall, and memory processors keep user context available across turns and sessions. RAG is knowledge retrieval: ingest docs, HTML, markdown, JSON, PDFs, or domain records; index by chunking, embedding, metadata, and vector upsert; retrieve with query, filters, hybrid search, reranking, and compression; then answer with grounding and faithfulness scoring. Storage is the durable backend: LibSQL, Postgres, Upstash, DynamoDB, Cloudflare stores, plus vector backends like PgVector, Pinecone, Qdrant, Chroma, and MongoDB. The example uses LibSQLStore and LibSQLVector, working memory on supportAgent, and search_policy_knowledge_base over local policyDocuments.`,
 
   // 13 Memory patterns
-  `A useful context model has several lanes. Thread history is the recent conversation. Working memory is durable user or task facts. Semantic recall retrieves relevant past messages when an embedder is configured. The knowledge base is external truth. Runtime context carries request authority and environment. Processor output carries enforcement metadata. Dumping all of that into one prompt is not architecture. Deciding which context belongs where is architecture.`,
+  `Do not put every fact in the same bucket. Thread history is what happened in this conversation and what the user already said. Working memory is durable profile facts, preferences, and current task state. Semantic recall retrieves relevant past messages by meaning, not just recency. The knowledge base is external docs, tickets, policies, code, records, and files retrieved through RAG. Runtime context carries identity, permissions, tenant, plan, locale, and feature flags for this request. Processor output carries redactions, context trimming, metadata, route decisions, and validation state. In support-agent.ts, lastMessages is 12, working memory has a support template, semantic recall turns on when OPENAI_API_KEY is present, and PIIRedactor output is part of the context story.`,
 
   // 14 Workflows
-  `Workflows answer the question: what has to happen in a known order? Agents are good when the path is open-ended. Workflows are good when the business process matters. Refunds are a perfect example: gather order context, draft a decision, apply approval rules, then submit or wait. That gives you typed steps, branching, suspension, replay, and a clearer trace than asking the model to remember every business rule in prose.`,
+  `Use workflows when the process must be repeatable. Workflows turn agentic systems into explicit execution graphs with typed steps, deterministic code, agents, tools, branches, loops, snapshots, suspension, and replay. Sequential is step.then(nextStep) for clear process order. Parallel runs independent steps together. Branch routes by condition, input, tool output, or score. Loop repeats until quality, budget, or state criteria are met. Suspend pauses for approval, payment, review, or external events. Replay debugs from snapshots with the same original context. The example refundWorkflow is intentionally simple and sequential: gather-refund-context, draft-refund-decision, approval-gate-and-commit.`,
 
   // 15 Workflow runbook
-  `This is where prompt logic becomes application logic. "The customer is asking for a refund" is something the model can interpret. "Refunds over $100 require manager approval" is a business rule. The workflow encodes that distinction. draftRefundDecision creates the draft and risk classification. approvalGateAndCommit decides whether the refund is submitted or whether the ticket waits for approval.`,
+  `Promote brittle prompt steps into workflow steps. Classify means deterministic code or a small model labels the request type and required policy. Gather means tools retrieve orders, docs, memory, permissions, and account state. Draft means an agent or tool proposes an answer or action from bounded context. Review means a scorer, processor, or human checks risk before commit. Commit means a tool writes data, sends the message, updates the ticket, and logs trace metadata. The rule of thumb is on the slide: "the user asked for a refund" is agentic, but "refunds over $100 require manager approval" is workflow logic. In refund-workflow.ts, gatherContext loads order and policy notes, draftRefundDecision creates the draft and risk classification, and approvalGateAndCommit submits or leaves the ticket waiting on approval.`,
 
   // 16 Human in the loop
-  `Runtime context is how production authority enters the system. The model should not infer who is allowed to do what from the text alone. The workflow input includes requesterRole, autoRefundLimitCents, and approvedBy. Those values represent identity, role, and approval state. The agent can explain the outcome, but the workflow decides whether money movement is allowed. That's the pattern for safe side effects: model proposes, system disposes.`,
+  `Production agents need per-request authority. Runtime context is dynamic behavior: identity, permissions, tenant settings, budget, feature flags, locale, and request metadata enter the agent or workflow at runtime. Auth is access control: JWT, Clerk, Supabase, Firebase, WorkOS, Auth0, or your own middleware can sit before execution. Human review controls side effects: suspend workflows or require approval before spending money, sending messages, deleting data, or escalating. The code pattern is the point: let the model recommend, but let the workflow decide. In refundWorkflow, requesterRole, autoRefundLimitCents, and approvedBy decide whether a refund is submitted or waits for manager approval.`,
 
   // 17 Checkpoint two
-  `Second checkpoint. A customer asks for a $240 refund. The policy is ambiguous, there is a prior refund, and the support rep is a contractor. Where should each responsibility live? The model can draft a helpful recommendation. Workflow, auth, policy, approval, and scorers decide whether the action can actually happen. If the system lets the prompt decide money movement here, the boundary is in the wrong place.`,
+  `This checkpoint is about separating recommendation from authority. A customer asks for a $240 refund. The order exists, policy is ambiguous, there is a prior refund, and the support rep is a contractor. The agent's job is to draft a helpful customer-facing recommendation, not to decide whether money moves. RAG retrieves the refund policy and prior-refund rules. Runtime context carries requesterRole=contractor and the auto-refund limit. The workflow applies the approval rules and chooses submitted versus waiting-on-approval. Scorers and processors check grounding, required approval language, and response safety. In the example project, this is exactly why supportAgent can draft, but refundWorkflow owns approvalGateAndCommit.`,
 
   // 18 Networks
-  `Multi-agent systems are a scaling pattern, not a default. Add agents when specialization creates real value. A policy reviewer can focus on compliance. An operations reviewer can focus on cost or fulfillment. A supervisor can reconcile the results. In this example, policy-reviewer is a specialist. It reviews recommendations against policy and approval requirements, but it does not submit refunds or update tickets.`,
+  `Networks split broad tasks into specialist roles. A supervisor understands the goal, delegates, reconciles, and decides when to stop. Specialists are focused agents with narrow instructions, tools, memory, and eval criteria. Shared state means runtime context, memory, traces, and workflow state make handoffs explicit. A reviewer is a separate agent or scorer that checks quality before the user sees the output. This is a scaling pattern, not a default. In examples/10-mastra-101-masterclass, policyReviewer is the specialist: it reviews support recommendations against policy and approval requirements, while supportAgent remains the customer-facing agent.`,
 
   // 19 Guardrails
-  `Processors are runtime hooks around the model loop. The main point is simple: prompts are not enforcement. If you must redact PII, validate output, block topics, route models, or add audit metadata, put that in processors. This example includes PIIRedactor as an input processor and SupportResponseFooter as an output processor. That's the small version of the broader guardrail patterns in examples 04, 05, and 06.`,
+  `Do not ask prompts to do infrastructure work. Input processors normalize, redact, block, trim, enrich, or route before the model sees the message. The agent loop is where the model reasons, calls tools, observes results, and decides the next step. Output processors validate, transform, redact, retry, abort, or attach metadata before responding. Safety includes PII filtering, topic blocking, prompt-injection checks, and policy enforcement. Reliability includes response validation, retries, answer length limits, and required tool usage. Cost includes context pruning, model routing, token budgets, and escalation detection. In this example, PIIRedactor is the input processor and SupportResponseFooter is the output processor.`,
 
   // 20 Observability
-  `Observability for agents is more than server health. You need to know what context was used, which tools were called, what the model produced, what processors changed, and what scores were assigned. Mastra Studio and observability make the path inspectable. In the follow-along, LibSQL storage and DefaultExporter preserve local traces, while SensitiveDataFilter keeps sensitive values out of trace output.`,
+  `Agent quality is a production signal, so observability has to capture the path, not only the final text. That means model calls, prompts, completions, tool calls, memory operations, tokens, latency, cost, errors, and scorer results. Logs are persistent run records for agents and workflows. Tracing gives decision paths, spans, timing, inputs, and outputs. OTel export sends telemetry to OpenTelemetry-compatible platforms. Scorers run model-graded, rule-based, or statistical checks asynchronously. Datasets turn traces and examples into repeatable tests. CI catches regressions before deploy. In index.ts, the example registers PinoLogger, Observability, DefaultExporter, SensitiveDataFilter, and both support scorers.`,
 
   // 21 Evaluation loop
-  `Quality work has to become repeatable. A bad answer should not remain an anecdote. Capture the trace, label the failure, turn it into a scorer or dataset example, and use it as a release gate. The example includes supportCompletenessScorer and policyGroundingScorer. The custom scorer checks whether refund answers mention policy and approval constraints when those constraints matter.`,
+  `Turn production traces into regression tests. Trace means capture real prompts, tool calls, retrieved context, latency, cost, and outputs. Label means collect human labels, policy outcomes, bug reports, and known-good examples. Score means run relevance, faithfulness, completeness, toxicity, custom rules, or LLM judges. Gate means fail CI or block rollout when quality drops below the threshold. Start with one metric: pick the failure that would hurt users first. Sample deliberately: score high-risk paths more often than low-risk chat. Keep examples fresh: promote real failures into the next regression set. The example includes supportCompletenessScorer and policyGroundingScorer as first concrete gates for the refund domain.`,
 
   // 22 Interfaces
-  `Mastra does not dictate the UI. The same registered agents and workflows can be reached through Studio, REST, client SDKs, framework integrations, streaming UIs, voice, browsers, or workspace-style apps. That's important because the product surface will change. You can prototype in Studio, then put the same supportAgent and refundWorkflow behind whatever interface the product needs.`,
+  `Mastra apps can meet users where the work happens. REST and client SDK expose registered agents, tools, workflows, memory, vectors, logs, and telemetry. Web frameworks include Next.js, SvelteKit, Vite/React, Astro, Express, and standard server adapters. Agentic UIs can pair streaming agents with Vercel AI SDK, CopilotKit, Assistant UI, Cedar-OS, and OpenRouter flows. Voice adds text-to-speech, speech-to-text, and real-time speech-to-speech providers. Browser actions help with sites where APIs are missing or incomplete. Workspaces give agents filesystems, sandboxed execution, and reusable skills for coding or document-heavy work. The example is UI-light on purpose: Studio can exercise supportAgent and refundWorkflow before any product surface is chosen.`,
 
   // 23 Deployment
-  `Deployment is the production extension of the local runtime. The same agents, tools, workflows, processors, memory, storage, and observability that you run locally are what you deploy. Don't treat local examples as throwaway prompt scripts. This follow-along uses persistent storage and explicit server config so it behaves like a small deployable service, not just a notebook demo.`,
+  `Ship the same primitives you tested locally. Local Studio is for prototyping, running, tracing, and tuning with fast feedback. The production server exposes agents and workflows as APIs with middleware, auth, and storage. Cloud targets include providers like AWS, Azure, DigitalOcean, and framework hosts. Mastra Server gives managed routing, scaling, telemetry, and endpoints for agent deployment. Operate means monitoring traces, cost, latency, scorer drift, and user feedback after launch. The example already behaves like a small service: index.ts registers server port 4111, persistent storage, telemetry, agents, workflows, and scorers.`,
 
   // 24 Setup deep dive
-  `Now let's connect the code to the runtime. In src/mastra/index.ts, we register agents, workflows, scorers, storage, logging, observability, and the server. This file is the composition root: it is where the pieces become a Mastra application. Studio is useful because it lets you inspect and run those same registered pieces before you build a polished UI around them.`,
+  `Start with the fastest loop: code, Studio, trace, repeat. Bootstrap the app and keep runtime primitives under src/mastra. Register primitives with new Mastra(); that is the composition root for agents, workflows, storage, telemetry, and server behavior. Use Studio early to inspect prompts, tool calls, memory, workflow runs, traces, and response shape before wiring a production UI. Then hit the generated API endpoints directly, because the system has to work outside Studio too. In examples/10-mastra-101-masterclass/src/mastra/index.ts, you can see supportAgent, policyReviewer, refundWorkflow, storage, logger, observability, scorers, and the server config all registered in one place.`,
 
   // 25 Instruction design
-  `Instructions guide behavior, but schemas create reliable contracts for code. If a downstream system needs category, priority, confidence, citations, or whether human review is needed, ask for structured output or typed tool and workflow outputs. The support example uses Zod schemas in tools and workflows so order IDs, amounts, risk, status, and approval requirements are validated at the boundaries.`,
+  `Instructions define behavior; schemas define contracts. Role is the job: responsibility, audience, tone, and success criteria. Rules are what must never happen: put policy boundaries in instructions, but enforce critical boundaries with tools, workflows, processors, and auth. Shape is what the app needs: fields, enums, confidence, citations, and action plans belong in structured output. The triageSchema on the slide shows category, priority, needsHumanReview, and summary. In support-agent.ts, the instructions say to look up orders, search policy, draft but not submit refunds, explain approval needs, and avoid inventing missing information; in refund-workflow.ts, Zod schemas validate order IDs, amounts, roles, risk, status, and approval requirements.`,
 
   // 26 MCP deep dive
-  `MCP is the interoperability story. It lets Mastra consume external tool servers or expose Mastra capabilities to other clients. The important nuance is that interoperability is not the same as trust. A remote tool can still be too broad or too risky. For sensitive workflows, wrap MCP tools in narrow Mastra tools with local schemas, approvals, and telemetry. The follow-along keeps tools local so it is easy to run, but the same pattern applies to MCP-backed tools.`,
+  `MCP lets your agent runtime plug into other runtimes. Use existing servers to connect to GitHub, databases, browser tools, files, docs, internal APIs, or vendor systems. Expose Mastra capabilities by publishing tools, agents, and workflows as MCP capabilities for other clients. Control trust boundaries: treat remote tools like integration surfaces, validate inputs, limit scopes, and trace every call. Prefer typed wrappers for high-risk MCP tools when the domain needs stronger validation or approvals. The operational flow is discover, select, wrap, run: list remote tools and resources, expose only what the agent needs, add schemas and telemetry, then call through Mastra with traceable inputs and outputs. The follow-along keeps tools local so it is easy to run, but lookupOrder and searchPolicyKnowledgeBase are shaped the way MCP-backed tools should be wrapped.`,
 
   // 27 RAG quality
-  `RAG quality is a pipeline, not a model setting. Before the model answers, you decide how documents are chunked, what metadata travels with them, which filters apply, whether hybrid retrieval is needed, whether results should be reranked, and how much context to inject. search_policy_knowledge_base is intentionally small and transparent so you can see the retrieval idea without needing an external vector service.`,
+  `RAG quality is mostly won before the model answers. Chunking should follow document structure when possible and preserve headings, source IDs, dates, and hierarchy. Metadata filters enforce tenant, product, version, policy type, freshness, permissions, and visibility. Hybrid retrieval combines semantic search with keyword or structured filters when exact terms matter. Reranking reorders candidate chunks before spending context budget. Context compression summarizes or trims retrieved material so the model sees useful parts, not every matching token. Grounding scores check whether the answer is supported by retrieved context and cites the right sources. search_policy_knowledge_base is a small transparent version of this: it accepts query, tags, and topK, scores matching policyDocuments, and returns structured results for the agent.`,
 
   // 28 Storage deep dive
-  `Storage choices should follow the job of the data. Conversation memory needs durable threads and messages. Vector search needs indexes and metadata. Workflow snapshots need resumability. Traces need auditability. The example uses LibSQL for a local, inspectable setup. It also includes a LibSQL vector store that turns on semantic recall when OPENAI_API_KEY is present, while still letting Studio start without provider credentials.`,
+  `Choose storage by lifetime, query pattern, and blast radius. Local prototypes can use LibSQL or file-backed state for quick iteration, examples, and local Studio demos. Production apps usually need Postgres-style durability when threads, workflow state, auth boundaries, and audit trails matter. Knowledge bases need a vector store plus metadata, chosen around filtering, tenancy, latency, cost, and operational ownership. The rule of thumb is direct: memory state needs correctness, retrieval indexes need search quality, workflow snapshots need resumability, and traces need auditability. In storage.ts, the example uses LibSQLStore and LibSQLVector against file:./mastra-101.db so the masterclass is local and inspectable.`,
 
   // 29 Workflow implementation
-  `Workflow code should be boring in the best way. Each step should have one responsibility and typed input and output. In refund-workflow.ts, gather-refund-context loads order and policy state, draft-refund-decision creates a risk-classified draft, and approval-gate-and-commit either submits or waits. That shape makes the business process readable, testable, and explainable to engineers who do not work on LLMs every day.`,
+  `Workflow steps should be typed, named, and inspectable. Give every step one responsibility: classify, retrieve, draft, review, approve, commit, or notify. Pass typed data between steps with schemas so downstream code knows what exists and what can fail. Carry business state explicitly: return fields like risk, requiresApproval, approvedBy, and status instead of hiding decisions in prose. Suspend at real-world boundaries like approval, payment, manual review, and external callbacks. The code on the slide shows the richer API shape: createWorkflow, inputSchema, then, branch, and commit. The actual example keeps the refund flow compact: gather-refund-context loads order and policy state, draft-refund-decision creates a risk-classified draft, and approval-gate-and-commit submits or waits.`,
 
   // 30 Processor examples
-  `Processors make policy visible in code. PIIRedactor masks email, phone, and card-like values before the model sees them. SupportResponseFooter appends a consistent audit note after the response. Other processors could route models, enforce tool dependencies, trim context, or retry invalid output. The point is not to make the model nicer. The point is to enforce runtime guarantees.`,
+  `Processors make policy visible in the runtime. Pre-filter rejects unsupported topics, malformed requests, or forbidden tenants before model spend. Redact masks secrets, PII, tokens, account numbers, and internal-only fields. Route chooses model, toolset, retrieval index, or workflow path based on request risk. Validate checks output schema, citations, tone, policy compliance, and required disclaimers. Enrich attaches audit metadata, handoff hints, trace labels, or UI annotations. The key distinction is at the bottom: prompts belong to behavior, processors belong to enforcement. In the example, PIIRedactor handles the redact case and SupportResponseFooter enriches every response with consistent support metadata.`,
 
   // 31 Production readiness
-  `Production readiness is a checklist of bounded failure modes. For tools, know the blast radius. For context, enforce tenant and permission boundaries. For quality, create scorers and regression sets. For operations, define token and latency budgets. For debugging, preserve trace IDs and prompt snapshots. For ownership, decide who updates prompts, tools, policies, and evals. That's what turns a cool agent demo into maintainable software.`,
+  `Before launch, make every failure mode observable or bounded. Tool blast radius means scopes, dry-run modes, approvals, idempotency keys, and audit records for side effects. Context safety means tenant isolation, permission-aware retrieval, redaction, and memory lifecycle rules. Quality gates mean scorers, regression datasets, human labels, and release thresholds. Operational limits mean token budgets, latency budgets, retry policy, fallback models, and escalation paths. Debuggability means trace IDs, prompt snapshots, tool arguments, workflow snapshots, and user feedback links. Ownership means deciding who reviews failures, updates prompts, changes tools, approves policies, and ships new evals. The example demonstrates the skeleton: narrow tools, approval-aware workflow, PII redaction, trace filtering, and two domain scorers.`,
 
   // 32 Masterclass flow
-  `The build sequence is the takeaway. Start with one useful agent. Add memory and retrieval when the agent needs context. Promote repeatable or risky process into workflows. Add specialist agents only when the roles are genuinely distinct. Harden the loop with processors and runtime authority. Operate it with traces and scorers. examples/10-mastra-101-masterclass follows that sequence end to end, so use it as the code path after this session.`,
+  `The build sequence is the takeaway. Start with one agent: instructions, model, typed tools, and streaming response. Add memory and retrieval: persistent user context plus grounded external knowledge. Promote process into workflows: explicit steps for approvals, branching, retries, and replay. Add specialists when one prompt becomes too broad: supervisor and reviewer agents. Harden the loop with processors, auth, runtime context, guardrails, and human-in-the-loop gates. Operate it with Studio, traces, scorers, deployment, and a regression suite. Point people back to examples/10-mastra-101-masterclass, mastra.ai, github.com/mastra-ai/mastra, and discord.gg/mastra as the path after the room clears.`,
 ];
 
 export default [
