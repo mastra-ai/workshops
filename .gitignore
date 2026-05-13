@@ -1,7 +1,12 @@
 node_modules/
 dist/
+.mastra/
+**/.mastra/
 .DS_Store
 *.log
+*.db
+*.db-shm
+*.db-wal
 **/.svelte-kit
 # Vite
 vite.config.js.timestamp-*

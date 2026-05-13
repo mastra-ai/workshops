@@ -10,6 +10,7 @@ All decks are React modules served by [open-slide](https://github.com/vercel-lab
 | **Building Agents That Never Forget** | [`/s/om-workshop`](slides/om-workshop/) | Observational Memory + Harness Architecture. |
 | **Agent Harness** | [`/s/harness-workshop`](slides/harness-workshop/) | What it is, why it matters, and what it enables. |
 | **Guardrails and Beyond** | [`/s/processors-workshop`](slides/processors-workshop/) | Control the agent loop with Mastra Processors. |
+| **Mastra 101 Masterclass** | [`/s/mastra-101-masterclass`](slides/mastra-101-masterclass/) | End-to-end Mastra fundamentals with a support/refund follow-along. |
 
 ## Running
 
@@ -88,6 +89,7 @@ Existing decks expose their tokens as named exports (`palette`, `font`, atoms li
 | `examples/07-harness-workshop` | Agent harness workshop example |
 | `examples/08-multi-agent-networks` | Council + supervisor multi-agent demos |
 | `examples/09-browser-channels-workshop` | Browser + Channels workshop example |
+| `examples/10-mastra-101-masterclass` | Follow-along support/refund app for the Mastra 101 deck |
 
 Each example directory has its own `package.json`. Install and run individually — see each example's README for instructions.
 
