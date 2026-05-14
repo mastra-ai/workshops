@@ -56,25 +56,50 @@ const TOTAL = 32;
 
 const accentCycle = [palette.green, palette.blue, palette.amber, palette.purple, palette.rose, palette.cyan];
 
+const layers = [
+  { min: 1, max: 4, label: 'Mission', footer: 'LAYER 1 · MISSION AND MAP', accent: palette.green, wash: '#062312' },
+  { min: 5, max: 10, label: 'Agent', footer: 'LAYER 2 · FIRST USEFUL AGENT', accent: palette.blue, wash: '#07182c' },
+  { min: 11, max: 14, label: 'Tools', footer: 'LAYER 3 · SAFE HANDS', accent: palette.amber, wash: '#2a2108' },
+  { min: 15, max: 18, label: 'Context', footer: 'LAYER 4 · CONTEXT', accent: palette.purple, wash: '#1d1230' },
+  { min: 19, max: 23, label: 'Process', footer: 'LAYER 5 · BUSINESS PROCESS', accent: palette.rose, wash: '#301018' },
+  { min: 24, max: 32, label: 'Launch', footer: 'LAYER 6 · HARDENING AND LAUNCH', accent: palette.cyan, wash: '#062527' },
+];
+
+const layerForIndex = (index: number) => layers.find((layer) => index >= layer.min && index <= layer.max) ?? layers[0];
+
 const Stage = ({
   children,
   index,
-  section = 'MASTRA 101 MASTERCLASS',
+  section,
   padding = '112px 120px 120px',
 }: {
   children: React.ReactNode;
   index: number;
   section?: string;
   padding?: string;
-}) => (
-  <div style={{ ...fill, padding, display: 'flex', flexDirection: 'column' }}>
-    <Grid />
-    <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</div>
-    <Footer index={index} section={section} />
-  </div>
-);
+}) => {
+  const layer = layerForIndex(index);
 
-const Grid = () => (
+  return (
+    <div
+      style={{
+        ...fill,
+        padding,
+        display: 'flex',
+        flexDirection: 'column',
+        background:
+          `linear-gradient(120deg, ${layer.wash} 0%, ${palette.bg} 34%, ${palette.bg} 100%), ` +
+          `linear-gradient(90deg, ${layer.accent}18 0 1px, transparent 1px)`,
+      }}
+    >
+      <LayerFrame layer={layer} index={index} />
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</div>
+      <Footer index={index} section={section ?? layer.footer} accent={layer.accent} />
+    </div>
+  );
+};
+
+const Grid = ({ opacity = 0.25 }: { opacity?: number }) => (
   <div
     aria-hidden
     style={{
@@ -84,12 +109,85 @@ const Grid = () => (
         `linear-gradient(${palette.border} 1px, transparent 1px), ` +
         `linear-gradient(90deg, ${palette.border} 1px, transparent 1px)`,
       backgroundSize: '96px 96px',
-      opacity: 0.25,
+      opacity,
     }}
   />
 );
 
-const Footer = ({ index, section }: { index: number; section: string }) => (
+const LayerFrame = ({ layer, index }: { layer: (typeof layers)[number]; index: number }) => (
+  <>
+    <Grid opacity={0.18} />
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 20,
+        background: layer.accent,
+        boxShadow: `0 0 40px ${layer.accent}22`,
+      }}
+    />
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        left: 64,
+        top: 54,
+        bottom: 96,
+        width: 1,
+        background: `linear-gradient(${layer.accent}, transparent)`,
+        opacity: 0.5,
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        top: 48,
+        left: 120,
+        right: 120,
+        zIndex: 2,
+        display: 'grid',
+        gridTemplateColumns: `repeat(${layers.length}, 1fr)`,
+        gap: 10,
+      }}
+    >
+      {layers.map((item) => {
+        const active = item === layer;
+        const complete = index > item.max;
+        return (
+          <div
+            key={item.label}
+            style={{
+              height: 5,
+              borderRadius: 999,
+              background: active || complete ? item.accent : palette.surfaceHi2,
+              opacity: active ? 1 : complete ? 0.55 : 0.32,
+            }}
+          />
+        );
+      })}
+    </div>
+    <div
+      style={{
+        position: 'absolute',
+        top: 74,
+        right: 120,
+        zIndex: 2,
+        fontFamily: font.mono,
+        fontSize: 14,
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        color: layer.accent,
+      }}
+    >
+      {layer.label}
+    </div>
+  </>
+);
+
+const Footer = ({ index, section, accent = palette.accent }: { index: number; section: string; accent?: string }) => (
   <div
     style={{
       position: 'absolute',
@@ -105,7 +203,7 @@ const Footer = ({ index, section }: { index: number; section: string }) => (
       letterSpacing: '0.12em',
     }}
   >
-    <span>{section}</span>
+    <span style={{ color: `${accent}aa` }}>{section}</span>
     <span>
       {String(index).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}
     </span>
@@ -399,6 +497,270 @@ const Checklist = ({ items }: { items: { label: string; desc: string; accent?: s
   </div>
 );
 
+const LayerPath = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 14, flex: 1, alignItems: 'stretch' }}>
+    {[
+      ['01', 'Mission', 'Pick the support/refund problem and map each failure to a primitive.'],
+      ['02', 'Agent', 'Build the first useful loop with Studio, instructions, models, and streaming.'],
+      ['03', 'Tools', 'Give the agent narrow, typed hands and explicit integration boundaries.'],
+      ['04', 'Context', 'Add customer continuity, policy grounding, retrieval quality, and durable storage.'],
+      ['05', 'Process', 'Promote refund approval and business rules into inspectable workflow state.'],
+      ['06', 'Launch', 'Harden with processors, specialists, traces, evals, readiness, and interfaces.'],
+    ].map(([number, label, desc], index) => {
+      const layer = layers[index];
+      return (
+        <div
+          key={label}
+          style={{
+            minHeight: 560,
+            padding: '30px 24px',
+            borderRadius: 18,
+            border: `1px solid ${layer.accent}55`,
+            background: `linear-gradient(180deg, ${layer.wash}, ${palette.surface} 64%)`,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: font.mono,
+              fontSize: 58,
+              lineHeight: 1,
+              fontWeight: 900,
+              color: layer.accent,
+            }}
+          >
+            {number}
+          </div>
+          <div>
+            <div style={{ fontSize: 32, fontWeight: 850, color: palette.text, marginBottom: 14 }}>{label}</div>
+            <div style={{ fontSize: 20, lineHeight: 1.34, color: palette.textSoft }}>{desc}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
+
+const FailureMap = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+    {[
+      ['Unknown next step', 'Agent', 'Let the model choose the next move within a bounded role.', palette.green],
+      ['Needs to touch a system', 'Tool', 'Expose one typed capability with a visible side effect.', palette.blue],
+      ['User context should persist', 'Memory', 'Carry useful thread and profile state across turns.', palette.amber],
+      ['Answer depends on docs', 'RAG', 'Retrieve grounded policy or product knowledge at runtime.', palette.purple],
+      ['Rule must be repeatable', 'Workflow', 'Move approval paths and business process into explicit steps.', palette.rose],
+      ['Prompt should not enforce it', 'Processor', 'Make redaction, routing, validation, and retries runtime behavior.', palette.cyan],
+    ].map(([failure, primitive, desc, accent]) => (
+      <div
+        key={String(primitive)}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 92px 1fr',
+          gap: 18,
+          alignItems: 'center',
+          minHeight: 128,
+          padding: '18px 22px',
+          background: palette.surface,
+          border: `1px solid ${palette.border}`,
+          borderRadius: 14,
+        }}
+      >
+        <div style={{ fontSize: 23, lineHeight: 1.22, color: palette.textSoft }}>{failure}</div>
+        <div
+          style={{
+            height: 52,
+            borderRadius: 999,
+            border: `1px solid ${accent}66`,
+            color: accent,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: font.mono,
+            fontSize: 18,
+          }}
+        >
+          -&gt;
+        </div>
+        <div>
+          <div style={{ fontSize: 27, fontWeight: 850, color: accent as string, marginBottom: 5 }}>{primitive}</div>
+          <div style={{ fontSize: 19, lineHeight: 1.28, color: palette.textSoft }}>{desc}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const AgentLoopDiagram = () => (
+  <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'stretch' }}>
+    {[
+      ['01', 'Prompt', 'Instructions, runtime context, memory, tools, and user input become the model call.', palette.green],
+      ['02', 'Decide', 'The model answers, calls a tool, asks for structure, or continues reasoning.', palette.blue],
+      ['04', 'Stop', 'Final output, limits, approval gates, errors, or workflow control end the run.', palette.purple],
+      ['03', 'Act', 'Mastra validates tool inputs, executes, captures outputs, and feeds results back.', palette.amber],
+    ].map(([number, label, desc, accent]) => (
+      <div
+        key={String(label)}
+        style={{
+          minHeight: 230,
+          padding: '28px 30px',
+          background: palette.surface,
+          border: `1px solid ${accent}55`,
+          borderRadius: 18,
+          position: 'relative',
+        }}
+      >
+        <div style={{ fontFamily: font.mono, fontSize: 18, color: accent as string, marginBottom: 22 }}>{number}</div>
+        <div style={{ fontSize: 40, fontWeight: 850, color: palette.text, marginBottom: 12 }}>{label}</div>
+        <div style={{ fontSize: 22, lineHeight: 1.34, color: palette.textSoft }}>{desc}</div>
+      </div>
+    ))}
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 270,
+        height: 270,
+        borderRadius: '50%',
+        border: `2px solid ${palette.blue}66`,
+        background: '#050505',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        fontFamily: font.mono,
+        fontSize: 25,
+        color: palette.text,
+        boxShadow: `0 0 0 14px ${palette.bg}`,
+      }}
+    >
+      supportAgent
+      <br />
+      run()
+    </div>
+  </div>
+);
+
+const ContextMap = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 32, alignItems: 'stretch' }}>
+    <div style={{ display: 'grid', gap: 16 }}>
+      {[
+        ['Conversation layer', 'Thread history, working memory, semantic recall.', palette.green],
+        ['Knowledge layer', 'Policy docs, order records, tickets, product documentation.', palette.purple],
+        ['Request layer', 'Tenant, role, limits, feature flags, locale, auth state.', palette.rose],
+        ['Runtime layer', 'Processor metadata, redactions, route decisions, trace labels.', palette.cyan],
+      ].map(([label, desc, accent]) => (
+        <div
+          key={String(label)}
+          style={{
+            padding: '24px 28px',
+            borderRadius: 16,
+            border: `1px solid ${accent}55`,
+            background: `linear-gradient(90deg, ${accent}1f, ${palette.surface})`,
+          }}
+        >
+          <div style={{ fontSize: 31, fontWeight: 850, color: palette.text, marginBottom: 7 }}>{label}</div>
+          <div style={{ fontSize: 22, color: palette.textSoft, lineHeight: 1.34 }}>{desc}</div>
+        </div>
+      ))}
+    </div>
+    <div
+      style={{
+        borderRadius: 18,
+        border: `1px solid ${palette.borderBright}`,
+        background: '#050505',
+        padding: '32px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      <MiniLabel color={palette.purple}>Context Rule</MiniLabel>
+      <div style={{ fontSize: 42, lineHeight: 1.08, fontWeight: 850, color: palette.text, marginBottom: 22 }}>
+        Do not build one giant prompt bucket.
+      </div>
+      <div style={{ fontSize: 25, lineHeight: 1.36, color: palette.textSoft }}>
+        Facts need homes. The right home depends on lifetime, authority, freshness, and who is allowed to change it.
+      </div>
+    </div>
+  </div>
+);
+
+const WorkflowGraph = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 18, alignItems: 'center' }}>
+    {[
+      ['Classify', 'What kind of request is this?', palette.green],
+      ['Gather', 'Orders, docs, memory, permissions.', palette.blue],
+      ['Draft', 'Agent proposes answer or action.', palette.amber],
+      ['Review', 'Scorer, processor, or human gate.', palette.purple],
+      ['Commit', 'Write, send, update, and trace.', palette.rose],
+    ].map(([label, desc, accent], index) => (
+      <div key={String(label)} style={{ display: 'flex', gap: 18 }}>
+        <div
+          style={{
+            minHeight: 260,
+            flex: 1,
+            padding: '28px 24px',
+            borderRadius: 18,
+            background: index === 3 ? `${palette.surfaceHi}` : palette.surface,
+            border: `1px solid ${accent}66`,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ fontFamily: font.mono, color: accent as string, fontSize: 18 }}>
+            {String(index + 1).padStart(2, '0')}
+          </div>
+          <div>
+            <div style={{ fontSize: 32, fontWeight: 850, color: palette.text, marginBottom: 12 }}>{label}</div>
+            <div style={{ fontSize: 21, lineHeight: 1.32, color: palette.textSoft }}>{desc}</div>
+          </div>
+        </div>
+        {index < 4 && <div style={{ alignSelf: 'center', color: palette.muted, fontSize: 30 }}>-&gt;</div>}
+      </div>
+    ))}
+  </div>
+);
+
+const OpsDashboard = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 26, alignItems: 'stretch' }}>
+    <div
+      style={{
+        background: '#050505',
+        border: `1px solid ${palette.borderBright}`,
+        borderRadius: 18,
+        padding: '28px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: 18,
+      }}
+    >
+      {[
+        ['Trace health', '99.2%', palette.green],
+        ['Grounding score', '0.87', palette.blue],
+        ['Approval waits', '14', palette.amber],
+        ['P95 latency', '3.8s', palette.rose],
+      ].map(([label, value, accent]) => (
+        <div key={String(label)} style={{ background: palette.surface, borderRadius: 14, padding: '24px' }}>
+          <div style={{ fontFamily: font.mono, fontSize: 15, color: accent as string, marginBottom: 20 }}>{label}</div>
+          <div style={{ fontSize: 58, fontWeight: 900, color: palette.text }}>{value}</div>
+        </div>
+      ))}
+    </div>
+    <Checklist
+      items={[
+        { label: 'Trace the path', desc: 'Prompt, context, tool input, output, score, cost.', accent: palette.green },
+        { label: 'Promote failures', desc: 'Turn real incidents into regression cases.', accent: palette.amber },
+        { label: 'Gate releases', desc: 'Block rollout when quality drops below threshold.', accent: palette.rose },
+      ]}
+    />
+  </div>
+);
+
 const Cover: Page = () => (
   <div style={{ ...fill, padding: '0 120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
     <Grid />
@@ -430,11 +792,11 @@ const Cover: Page = () => (
         that <span style={{ color: palette.accent }}>ship.</span>
       </h1>
       <Subtitle maxWidth={1320}>
-        A practical tour of Mastra's TypeScript primitives: agents, tools, memory, workflows, guardrails,
-        observability, and deployment.
+        Turn one support and refund agent from a working prototype into production software: tools, context, workflows,
+        guardrails, evaluation, and deployment.
       </Subtitle>
       <div style={{ marginTop: 56, display: 'flex', gap: 22, maxWidth: 1420 }}>
-        {['Understand the primitives', 'Compose reliable systems', 'Operate in production'].map((label, index) => (
+        {['Build the first agent', 'Add context and control', 'Operate in production'].map((label, index) => (
           <div
             key={label}
             style={{
@@ -460,24 +822,15 @@ const Cover: Page = () => (
 
 const RunOfShow: Page = () => (
   <Stage index={2}>
-    <Eyebrow>00 / Agenda</Eyebrow>
-    <Title>This is a masterclass, not a lightning tour.</Title>
-    <Timeline
-      items={[
-        { phase: 'Part 1', label: 'Frame the system', desc: 'What Mastra is, what it replaces, and the mental model for the rest of the session.', accent: palette.green },
-        { phase: 'Part 2', label: 'Build the core agent', desc: 'Project anatomy, agent contract, model routing, streaming, tools, and MCP.', accent: palette.blue },
-        { phase: 'Part 3', label: 'Add state and orchestration', desc: 'Memory, RAG, workflows, snapshots, suspend/resume, and human review.', accent: palette.amber },
-        { phase: 'Part 4', label: 'Scale the architecture', desc: 'Runtime context, auth, multi-agent networks, processors, and guardrails.', accent: palette.purple },
-        { phase: 'Part 5', label: 'Operate it', desc: 'Observability, scorers, interfaces, deployment, and production readiness.', accent: palette.rose },
-        { phase: 'Part 6', label: 'Wrap and questions', desc: 'Recap the build path and open the floor for discussion.', accent: palette.cyan },
-      ]}
-    />
+    <Eyebrow>00 / Build path</Eyebrow>
+    <Title>We build the agent in production layers.</Title>
+    <LayerPath />
   </Stage>
 );
 
 const MentalModel: Page = () => (
   <Stage index={3}>
-    <Eyebrow>01 / Mental model</Eyebrow>
+    <Eyebrow>01 / Production mental model</Eyebrow>
     <Split
       left={
         <>
@@ -507,17 +860,7 @@ const DecisionMap: Page = () => (
   <Stage index={4}>
     <Eyebrow>01b / Choosing primitives</Eyebrow>
     <Title>Mastra is easier when every primitive has a job.</Title>
-    <CapabilityGrid
-      columns={2}
-      items={[
-        { label: 'Agent', desc: 'Use when the steps are unknown and the model should decide what to do next.', accent: palette.green },
-        { label: 'Tool', desc: 'Use when an agent or workflow needs a typed capability with side effects.', accent: palette.blue },
-        { label: 'Memory', desc: 'Use when the app must remember user, thread, or session state across turns.', accent: palette.amber },
-        { label: 'RAG', desc: 'Use when the answer depends on external knowledge that should be retrieved at runtime.', accent: palette.purple },
-        { label: 'Workflow', desc: 'Use when the path must be repeatable, auditable, resumable, or partly deterministic.', accent: palette.rose },
-        { label: 'Processor', desc: 'Use when prompt text should not be responsible for validation, redaction, routing, or retries.', accent: palette.cyan },
-      ]}
-    />
+    <FailureMap />
   </Stage>
 );
 
@@ -549,8 +892,8 @@ const ProjectAnatomy: Page = () => (
 );
 
 const Agents: Page = () => (
-  <Stage index={6}>
-    <Eyebrow>03 / Agents</Eyebrow>
+  <Stage index={7}>
+    <Eyebrow>03 / First working agent</Eyebrow>
     <Split
       left={
         <>
@@ -588,31 +931,15 @@ export const supportAgent = new Agent({
 );
 
 const AgentLoop: Page = () => (
-  <Stage index={7}>
+  <Stage index={8}>
     <Eyebrow>03b / The agent loop</Eyebrow>
     <Title>An agent run is a loop with observable state.</Title>
-    <Pipeline
-      items={[
-        { label: 'Prompt', desc: 'Instructions, runtime context, memory, tools, and user input become the model call.', accent: palette.green },
-        { label: 'Decide', desc: 'The model either answers, calls a tool, asks for structure, or continues reasoning.', accent: palette.blue },
-        { label: 'Act', desc: 'Mastra validates tool inputs, executes, captures outputs, and feeds results back.', accent: palette.amber },
-        { label: 'Stop', desc: 'The run ends on final output, configured limits, approval gates, errors, or workflow control.', accent: palette.purple },
-      ]}
-    />
-    <div style={{ marginTop: 44 }}>
-      <Checklist
-        items={[
-          { label: 'What can it do?', desc: 'Tools and MCP define the reachable world.' },
-          { label: 'What does it know?', desc: 'Instructions, memory, runtime context, and retrieval define context.' },
-          { label: 'How do we trust it?', desc: 'Schemas, processors, approvals, traces, and scorers define control.' },
-        ]}
-      />
-    </div>
+    <AgentLoopDiagram />
   </Stage>
 );
 
 const ModelsAndStreaming: Page = () => (
-  <Stage index={8}>
+  <Stage index={10}>
     <Eyebrow>04 / Models and streaming</Eyebrow>
     <Title>Models should be swappable, but behavior should stay typed.</Title>
     <CapabilityGrid
@@ -637,7 +964,7 @@ const ModelsAndStreaming: Page = () => (
 );
 
 const ToolsAndMcp: Page = () => (
-  <Stage index={9}>
+  <Stage index={11}>
     <Eyebrow>05 / Tools and MCP</Eyebrow>
     <Split
       left={
@@ -673,7 +1000,7 @@ const ToolsAndMcp: Page = () => (
 );
 
 const ToolDesign: Page = () => (
-  <Stage index={10}>
+  <Stage index={12}>
     <Eyebrow>05b / Tool design</Eyebrow>
     <Title>A good tool is boring, narrow, and easy to audit.</Title>
     <Row>
@@ -702,7 +1029,7 @@ refundWorkflow
 );
 
 const CheckpointOne: Page = () => (
-  <Stage index={11}>
+  <Stage index={14}>
     <Eyebrow>Checkpoint 1</Eyebrow>
     <Title>Design the first agent before writing code.</Title>
     <Split
@@ -731,7 +1058,7 @@ memory item, and RAG source?"`}</Code>
 );
 
 const MemoryAndRag: Page = () => (
-  <Stage index={12}>
+  <Stage index={15}>
     <Eyebrow>06 / Memory and RAG</Eyebrow>
     <Title>Agents need context, knowledge, and durable state.</Title>
     <Row>
@@ -762,25 +1089,15 @@ const MemoryAndRag: Page = () => (
 );
 
 const MemoryPatterns: Page = () => (
-  <Stage index={13}>
+  <Stage index={16}>
     <Eyebrow>06b / Context architecture</Eyebrow>
     <Title>Do not put every fact in the same bucket.</Title>
-    <CapabilityGrid
-      columns={2}
-      items={[
-        { label: 'Thread history', desc: 'What happened in this conversation and what the user already said.', accent: palette.green },
-        { label: 'Working memory', desc: 'Durable profile facts, preferences, and current task state.', accent: palette.blue },
-        { label: 'Semantic recall', desc: 'Relevant past messages retrieved by meaning, not just recency.', accent: palette.amber },
-        { label: 'Knowledge base', desc: 'External docs, tickets, policies, code, records, and files retrieved through RAG.', accent: palette.purple },
-        { label: 'Runtime context', desc: 'Request-specific identity, permissions, tenant, plan, locale, and feature flags.', accent: palette.rose },
-        { label: 'Processor output', desc: 'Redactions, context trimming, metadata, route decisions, and validation state.', accent: palette.cyan },
-      ]}
-    />
+    <ContextMap />
   </Stage>
 );
 
 const Workflows: Page = () => (
-  <Stage index={14}>
+  <Stage index={19}>
     <Eyebrow>07 / Workflows</Eyebrow>
     <Split
       left={
@@ -810,18 +1127,10 @@ const Workflows: Page = () => (
 );
 
 const WorkflowRunbook: Page = () => (
-  <Stage index={15}>
+  <Stage index={20}>
     <Eyebrow>07b / Workflow runbook</Eyebrow>
     <Title>Promote brittle prompt steps into workflow steps.</Title>
-    <Pipeline
-      items={[
-        { label: 'Classify', desc: 'Deterministic code or a small model labels request type and required policy.', accent: palette.green },
-        { label: 'Gather', desc: 'Tools retrieve orders, docs, memory, permissions, and account state.', accent: palette.blue },
-        { label: 'Draft', desc: 'Agent proposes an answer or action from bounded context.', accent: palette.amber },
-        { label: 'Review', desc: 'Scorer, processor, or human checks risk before commit.', accent: palette.purple },
-        { label: 'Commit', desc: 'Tool writes data, sends message, updates ticket, and logs trace metadata.', accent: palette.rose },
-      ]}
-    />
+    <WorkflowGraph />
     <div style={{ marginTop: 44 }}>
       <Code>{`Good workflow boundary:
 "The user asked for a refund" is agentic.
@@ -831,7 +1140,7 @@ const WorkflowRunbook: Page = () => (
 );
 
 const HumanInLoop: Page = () => (
-  <Stage index={16}>
+  <Stage index={22}>
     <Eyebrow>08 / Context, auth, and approvals</Eyebrow>
     <Title>Production agents need per-request authority.</Title>
     <Row>
@@ -856,7 +1165,7 @@ if (refund.amount > runtimeContext.get('autoRefundLimit')) {
 );
 
 const CheckpointTwo: Page = () => (
-  <Stage index={17}>
+  <Stage index={23}>
     <Eyebrow>Checkpoint 2</Eyebrow>
     <Title>For risky actions, split recommendation from authority.</Title>
     <Split
@@ -882,8 +1191,8 @@ const CheckpointTwo: Page = () => (
 );
 
 const Networks: Page = () => (
-  <Stage index={18}>
-    <Eyebrow>09 / Multi-agent systems</Eyebrow>
+  <Stage index={26}>
+    <Eyebrow>10 / Multi-agent systems</Eyebrow>
     <Split
       left={
         <>
@@ -909,8 +1218,8 @@ const Networks: Page = () => (
 );
 
 const Guardrails: Page = () => (
-  <Stage index={19}>
-    <Eyebrow>10 / Processors and guardrails</Eyebrow>
+  <Stage index={24}>
+    <Eyebrow>09 / Processors and guardrails</Eyebrow>
     <Title>Do not ask prompts to do infrastructure work.</Title>
     <Pipeline
       items={[
@@ -932,37 +1241,15 @@ const Guardrails: Page = () => (
 );
 
 const Observability: Page = () => (
-  <Stage index={20}>
+  <Stage index={27}>
     <Eyebrow>11 / Observability and scorers</Eyebrow>
-    <Split
-      left={
-        <>
-          <Title>Agent quality is a production signal.</Title>
-          <Subtitle>
-            Mastra captures the path, not only the final text: model calls, prompts, completions, tool calls, memory
-            operations, tokens, latency, cost, errors, and scorer results.
-          </Subtitle>
-        </>
-      }
-      right={
-        <CapabilityGrid
-          columns={2}
-          items={[
-            { label: 'Logs', desc: 'Persistent run records for agents and workflows.', accent: palette.green },
-            { label: 'Tracing', desc: 'Decision paths, spans, timing, inputs, and outputs.', accent: palette.blue },
-            { label: 'OTel export', desc: 'Send telemetry to OpenTelemetry-compatible platforms.', accent: palette.amber },
-            { label: 'Scorers', desc: 'Run model-graded, rule-based, or statistical checks asynchronously.', accent: palette.purple },
-            { label: 'Datasets', desc: 'Turn traces and examples into repeatable quality tests.', accent: palette.rose },
-            { label: 'CI', desc: 'Catch regressions before deploy instead of reading logs after.', accent: palette.cyan },
-          ]}
-        />
-      }
-    />
+    <Title>Agent quality is a production signal.</Title>
+    <OpsDashboard />
   </Stage>
 );
 
 const EvaluationLoop: Page = () => (
-  <Stage index={21}>
+  <Stage index={28}>
     <Eyebrow>11b / Evaluation loop</Eyebrow>
     <Title>Turn production traces into regression tests.</Title>
     <Pipeline
@@ -986,8 +1273,8 @@ const EvaluationLoop: Page = () => (
 );
 
 const Interfaces: Page = () => (
-  <Stage index={22}>
-    <Eyebrow>12 / Interfaces and modalities</Eyebrow>
+  <Stage index={31}>
+    <Eyebrow>14 / Interfaces and modalities</Eyebrow>
     <Title>Mastra apps can meet users where the work happens.</Title>
     <CapabilityGrid
       items={[
@@ -1003,7 +1290,7 @@ const Interfaces: Page = () => (
 );
 
 const Deployment: Page = () => (
-  <Stage index={23}>
+  <Stage index={30}>
     <Eyebrow>13 / Deployment</Eyebrow>
     <Split
       left={
@@ -1031,8 +1318,8 @@ const Deployment: Page = () => (
 );
 
 const SetupDeepDive: Page = () => (
-  <Stage index={24}>
-    <Eyebrow>Deep dive / Setup and Studio</Eyebrow>
+  <Stage index={6}>
+    <Eyebrow>02b / Setup and Studio</Eyebrow>
     <Title>Start with the fastest loop: code, Studio, trace, repeat.</Title>
     <Split
       left={
@@ -1063,8 +1350,8 @@ export const mastra = new Mastra({
 );
 
 const InstructionDesign: Page = () => (
-  <Stage index={25}>
-    <Eyebrow>Deep dive / Instructions and output</Eyebrow>
+  <Stage index={9}>
+    <Eyebrow>03c / Instructions and output</Eyebrow>
     <Title>Instructions define behavior; schemas define contracts.</Title>
     <Row>
       <Card label="Role" title="What job does it own?" accent={palette.green} minHeight={240}>
@@ -1091,8 +1378,8 @@ const InstructionDesign: Page = () => (
 );
 
 const McpDeepDive: Page = () => (
-  <Stage index={26}>
-    <Eyebrow>Deep dive / MCP architecture</Eyebrow>
+  <Stage index={13}>
+    <Eyebrow>05c / MCP architecture</Eyebrow>
     <Title>MCP lets your agent runtime plug into other runtimes.</Title>
     <CapabilityGrid
       columns={2}
@@ -1117,8 +1404,8 @@ const McpDeepDive: Page = () => (
 );
 
 const RagQuality: Page = () => (
-  <Stage index={27}>
-    <Eyebrow>Deep dive / Retrieval quality</Eyebrow>
+  <Stage index={17}>
+    <Eyebrow>06c / Retrieval quality</Eyebrow>
     <Title>RAG quality is mostly won before the model answers.</Title>
     <CapabilityGrid
       columns={2}
@@ -1135,8 +1422,8 @@ const RagQuality: Page = () => (
 );
 
 const StorageDeepDive: Page = () => (
-  <Stage index={28}>
-    <Eyebrow>Deep dive / Storage choices</Eyebrow>
+  <Stage index={18}>
+    <Eyebrow>06d / Storage choices</Eyebrow>
     <Title>Choose storage by lifetime, query pattern, and blast radius.</Title>
     <Row>
       <Card label="Local prototype" title="LibSQL or file-backed state" accent={palette.green} minHeight={270}>
@@ -1160,8 +1447,8 @@ traces need auditability.`}</Code>
 );
 
 const WorkflowImplementation: Page = () => (
-  <Stage index={29}>
-    <Eyebrow>Deep dive / Workflow implementation</Eyebrow>
+  <Stage index={21}>
+    <Eyebrow>07c / Workflow implementation</Eyebrow>
     <Title>Workflow steps should be typed, named, and inspectable.</Title>
     <Split
       left={
@@ -1193,8 +1480,8 @@ const WorkflowImplementation: Page = () => (
 );
 
 const ProcessorExamples: Page = () => (
-  <Stage index={30}>
-    <Eyebrow>Deep dive / Processor examples</Eyebrow>
+  <Stage index={25}>
+    <Eyebrow>09b / Processor examples</Eyebrow>
     <Title>Processors make policy visible in the runtime.</Title>
     <Pipeline
       items={[
@@ -1218,8 +1505,8 @@ const ProcessorExamples: Page = () => (
 );
 
 const ProductionReadiness: Page = () => (
-  <Stage index={31}>
-    <Eyebrow>Deep dive / Production readiness</Eyebrow>
+  <Stage index={29}>
+    <Eyebrow>12 / Production readiness</Eyebrow>
     <Title>Before launch, make every failure mode observable or bounded.</Title>
     <CapabilityGrid
       columns={2}
@@ -1237,17 +1524,17 @@ const ProductionReadiness: Page = () => (
 
 const MasterclassFlow: Page = () => (
   <Stage index={32}>
-    <Eyebrow>14 / The masterclass build</Eyebrow>
-    <Title>By the end, the system should look like production software.</Title>
+    <Eyebrow>15 / Recap</Eyebrow>
+    <Title>The production path is the takeaway.</Title>
     <CapabilityGrid
       columns={2}
       items={[
-        { label: '1. Start with one agent', desc: 'Instructions, model, typed tools, and streaming response.' },
-        { label: '2. Add memory and retrieval', desc: 'Persistent user context plus grounded external knowledge.' },
-        { label: '3. Promote process into workflows', desc: 'Explicit steps for approvals, branching, retries, and replay.' },
-        { label: '4. Add specialists', desc: 'Supervisor and reviewer agents when one prompt becomes too broad.' },
-        { label: '5. Harden the loop', desc: 'Processors, auth, runtime context, guardrails, and human-in-the-loop gates.' },
-        { label: '6. Operate it', desc: 'Studio, traces, scorers, deployment, and a regression suite.' },
+        { label: '1. Build the first agent', desc: 'Project, Studio, instructions, model, streaming, and structured output.' },
+        { label: '2. Give it safe tools', desc: 'Narrow capabilities, typed schemas, MCP boundaries, and auditable side effects.' },
+        { label: '3. Add context', desc: 'Memory, RAG, retrieval quality, and storage matched to lifetime and risk.' },
+        { label: '4. Promote process', desc: 'Explicit workflow steps for approval, branching, suspension, replay, and commit.' },
+        { label: '5. Harden the runtime', desc: 'Runtime authority, human review, processors, guardrails, and specialists when needed.' },
+        { label: '6. Operate and ship', desc: 'Traces, scorers, regression datasets, readiness checks, deployment, and interfaces.' },
       ]}
     />
     <div style={{ marginTop: 48, display: 'flex', gap: 28, fontFamily: font.mono, fontSize: 22 }}>
@@ -1270,100 +1557,100 @@ export const meta: SlideMeta = {
 // ════════════════════════════════════════════════════════════════════════════
 export const notes: (string | undefined)[] = [
   // 01 Cover
-  `Welcome. This is Mastra 101, but the goal is not to memorize a catalog of APIs. The goal is to leave with a mental model for building an agent application that can actually ship. The three promises on the slide are the arc: understand the primitives, compose reliable systems, and operate them in production. We'll keep coming back to examples/10-mastra-101-masterclass, a TechMart support and refund system, because production agents are not just model responses. They are tools, memory, workflows, guardrails, observability, and deployment wrapped around a model.`,
+  `Open with the concrete build: one support and refund agent that starts useful, then gets hardened until it looks like production software. Say that the session is not a tour of every API surface. The throughline is a common product problem: a customer asks about an order, then asks for a refund, and the system has to answer helpfully without losing policy, authority, or auditability. Set expectations that every layer appears because the prototype runs into a limitation. Transition: first we need a map for deciding which Mastra primitive solves which kind of problem.`,
 
   // 02 Run of show
-  `Here's the path for the session. Part one frames the system: what Mastra is, what it replaces, and the mental model. Part two builds the core agent: project anatomy, the agent contract, model routing, streaming, tools, and MCP. Part three adds state and orchestration: memory, RAG, workflows, snapshots, suspend and resume, and human review. Part four scales the architecture with runtime context, auth, multi-agent networks, processors, and guardrails. Part five is operating it with observability, scorers, interfaces, deployment, and production readiness. Then we wrap and take questions. The checkpoints are placed before the answers because decomposition is the real skill.`,
+  `Use this as the contract for the room. Walk left to right, but do not explain every later section in detail yet. The important promise is that we will not jump randomly between primitives: we start with a working agent, then add safe actions, then context, then business process, then production hardening. A useful phrase: "At each layer, the question is what broke or became risky in the previous layer." Transition: before writing the agent, define the mental model for what Mastra owns around the model.`,
 
   // 03 Mental model
-  `The simplest way to think about Mastra is this: the model reasons, but the application still has work to do. Reason means models generate, stream, call tools, and produce structured output. Act means tools, MCP, browsers, voice, and custom integrations touch the outside world. Remember means memory, storage, semantic recall, and RAG keep context available. Control means workflows, processors, auth, approvals, and runtime context shape execution. Operate means Studio, logs, traces, scorers, and deployment close the production loop. In the example project, supportAgent reasons, order and policy tools act, Memory plus LibSQL remember, refundWorkflow controls, and observability plus scorers operate it.`,
+  `Establish the core claim before naming too many APIs: the model reasons, but the application owns the production guarantees. Use the refund agent as the example. The model can draft a response like "you may be eligible for a refund," but Mastra controls which order data can be read, which tools can run, whether the requester has authority, whether the policy was retrieved, whether approval is required, and what trace is captured. Emphasize that this split prevents prompt text from becoming the entire application architecture. Transition: with that model in mind, map common failures to the primitive that should own them.`,
 
   // 04 Decision map
-  `The fastest way to get confused with agent frameworks is to use every primitive for every job. Give each primitive a clear job. Use an agent when the steps are unknown and the model should decide what to do next. Use a tool when an agent or workflow needs a typed capability with side effects. Use memory when user, thread, or session state must survive across turns. Use RAG when the answer depends on external knowledge retrieved at runtime. Use a workflow when the path must be repeatable, auditable, resumable, or partly deterministic. Use a processor when prompt text should not be responsible for validation, redaction, routing, or retries. In the support example, supportAgent answers and drafts, order-tools.ts wraps side effects, memory tracks the customer, policy-tools.ts handles retrieval, refund-workflow.ts controls submission, and processors enforce PII and response metadata.`,
+  `Frame this as a diagnostic, not a glossary. Ask the audience to imagine the support bot gave a bad refund answer. Was the issue that the model did not reason well, that it lacked an order lookup tool, that it forgot prior customer context, that it retrieved the wrong policy, that the approval path was not deterministic, or that redaction and validation were missing? Each answer points to a different primitive. The main point: if every failure becomes "tune the prompt," the system will become fragile. Transition: now that we know what each primitive is for, put them in a project shape people can navigate.`,
 
   // 05 Project anatomy
-  `This is the shape of a Mastra application. src/mastra is the composition boundary: it is where the runtime learns what it can serve and observe. The entry point, index.ts, calls new Mastra() and wires agents, workflows, storage, vectors, loggers, telemetry, and server behavior. The modules stay separate: agents hold instructions and models, tools wrap typed side effects, workflows define controlled processes, processors are input and output control points, and scorers are quality checks. Studio is the fast feedback loop: test prompts, inspect tool calls, run workflows, and iterate before building the UI. examples/10-mastra-101-masterclass follows this exact tree.`,
+  `Make the file tree part of the story. A production agent project needs clear places for behavior, side effects, workflow state, policy checks, and evals. Point out that src/mastra is the runtime boundary: it is where the app declares what agents, workflows, tools, processors, storage, and scorers exist. This matters for maintenance because a teammate should know where to look when a refund was drafted, blocked, approved, or scored. Transition: once the project has shape, we want the shortest feedback loop for trying the first agent.`,
 
-  // 06 Agents
-  `Use agents when the path is open-ended. An agent owns the goal, instructions, model, tools, memory, processors, scorers, and stop conditions. The slide shows the shape: id, name, instructions, model, tools, memory, and scorers. Agents can generate a full response, stream tokens and events while tools are resolving, or return structured output when the app needs data instead of prose. In examples/10-mastra-101-masterclass, support-agent.ts uses openai/gpt-5.2, lookupOrder, searchPolicyKnowledgeBase, draftRefund, updateTicketStatus, Memory, PIIRedactor, SupportResponseFooter, and two scorers. It can draft a refund, but it cannot submit money movement directly.`,
+  // 06 Setup deep dive
+  `Move from concept to feedback loop. The key message is that Studio lets you test the agent and workflow before a product UI exists, which keeps debugging close to the runtime. If demoing, open the example project and show the composition root: supportAgent, refundWorkflow, storage, logger, telemetry, and scorers are registered in one place. Call out that boring registration code is a feature. It makes the system inspectable. Transition: with the runtime registered, build the first useful agent.`,
 
-  // 07 Agent loop
-  `Every run is a loop with observable state. Prompt means instructions, runtime context, memory, tools, retrieval, and user input become the model call. Decide means the model either answers, calls a tool, asks for structured output, or continues reasoning. Act means Mastra validates tool inputs, executes, captures outputs, and feeds results back. Stop means final output, configured limits, approval gates, errors, or workflow control end the run. The three questions are the production checklist: what can it do, what does it know, and how do we trust it? In supportAgent, maxSteps is 8, tools define the reachable world, memory and policy retrieval define context, and schemas, processors, approvals, traces, and scorers define control.`,
+  // 07 Agents
+  `Emphasize ownership. An agent should have a job description narrow enough that you could hand it to a person and evaluate the result. In this example, the support agent owns understanding the request, asking for missing information, looking up relevant context through tools, and drafting a clear customer response. It does not own final money movement. That boundary is important because it lets the agent be helpful while keeping authority elsewhere. Transition: once you define the agent, explain the loop it runs every time a user asks for help.`,
 
-  // 08 Models and streaming
-  `Model choice should be swappable, while behavior stays typed. Model router means you reference provider/name and can change models without rewriting agent code. Provider breadth means the same app shape can use OpenAI, Anthropic, Google, Groq, Mistral, xAI, local providers, and more. Streaming events matter because the UI can show text, tool calls, workflow progress, and custom UI events while work is still resolving. Runtime context injects user, tenant, plan, auth, locale, or feature flags per request; the code sample shows tenantId and role. Cost control is routing simple steps to smaller models and saving larger models for hard reasoning. Fallback patterns keep the app stable while you experiment with model quality. In the example, supportAgent pins a default model, while refundWorkflow takes requesterRole and autoRefundLimitCents as runtime authority instead of burying those rules in a prompt.`,
+  // 08 Agent loop
+  `Make the loop tangible. Walk the cycle as a debugger would: what prompt and context were assembled, what decision the model made, what tool was called, what came back, and why the run stopped. Ask the audience: "If this agent tells a customer the wrong refund policy, where would you look first?" Good answers include retrieved context, tool output, instructions, stop conditions, or trace. This slide gives the debug handles for the rest of the talk. Transition: the loop is only as good as the job and output contract we give it.`,
 
-  // 09 Tools and MCP
-  `Tools are the boundary between reasoning and action. Describe means give the model a precise capability and when to use it. Validate means use Zod schemas to constrain inputs before side effects run. Execute means the tool can call APIs, databases, browsers, filesystems, or internal services. Observe means trace arguments, results, latency, errors, and approvals. MCP adds interoperability: MCPClient pulls tools, resources, and prompts from existing MCP servers, while MCPServer exposes Mastra tools, workflows, and agents to external clients. In the example project, order-tools.ts implements lookup_order, draft_refund, and update_ticket_status; policy-tools.ts implements search_policy_knowledge_base with input and output schemas.`,
+  // 09 Instruction design
+  `This is where the first agent becomes reliable enough to exercise. Explain the split: instructions shape behavior, while schemas shape contracts for downstream code. A useful heuristic: every instruction should either define the role, set a boundary, or describe the output shape. Use the refund agent example: "draft but do not submit refunds" can start as an instruction, but if the business depends on it, we will later enforce it with tool boundaries and workflow approval. Transition: after the behavior is defined, we choose how the model runs and how the user sees progress.`,
 
-  // 10 Tool design
-  `Tool design is where a lot of production quality comes from. doEverything is bad because broad tools hide intent, make traces useless, increase blast radius, and force the model to invent implicit arguments. Better is one verb and one resource: lookupOrder, draftRefund, sendApprovalRequest, updateTicketStatus. The project uses that better pattern for draftRefund. The best example is the repo boundary shown here: supportAgent.tools includes draftRefund, but it does not include approvalGateAndCommit or submitRefund. refundWorkflow chains gatherContext, draftRefundDecision, and approvalGateAndCommit. That final step checks policy and approval state, then either submits the refund or leaves the ticket waiting on approval.`,
+  // 10 Models and streaming
+  `Separate model choice from request authority. Model routing is an engineering choice: which provider and model should handle this kind of work. Runtime context is a business-context choice: who is asking, what tenant they belong to, what role they have, and what limits apply. Streaming is not just polish. For support work, it lets the UI show that the agent is looking up an order, searching policy, drafting a response, or waiting for approval. Transition: the agent can now reason and respond, but it still cannot safely touch real systems without tools.`,
 
-  // 11 Checkpoint one
-  `Let's classify the support system before we look at the full implementation. Name the job: the support agent owns resolving customer issues clearly. List allowed actions: read orders, draft refunds, update tickets, and answer policy questions; side effects like money movement need approval. Choose context sources: prompt context handles the immediate request, memory handles customer continuity, RAG handles policy docs, and runtime context handles authority. Define the first score: what would make the response clearly good or clearly wrong? In the example project, that maps to supportCompletenessScorer and policyGroundingScorer.`,
+  // 11 Tools and MCP
+  `Now the agent needs hands. Tools are where trust becomes concrete: the description tells the model when to use the capability, the schema limits arguments, the executor touches a system, and tracing records what happened. In the refund example, useful tools are things like lookupOrder, searchPolicyKnowledgeBase, draftRefund, and updateTicketStatus. MCP expands the set of systems the agent can reach, but reach is not the same as permission. More reach makes validation, scoping, and auditability more important. Transition: next, show why tool design matters as much as having tools at all.`,
 
-  // 12 Memory and RAG
-  `Agents need three related pieces: context, knowledge, and durable state. Memory is conversation state: threads, resources, working memory, conversation history, semantic recall, and memory processors keep user context available across turns and sessions. RAG is knowledge retrieval: ingest docs, HTML, markdown, JSON, PDFs, or domain records; index by chunking, embedding, metadata, and vector upsert; retrieve with query, filters, hybrid search, reranking, and compression; then answer with grounding and faithfulness scoring. Storage is the durable backend: LibSQL, Postgres, Upstash, DynamoDB, Cloudflare stores, plus vector backends like PgVector, Pinecone, Qdrant, Chroma, and MongoDB. The example uses LibSQLStore and LibSQLVector, working memory on supportAgent, and search_policy_knowledge_base over local policyDocuments.`,
+  // 12 Tool design
+  `Use a quick contrast: "doEverything" or "sendRefund" sounds convenient until someone asks why it fired. Narrow tools give you readable traces and defensible permissions. Encourage the audience to look for one verb and one resource. lookupOrder is clear. draftRefund is clear. approvalGateAndCommit belongs in a workflow because it combines policy, authority, and side effects. The pattern is: the supportAgent can draft, but refundWorkflow decides whether anything is committed. Transition: after local tools, discuss how MCP fits without dissolving trust boundaries.`,
 
-  // 13 Memory patterns
-  `Do not put every fact in the same bucket. Thread history is what happened in this conversation and what the user already said. Working memory is durable profile facts, preferences, and current task state. Semantic recall retrieves relevant past messages by meaning, not just recency. The knowledge base is external docs, tickets, policies, code, records, and files retrieved through RAG. Runtime context carries identity, permissions, tenant, plan, locale, and feature flags for this request. Processor output carries redactions, context trimming, metadata, route decisions, and validation state. In support-agent.ts, lastMessages is 12, working memory has a support template, semantic recall turns on when OPENAI_API_KEY is present, and PIIRedactor output is part of the context story.`,
+  // 13 MCP deep dive
+  `Position MCP as a connector layer, not a permission model. MCP helps you discover and call tools from other runtimes, or expose Mastra capabilities to other clients. But the application still decides which capabilities this agent should see for this tenant and request. For low-risk read operations, a direct imported MCP tool may be fine. For high-risk actions, wrap the remote capability in a narrower Mastra tool with schemas, approvals, logging, and domain language. Transition: pause here and make the room design the first support agent before adding more layers.`,
 
-  // 14 Workflows
-  `Use workflows when the process must be repeatable. Workflows turn agentic systems into explicit execution graphs with typed steps, deterministic code, agents, tools, branches, loops, snapshots, suspension, and replay. Sequential is step.then(nextStep) for clear process order. Parallel runs independent steps together. Branch routes by condition, input, tool output, or score. Loop repeats until quality, budget, or state criteria are met. Suspend pauses for approval, payment, review, or external events. Replay debugs from snapshots with the same original context. The example refundWorkflow is intentionally simple and sequential: gather-refund-context, draft-refund-decision, approval-gate-and-commit.`,
+  // 14 Checkpoint one
+  `Make this an actual pause. Give people 60 seconds to answer four questions: what outcome does the support agent own, which tools does it need, which side effects require approval, and what would make its answer clearly wrong? Then call on one or two answers. Push them to separate "may do" from "may recommend." For example, read orders and draft refunds are allowed actions; submitting money movement is approval-controlled. Transition: the first agent can now act, but it still lacks continuity and grounded policy knowledge.`,
 
-  // 15 Workflow runbook
-  `Promote brittle prompt steps into workflow steps. Classify means deterministic code or a small model labels the request type and required policy. Gather means tools retrieve orders, docs, memory, permissions, and account state. Draft means an agent or tool proposes an answer or action from bounded context. Review means a scorer, processor, or human checks risk before commit. Commit means a tool writes data, sends the message, updates the ticket, and logs trace metadata. The rule of thumb is on the slide: "the user asked for a refund" is agentic, but "refunds over $100 require manager approval" is workflow logic. In refund-workflow.ts, gatherContext loads order and policy notes, draftRefundDecision creates the draft and risk classification, and approvalGateAndCommit submits or leaves the ticket waiting on approval.`,
+  // 15 Memory and RAG
+  `The first agent can answer one turn; now it needs continuity and policy grounding. Clarify the split with a simple rule: memory is what this relationship or thread has learned, while RAG is what the organization already knows elsewhere. If the answer should change because the customer has a preference, prior interaction, or ongoing task, use memory. If the answer should change because the refund policy document changed, use retrieval. In the example, customer history and prior messages are memory; refund policy and order rules are retrieval. Transition: now decide where each kind of fact belongs.`,
 
-  // 16 Human in the loop
-  `Production agents need per-request authority. Runtime context is dynamic behavior: identity, permissions, tenant settings, budget, feature flags, locale, and request metadata enter the agent or workflow at runtime. Auth is access control: JWT, Clerk, Supabase, Firebase, WorkOS, Auth0, or your own middleware can sit before execution. Human review controls side effects: suspend workflows or require approval before spending money, sending messages, deleting data, or escalating. The code pattern is the point: let the model recommend, but let the workflow decide. In refundWorkflow, requesterRole, autoRefundLimitCents, and approvedBy decide whether a refund is submitted or waits for manager approval.`,
+  // 16 Memory patterns
+  `Use this as a "where should this fact live?" exercise. Give concrete facts: preferred language may belong in working memory; the last twelve messages belong in thread history; a remembered prior refund might be semantic recall; refund policy belongs in the knowledge base; requesterRole and autoRefundLimit belong in runtime context; a PII redaction flag belongs in processor output. The enemy is one giant bucket called context. The right home depends on lifetime, freshness, authority, and who is allowed to change the fact. Transition: after placing facts, improve the quality of the retrieval path.`,
 
-  // 17 Checkpoint two
-  `This checkpoint is about separating recommendation from authority. A customer asks for a $240 refund. The order exists, policy is ambiguous, there is a prior refund, and the support rep is a contractor. The agent's job is to draft a helpful customer-facing recommendation, not to decide whether money moves. RAG retrieves the refund policy and prior-refund rules. Runtime context carries requesterRole=contractor and the auto-refund limit. The workflow applies the approval rules and chooses submitted versus waiting-on-approval. Scorers and processors check grounding, required approval language, and response safety. In the example project, this is exactly why supportAgent can draft, but refundWorkflow owns approvalGateAndCommit.`,
+  // 17 RAG quality
+  `Make the point that RAG failures often look like model failures. If the wrong policy chunk is retrieved, the model can produce fluent, confident, and wrong text. Walk through the retrieval quality checklist: chunk by document structure, preserve metadata like product and effective date, filter by tenant and policy type, use hybrid search when exact terms matter, rerank before spending context, and score grounding afterward. Encourage teams to inspect retrieval inputs and citations before changing prompts. Transition: retrieval and memory need storage choices that match their consequences.`,
 
-  // 18 Networks
-  `Networks split broad tasks into specialist roles. A supervisor understands the goal, delegates, reconciles, and decides when to stop. Specialists are focused agents with narrow instructions, tools, memory, and eval criteria. Shared state means runtime context, memory, traces, and workflow state make handoffs explicit. A reviewer is a separate agent or scorer that checks quality before the user sees the output. This is a scaling pattern, not a default. In examples/10-mastra-101-masterclass, policyReviewer is the specialist: it reviews support recommendations against policy and approval requirements, while supportAgent remains the customer-facing agent.`,
+  // 18 Storage deep dive
+  `Tie storage to consequences. Local file or LibSQL storage is useful for workshops and prototypes because it is inspectable and fast to reset. Production support systems usually need durable relational storage for threads, workflow snapshots, tenant boundaries, and audit trails. Knowledge bases need vector storage plus metadata filters, and the operational choice depends on latency, cost, tenancy, and who owns the backend. Use the rule of thumb on the slide: memory needs correctness, retrieval needs search quality, workflow snapshots need resumability, and traces need auditability. Transition: now that the agent has context, it hits the hard part: business process.`,
 
-  // 19 Guardrails
-  `Do not ask prompts to do infrastructure work. Input processors normalize, redact, block, trim, enrich, or route before the model sees the message. The agent loop is where the model reasons, calls tools, observes results, and decides the next step. Output processors validate, transform, redact, retry, abort, or attach metadata before responding. Safety includes PII filtering, topic blocking, prompt-injection checks, and policy enforcement. Reliability includes response validation, retries, answer length limits, and required tool usage. Cost includes context pruning, model routing, token budgets, and escalation detection. In this example, PIIRedactor is the input processor and SupportResponseFooter is the output processor.`,
+  // 19 Workflows
+  `Now the agent hits business process. Frame workflows as the place where the company says, "this is how we do it here." The model may be good at understanding the customer's request, but refund approval rules need to be repeatable, inspectable, resumable, and replayable. If a customer or manager asks why a $240 refund was held, you want workflow state, not just a transcript. Transition: show the pattern for turning fragile prompt checklists into workflow steps.`,
 
-  // 20 Observability
-  `Agent quality is a production signal, so observability has to capture the path, not only the final text. That means model calls, prompts, completions, tool calls, memory operations, tokens, latency, cost, errors, and scorer results. Logs are persistent run records for agents and workflows. Tracing gives decision paths, spans, timing, inputs, and outputs. OTel export sends telemetry to OpenTelemetry-compatible platforms. Scorers run model-graded, rule-based, or statistical checks asynchronously. Datasets turn traces and examples into repeatable tests. CI catches regressions before deploy. In index.ts, the example registers PinoLogger, Observability, DefaultExporter, SensitiveDataFilter, and both support scorers.`,
+  // 20 Workflow runbook
+  `Give the migration pattern: when a prompt instruction starts sounding like a checklist, promote it into workflow steps. Classify the request, gather order and policy context, let the agent draft from bounded context, review risk, then commit or pause. Especially promote approvals, deadlines, compliance language, and side effects. A useful line: "The user asked for a refund" is agentic; "refunds over $100 require manager approval" is workflow logic. Transition: next, show what implementation discipline makes those workflow steps maintainable.`,
 
-  // 21 Evaluation loop
-  `Turn production traces into regression tests. Trace means capture real prompts, tool calls, retrieved context, latency, cost, and outputs. Label means collect human labels, policy outcomes, bug reports, and known-good examples. Score means run relevance, faithfulness, completeness, toxicity, custom rules, or LLM judges. Gate means fail CI or block rollout when quality drops below the threshold. Start with one metric: pick the failure that would hurt users first. Sample deliberately: score high-risk paths more often than low-risk chat. Keep examples fresh: promote real failures into the next regression set. The example includes supportCompletenessScorer and policyGroundingScorer as first concrete gates for the refund domain.`,
+  // 21 Workflow implementation
+  `Tell people to name workflow steps like audit log entries. Six months later, "approvalGateAndCommit" is more useful than "step3." The deeper lesson is to move business state into fields the system can branch on, not prose the next step has to reinterpret. Fields like risk, requiresApproval, approvedBy, status, and reason make the workflow debuggable and resumable. If you demo code, show gather context, draft decision, and approval gate as separate responsibilities. Transition: workflow logic still needs request-specific authority and human approval.`,
 
-  // 22 Interfaces
-  `Mastra apps can meet users where the work happens. REST and client SDK expose registered agents, tools, workflows, memory, vectors, logs, and telemetry. Web frameworks include Next.js, SvelteKit, Vite/React, Astro, Express, and standard server adapters. Agentic UIs can pair streaming agents with Vercel AI SDK, CopilotKit, Assistant UI, Cedar-OS, and OpenRouter flows. Voice adds text-to-speech, speech-to-text, and real-time speech-to-speech providers. Browser actions help with sites where APIs are missing or incomplete. Workspaces give agents filesystems, sandboxed execution, and reusable skills for coding or document-heavy work. The example is UI-light on purpose: Studio can exercise supportAgent and refundWorkflow before any product surface is chosen.`,
+  // 22 Human in the loop
+  `State the principle plainly: human review is not an apology for weak models; it is a product requirement for certain actions. Approval should be modeled as state the system can see, resume from, and audit. Runtime context carries facts like requesterRole, tenant, plan, autoRefundLimit, locale, or feature flags. Auth decides whether the requester can start the action. Human review decides whether the side effect can complete. Transition: apply that split to a deliberately uncomfortable refund scenario.`,
 
-  // 23 Deployment
-  `Ship the same primitives you tested locally. Local Studio is for prototyping, running, tracing, and tuning with fast feedback. The production server exposes agents and workflows as APIs with middleware, auth, and storage. Cloud targets include providers like AWS, Azure, DigitalOcean, and framework hosts. Mastra Server gives managed routing, scaling, telemetry, and endpoints for agent deployment. Operate means monitoring traces, cost, latency, scorer drift, and user feedback after launch. The example already behaves like a small service: index.ts registers server port 4111, persistent storage, telemetry, agents, workflows, and scorers.`,
+  // 23 Checkpoint two
+  `Let the room reason through the risky refund. The customer asks for $240, the order exists, policy is ambiguous, there is a prior refund, and the support rep is a contractor. Ask: what should the agent do, what should RAG retrieve, what should runtime context carry, what should the workflow decide, and what should be scored? Then vary the scenario: what if the requester is a manager, the amount is $40, or the prior refund was suspicious? The learning is that the same user message can produce different allowed actions because authority and policy are runtime facts. Transition: after approvals, harden the rest of the runtime.`,
 
-  // 24 Setup deep dive
-  `Start with the fastest loop: code, Studio, trace, repeat. Bootstrap the app and keep runtime primitives under src/mastra. Register primitives with new Mastra(); that is the composition root for agents, workflows, storage, telemetry, and server behavior. Use Studio early to inspect prompts, tool calls, memory, workflow runs, traces, and response shape before wiring a production UI. Then hit the generated API endpoints directly, because the system has to work outside Studio too. In examples/10-mastra-101-masterclass/src/mastra/index.ts, you can see supportAgent, policyReviewer, refundWorkflow, storage, logger, observability, scorers, and the server config all registered in one place.`,
+  // 24 Guardrails
+  `After workflow, harden the runtime. Use this test: if you would be embarrassed to enforce it only by asking nicely in a prompt, make it runtime behavior. Redaction, routing, validation, retries, topic blocking, token budgets, and required tool usage are engineering concerns. In the refund example, PII should be redacted before model exposure, unsupported topics can be blocked early, and output can be validated for policy language before the customer sees it. Transition: processors are how those runtime policies become composable.`,
 
-  // 25 Instruction design
-  `Instructions define behavior; schemas define contracts. Role is the job: responsibility, audience, tone, and success criteria. Rules are what must never happen: put policy boundaries in instructions, but enforce critical boundaries with tools, workflows, processors, and auth. Shape is what the app needs: fields, enums, confidence, citations, and action plans belong in structured output. The triageSchema on the slide shows category, priority, needsHumanReview, and summary. In support-agent.ts, the instructions say to look up orders, search policy, draft but not submit refunds, explain approval needs, and avoid inventing missing information; in refund-workflow.ts, Zod schemas validate order IDs, amounts, roles, risk, status, and approval requirements.`,
+  // 25 Processor examples
+  `Reinforce the prompt-versus-runtime boundary. A processor is a good fit when the app should behave the same way regardless of the model's mood, token budget, or phrasing. Walk through the examples as production behaviors: pre-filter unsupported or malformed requests, redact secrets and PII, route by risk, validate output, and enrich with audit metadata. Mention that simple processors are often the most valuable because they are cheap and consistent. Transition: sometimes hardening means splitting a broad job across specialists, but do that only when it earns its cost.`,
 
-  // 26 MCP deep dive
-  `MCP lets your agent runtime plug into other runtimes. Use existing servers to connect to GitHub, databases, browser tools, files, docs, internal APIs, or vendor systems. Expose Mastra capabilities by publishing tools, agents, and workflows as MCP capabilities for other clients. Control trust boundaries: treat remote tools like integration surfaces, validate inputs, limit scopes, and trace every call. Prefer typed wrappers for high-risk MCP tools when the domain needs stronger validation or approvals. The operational flow is discover, select, wrap, run: list remote tools and resources, expose only what the agent needs, add schemas and telemetry, then call through Mastra with traceable inputs and outputs. The follow-along keeps tools local so it is easy to run, but lookupOrder and searchPolicyKnowledgeBase are shaped the way MCP-backed tools should be wrapped.`,
+  // 26 Networks
+  `Put multi-agent systems in their proper place: optional scaling architecture, not the default starting point. A network helps when the job has genuinely different expertise, tools, memory, or evaluation criteria. In the support example, a policyReviewer can review the customer-facing recommendation against policy and approval requirements while supportAgent stays focused on the customer conversation. Warn that if roles are not distinct, a network just adds latency and ambiguity. Transition: whether one agent or many, you now need to operate the system.`,
 
-  // 27 RAG quality
-  `RAG quality is mostly won before the model answers. Chunking should follow document structure when possible and preserve headings, source IDs, dates, and hierarchy. Metadata filters enforce tenant, product, version, policy type, freshness, permissions, and visibility. Hybrid retrieval combines semantic search with keyword or structured filters when exact terms matter. Reranking reorders candidate chunks before spending context budget. Context compression summarizes or trims retrieved material so the model sees useful parts, not every matching token. Grounding scores check whether the answer is supported by retrieved context and cites the right sources. search_policy_knowledge_base is a small transparent version of this: it accepts query, tags, and topK, scores matching policyDocuments, and returns structured results for the agent.`,
+  // 27 Observability
+  `Make this operational, not abstract. A final answer rarely tells you why something went wrong; the trace does. In a support incident, you want to know the prompt, retrieved policy, order lookup arguments, tool result, workflow decision, approval state, scorer output, cost, and latency. Use the dashboard numbers as placeholders for the questions an operator asks: are traces complete, are grounding scores dropping, are approvals backing up, is latency acceptable? Transition: once you can observe behavior, turn real traces into repeatable tests.`,
 
-  // 28 Storage deep dive
-  `Choose storage by lifetime, query pattern, and blast radius. Local prototypes can use LibSQL or file-backed state for quick iteration, examples, and local Studio demos. Production apps usually need Postgres-style durability when threads, workflow state, auth boundaries, and audit trails matter. Knowledge bases need a vector store plus metadata, chosen around filtering, tenancy, latency, cost, and operational ownership. The rule of thumb is direct: memory state needs correctness, retrieval indexes need search quality, workflow snapshots need resumability, and traces need auditability. In storage.ts, the example uses LibSQLStore and LibSQLVector against file:./mastra-101.db so the masterclass is local and inspectable.`,
+  // 28 Evaluation loop
+  `Push back on "we will evaluate later." Later usually means customers supply the dataset the hard way. Start with one painful failure mode: for this system, maybe wrong refund policy, missing approval language, or unsupported answer without citation. Capture traces, label expected outcomes, score the behavior, then gate releases when quality drops. The first scorer does not need to be perfect; it needs to make regressions visible and create a habit of promoting failures into the dataset. Transition: evaluations feed the broader launch checklist.`,
 
-  // 29 Workflow implementation
-  `Workflow steps should be typed, named, and inspectable. Give every step one responsibility: classify, retrieve, draft, review, approve, commit, or notify. Pass typed data between steps with schemas so downstream code knows what exists and what can fail. Carry business state explicitly: return fields like risk, requiresApproval, approvedBy, and status instead of hiding decisions in prose. Suspend at real-world boundaries like approval, payment, manual review, and external callbacks. The code on the slide shows the richer API shape: createWorkflow, inputSchema, then, branch, and commit. The actual example keeps the refund flow compact: gather-refund-context loads order and policy state, draft-refund-decision creates a risk-classified draft, and approval-gate-and-commit submits or waits.`,
+  // 29 Production readiness
+  `Present this as a launch review, not a wish list. Pick a scary failure mode, such as an unauthorized refund, leaked PII, wrong policy citation, runaway cost, or untraceable side effect. Ask whether it is prevented, bounded, detected, or merely hoped against. Ownership is part of readiness: someone must know who updates prompts, changes tools, reviews incidents, approves policy changes, and ships new evals. Transition: once the system passes readiness review, ship the same primitives you tested locally.`,
 
-  // 30 Processor examples
-  `Processors make policy visible in the runtime. Pre-filter rejects unsupported topics, malformed requests, or forbidden tenants before model spend. Redact masks secrets, PII, tokens, account numbers, and internal-only fields. Route chooses model, toolset, retrieval index, or workflow path based on request risk. Validate checks output schema, citations, tone, policy compliance, and required disclaimers. Enrich attaches audit metadata, handoff hints, trace labels, or UI annotations. The key distinction is at the bottom: prompts belong to behavior, processors belong to enforcement. In the example, PIIRedactor handles the redact case and SupportResponseFooter enriches every response with consistent support metadata.`,
+  // 30 Deployment
+  `Deployment should not introduce a second mental model. The same agents, workflows, storage, processors, scorers, and telemetry used locally should be the things operated in production. "It worked in Studio" matters only if the production path preserves the same primitives. Call out the deployment options as shapes, not as the main lesson: behind a framework, as a production server, on cloud targets, or on Mastra Server. Transition: after deployment, decide where users will actually interact with the agent.`,
 
-  // 31 Production readiness
-  `Before launch, make every failure mode observable or bounded. Tool blast radius means scopes, dry-run modes, approvals, idempotency keys, and audit records for side effects. Context safety means tenant isolation, permission-aware retrieval, redaction, and memory lifecycle rules. Quality gates mean scorers, regression datasets, human labels, and release thresholds. Operational limits mean token budgets, latency budgets, retry policy, fallback models, and escalation paths. Debuggability means trace IDs, prompt snapshots, tool arguments, workflow snapshots, and user feedback links. Ownership means deciding who reviews failures, updates prompts, changes tools, approves policies, and ships new evals. The example demonstrates the skeleton: narrow tools, approval-aware workflow, PII redaction, trace filtering, and two domain scorers.`,
+  // 31 Interfaces
+  `End the operations section with surfaces. The runtime should be testable before choosing Slack, web, voice, or an internal dashboard. The interface should expose the important runtime states: streaming progress, tool calls, approval requests, citations, fallback paths, and failure states. For a support refund agent, the first production interface might be an internal support console, but the same runtime could later appear in Slack, a customer portal, or voice. Transition: close by turning the whole session back into an implementation sequence.`,
 
   // 32 Masterclass flow
-  `The build sequence is the takeaway. Start with one agent: instructions, model, typed tools, and streaming response. Add memory and retrieval: persistent user context plus grounded external knowledge. Promote process into workflows: explicit steps for approvals, branching, retries, and replay. Add specialists when one prompt becomes too broad: supervisor and reviewer agents. Harden the loop with processors, auth, runtime context, guardrails, and human-in-the-loop gates. Operate it with Studio, traces, scorers, deployment, and a regression suite. Point people back to examples/10-mastra-101-masterclass, mastra.ai, github.com/mastra-ai/mastra, and discord.gg/mastra as the path after the room clears.`,
+  `Close by turning the slide into an action plan. Do not build the whole architecture on day one. Start with one narrow agent and one useful workflow through Studio. Add tools when the agent needs hands, add memory and RAG when context matters, promote business rules into workflows, add processors when prompts are carrying enforcement work, and add observability before launch. Point people to examples/10-mastra-101-masterclass, mastra.ai, GitHub, and Discord. Invite questions framed around decomposition: "Tell me one agent you are building, and we can decide which primitive should own each responsibility."`,
 ];
 
 export default [
@@ -1372,31 +1659,31 @@ export default [
   MentalModel,
   DecisionMap,
   ProjectAnatomy,
+  SetupDeepDive,
   Agents,
   AgentLoop,
+  InstructionDesign,
   ModelsAndStreaming,
   ToolsAndMcp,
   ToolDesign,
+  McpDeepDive,
   CheckpointOne,
   MemoryAndRag,
   MemoryPatterns,
-  Workflows,
-  WorkflowRunbook,
-  HumanInLoop,
-  CheckpointTwo,
-  Networks,
-  Guardrails,
-  Observability,
-  EvaluationLoop,
-  Interfaces,
-  Deployment,
-  SetupDeepDive,
-  InstructionDesign,
-  McpDeepDive,
   RagQuality,
   StorageDeepDive,
+  Workflows,
+  WorkflowRunbook,
   WorkflowImplementation,
+  HumanInLoop,
+  CheckpointTwo,
+  Guardrails,
   ProcessorExamples,
+  Networks,
+  Observability,
+  EvaluationLoop,
   ProductionReadiness,
+  Deployment,
+  Interfaces,
   MasterclassFlow,
 ] satisfies Page[];
