@@ -1,0 +1,4 @@
+# CrewAI's current A2A support requires Python 3.10+.
+crewai[a2a]>=0.175.0
+requests>=2.32.0
+uvicorn>=0.30.0
