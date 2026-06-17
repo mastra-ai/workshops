@@ -374,20 +374,26 @@ const NotAChatMessage: Page = () => (
 // ─── Animated agent loop (slide 5) ──────────────────────────────────────────
 // One loop iteration as a ring: regular steps are muted, signal injections are
 // green. A green pulse travels around the ring continuously.
-type LoopNode = { label: string; kind: 'step' | 'signal'; signal?: string };
+type LoopNode = {
+  label: string;
+  kind: 'step' | 'signal';
+  signal?: string;
+  example?: string;
+  callout?: { dx: number; dy: number; align: 'left' | 'right'; arrowFrom: 'left' | 'right' | 'top' };
+};
 
 const LOOP_NODES: LoopNode[] = [
   { label: 'text', kind: 'step' },
   { label: 'tool call', kind: 'step' },
   { label: 'reasoning', kind: 'step' },
-  { label: 'notification', kind: 'signal', signal: 'signal' },
+  { label: 'notification', kind: 'signal', signal: 'signal', example: 'Slack message', callout: { dx: 126, dy: 20, align: 'left', arrowFrom: 'left' } },
   { label: 'tool call', kind: 'step' },
   { label: 'text', kind: 'step' },
-  { label: 'reactive', kind: 'signal', signal: 'signal' },
+  { label: 'reactive', kind: 'signal', signal: 'signal', example: 'AGENTS.md loading', callout: { dx: -12, dy: 76, align: 'left', arrowFrom: 'top' } },
   { label: 'text', kind: 'step' },
   { label: 'tool call', kind: 'step' },
-  { label: 'state', kind: 'signal', signal: 'signal' },
-  { label: 'steer', kind: 'signal', signal: 'signal' },
+  { label: 'state', kind: 'signal', signal: 'signal', example: 'working memory', callout: { dx: -86, dy: -48, align: 'right', arrowFrom: 'right' } },
+  { label: 'steer', kind: 'signal', signal: 'signal', example: 'user correction', callout: { dx: -48, dy: -76, align: 'right', arrowFrom: 'right' } },
 ];
 
 const AgentLoop = () => {
@@ -527,6 +533,7 @@ const AgentLoop = () => {
               background: isSignal ? 'rgba(24,251,111,0.10)' : palette.surfaceHi,
               border: `1.5px solid ${isSignal ? palette.accent : palette.border}`,
               animation: isSignal ? 'osd-signal-pulse 3s ease-in-out infinite' : undefined,
+              zIndex: 2,
             }}
           >
             <span
@@ -544,6 +551,87 @@ const AgentLoop = () => {
                 signal
               </span>
             )}
+          </div>
+        );
+      })}
+
+      {/* short arrows from example pills toward signal nodes */}
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none', zIndex: 2 }}
+      >
+        <defs>
+          <marker id="example-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 0 L 7 3.5 L 0 7 z" fill={palette.accent} opacity={0.48} />
+          </marker>
+        </defs>
+        {LOOP_NODES.map((node, i) => {
+          if (!node.example || !node.callout) return null;
+          const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+          const signalX = cx + r * Math.cos(angle);
+          const signalY = cy + r * Math.sin(angle);
+          const x = signalX + node.callout.dx;
+          const y = signalY + node.callout.dy;
+          const renderedLeft = node.callout.align === 'right' ? x - (node.example.length * 8.4 + 34) : x;
+          const pillWidth = node.example.length * 8.4 + 34;
+          const pillHeight = 33;
+          const startX = node.callout.arrowFrom === 'left' ? renderedLeft : node.callout.arrowFrom === 'right' ? renderedLeft + pillWidth : renderedLeft + pillWidth / 2;
+          const startY = node.callout.arrowFrom === 'top' ? y : y + pillHeight / 2;
+          const vx = signalX - startX;
+          const vy = signalY - startY;
+          const len = Math.max(1, Math.hypot(vx, vy));
+          const gap = 58;
+          const endX = signalX - (vx / len) * gap;
+          const endY = signalY - (vy / len) * gap;
+          return (
+            <line
+              key={`example-arrow-${i}`}
+              x1={startX}
+              y1={startY}
+              x2={endX}
+              y2={endY}
+              stroke={palette.accent}
+              strokeWidth={1.5}
+              strokeOpacity={0.35}
+              markerEnd="url(#example-arrow)"
+            />
+          );
+        })}
+      </svg>
+
+      {/* example callouts for signal injections */}
+      {LOOP_NODES.map((node, i) => {
+        if (!node.example || !node.callout) return null;
+        const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+        const x = cx + r * Math.cos(angle) + node.callout.dx;
+        const y = cy + r * Math.sin(angle) + node.callout.dy;
+        return (
+          <div
+            key={`callout-${i}`}
+            style={{
+              position: 'absolute',
+              left: x,
+              top: y,
+              transform: node.callout.align === 'right' ? 'translateX(-100%)' : undefined,
+              padding: '7px 10px',
+              borderRadius: 999,
+              background: 'rgba(217,217,217,0.08)',
+              border: `1px solid rgba(217,217,217,0.16)`,
+              boxShadow: '0 12px 32px rgba(0,0,0,0.32)',
+              pointerEvents: 'none',
+              zIndex: 3,
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 7,
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: palette.accent, display: 'inline-block', flex: '0 0 auto' }} />
+            <span style={{ fontSize: 15, fontWeight: 650, color: palette.textSoft }}>
+              {node.example}
+            </span>
           </div>
         );
       })}
