@@ -53,7 +53,11 @@ const fill = {
   overflow: 'hidden',
 };
 
-const TOTAL = 18;
+const TOTAL = 20;
+
+// Display type scale — aligned with processors-workshop / om-workshop.
+// hero: cover + closing splash · beat: standalone quiet headlines · section: in-deck h1 · sub: hero subtitle
+const display = { hero: 96, beat: 92, section: 80, sub: 28 } as const;
 
 // ─── Atoms ───────────────────────────────────────────────────────────────────
 
@@ -94,15 +98,15 @@ const Footer = ({ index }: { index: number }) => (
   </div>
 );
 
-const Stage = ({ children, padding = '120px 120px 120px' }: { children: React.ReactNode; padding?: string }) => (
-  <div style={{ ...fill, padding, display: 'flex', flexDirection: 'column' }}>{children}</div>
+const Stage = ({ children, padding = '0 120px' }: { children: React.ReactNode; padding?: string }) => (
+  <div style={{ ...fill, padding, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>{children}</div>
 );
 
 const SectionTitle = ({ title, maxWidth = 1620 }: { title: React.ReactNode; maxWidth?: number }) => (
   <h1
     style={{
       fontFamily: font.display,
-      fontSize: 80,
+      fontSize: display.section,
       fontWeight: 800,
       lineHeight: 1.04,
       letterSpacing: '-0.025em',
@@ -116,7 +120,7 @@ const SectionTitle = ({ title, maxWidth = 1620 }: { title: React.ReactNode; maxW
 );
 
 const SubTitle = ({ children, maxWidth = 1500 }: { children: React.ReactNode; maxWidth?: number }) => (
-  <p style={{ fontSize: 28, color: palette.textSoft, lineHeight: 1.42, maxWidth, margin: 0 }}>{children}</p>
+  <p style={{ fontSize: display.sub, color: palette.textSoft, lineHeight: 1.42, maxWidth, margin: 0 }}>{children}</p>
 );
 
 const Arrow = () => (
@@ -226,26 +230,23 @@ const Cover: Page = () => (
       <h1
         style={{
           fontFamily: font.display,
-          fontSize: 112,
+          fontSize: 76,
           fontWeight: 900,
-          lineHeight: 0.96,
+          lineHeight: 1.04,
           margin: '32px 0 24px',
-          letterSpacing: '-0.045em',
-          maxWidth: 1620,
+          letterSpacing: '-0.03em',
+          maxWidth: 1120,
         }}
       >
-        Watch, Steer, and Wake <span style={{ color: palette.accent }}>Running Agents</span> with Mastra Signals
+        Agent Signals Workshop
       </h1>
-      <p style={{ fontSize: 36, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.35, marginBottom: 56 }}>
-        Signals let you watch, talk to, steer, update, and wake a running agent — without restarting the loop.
+      <p style={{ fontSize: 32, color: palette.textSoft, maxWidth: 900, lineHeight: 1.35, margin: 0 }}>
+        watch, steer, and wake running agents
       </p>
-
-      <div style={{ display: 'flex', gap: 28, fontFamily: font.mono, fontSize: 20 }}>
-        <span style={{ color: palette.accent }}>mastra.ai</span>
-        <span style={{ color: palette.muted }}>·</span>
-        <span style={{ color: palette.textSoft }}>github.com/mastra-ai/mastra</span>
-        <span style={{ color: palette.muted }}>·</span>
-        <span style={{ color: palette.textSoft }}>discord.gg/mastra</span>
+      <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 18, fontFamily: font.mono }}>
+        <span style={{ fontSize: 22, color: palette.text, fontWeight: 800, letterSpacing: '0.04em' }}>Tyler Barnes</span>
+        <span style={{ width: 34, height: 1, background: palette.borderBright }} />
+        <span style={{ fontSize: 20, color: palette.muted, letterSpacing: '0.045em' }}>Founding Principal Engineer @ Mastra</span>
       </div>
     </div>
     <Footer index={1} />
@@ -255,47 +256,65 @@ const Cover: Page = () => (
 // ════════════════════════════════════════════════════════════════════════════
 // 02 — The Problem: Agents stopped fitting request/response
 // ════════════════════════════════════════════════════════════════════════════
-const TheProblem: Page = () => (
-  <Stage>
-    <Eyebrow>The problem</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Agents stopped fitting <span style={{ color: palette.accent }}>request / response.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      The first generation were chatbots: send a message, stream a response, finish the turn. The agents we're
-      building now look different.
-    </SubTitle>
+// 02a — Framing: the original request/response shape
+const Problem_Framing: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ marginTop: -28, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '100%' }}>
+      <Eyebrow>The problem</Eyebrow>
+      <SectionTitle
+        title={
+          <>
+            Agents stopped fitting <span style={{ color: palette.accent }}>request / response.</span>
+          </>
+        }
+      />
+      <SubTitle>
+        The first generation were chatbots: send a message, stream a response, finish the turn.
+      </SubTitle>
 
-    <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 18 }}>
-      <div style={{ background: palette.surfaceHi, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '18px 24px', fontFamily: font.mono, fontSize: 18, color: palette.textSoft, textAlign: 'center', minWidth: 180 }}>
-        user message
-      </div>
-      <Arrow />
-      <div style={{ background: palette.surfaceHi2, border: `1px dashed ${palette.borderBright}`, borderRadius: 12, padding: '18px 24px', flex: 1, textAlign: 'center', fontFamily: font.mono, fontSize: 18, color: palette.muted }}>
-        agent.generate()
-      </div>
-      <Arrow />
-      <div style={{ background: palette.surfaceHi, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '18px 24px', fontFamily: font.mono, fontSize: 18, color: palette.textSoft, textAlign: 'center', minWidth: 180 }}>
-        response
+      <div style={{ marginTop: 64, display: 'flex', alignItems: 'center', gap: 24, maxWidth: 1500 }}>
+        <div style={{ background: palette.surfaceHi, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '24px 32px', fontFamily: font.mono, fontSize: 22, color: palette.textSoft, textAlign: 'center', minWidth: 220 }}>
+          user message
+        </div>
+        <Arrow />
+        <div style={{ background: palette.surfaceHi2, border: `1px dashed ${palette.borderBright}`, borderRadius: 12, padding: '24px 32px', flex: 1, textAlign: 'center', fontFamily: font.mono, fontSize: 22, color: palette.muted }}>
+          agent.generate()
+        </div>
+        <Arrow />
+        <div style={{ background: palette.surfaceHi, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '24px 32px', fontFamily: font.mono, fontSize: 22, color: palette.textSoft, textAlign: 'center', minWidth: 220 }}>
+          response
+        </div>
       </div>
     </div>
 
-    <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+    <Footer index={2} />
+  </Stage>
+);
+
+// 02b — The agents we're building now look different
+const Problem_Traits: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
+      <Eyebrow>The gap</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          The agents we're building now <span style={{ color: palette.accent }}>look different.</span>
+        </>
+      }
+    />
+
+      <div style={{ marginTop: 56, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, maxWidth: 1620 }}>
       <Pill icon="⏱️" label="Long-running" desc="Run for minutes or hours, use tools, browse, wait for approvals." accent={palette.blue} />
       <Pill icon="🌐" label="World-aware" desc="Watch GitHub, CI, Slack, email — external systems change state." accent={palette.purple} />
       <Pill icon="🧠" label="Stateful" desc="Working memory, browser state, project state — context that shifts." accent={palette.amber} />
       <Pill icon="👥" label="Multi-user" desc="Multiple clients observing, sending input, approving tools." accent={palette.cyan} />
+      <Pill icon="🎯" label="Goal-seeking" desc="A /goal loop self-continues across runs until a stop-condition is met." accent={palette.green} />
+      <Pill icon="🔀" label="Multi-channel" desc="One agent reachable from terminal, web, Slack, CI — not one stream." accent={palette.rose} />
+      </div>
     </div>
 
-    <div style={{ marginTop: 28, fontSize: 24, color: palette.text, fontWeight: 600, lineHeight: 1.45, maxWidth: 1500 }}>
-      Once the loop starts, there's no first-class way to <span style={{ color: palette.accent }}>reach it.</span>
-    </div>
-
-    <Footer index={2} />
+    <Footer index={4} />
   </Stage>
 );
 
@@ -323,7 +342,7 @@ const NotAChatMessage: Page = () => (
         { icon: '🧠', label: 'Working memory updated', desc: 'A preference was learned mid-run.', accent: palette.purple },
         { icon: '🔄', label: 'CI failed on main', desc: 'External system needs to wake the agent.', accent: palette.rose },
         { icon: '👀', label: 'PR review requested', desc: 'GitHub activity the agent subscribed to.', accent: palette.amber },
-        { icon: '✅', label: 'Tool approved', desc: 'Human said yes — agent should continue.', accent: palette.green },
+        { icon: '⏰', label: 'Heartbeat / cron', desc: 'A periodic tick wakes an idle agent.', accent: palette.green },
         { icon: '👋', label: 'Another user joined', desc: 'New participant entering the thread.', accent: palette.cyan },
       ].map((item) => (
         <div
@@ -345,10 +364,6 @@ const NotAChatMessage: Page = () => (
       ))}
     </div>
 
-    <div style={{ marginTop: 28, fontSize: 24, color: palette.textSoft, lineHeight: 1.45, maxWidth: 1500 }}>
-      If messages are the conversation, <span style={{ color: palette.accent, fontWeight: 600 }}>signals are everything else</span> the running agent needs to stay in sync with the world.
-    </div>
-
     <Footer index={3} />
   </Stage>
 );
@@ -356,49 +371,237 @@ const NotAChatMessage: Page = () => (
 // ════════════════════════════════════════════════════════════════════════════
 // 04 — Strategic framing: Tools, Memory, Signals
 // ════════════════════════════════════════════════════════════════════════════
-const StrategicFraming: Page = () => (
-  <Stage>
-    <Eyebrow>Where signals fit</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Three primitives, <span style={{ color: palette.accent }}>three directions.</span>
-        </>
-      }
-    />
+// ─── Animated agent loop (slide 5) ──────────────────────────────────────────
+// One loop iteration as a ring: regular steps are muted, signal injections are
+// green. A green pulse travels around the ring continuously.
+type LoopNode = { label: string; kind: 'step' | 'signal'; signal?: string };
 
-    <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {[
-        { icon: '🔧', name: 'Tools', dir: 'Agent → World', purpose: 'Affect external systems', accent: palette.blue },
-        { icon: '🧠', name: 'Memory', dir: 'Agent → Future self', purpose: 'Persist context over time', accent: palette.purple },
-        { icon: '📡', name: 'Signals', dir: 'World → Live agent loop', purpose: 'Send context into running or idle agents', accent: palette.accent },
-      ].map((row) => (
+const LOOP_NODES: LoopNode[] = [
+  { label: 'text', kind: 'step' },
+  { label: 'tool call', kind: 'step' },
+  { label: 'reasoning', kind: 'step' },
+  { label: 'notification', kind: 'signal', signal: 'signal' },
+  { label: 'tool call', kind: 'step' },
+  { label: 'text', kind: 'step' },
+  { label: 'reactive', kind: 'signal', signal: 'signal' },
+  { label: 'text', kind: 'step' },
+  { label: 'tool call', kind: 'step' },
+  { label: 'state', kind: 'signal', signal: 'signal' },
+  { label: 'steer', kind: 'signal', signal: 'signal' },
+];
+
+const AgentLoop = () => {
+  const size = 560; // svg viewport (px on the 1080 stage)
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = 218; // node ring radius
+  const n = LOOP_NODES.length;
+  // total travel time for the pulse to go all the way around
+  const period = 9;
+  const signalStops = LOOP_NODES.map((node, i) => (node.kind === 'signal' ? (i / n) * 100 : null)).filter(
+    (stop): stop is number => stop !== null,
+  );
+  const flashWindow = 2.6;
+  const dotFillKeyframes = signalStops
+    .flatMap(stop => [
+      `${Math.max(0, stop - flashWindow).toFixed(2)}% { fill: ${palette.muted}; }`,
+      `${stop.toFixed(2)}% { fill: ${palette.accent}; }`,
+      `${Math.min(100, stop + flashWindow).toFixed(2)}% { fill: ${palette.muted}; }`,
+    ])
+    .join('\n');
+  const dotHaloKeyframes = signalStops
+    .flatMap(stop => [
+      `${Math.max(0, stop - flashWindow).toFixed(2)}% { opacity: 0; }`,
+      `${stop.toFixed(2)}% { opacity: 0.28; }`,
+      `${Math.min(100, stop + flashWindow).toFixed(2)}% { opacity: 0; }`,
+    ])
+    .join('\n');
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <style>{`
+        @keyframes osd-loop-spin { to { transform: rotate(360deg); } }
+        @keyframes osd-loop-dash { to { stroke-dashoffset: -1408; } }
+        @keyframes osd-signal-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(24,251,111,0.0); }
+          50%      { box-shadow: 0 0 22px 4px rgba(24,251,111,0.35); }
+        }
+        /* dot is grey, flashes green only as it passes signal nodes */
+        @keyframes osd-dot-fill {
+          0%, 100% { fill: ${palette.muted}; }
+          ${dotFillKeyframes}
+        }
+        @keyframes osd-dot-halo {
+          0%, 100% { opacity: 0; }
+          ${dotHaloKeyframes}
+        }
+      `}</style>
+
+      {/* track + traveling pulse */}
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ position: 'absolute', inset: 0 }}
+      >
+        {/* base ring */}
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={palette.border} strokeWidth={2} />
+        {/* faint moving dash overlay */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="none"
+          stroke={palette.borderBright}
+          strokeWidth={2}
+          strokeDasharray="4 18"
+          style={{ animation: 'osd-loop-dash 12s linear infinite' }}
+        />
+        {/* traveling pulse — grey, flashes green as it passes each signal node */}
+        <g style={{ transformOrigin: `${cx}px ${cy}px`, animation: `osd-loop-spin ${period}s linear infinite` }}>
+          <circle
+            cx={cx}
+            cy={cy - r}
+            r={18}
+            fill={palette.accent}
+            style={{ animation: `osd-dot-halo ${period}s linear infinite` }}
+          />
+          <circle
+            cx={cx}
+            cy={cy - r}
+            r={9}
+            fill={palette.muted}
+            style={{ animation: `osd-dot-fill ${period}s linear infinite` }}
+          />
+        </g>
+      </svg>
+
+      {/* center label */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          pointerEvents: 'none',
+        }}
+      >
         <div
-          key={row.name}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 28,
-            background: palette.surface,
-            border: `1px solid ${palette.border}`,
-            borderLeft: `4px solid ${row.accent}`,
-            borderRadius: 14,
-            padding: '24px 32px',
+            fontFamily: font.mono,
+            fontSize: 22,
+            fontWeight: 800,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            color: palette.text,
           }}
         >
-          <span style={{ fontSize: 36 }}>{row.icon}</span>
-          <div style={{ fontFamily: font.mono, fontSize: 28, color: row.accent, fontWeight: 700, minWidth: 160 }}>{row.name}</div>
-          <div style={{ fontFamily: font.mono, fontSize: 20, color: palette.muted, minWidth: 280 }}>{row.dir}</div>
-          <div style={{ fontSize: 22, color: palette.textSoft, flex: 1 }}>{row.purpose}</div>
+          agent loop
         </div>
-      ))}
+      </div>
+
+      {/* nodes around the ring */}
+      {LOOP_NODES.map((node, i) => {
+        const angle = (i / n) * 2 * Math.PI - Math.PI / 2; // start at top, clockwise
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        const isSignal = node.kind === 'signal';
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: x,
+              top: y,
+              transform: 'translate(-50%, -50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 4,
+              padding: isSignal ? '10px 16px' : '8px 14px',
+              borderRadius: 10,
+              whiteSpace: 'nowrap',
+              background: isSignal ? 'rgba(24,251,111,0.10)' : palette.surfaceHi,
+              border: `1.5px solid ${isSignal ? palette.accent : palette.border}`,
+              animation: isSignal ? 'osd-signal-pulse 3s ease-in-out infinite' : undefined,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: font.mono,
+                fontSize: isSignal ? 19 : 17,
+                fontWeight: isSignal ? 700 : 500,
+                color: isSignal ? palette.accent : palette.textSoft,
+              }}
+            >
+              {node.label}
+            </span>
+            {isSignal && (
+              <span style={{ fontFamily: font.mono, fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', color: palette.accent, opacity: 0.85 }}>
+                signal
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const StrategicFraming: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 80, paddingBottom: 70 }}>
+      <div style={{ flex: 1, maxWidth: 820 }}>
+        <Eyebrow>The solution</Eyebrow>
+        <SectionTitle
+          maxWidth={820}
+          title={
+            <>
+              We built <span style={{ color: palette.accent }}>Signals</span> to fill this gap.
+            </>
+          }
+        />
+        <SubTitle maxWidth={760}>
+          A signal is a way to send context into an active or idle agent — delivered right into the loop as it runs.
+        </SubTitle>
+
+        <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 28 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: font.mono, fontSize: 16, color: palette.textSoft }}>
+            <span style={{ width: 14, height: 14, borderRadius: 4, background: palette.surfaceHi, border: `1.5px solid ${palette.border}` }} />
+            loop step
+          </span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: font.mono, fontSize: 16, color: palette.accent }}>
+            <span style={{ width: 14, height: 14, borderRadius: 4, background: 'rgba(24,251,111,0.12)', border: `1.5px solid ${palette.accent}` }} />
+            signal injection
+          </span>
+        </div>
+      </div>
+
+      <div style={{ flexShrink: 0 }}>
+        <AgentLoop />
+      </div>
     </div>
 
-    <div style={{ marginTop: 36, fontSize: 26, color: palette.text, fontWeight: 600, lineHeight: 1.45, maxWidth: 1500 }}>
-      Before Signals, the agent loop owned both execution and context delivery. <span style={{ color: palette.accent }}>Signals decouple those.</span>
+    <Footer index={5} />
+  </Stage>
+);
+
+// 04b — Decouple: the conceptual payoff, on its own beat
+const Decouple: Page = () => (
+  <Stage padding="0 160px">
+    <div style={{ ...fill, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <Eyebrow>Introducing signals</Eyebrow>
+      <div style={{ fontSize: display.beat, lineHeight: 1.1, fontWeight: 700, color: palette.text, letterSpacing: '-0.02em', maxWidth: 1600 }}>
+        The agent loop used to own both execution and context delivery.
+        <br />
+        <span style={{ color: palette.accent }}>Signals decouple those.</span>
+      </div>
     </div>
 
-    <Footer index={4} />
+    <Footer index={6} />
   </Stage>
 );
 
@@ -406,8 +609,9 @@ const StrategicFraming: Page = () => (
 // 05 — Section 2: Watch and talk to a live loop
 // ════════════════════════════════════════════════════════════════════════════
 const WatchAndTalk: Page = () => (
-  <Stage>
-    <Eyebrow>Section 2</Eyebrow>
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
+      <Eyebrow>Section 2</Eyebrow>
     <SectionTitle
       title={
         <>
@@ -420,7 +624,7 @@ const WatchAndTalk: Page = () => (
       restarting the interaction.
     </SubTitle>
 
-    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
       <div
         style={{
           background: palette.surface,
@@ -458,9 +662,10 @@ const WatchAndTalk: Page = () => (
           <li>Multiple clients, one agent, no restart</li>
         </ul>
       </div>
+      </div>
     </div>
 
-    <Footer index={5} />
+    <Footer index={7} />
   </Stage>
 );
 
@@ -513,7 +718,7 @@ const SubscribeSend: Page = () => (
       <Pill label="queueMessage" desc="Preserve turn order — messages arrive in sequence." accent={palette.purple} />
     </div>
 
-    <Footer index={6} />
+    <Footer index={8} />
   </Stage>
 );
 
@@ -521,8 +726,9 @@ const SubscribeSend: Page = () => (
 // 07 — Tool Approval sidebar
 // ════════════════════════════════════════════════════════════════════════════
 const ToolApproval: Page = () => (
-  <Stage>
-    <Eyebrow>Sidebar · control plane</Eyebrow>
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
+      <Eyebrow>Sidebar · control plane</Eyebrow>
     <SectionTitle
       title={
         <>
@@ -535,7 +741,7 @@ const ToolApproval: Page = () => (
       subscribe/send plumbing handles them.
     </SubTitle>
 
-    <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 16 }}>
       <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '20px 24px', fontFamily: font.mono, fontSize: 18, color: palette.textSoft, textAlign: 'center', minWidth: 200 }}>
         agent calls tool
       </div>
@@ -550,17 +756,18 @@ const ToolApproval: Page = () => (
       </div>
     </div>
 
-    <div style={{ marginTop: 28, display: 'flex', gap: 20 }}>
+      <div style={{ marginTop: 28, display: 'flex', gap: 20 }}>
       <Pill label="approveToolCall" desc="Resume the loop — tool executes, agent continues." accent={palette.accent} />
       <Pill label="declineToolCall" desc="Stop the tool — agent gets feedback and adapts." accent={palette.rose} />
     </div>
 
-    <div style={{ marginTop: 24, fontSize: 22, color: palette.textSoft, lineHeight: 1.45, maxWidth: 1500 }}>
+      <div style={{ marginTop: 24, fontSize: 22, color: palette.textSoft, lineHeight: 1.45, maxWidth: 1500 }}>
       The subscription path is the control plane. Observing, sending, and approving all flow through it —
       one channel, multiple interaction types.
+      </div>
     </div>
 
-    <Footer index={7} />
+    <Footer index={9} />
   </Stage>
 );
 
@@ -582,17 +789,17 @@ const DemoA: Page = () => (
       <h1
         style={{
           fontFamily: font.display,
-          fontSize: 96,
+          fontSize: display.beat,
           fontWeight: 900,
-          lineHeight: 1.0,
+          lineHeight: 1.02,
           margin: '28px 0 24px',
-          letterSpacing: '-0.04em',
+          letterSpacing: '-0.035em',
           maxWidth: 1600,
         }}
       >
         A live PR agent that <span style={{ color: palette.accent }}>keeps working</span> while context arrives.
       </h1>
-      <p style={{ fontSize: 32, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.4, marginBottom: 40 }}>
+      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.42, marginBottom: 40 }}>
         Start a real PR task in Mastra Code. Send follow-up steering while the agent is active. Watch reactive
         guidance appear. See a GitHub notification surface mid-run.
       </p>
@@ -621,7 +828,7 @@ const DemoA: Page = () => (
         ))}
       </div>
     </div>
-    <Footer index={8} />
+    <Footer index={10} />
   </div>
 );
 
@@ -689,7 +896,7 @@ const SteerTheLoop: Page = () => (
       </div>
     </div>
 
-    <Footer index={9} />
+    <Footer index={11} />
   </Stage>
 );
 
@@ -756,7 +963,7 @@ const ReactiveDemo: Page = () => (
       The processor injected guidance mid-run. The agent never stopped — it received the signal and adjusted course.
     </div>
 
-    <Footer index={10} />
+    <Footer index={12} />
   </Stage>
 );
 
@@ -813,7 +1020,7 @@ const StateSignals: Page = () => (
       <Pill label="cacheKey" desc="Stable identity — skip unchanged state." accent={palette.accent} />
     </div>
 
-    <Footer index={11} />
+    <Footer index={13} />
   </Stage>
 );
 
@@ -880,7 +1087,7 @@ const StateProcessor: Page = () => (
       </div>
     </div>
 
-    <Footer index={12} />
+    <Footer index={14} />
   </Stage>
 );
 
@@ -961,7 +1168,7 @@ const PromptCache: Page = () => (
       Dynamic system guidance without rewriting the prompt or destroying prompt cache.
     </div>
 
-    <Footer index={13} />
+    <Footer index={15} />
   </Stage>
 );
 
@@ -983,17 +1190,17 @@ const DemoB: Page = () => (
       <h1
         style={{
           fontFamily: font.display,
-          fontSize: 96,
+          fontSize: display.beat,
           fontWeight: 900,
-          lineHeight: 1.0,
+          lineHeight: 1.02,
           margin: '28px 0 24px',
-          letterSpacing: '-0.04em',
+          letterSpacing: '-0.035em',
           maxWidth: 1600,
         }}
       >
         Working Memory as a <span style={{ color: palette.blue }}>State Signal.</span>
       </h1>
-      <p style={{ fontSize: 32, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.4, marginBottom: 40 }}>
+      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.42, marginBottom: 40 }}>
         Ask the agent to remember a preference. Watch the state signal render in Playground. Update the
         preference — see snapshot vs delta in the conversation history.
       </p>
@@ -1043,7 +1250,7 @@ const DemoB: Page = () => (
         </div>
       </div>
     </div>
-    <Footer index={14} />
+    <Footer index={16} />
   </div>
 );
 
@@ -1095,7 +1302,7 @@ const NotificationSignals: Page = () => (
       Signals don't require the agent to be running. <span style={{ color: palette.accent, fontWeight: 600 }}>Idle delivery wakes the loop; active delivery joins it mid-flight.</span>
     </div>
 
-    <Footer index={15} />
+    <Footer index={17} />
   </Stage>
 );
 
@@ -1176,7 +1383,7 @@ const NotificationDemo: Page = () => (
       </div>
     </div>
 
-    <Footer index={16} />
+    <Footer index={18} />
   </Stage>
 );
 
@@ -1184,8 +1391,9 @@ const NotificationDemo: Page = () => (
 // 17 — Recap arc
 // ════════════════════════════════════════════════════════════════════════════
 const Recap: Page = () => (
-  <Stage>
-    <Eyebrow>Section 6 · What this unlocks</Eyebrow>
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
+      <Eyebrow>Section 6 · What this unlocks</Eyebrow>
     <SectionTitle
       title={
         <>
@@ -1194,7 +1402,7 @@ const Recap: Page = () => (
       }
     />
 
-    <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 14 }}>
       {[
         { icon: '👀', verb: 'Watch it', desc: 'subscribeToThread — the loop is observable', accent: palette.accent },
         { icon: '💬', verb: 'Talk to it', desc: 'sendMessage / queueMessage — the loop is addressable', accent: palette.blue },
@@ -1220,9 +1428,10 @@ const Recap: Page = () => (
           <div style={{ fontSize: 20, color: palette.textSoft, flex: 1 }}>{step.desc}</div>
         </div>
       ))}
+      </div>
     </div>
 
-    <Footer index={17} />
+    <Footer index={19} />
   </Stage>
 );
 
@@ -1246,17 +1455,17 @@ const Close: Page = () => (
       <h1
         style={{
           fontFamily: font.display,
-          fontSize: 120,
+          fontSize: display.beat,
           fontWeight: 900,
-          lineHeight: 0.96,
+          lineHeight: 0.98,
           margin: '32px 0 24px',
-          letterSpacing: '-0.045em',
+          letterSpacing: '-0.035em',
           maxWidth: 1620,
         }}
       >
         Agents are becoming <span style={{ color: palette.accent }}>live processes.</span>
       </h1>
-      <p style={{ fontSize: 40, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.35, marginBottom: 48 }}>
+      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.42, marginBottom: 48 }}>
         Signals are how you reach them.
       </p>
 
@@ -1290,7 +1499,7 @@ const Close: Page = () => (
         </div>
       </div>
     </div>
-    <Footer index={18} />
+    <Footer index={20} />
   </div>
 );
 
@@ -1305,14 +1514,17 @@ export const notes: (string | undefined)[] = [
   // 01 Cover
   `Welcome. This workshop is about Mastra Signals — how you communicate with running agents. We'll go from "why does this exist" through watching, steering, updating state, and waking agents from the outside world. Two live demos in Mastra Code and Playground. The thesis: signals let you watch, talk to, steer, update, and wake a running agent without restarting the loop.`,
 
-  // 02 The Problem
-  `Open with the problem, not the primitive. First-gen agents were chatbots: request, response, done. Today's agents run for minutes or hours, use tools, browse, watch GitHub/CI/Slack, maintain working memory, and multiple users may observe them. The core pain: once the loop starts, there's no first-class way to reach it. Everything gets forced through "append another chat message."`,
+  // 02 The Problem — Framing
+  `Open with the problem, not the primitive. First-gen agents were chatbots: send a message, stream a response, the turn ends. Request, response, done. That's the shape almost every framework was built around. Show the diagram and let it sit — that's the world we're leaving.`,
 
-  // 03 Not a chat message
-  `The only universal interface was appending a chat message. But the things an agent needs to know about aren't conversations. Browser tab changed. Working memory updated. CI failed. PR review requested. Tool approved. Another user joined. If messages are the conversation, signals are everything else the running agent needs to stay in sync with the world.`,
+  // 03 Not a chat message — the symptoms
+  `Here's where it breaks. The only universal interface was appending a chat message. But the things an agent needs to know about aren't conversations. Browser tab changed. Working memory updated. CI failed. PR review requested. A heartbeat or cron tick fired. Another user joined. These are types of information, not chat turns — and request/response has nowhere to put them. That's why the old shape stopped fitting.`,
 
-  // 04 Strategic Framing
-  `Three primitives, three directions. Tools: agent → world — affect external systems. Memory: agent → future self — persist context over time. Signals: world → live agent loop — send context into running or idle agents. Before signals, the agent loop owned both execution and context delivery. Signals decouple those. End Section 1 here.`,
+  // 04 The Problem — Traits (the diagnosis)
+  `So name what changed. The agents we're building now look different — and these properties are why all that information has nowhere to go. Long-running — they run for minutes or hours, use tools, browse, wait for approvals. World-aware — they watch GitHub, CI, Slack, email; external systems change state while they're alive. Stateful — working memory, browser state, project state, context shifts under them. Multi-user — multiple clients may be observing, sending input, approving tools. Goal-seeking — a /goal loop self-continues across runs until a stop-condition is met. Multi-channel — one agent reachable from terminal, web, Slack, CI, not a single stream. The previous slide was the symptom; this is the diagnosis.`,
+
+  // 05 Strategic Framing — introducing signals
+  `This is the reveal. We built Signals to fill that gap. A signal is a way to send context into a running — or idle — agent, without appending another chat message or restarting the loop. The world sends a signal into the live agent loop. The agent loop used to own both execution and context delivery; signals decouple those. Don't enumerate signal types yet — just name the primitive and what it's for. The next sections show the three concrete kinds in use. End Section 1 here.`,
 
   // 05 Watch and Talk
   `Section 2. User problem: a long-running agent is active, and another client or user wants to watch or send input. Before signals: restart, poll, force traffic through the stream owner, or append messages with no active-loop semantics. With signals: subscribe to the thread, send or queue messages, active vs idle delivery. The loop decides how to handle input based on its state.`,
@@ -1359,9 +1571,11 @@ export const notes: (string | undefined)[] = [
 
 export default [
   Cover,
-  TheProblem,
+  Problem_Framing,
   NotAChatMessage,
+  Problem_Traits,
   StrategicFraming,
+  Decouple,
   WatchAndTalk,
   SubscribeSend,
   ToolApproval,
