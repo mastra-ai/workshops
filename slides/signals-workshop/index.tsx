@@ -54,7 +54,7 @@ const fill = {
   overflow: 'hidden',
 };
 
-const TOTAL = 19;
+const TOTAL = 17;
 
 // Display type scale — aligned with processors-workshop / om-workshop.
 // hero: cover + closing splash · beat: standalone quiet headlines · section: in-deck h1 · sub: hero subtitle
@@ -741,22 +741,33 @@ const CoupledDelivery: Page = () => (
       </div>
 
       <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 18, padding: 32, boxShadow: '0 28px 80px rgba(0,0,0,0.35)' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 18 }}>HTML-ish mental model</div>
-        <div style={{ display: 'grid', gap: 14, fontFamily: font.mono }}>
-          <div style={{ color: palette.dim, fontSize: 20 }}>&lt;<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
-          <div style={{ marginLeft: 32, padding: '18px 22px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 23 }}>
-            &lt;token&gt;assistant output&lt;/token&gt;
-          </div>
-          <div style={{ marginLeft: 32, padding: '18px 22px', borderRadius: 12, background: 'rgba(255,179,71,0.08)', border: `1px dashed ${palette.amber}`, color: palette.amber, fontSize: 23 }}>
-            &lt;context&gt;new browser state&lt;/context&gt;
-          </div>
-          <div style={{ marginLeft: 32, padding: '18px 22px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 23 }}>
-            &lt;token&gt;more output&lt;/token&gt;
-          </div>
-          <div style={{ color: palette.dim, fontSize: 20 }}>&lt;/<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
-        </div>
-        <div style={{ marginTop: 24, color: palette.textSoft, fontSize: 22, lineHeight: 1.35 }}>
-          Context had to ride along as another thing inside the same stream.
+        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 18 }}>Request-shaped loops</div>
+        <div style={{ display: 'grid', gap: 36, paddingTop: 52, fontFamily: font.mono }}>
+          {[
+            ['Tyler', 'CLI'],
+            ['Alex', 'web app'],
+            ['CI bot', 'Slack'],
+          ].map(([actor, client]) => (
+            <div key={actor} style={{ display: 'grid', gridTemplateColumns: '150px 1fr 160px 1fr 150px', alignItems: 'center', gap: 34 }}>
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 20, textAlign: 'center' }}>
+                {actor}
+              </div>
+              <div style={{ height: 2, background: palette.borderBright, position: 'relative' }}>
+                <div style={{ position: 'absolute', right: -1, top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '12px solid transparent', borderBottom: '12px solid transparent', borderLeft: `22px solid ${palette.borderBright}` }} />
+              </div>
+              <div style={{ width: 160, height: 100, borderRadius: 999, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, display: 'grid', placeItems: 'center' }}>
+                <div style={{ color: palette.text, fontSize: 18, fontWeight: 800, textAlign: 'center', lineHeight: 1.15 }}>
+                  agent<br />loop
+                </div>
+              </div>
+              <div style={{ height: 2, background: palette.borderBright, position: 'relative' }}>
+                <div style={{ position: 'absolute', right: -1, top: '50%', transform: 'translateY(-50%)', width: 0, height: 0, borderTop: '12px solid transparent', borderBottom: '12px solid transparent', borderLeft: `22px solid ${palette.borderBright}` }} />
+              </div>
+              <div style={{ padding: '14px 16px', borderRadius: 14, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 20, textAlign: 'center' }}>
+                {client}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -785,36 +796,47 @@ const DecoupledDelivery: Page = () => (
       </div>
 
       <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 18, padding: 32, boxShadow: '0 28px 80px rgba(0,0,0,0.35)' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 18 }}>HTML-ish mental model</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 18, alignItems: 'center', fontFamily: font.mono }}>
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
-            <div style={{ padding: '16px 18px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 21 }}>
-              &lt;token&gt;assistant output&lt;/token&gt;
-            </div>
-            <div style={{ padding: '16px 18px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 21 }}>
-              &lt;token&gt;more output&lt;/token&gt;
-            </div>
-            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;/<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
+        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 18 }}>Addressable loop</div>
+        <div style={{ position: 'relative', height: 430, fontFamily: font.mono }}>
+          <svg aria-hidden width="100%" height="100%" viewBox="0 0 760 430" style={{ position: 'absolute', inset: 0 }}>
+            <defs>
+              <marker id="arrow-accent" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 Z" fill={palette.accent} />
+              </marker>
+              <marker id="arrow-muted" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 Z" fill={palette.borderBright} />
+              </marker>
+            </defs>
+            <path d="M150 92 C245 92 275 132 314 162" stroke={palette.accent} strokeWidth="2" fill="none" markerEnd="url(#arrow-accent)" />
+            <path d="M150 210 C235 210 270 210 315 210" stroke={palette.accent} strokeWidth="2" fill="none" markerEnd="url(#arrow-accent)" />
+            <path d="M150 328 C245 328 275 288 314 258" stroke={palette.accent} strokeWidth="2" fill="none" markerEnd="url(#arrow-accent)" />
+            <path d="M430 190 C505 150 545 110 610 92" stroke={palette.borderBright} strokeWidth="2" fill="none" markerEnd="url(#arrow-muted)" />
+            <path d="M430 205 C510 205 545 205 610 205" stroke={palette.borderBright} strokeWidth="2" fill="none" markerEnd="url(#arrow-muted)" />
+            <path d="M430 220 C505 260 545 305 610 328" stroke={palette.borderBright} strokeWidth="2" fill="none" markerEnd="url(#arrow-muted)" />
+          </svg>
+
+          <div style={{ position: 'absolute', left: 0, top: 48, display: 'grid', gap: 56 }}>
+            {['Tyler', 'Alex', 'CI bot'].map((client) => (
+              <div key={client} style={{ width: 150, padding: '14px 16px', borderRadius: 14, background: 'rgba(24,251,111,0.08)', border: `1px solid ${palette.accent}`, color: palette.accent, fontSize: 20, textAlign: 'center' }}>
+                {client}
+              </div>
+            ))}
           </div>
 
-          <div style={{ width: 54, height: 2, background: palette.borderBright, position: 'relative' }}>
-            <div style={{ position: 'absolute', right: -2, top: -5, width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: `10px solid ${palette.borderBright}` }} />
+          <div style={{ position: 'absolute', left: 315, top: 138, width: 150, height: 150, borderRadius: 999, background: 'radial-gradient(circle, rgba(24,251,111,0.20), rgba(24,251,111,0.04))', border: `1px solid ${palette.accent}`, display: 'grid', placeItems: 'center', boxShadow: `0 0 50px ${palette.accent}22` }}>
+            <div style={{ color: palette.text, fontSize: 24, fontWeight: 800, textAlign: 'center', lineHeight: 1.15 }}>
+              agent<br />loop
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;<span style={{ color: palette.accent }}>signal-channel</span>&gt;</div>
-            <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(24,251,111,0.08)', border: `1px solid ${palette.accent}`, color: palette.accent, fontSize: 21 }}>
-              &lt;signal type="state"&gt;working memory&lt;/signal&gt;
-            </div>
-            <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(24,251,111,0.08)', border: `1px solid ${palette.accent}`, color: palette.accent, fontSize: 21 }}>
-              &lt;signal type="reactive"&gt;AGENTS.md&lt;/signal&gt;
-            </div>
-            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;/<span style={{ color: palette.accent }}>signal-channel</span>&gt;</div>
+          <div style={{ position: 'absolute', right: 0, top: 48, display: 'grid', gap: 56 }}>
+            {['CLI', 'web app', 'Slack'].map((sub) => (
+              <div key={sub} style={{ width: 150, padding: '14px 16px', borderRadius: 14, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 20, textAlign: 'center' }}>
+                {sub}
+              </div>
+            ))}
           </div>
-        </div>
-        <div style={{ marginTop: 24, color: palette.textSoft, fontSize: 22, lineHeight: 1.35 }}>
-          Context can arrive while the stream continues — or after the loop goes idle.
+
         </div>
       </div>
     </div>
@@ -1082,13 +1104,16 @@ const ReactiveDemo: Page = () => (
     <div style={{ marginTop: 34, display: 'grid', gridTemplateColumns: '0.95fr 1.05fr', gap: 28, alignItems: 'stretch' }}>
       <CodeBlock
         label="processor hook"
-        code={`class GuidanceProcessor {
+        code={`class AgentsMdProcessor {
   async processInputStep({ messageList, sendSignal }) {
-    if (detectsRisk(messageList)) {
+    const dir = findTouchedDirectory(messageList);
+    const instructions = await readNestedAgentsMd(dir);
+
+    if (instructions) {
       await sendSignal({
         type: "reactive",
-        tagName: "safety-hint",
-        contents: "Verify before deleting files.",
+        tagName: "agents-md",
+        contents: instructions,
       });
     }
   }
@@ -1107,10 +1132,10 @@ const ReactiveDemo: Page = () => (
           lineHeight: 1.7,
         }}
       >
-        <div style={{ color: palette.muted, marginBottom: 10 }}>$ mastracode "fix the failing test in PR #142"</div>
-        <div style={{ color: palette.textSoft }}>▸ Reading test file...</div>
-        <div style={{ color: palette.textSoft }}>▸ Running npm test -- --grep "auth"</div>
-        <div style={{ color: palette.red }}>  ✗ 3 tests failed</div>
+        <div style={{ color: palette.muted, marginBottom: 10 }}>$ mastracode "refactor the billing route"</div>
+        <div style={{ color: palette.textSoft }}>▸ Viewing apps/api/billing/route.ts</div>
+        <div style={{ color: palette.textSoft }}>▸ Directory contains apps/api/billing/AGENTS.md</div>
+        <div style={{ color: palette.textSoft }}>▸ Loading nested instructions...</div>
         <div
           style={{
             marginTop: 12,
@@ -1122,16 +1147,16 @@ const ReactiveDemo: Page = () => (
           }}
         >
           <div style={{ color: palette.amber, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6 }}>
-            ⚡ Reactive Signal · safety-hint
+            ⚡ Reactive Signal · agents-md
           </div>
           <div style={{ color: palette.text, fontSize: 16 }}>
-            The failing tests are in auth middleware. Check if the JWT secret rotation broke the mock.
+            Use the billing service conventions: validate tenant scope first, then call the ledger adapter.
           </div>
         </div>
-        <div style={{ color: palette.textSoft, marginTop: 10 }}>▸ Reading auth/middleware.ts...</div>
-        <div style={{ color: palette.accent }}>  ✓ Found it — mock uses old secret format</div>
-        <div style={{ color: palette.textSoft }}>▸ Fixing mock...</div>
-        <div style={{ color: palette.accent }}>  ✓ Tests passing</div>
+        <div style={{ color: palette.textSoft, marginTop: 10 }}>▸ Applying local directory guidance...</div>
+        <div style={{ color: palette.accent }}>  ✓ Tenant scope check added before ledger writes</div>
+        <div style={{ color: palette.textSoft }}>▸ Editing apps/api/billing/route.ts</div>
+        <div style={{ color: palette.accent }}>  ✓ Refactor follows nested AGENTS.md</div>
       </div>
     </div>
 
@@ -1148,114 +1173,105 @@ const StateSignals: Page = () => (
     <SectionTitle
       title={
         <>
-          Keep state fresh <span style={{ color: palette.accent }}>without rewriting the prompt.</span>
+          Dynamic, <span style={{ color: palette.accent }}>cacheable</span> system context.
         </>
       }
     />
-    <SubTitle>
-      Working memory, browser state, project state, runtime state — all delivered as append-only state
-      updates. The processor decides snapshot vs delta.
-    </SubTitle>
 
-    <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
+    <div style={{ marginTop: 34, display: 'grid', gridTemplateColumns: '0.95fr 1.05fr', gap: 28, alignItems: 'stretch' }}>
       <CodeBlock
-        label="snapshot — full state"
-        code={`await agent.sendStateSignal({
-  id: "working-memory",
-  mode: "snapshot",
-  cacheKey: hash(state),
-  contents: rendered,
-  value: fullState,
-}, { resourceId, threadId });`}
-      />
-      <CodeBlock
-        label="delta — just what changed"
-        accent={palette.amber}
-        code={`await agent.sendStateSignal({
-  id: "working-memory",
-  mode: "delta",
-  cacheKey: hash(newState),
-  contents: diffText,
-  delta: changeRecord,
-}, { resourceId, threadId });`}
-      />
-    </div>
+        label="state processor"
+        code={`async computeStateSignal(args) {
+  const memory = await getWorkingMemory();
+  if (!memory) return;
 
-    <div style={{ marginTop: 24, display: 'flex', gap: 16 }}>
-      <Pill label="contents" desc="Model-facing rendered text." accent={palette.blue} />
-      <Pill label="value" desc="Full structured backing state." accent={palette.purple} />
-      <Pill label="delta" desc="Machine-readable change record." accent={palette.amber} />
-      <Pill label="cacheKey" desc="Stable identity — skip unchanged state." accent={palette.accent} />
+  if (unchanged(memory) && args.contextWindow.hasSnapshot) {
+    return; // skip
+  }
+
+  if (args.contextWindow.hasSnapshot) {
+    return {
+      id: "working-memory",
+      mode: "delta",
+      contents: diff(memory),
+    };
+  }
+  return {
+    id: "working-memory",
+    mode: "snapshot",
+    contents: memory,
+  };
+}`}
+      />
+
+      <div
+        style={{
+          background: '#050505',
+          border: `1px solid ${palette.borderBright}`,
+          borderRadius: 10,
+          padding: '20px 24px',
+          fontFamily: font.mono,
+          fontSize: 17,
+          lineHeight: 1.7,
+        }}
+      >
+        <div style={{ color: palette.muted, marginBottom: 14 }}>$ user: remember I prefer concise answers</div>
+        <div style={{ color: palette.textSoft }}>▸ working memory changes</div>
+        <div
+          style={{
+            marginTop: 12,
+            padding: '12px 16px',
+            background: palette.surface,
+            border: `1px solid ${palette.amber}40`,
+            borderLeft: `3px solid ${palette.amber}`,
+            borderRadius: 8,
+          }}
+        >
+          <div style={{ color: palette.amber, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6 }}>
+            State Signal · delta
+          </div>
+          <div style={{ color: palette.text, fontSize: 16 }}>+ prefers concise answers</div>
+        </div>
+        <div style={{ color: palette.textSoft, marginTop: 14 }}>▸ assistant answers briefly</div>
+        <div style={{ color: palette.textSoft }}>▸ tool call: search docs</div>
+        <div style={{ color: palette.textSoft }}>▸ user asks follow-up</div>
+        <div
+          style={{
+            marginTop: 16,
+            padding: '10px 14px',
+            background: 'rgba(217,217,217,0.05)',
+            border: `1px dashed ${palette.borderBright}`,
+            borderRadius: 8,
+            color: palette.text,
+            fontSize: 15,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Later · context window rewritten
+        </div>
+        <div style={{ color: palette.textSoft, marginTop: 10 }}>▸ previous snapshot is no longer present</div>
+        <div
+          style={{
+            marginTop: 12,
+            padding: '12px 16px',
+            background: palette.surface,
+            border: `1px solid ${palette.accent}40`,
+            borderLeft: `3px solid ${palette.accent}`,
+            borderRadius: 8,
+          }}
+        >
+          <div style={{ color: palette.accent, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6 }}>
+            State Signal · snapshot
+          </div>
+          <div style={{ color: palette.text, fontSize: 16 }}>
+            # Working Memory<br />- Communication: concise answers<br />- Topic: Mastra docs
+          </div>
+        </div>
+      </div>
     </div>
 
     <Footer index={12} />
-  </Stage>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 13 — State processor: computeStateSignal
-// ════════════════════════════════════════════════════════════════════════════
-const StateProcessor: Page = () => (
-  <Stage>
-    <Eyebrow>How it works</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          The processor decides <span style={{ color: palette.accent }}>what to emit.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      <code style={{ fontFamily: font.mono, color: palette.accent }}>computeStateSignal</code> runs each step. It
-      compares current state to the last snapshot — and emits a snapshot or a delta.
-    </SubTitle>
-
-    <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderTop: `2px solid ${palette.accent}`, borderRadius: 12, padding: '20px 24px', flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: 24, color: palette.text, fontWeight: 700, marginBottom: 6 }}>Step N</div>
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.accent }}>computeStateSignal()</div>
-      </div>
-      <Arrow />
-      <div style={{ background: palette.surfaceHi2, border: `1px dashed ${palette.borderBright}`, borderRadius: 12, padding: '20px 24px', flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: 20, color: palette.textSoft, marginBottom: 8 }}>Compare to last snapshot</div>
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted }}>cacheKey match?</div>
-      </div>
-      <Arrow />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ background: palette.surface, border: `1px solid ${palette.accent}40`, borderRadius: 10, padding: '14px 20px', fontFamily: font.mono, fontSize: 16, color: palette.accent }}>
-          ✓ unchanged → skip
-        </div>
-        <div style={{ background: palette.surface, border: `1px solid ${palette.amber}40`, borderRadius: 10, padding: '14px 20px', fontFamily: font.mono, fontSize: 16, color: palette.amber }}>
-          → delta (just the change)
-        </div>
-        <div style={{ background: palette.surface, border: `1px solid ${palette.blue}40`, borderRadius: 10, padding: '14px 20px', fontFamily: font.mono, fontSize: 16, color: palette.blue }}>
-          → snapshot (full state)
-        </div>
-      </div>
-    </div>
-
-    <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 14, padding: '22px 26px' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>
-          Working Memory is one use case
-        </div>
-        <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.5 }}>
-          Browser state, project state, org state, runtime state — all use the same delivery mechanism. State
-          Signals are the substrate; working memory is one consumer.
-        </div>
-      </div>
-      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 14, padding: '22px 26px' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>
-          Before Signals
-        </div>
-        <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.5 }}>
-          Rewrite system instructions every turn → break prompt cache, lose chronology, or stuff state into
-          normal messages and hope the model treats it differently.
-        </div>
-      </div>
-    </div>
-
-    <Footer index={13} />
   </Stage>
 );
 
@@ -1272,154 +1288,58 @@ const PromptCache: Page = () => (
         </>
       }
     />
-    <SubTitle>
-      Signals are added to conversation history in order. Changing state stays append-only — so prompt cache
-      is preserved.
-    </SubTitle>
 
-    <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Before: rewriting prompt */}
+    <div style={{ marginTop: 34, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, alignItems: 'stretch' }}>
       <div
         style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderRadius: 14,
-          padding: '24px 28px',
+          background: '#050505',
+          border: `1px solid ${palette.borderBright}`,
+          borderRadius: 10,
+          padding: '20px 24px',
+          fontFamily: font.mono,
+          fontSize: 17,
+          lineHeight: 1.7,
         }}
       >
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.rose, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-          Without Signals — rewrite every turn
+        <div style={{ color: palette.rose, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>
+          Without signals
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontFamily: font.mono, fontSize: 17 }}>
-          <span style={{ color: palette.muted }}>system prompt</span>
-          <span style={{ color: palette.rose }}>✗ rewritten</span>
-          <Arrow />
-          <span style={{ color: palette.muted }}>LLM</span>
-          <Arrow />
-          <span style={{ color: palette.muted }}>turn 2</span>
-          <Arrow />
-          <span style={{ color: palette.rose }}>✗ rewritten again</span>
-          <Arrow />
-          <span style={{ color: palette.muted }}>cache broken</span>
-        </div>
+        <div style={{ color: palette.textSoft }}>system: You are helpful.</div>
+        <div style={{ color: palette.rose }}>system: Working memory = concise answers</div>
+        <div style={{ color: palette.textSoft }}>user: follow up on the docs</div>
+        <div style={{ color: palette.rose, marginTop: 14 }}>system rewritten again</div>
+        <div style={{ color: palette.textSoft }}>assistant: ...</div>
+        <div style={{ color: palette.rose, marginTop: 14 }}>✗ prompt prefix changed</div>
+        <div style={{ color: palette.rose }}>✗ cache broken</div>
       </div>
 
-      {/* After: append-only */}
       <div
         style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
+          background: '#050505',
+          border: `1px solid ${palette.accent}55`,
           borderLeft: `3px solid ${palette.accent}`,
-          borderRadius: 14,
-          padding: '24px 28px',
+          borderRadius: 10,
+          padding: '20px 24px',
+          fontFamily: font.mono,
+          fontSize: 17,
+          lineHeight: 1.7,
         }}
       >
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.accent, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-          With Signals — append-only history
+        <div style={{ color: palette.accent, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>
+          With state signals
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontFamily: font.mono, fontSize: 17 }}>
-          <span style={{ color: palette.muted }}>system prompt</span>
-          <span style={{ color: palette.accent }}>✓ stable</span>
-          <Arrow />
-          <span style={{ color: palette.blue }}>signal: snapshot</span>
-          <Arrow />
-          <span style={{ color: palette.amber }}>signal: delta</span>
-          <Arrow />
-          <span style={{ color: palette.amber }}>signal: delta</span>
-          <Arrow />
-          <span style={{ color: palette.accent }}>cache intact ✓</span>
-        </div>
+        <div style={{ color: palette.textSoft }}>system: You are helpful.</div>
+        <div style={{ color: palette.accent }}>signal: working-memory snapshot</div>
+        <div style={{ color: palette.textSoft }}>user: follow up on the docs</div>
+        <div style={{ color: palette.amber }}>signal: working-memory delta</div>
+        <div style={{ color: palette.textSoft }}>assistant: ...</div>
+        <div style={{ color: palette.accent, marginTop: 14 }}>✓ prompt prefix stable</div>
+        <div style={{ color: palette.accent }}>✓ cache intact</div>
       </div>
     </div>
 
-    <div style={{ marginTop: 28, fontSize: 24, color: palette.text, fontWeight: 600, lineHeight: 1.45, maxWidth: 1500 }}>
-      Dynamic system guidance without rewriting the prompt or destroying prompt cache.
-    </div>
-
-    <Footer index={14} />
+    <Footer index={13} />
   </Stage>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 15 — Demo B: Working Memory state signal in Playground
-// ════════════════════════════════════════════════════════════════════════════
-const DemoB: Page = () => (
-  <div style={{ ...fill, padding: '0 120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-    <div
-      aria-hidden
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: `radial-gradient(900px 500px at 50% 50%, ${palette.blue}10 0%, transparent 60%)`,
-      }}
-    />
-    <div style={{ position: 'relative' }}>
-      <Eyebrow color={palette.blue}>Demo B · Playground</Eyebrow>
-      <h1
-        style={{
-          fontFamily: font.display,
-          fontSize: display.beat,
-          fontWeight: 900,
-          lineHeight: 1.02,
-          margin: '28px 0 24px',
-          letterSpacing: '-0.035em',
-          maxWidth: 1600,
-        }}
-      >
-        Working Memory as a <span style={{ color: palette.blue }}>State Signal.</span>
-      </h1>
-      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.42, marginBottom: 40 }}>
-        Ask the agent to remember a preference. Watch the state signal render in Playground. Update the
-        preference — see snapshot vs delta in the conversation history.
-      </p>
-
-      <div style={{ display: 'flex', gap: 28 }}>
-        <div
-          style={{
-            background: palette.surface,
-            border: `1px solid ${palette.border}`,
-            borderTop: `2px solid ${palette.blue}`,
-            borderRadius: 14,
-            padding: '24px 28px',
-            flex: 1,
-          }}
-        >
-          <div style={{ fontSize: 28, color: palette.blue, fontWeight: 800, fontFamily: font.mono, marginBottom: 12 }}>①</div>
-          <div style={{ fontSize: 22, color: palette.text, fontWeight: 700, marginBottom: 8 }}>Remember a preference</div>
-          <div style={{ fontSize: 18, color: palette.textSoft, lineHeight: 1.45 }}>"Always use TypeScript, never JavaScript."</div>
-        </div>
-        <div
-          style={{
-            background: palette.surface,
-            border: `1px solid ${palette.border}`,
-            borderTop: `2px solid ${palette.accent}`,
-            borderRadius: 14,
-            padding: '24px 28px',
-            flex: 1,
-          }}
-        >
-          <div style={{ fontSize: 28, color: palette.accent, fontWeight: 800, fontFamily: font.mono, marginBottom: 12 }}>②</div>
-          <div style={{ fontSize: 22, color: palette.text, fontWeight: 700, marginBottom: 8 }}>State signal renders</div>
-          <div style={{ fontSize: 18, color: palette.textSoft, lineHeight: 1.45 }}>First delivery is a snapshot — full working memory state appears in the stream.</div>
-        </div>
-        <div
-          style={{
-            background: palette.surface,
-            border: `1px solid ${palette.border}`,
-            borderTop: `2px solid ${palette.amber}`,
-            borderRadius: 14,
-            padding: '24px 28px',
-            flex: 1,
-          }}
-        >
-          <div style={{ fontSize: 28, color: palette.amber, fontWeight: 800, fontFamily: font.mono, marginBottom: 12 }}>③</div>
-          <div style={{ fontSize: 22, color: palette.text, fontWeight: 700, marginBottom: 8 }}>Update → delta</div>
-          <div style={{ fontSize: 18, color: palette.textSoft, lineHeight: 1.45 }}>Next change emits only the diff — append-only, cache preserved.</div>
-        </div>
-      </div>
-    </div>
-    <Footer index={15} />
-  </div>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1465,7 +1385,7 @@ const NotificationSignals: Page = () => (
       Signals don't require the agent to be running. <span style={{ color: palette.accent, fontWeight: 600 }}>Idle delivery wakes the loop; active delivery joins it mid-flight.</span>
     </div>
 
-    <Footer index={16} />
+    <Footer index={14} />
   </Stage>
 );
 
@@ -1546,7 +1466,7 @@ const NotificationDemo: Page = () => (
       </div>
     </div>
 
-    <Footer index={17} />
+    <Footer index={15} />
   </Stage>
 );
 
@@ -1594,7 +1514,7 @@ const Recap: Page = () => (
       </div>
     </div>
 
-    <Footer index={18} />
+    <Footer index={16} />
   </Stage>
 );
 
@@ -1662,7 +1582,7 @@ const Close: Page = () => (
         </div>
       </div>
     </div>
-    <Footer index={19} />
+    <Footer index={17} />
   </div>
 );
 
@@ -1706,30 +1626,24 @@ export const notes: (string | undefined)[] = [
   `Third handle: queue the next turn. queueMessage preserves order when the loop is already active, so follow-up context waits its turn instead of interrupting the current step. Live demo cue: queue a second instruction and show it runs after the active step.`,
 
   // 11 Reactive Demo
-  `Section 3. Reactive signals are agent-facing guidance, not UI commands. The code on the left is the processor hook: processInputStep receives messageList and sendSignal, detects context, and emits a reactive signal. The history on the right shows the effect: the running agent receives guidance mid-run and adjusts course without restarting. Live demo cue: show this exact pattern in Mastra Code with AGENTS.md guidance, PR context, or error recovery.`,
+  `Section 3. Reactive signals are agent-facing guidance, not UI commands. The code on the left is the processor hook: processInputStep receives messageList and sendSignal, notices that the agent viewed or edited a file inside a directory with a nested AGENTS.md, and emits those local instructions as a reactive signal. The history on the right shows the effect: directory-specific guidance reaches the running agent mid-run without restarting. Live demo cue: open or edit a file under a nested AGENTS.md and show Mastra Code autoloading that guidance into the loop.`,
 
   // 12 State Signals
-  `Section 4. The agent needs fresh changing context: working memory, browser state, project state. Before signals: rewrite system instructions every turn — break prompt cache, lose chronology, stuff state into messages. State signals deliver snapshots and deltas as append-only state updates. Working memory is ONE use case — browser, project, org, runtime state all use the same mechanism. The fields: contents is model-facing rendered text, value is full structured backing state, delta is the machine-readable change, cacheKey is the stable identity to skip unchanged state.`,
+  `Section 4. State signals are computed by processors, not usually hand-written with sendStateSignal in application code. The left side is a simplified WorkingMemoryStateProcessor: read current working memory, hash it, skip if unchanged, emit a delta when the prior snapshot is still in context, otherwise emit a full snapshot. The right side shows the lifecycle: user teaches the agent a preference, working memory changes, a delta is emitted; later old messages fall out of the context window, so the processor emits a full snapshot to keep the latest state available.`,
 
-  // 13 State Processor
-  `computeStateSignal runs each step. It compares current state to the last snapshot using cacheKey. If unchanged, skip. If changed and a prior snapshot exists, emit a delta. If no prior snapshot or the snapshot was evicted, emit a full snapshot. The processor decides — the agent code doesn't need to know. Working memory is one use case of this substrate. Before signals: rewrite system instructions every turn and break everything.`,
+  // 13 Prompt Cache
+  `This is the technical payoff. Without signals, changing state means rewriting system context over and over; the prompt prefix changes and cache breaks. With state signals, the system prompt stays stable and state arrives as append-only signal messages in conversation history. The side-by-side chats make the contrast concrete: rewritten prompt versus stable prompt plus snapshot/delta messages.`,
 
-  // 14 Prompt Cache
-  `This is the technical payoff. Without signals: you rewrite the system prompt every turn to inject new state — cache broken, latency added, cost increased. With signals: the system prompt stays stable. State updates are appended to conversation history in order as signal messages — snapshot first, then deltas. The prompt cache sees the same prefix every turn. Dynamic system guidance without rewriting the prompt or destroying cache.`,
-
-  // 15 Demo B
-  `Transition to Demo B. In Mastra Code, signals showed up as a product experience — the agent kept working while context arrived from us, from processors, and from GitHub. One of the most important parts of that system is easier to see in isolation: state. Switch to Playground. Ask the agent to remember a preference. Watch the state signal render. Update the preference — see snapshot vs delta. This is the working memory state signal in isolation.`,
-
-  // 16 Notification Signals
+  // 14 Notification Signals
   `Section 5. External systems need to notify or wake an agent — idle or active. Notification signals carry source, kind, priority, summary (model-facing), dedupeKey (exact event identity — skip duplicates), coalesceKey (group noisy related events), attributes (routing/filtering), and metadata (system-facing). Signals don't require the agent to be running. Idle delivery wakes the loop. Active delivery joins it mid-flight. Use Mastra Code + GitHub Signals as the concrete example — not hypothetical.`,
 
-  // 17 Notification Demo
+  // 15 Notification Demo
   `Demo A final act. The agent is working on the PR. GitHub Signals is polling in the background. It detects a new review comment, classifies it, and delivers a notification signal — all while the agent keeps working. The agent receives the signal, reads the review feedback, and adjusts its approach. No restart, no custom side channel, no noisy chat message. The unlock: agents become world-aware processes, not just chat responders.`,
 
-  // 18 Recap
+  // 16 Recap
   `Section 6. The arc: watch it (subscribeToThread), talk to it (sendMessage/queueMessage), steer it (reactive signals from processors), update its state (state signals — append-only, cache-preserving), wake it from the world (notification signals — external systems reach in). Five capabilities, one primitive class. The loop stays running through all of them.`,
 
-  // 19 Close
+  // 17 Close
   `Agents are becoming live processes. Signals are how you reach them. What's next: notification vendor integrations (GitHub, Slack, Resend, calendars), state signals as the substrate for all dynamic state, subconscious/background agents delivering updates through signals. Boundaries: not a pub/sub bus, not a replacement for tools/memory/processors, currently requires Mastra memory (resource/thread). Multi-process pub/sub is available but only matters past single-server. Q&A. Resources at mastra.ai, github.com/mastra-ai/mastra, discord.gg/mastra.`,
 ];
 
@@ -1746,9 +1660,7 @@ export default [
   QueueNext,
   ReactiveDemo,
   StateSignals,
-  StateProcessor,
   PromptCache,
-  DemoB,
   NotificationSignals,
   NotificationDemo,
   Recap,
