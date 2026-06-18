@@ -54,7 +54,7 @@ const fill = {
   overflow: 'hidden',
 };
 
-const TOTAL = 17;
+const TOTAL = 19;
 
 // Display type scale — aligned with processors-workshop / om-workshop.
 // hero: cover + closing splash · beat: standalone quiet headlines · section: in-deck h1 · sub: hero subtitle
@@ -358,7 +358,7 @@ const Problem_Traits: Page = () => (
       </div>
     </div>
 
-    <Footer index={4} />
+    <Footer index={3} />
   </Stage>
 );
 
@@ -384,10 +384,10 @@ const NotAChatMessage: Page = () => (
       {[
         { icon: '🌐', label: 'Browser tab changed', desc: 'The agent navigated — state is now different.', accent: palette.blue },
         { icon: '🧠', label: 'Working memory updated', desc: 'A preference was learned mid-run.', accent: palette.purple },
-        { icon: '🔄', label: 'CI failed on main', desc: 'External system needs to wake the agent.', accent: palette.rose },
-        { icon: '👀', label: 'PR review requested', desc: 'GitHub activity the agent subscribed to.', accent: palette.amber },
+        { icon: '🔄', label: 'PR has failing CI', desc: 'External system needs to wake the agent.', accent: palette.rose },
+        { icon: '💬', label: 'New PR comments', desc: 'GitHub activity the agent subscribed to.', accent: palette.amber },
         { icon: '⏰', label: 'Heartbeat / cron', desc: 'A periodic tick wakes an idle agent.', accent: palette.green },
-        { icon: '👋', label: 'Another user joined', desc: 'New participant entering the thread.', accent: palette.cyan },
+        { icon: '✉️', label: 'Received a new email', desc: 'External context arrives from another channel.', accent: palette.cyan },
       ].map((item) => (
         <div
           key={item.label}
@@ -408,7 +408,7 @@ const NotAChatMessage: Page = () => (
       ))}
     </div>
 
-    <Footer index={3} />
+    <Footer index={4} />
   </Stage>
 );
 
@@ -846,7 +846,34 @@ const DecoupledDelivery: Page = () => (
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 08 — Subscribe API
+// 08 — Transition into mechanics
+// ════════════════════════════════════════════════════════════════════════════
+const HowItWorks: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 70 }}>
+      <div style={{ textAlign: 'center' }}>
+        <Eyebrow>Okay</Eyebrow>
+        <h1
+          style={{
+            fontFamily: font.display,
+            fontSize: display.beat,
+            fontWeight: 900,
+            lineHeight: 0.98,
+            letterSpacing: '-0.035em',
+            margin: 0,
+          }}
+        >
+          Cool — so <span style={{ color: palette.accent }}>how does it work?</span>
+        </h1>
+      </div>
+    </div>
+
+    <Footer index={8} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 09 — Subscribe API
 // ════════════════════════════════════════════════════════════════════════════
 const SubscribeObserve: Page = () => (
   <Stage padding="0 120px">
@@ -917,7 +944,7 @@ for await (const chunk of sub.stream) {
       </div>
     </div>
 
-    <Footer index={8} />
+    <Footer index={9} />
   </Stage>
 );
 
@@ -1000,7 +1027,7 @@ const SendNow: Page = () => (
       </div>
     </div>
 
-    <Footer index={9} />
+    <Footer index={10} />
   </Stage>
 );
 
@@ -1083,12 +1110,86 @@ const QueueNext: Page = () => (
       </div>
     </div>
 
-    <Footer index={10} />
+    <Footer index={11} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 11 — Reactive signal in Mastra Code TUI
+// 12 — Transition into demo
+// ════════════════════════════════════════════════════════════════════════════
+const SeeItInAction: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 70 }}>
+      <div style={{ textAlign: 'center' }}>
+        <Eyebrow>Demo</Eyebrow>
+        <h1
+          style={{
+            fontFamily: font.display,
+            fontSize: display.beat,
+            fontWeight: 900,
+            lineHeight: 0.98,
+            letterSpacing: '-0.035em',
+            margin: 0,
+          }}
+        >
+          Let’s see it <span style={{ color: palette.accent }}>in action.</span>
+        </h1>
+      </div>
+    </div>
+
+    <Footer index={12} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 13 — Bridge back from live demo
+// ════════════════════════════════════════════════════════════════════════════
+const BeyondMultiplayer: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 70 }}>
+      <div style={{ textAlign: 'center', maxWidth: 1440 }}>
+        <div
+          style={{
+            fontFamily: font.display,
+            fontSize: 72,
+            fontWeight: 900,
+            lineHeight: 1,
+            letterSpacing: '-0.035em',
+            color: palette.text,
+            marginBottom: 24,
+          }}
+        >
+          Signals give you <span style={{ color: palette.accent }}>multiplayer</span> and <span style={{ color: palette.accent }}>steering</span>.
+        </div>
+        <div style={{ fontSize: 34, color: palette.text, fontWeight: 800, lineHeight: 1.25, marginBottom: 54 }}>
+          But they can do a lot more.
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22, textAlign: 'left' }}>
+          {[
+            { label: 'Reactive', desc: 'Guide the running agent with processor-generated context.', accent: palette.accent },
+            { label: 'State', desc: 'Keep dynamic system context fresh with snapshots and deltas.', accent: palette.amber },
+            { label: 'Notification', desc: 'Wake or update the agent from external systems.', accent: palette.blue },
+          ].map((type) => (
+            <div key={type.label} style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderTop: `4px solid ${type.accent}`, borderRadius: 14, padding: '28px 30px' }}>
+              <div style={{ fontFamily: font.mono, fontSize: 16, letterSpacing: '0.18em', textTransform: 'uppercase', color: type.accent, marginBottom: 14 }}>
+                {type.label}
+              </div>
+              <div style={{ fontSize: 21, lineHeight: 1.38, color: palette.textSoft }}>
+                {type.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <Footer index={13} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 14 — Reactive signal in Mastra Code TUI
 // ════════════════════════════════════════════════════════════════════════════
 const ReactiveDemo: Page = () => (
   <Stage>
@@ -1160,7 +1261,7 @@ const ReactiveDemo: Page = () => (
       </div>
     </div>
 
-    <Footer index={11} />
+    <Footer index={14} />
   </Stage>
 );
 
@@ -1271,7 +1372,7 @@ const StateSignals: Page = () => (
       </div>
     </div>
 
-    <Footer index={12} />
+    <Footer index={15} />
   </Stage>
 );
 
@@ -1338,7 +1439,7 @@ const PromptCache: Page = () => (
       </div>
     </div>
 
-    <Footer index={13} />
+    <Footer index={16} />
   </Stage>
 );
 
@@ -1356,117 +1457,56 @@ const NotificationSignals: Page = () => (
       }
     />
     <SubTitle>
-      External systems need to notify or wake an agent — idle or active. Notification signals carry delivery
-      policy, priority, dedupe, and coalescing.
+      GitHub Signals turns subscribed PR activity into notification signals the agent can receive while active — or use to wake from idle.
     </SubTitle>
 
-    <div style={{ marginTop: 30, display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 24 }}>
-      <CodeBlock
-        label="send a notification signal"
-        accent={palette.purple}
-        code={`await agent.sendNotificationSignal({
-  source: "github",
-  kind: "ci-status",
-  priority: "high",
-  summary: "CI failed on main — tests/auth.spec.ts",
-  dedupeKey: "github:repo#42:ci:main:a1b2c3",
-  coalesceKey: "github:repo#42:ci-status",
-}, { resourceId, threadId });`}
-      />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <Pill label="source" desc="Who sent it — github, slack, resend." accent={palette.purple} />
-        <Pill label="summary" desc="Model-facing text — what the agent sees." accent={palette.blue} />
-        <Pill label="dedupeKey" desc="Exact event identity — skip duplicates." accent={palette.accent} />
-        <Pill label="coalesceKey" desc="Group noisy related events into one." accent={palette.amber} />
-      </div>
-    </div>
-
-    <div style={{ marginTop: 22, fontSize: 22, color: palette.textSoft, lineHeight: 1.45, maxWidth: 1500 }}>
-      Signals don't require the agent to be running. <span style={{ color: palette.accent, fontWeight: 600 }}>Idle delivery wakes the loop; active delivery joins it mid-flight.</span>
-    </div>
-
-    <Footer index={14} />
-  </Stage>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 17 — Demo A final: GitHub notification in Mastra Code
-// ════════════════════════════════════════════════════════════════════════════
-const NotificationDemo: Page = () => (
-  <Stage>
-    <Eyebrow>Demo A · final act</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          GitHub wakes the agent <span style={{ color: palette.accent }}>mid-run.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      The agent is working on the PR. GitHub Signals polls for activity, detects a new comment, and delivers a
-      notification signal — without the agent asking.
-    </SubTitle>
-
-    <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div
-        style={{
-          background: palette.bg,
-          border: `1px solid ${palette.borderBright}`,
-          borderRadius: 10,
-          padding: '18px 24px',
-          fontFamily: font.mono,
-          fontSize: 16,
-          lineHeight: 1.7,
-        }}
-      >
-        <div style={{ color: palette.textSoft }}>▸ Agent: fixing test in auth/middleware.ts...</div>
-        <div style={{ color: palette.textSoft }}>▸ Agent: running npm test...</div>
-        <div
-          style={{
-            marginTop: 10,
-            padding: '14px 18px',
-            background: palette.surface,
-            border: `1px solid ${palette.purple}50`,
-            borderLeft: `3px solid ${palette.purple}`,
-            borderRadius: 8,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-            <span style={{ color: palette.purple, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700 }}>
-              🔔 Notification · github · high
-            </span>
+    <div style={{ marginTop: 30, display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: 24, alignItems: 'stretch' }}>
+      <div style={{ display: 'grid', gap: 14 }}>
+        {[
+          { label: 'Subscribe', desc: 'Thread stores owner/repo/PR in GitHub metadata.', accent: palette.purple },
+          { label: 'Poll + sync', desc: 'gitcrawl syncs the PR and loads a fresh snapshot.', accent: palette.blue },
+          { label: 'Compare cursors', desc: 'CI, review, merge, head SHA, and thread hashes reveal changes.', accent: palette.amber },
+          { label: 'Classify', desc: 'Map change → kind, priority, and model-facing summary.', accent: palette.rose },
+          { label: 'Notify', desc: 'sendNotificationSignal delivers with dedupe/coalesce keys.', accent: palette.accent },
+        ].map((step, i) => (
+          <div key={step.label} style={{ display: 'grid', gridTemplateColumns: '42px 1fr', gap: 14, alignItems: 'start', background: palette.surface, border: `1px solid ${palette.border}`, borderLeft: `4px solid ${step.accent}`, borderRadius: 12, padding: '16px 18px' }}>
+            <div style={{ width: 28, height: 28, borderRadius: 999, background: `${step.accent}22`, color: step.accent, display: 'grid', placeItems: 'center', fontFamily: font.mono, fontSize: 14, fontWeight: 800 }}>
+              {i + 1}
+            </div>
+            <div>
+              <div style={{ fontFamily: font.mono, fontSize: 15, color: step.accent, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 5 }}>
+                {step.label}
+              </div>
+              <div style={{ fontSize: 18, color: palette.textSoft, lineHeight: 1.36 }}>
+                {step.desc}
+              </div>
+            </div>
           </div>
-          <div style={{ color: palette.text, fontSize: 16 }}>
-            New review comment on PR #142: "This mock won't work with the rotated secret."
+        ))}
+      </div>
+
+      <div style={{ background: palette.bg, border: `1px solid ${palette.borderBright}`, borderRadius: 12, padding: '22px 26px', fontFamily: font.mono, fontSize: 17, lineHeight: 1.65 }}>
+        <div style={{ color: palette.textSoft }}>▸ Agent: fixing PR #142...</div>
+        <div style={{ color: palette.textSoft }}>▸ GitHub Signals: polling subscribed PR</div>
+        <div style={{ color: palette.amber }}>▸ Snapshot changed: unresolved review thread</div>
+        <div style={{ marginTop: 12, padding: '16px 18px', background: palette.surface, border: `1px solid ${palette.purple}55`, borderLeft: `4px solid ${palette.purple}`, borderRadius: 10 }}>
+          <div style={{ color: palette.purple, fontSize: 14, letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 800, marginBottom: 8 }}>
+            notification · github · medium
+          </div>
+          <div style={{ color: palette.text, fontSize: 18, lineHeight: 1.45 }}>
+            mastra-ai/mastra#142 has 1 unresolved review thread
+          </div>
+          <div style={{ marginTop: 12, color: palette.textSoft, fontSize: 15 }}>
+            dedupeKey: github:mastra-ai/mastra#142:&lt;contentHash&gt;<br />
+            coalesceKey: github:mastra-ai/mastra#142:pull-request-review-activity
           </div>
         </div>
-        <div style={{ color: palette.textSoft, marginTop: 10 }}>▸ Agent: adjusting approach based on review feedback...</div>
-        <div style={{ color: palette.accent }}>  ✓ Updated mock to use rotation-compatible format</div>
+        <div style={{ color: palette.textSoft, marginTop: 12 }}>▸ Agent: reading review feedback...</div>
+        <div style={{ color: palette.accent }}>  ✓ Adjusting implementation mid-run</div>
       </div>
     </div>
 
-    <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '20px 24px' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.purple, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>
-          What just happened
-        </div>
-        <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.5 }}>
-          GitHub Signals polled, detected a new comment, classified it, and delivered a notification signal —
-          all while the agent kept working.
-        </div>
-      </div>
-      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '20px 24px' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.accent, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>
-          The unlock
-        </div>
-        <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.5 }}>
-          Agents become world-aware processes — not just chat responders. External systems reach in without
-          restarts, custom side channels, or noisy messages.
-        </div>
-      </div>
-    </div>
-
-    <Footer index={15} />
+    <Footer index={17} />
   </Stage>
 );
 
@@ -1477,44 +1517,87 @@ const Recap: Page = () => (
   <Stage padding="0 120px">
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
       <Eyebrow>Section 6 · What this unlocks</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          The arc: <span style={{ color: palette.accent }}>watch → wake.</span>
-        </>
-      }
-    />
+      <SectionTitle
+        maxWidth={1120}
+        title={
+          <>
+            The arc: <span style={{ color: palette.accent }}>watch → wake.</span>
+          </>
+        }
+      />
 
-      <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {[
-        { icon: '👀', verb: 'Watch it', desc: 'subscribeToThread — the loop is observable', accent: palette.accent },
-        { icon: '💬', verb: 'Talk to it', desc: 'sendMessage / queueMessage — the loop is addressable', accent: palette.blue },
-        { icon: '🎛️', verb: 'Steer it', desc: 'Reactive signals — processors guide without restart', accent: palette.amber },
-        { icon: '🔄', verb: 'Update its state', desc: 'State signals — append-only, cache-preserving', accent: palette.purple },
-        { icon: '🌍', verb: 'Wake it from the world', desc: 'Notification signals — external systems reach in', accent: palette.cyan },
-      ].map((step, i) => (
+      <div style={{ marginTop: 64, position: 'relative' }}>
         <div
-          key={i}
+          aria-hidden
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 24,
-            background: palette.surface,
-            border: `1px solid ${palette.border}`,
-            borderLeft: `4px solid ${step.accent}`,
-            borderRadius: 14,
-            padding: '20px 28px',
+            position: 'absolute',
+            left: 92,
+            right: 92,
+            top: 54,
+            height: 2,
+            background: `linear-gradient(90deg, ${palette.accent}66, ${palette.blue}66, ${palette.amber}66, ${palette.purple}66, ${palette.cyan}66)`,
           }}
-        >
-          <span style={{ fontSize: 32 }}>{step.icon}</span>
-          <div style={{ fontFamily: font.mono, fontSize: 24, color: step.accent, fontWeight: 700, minWidth: 280 }}>{step.verb}</div>
-          <div style={{ fontSize: 20, color: palette.textSoft, flex: 1 }}>{step.desc}</div>
+        />
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 18 }}>
+          {[
+            { icon: '👀', verb: 'Watch', desc: 'subscribeToThread', detail: 'the loop is observable', accent: palette.accent },
+            { icon: '💬', verb: 'Talk', desc: 'send / queue', detail: 'the loop is addressable', accent: palette.blue },
+            { icon: '🎛️', verb: 'Guide', desc: 'reactive signals', detail: 'processors guide without restart', accent: palette.amber },
+            { icon: '🔄', verb: 'Update', desc: 'state signals', detail: 'append-only and cache-preserving', accent: palette.purple },
+            { icon: '🌍', verb: 'Wake', desc: 'notification signals', detail: 'external systems reach in', accent: palette.cyan },
+          ].map((step, i) => (
+            <div key={step.verb} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div
+                style={{
+                  width: 108,
+                  height: 108,
+                  borderRadius: 999,
+                  background: `radial-gradient(circle, ${step.accent}22 0%, ${palette.surfaceHi} 72%)`,
+                  border: `1px solid ${step.accent}88`,
+                  boxShadow: `0 0 42px ${step.accent}18`,
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: 40,
+                  zIndex: 2,
+                }}
+              >
+                {step.icon}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 24,
+                  width: '100%',
+                  minHeight: 190,
+                  background: palette.surface,
+                  border: `1px solid ${palette.border}`,
+                  borderTop: `4px solid ${step.accent}`,
+                  borderRadius: 16,
+                  padding: '24px 22px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontFamily: font.mono, fontSize: 15, color: palette.muted, marginBottom: 8 }}>
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+                <div style={{ fontSize: 28, color: step.accent, fontWeight: 850, marginBottom: 14 }}>
+                  {step.verb}
+                </div>
+                <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.text, marginBottom: 12 }}>
+                  {step.desc}
+                </div>
+                <div style={{ fontSize: 17, color: palette.textSoft, lineHeight: 1.35 }}>
+                  {step.detail}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
       </div>
     </div>
 
-    <Footer index={16} />
+    <Footer index={18} />
   </Stage>
 );
 
@@ -1546,10 +1629,10 @@ const Close: Page = () => (
           maxWidth: 1620,
         }}
       >
-        Agents are becoming <span style={{ color: palette.accent }}>live processes.</span>
+        A running agent needs <span style={{ color: palette.accent }}>more than messages.</span>
       </h1>
-      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.42, marginBottom: 48 }}>
-        Signals are how you reach them.
+      <p style={{ fontSize: 52, color: palette.text, fontStyle: 'italic', fontWeight: 700, maxWidth: 1500, lineHeight: 1.3, marginBottom: 48 }}>
+        Signals deliver the rest.
       </p>
 
       <div style={{ display: 'flex', gap: 28, fontFamily: font.mono, fontSize: 20, marginBottom: 48 }}>
@@ -1560,29 +1643,8 @@ const Close: Page = () => (
         <span style={{ color: palette.textSoft }}>discord.gg/mastra</span>
       </div>
 
-      <div style={{ display: 'flex', gap: 20 }}>
-        <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '18px 24px' }}>
-          <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>
-            What's next
-          </div>
-          <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.45, maxWidth: 600 }}>
-            Notification vendor integrations (GitHub, Slack, Resend, calendars). State signals as the substrate
-            for working memory, browser, project, org state. Subconscious agents delivering updates through
-            signals.
-          </div>
-        </div>
-        <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '18px 24px' }}>
-          <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>
-            Boundaries
-          </div>
-          <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.45, maxWidth: 600 }}>
-            Not a pub/sub bus between arbitrary services. Not a replacement for tools, memory, or processors —
-            they complement signals. Currently require Mastra memory (resource/thread).
-          </div>
-        </div>
-      </div>
     </div>
-    <Footer index={17} />
+    <Footer index={19} />
   </div>
 );
 
@@ -1600,11 +1662,11 @@ export const notes: (string | undefined)[] = [
   // 02 The Problem — Framing
   `Open with the problem, not the primitive. First-gen agents were chatbots: send a message, stream a response, the turn ends. Request, response, done. That's the shape almost every framework was built around. Show the diagram and let it sit — that's the world we're leaving.`,
 
-  // 03 Not a chat message — the symptoms
-  `Here's where it breaks. The only universal interface was appending a chat message. But the things an agent needs to know about aren't conversations. Browser tab changed. Working memory updated. CI failed. PR review requested. A heartbeat or cron tick fired. Another user joined. These are types of information, not chat turns — and request/response has nowhere to put them. That's why the old shape stopped fitting.`,
+  // 03 The Problem — Traits (the diagnosis)
+  `So name what changed. The agents we're building now look different — and these properties explain why the old shape stopped fitting. Long-running — they run for minutes or hours, use tools, browse, wait for approvals. World-aware — they watch GitHub, CI, Slack, email; external systems change state while they're alive. Stateful — working memory, browser state, project state, context shifts under them. Multi-user — multiple clients may be observing, sending input, approving tools. Goal-seeking — a /goal loop self-continues across runs until a stop-condition is met. Multi-channel — one agent reachable from terminal, web, Slack, CI, not a single stream.`,
 
-  // 04 The Problem — Traits (the diagnosis)
-  `So name what changed. The agents we're building now look different — and these properties are why all that information has nowhere to go. Long-running — they run for minutes or hours, use tools, browse, wait for approvals. World-aware — they watch GitHub, CI, Slack, email; external systems change state while they're alive. Stateful — working memory, browser state, project state, context shifts under them. Multi-user — multiple clients may be observing, sending input, approving tools. Goal-seeking — a /goal loop self-continues across runs until a stop-condition is met. Multi-channel — one agent reachable from terminal, web, Slack, CI, not a single stream. The previous slide was the symptom; this is the diagnosis.`,
+  // 04 Not a chat message — the symptoms
+  `Here's where those properties show up. The only universal interface was appending a chat message. But the things an agent needs to know about aren't conversations. Browser tab changed. Working memory updated. PR has failing CI. New PR comments arrived. A heartbeat or cron tick fired. A new email came in. These are types of information, not chat turns — and request/response has nowhere to put them.`,
 
   // 05 Strategic Framing — introducing signals
   `This is the reveal. We built Signals to fill that gap. A signal is a way to send context into an active or idle agent, delivered right into the loop as it runs. The loop has normal steps, but signals can enter from the side: Slack, AGENTS.md, working memory, user steering. Don't enumerate signal types yet — just name the primitive and what it's for.`,
@@ -1616,53 +1678,61 @@ export const notes: (string | undefined)[] = [
   `Signals create a second lane. The output stream keeps doing output. Context gets delivered through a signal channel into the active or idle agent loop. This is the conceptual payoff: context delivery no longer has to pretend to be a chat message, a token, or a restart. End Section 1 here.`,
 
 
-  // 08 Observe API
+  // 08 Transition
+  `Pause here. We have the why and the mental model: old request-shaped loops, then a separate signal lane. Now pivot into the mechanics with a light question: cool, so how does it work?`,
+
+  // 09 Observe API
   `First handle: observe the loop. subscribeToThread makes the running agent visible to any client with the resource and thread. This is not about sending more context yet — just establishing that the loop is observable while it runs. Live demo cue: jump out and show multiple clients watching the same running thread.`,
 
-  // 09 Send API
+  // 10 Send API
   `Second handle: send into the loop. sendMessage lets another client add context while the agent is active. This is the simplest form of talking to the live loop: one client sends, the agent receives it without a restart. Live demo cue: send a correction or extra instruction while the agent is working.`,
 
-  // 10 Queue API
+  // 11 Queue API
   `Third handle: queue the next turn. queueMessage preserves order when the loop is already active, so follow-up context waits its turn instead of interrupting the current step. Live demo cue: queue a second instruction and show it runs after the active step.`,
 
-  // 11 Reactive Demo
+  // 12 Transition
+  `Pause after the mechanics. We have the three handles — observe, send, queue. Now shift from API shape into a concrete live loop: let’s see it in action.`,
+
+  // 13 Bridge
+  `After the live demo, bring the room back to the bigger idea. The first payoff was multiplayer observation and steering: multiple clients can watch, send, and queue into a live loop. Now widen the frame — the same signal mechanism also carries reactive guidance, dynamic state, and external notifications.`,
+
+  // 14 Reactive Demo
   `Section 3. Reactive signals are agent-facing guidance, not UI commands. The code on the left is the processor hook: processInputStep receives messageList and sendSignal, notices that the agent viewed or edited a file inside a directory with a nested AGENTS.md, and emits those local instructions as a reactive signal. The history on the right shows the effect: directory-specific guidance reaches the running agent mid-run without restarting. Live demo cue: open or edit a file under a nested AGENTS.md and show Mastra Code autoloading that guidance into the loop.`,
 
-  // 12 State Signals
+  // 15 State Signals
   `Section 4. State signals are computed by processors, not usually hand-written with sendStateSignal in application code. The left side is a simplified WorkingMemoryStateProcessor: read current working memory, hash it, skip if unchanged, emit a delta when the prior snapshot is still in context, otherwise emit a full snapshot. The right side shows the lifecycle: user teaches the agent a preference, working memory changes, a delta is emitted; later old messages fall out of the context window, so the processor emits a full snapshot to keep the latest state available.`,
 
-  // 13 Prompt Cache
+  // 16 Prompt Cache
   `This is the technical payoff. Without signals, changing state means rewriting system context over and over; the prompt prefix changes and cache breaks. With state signals, the system prompt stays stable and state arrives as append-only signal messages in conversation history. The side-by-side chats make the contrast concrete: rewritten prompt versus stable prompt plus snapshot/delta messages.`,
 
-  // 14 Notification Signals
-  `Section 5. External systems need to notify or wake an agent — idle or active. Notification signals carry source, kind, priority, summary (model-facing), dedupeKey (exact event identity — skip duplicates), coalesceKey (group noisy related events), attributes (routing/filtering), and metadata (system-facing). Signals don't require the agent to be running. Idle delivery wakes the loop. Active delivery joins it mid-flight. Use Mastra Code + GitHub Signals as the concrete example — not hypothetical.`,
+  // 17 Notification Signals
+  `Section 5. External systems need to notify or wake an agent — idle or active. Use GitHub Signals as the concrete implementation. A thread subscribes to a PR; polling syncs via gitcrawl; the snapshot is compared against stored cursors like CI state, review state hash, mergeability, head SHA, and content hashes; a classifier chooses kind, priority, and summary; then sendNotificationSignal delivers with dedupeKey and coalesceKey. The right side shows the agent receiving that notification mid-run and adjusting without restart.`,
 
-  // 15 Notification Demo
-  `Demo A final act. The agent is working on the PR. GitHub Signals is polling in the background. It detects a new review comment, classifies it, and delivers a notification signal — all while the agent keeps working. The agent receives the signal, reads the review feedback, and adjusts its approach. No restart, no custom side channel, no noisy chat message. The unlock: agents become world-aware processes, not just chat responders.`,
-
-  // 16 Recap
+  // 18 Recap
   `Section 6. The arc: watch it (subscribeToThread), talk to it (sendMessage/queueMessage), steer it (reactive signals from processors), update its state (state signals — append-only, cache-preserving), wake it from the world (notification signals — external systems reach in). Five capabilities, one primitive class. The loop stays running through all of them.`,
 
-  // 17 Close
+  // 19 Close
   `Agents are becoming live processes. Signals are how you reach them. What's next: notification vendor integrations (GitHub, Slack, Resend, calendars), state signals as the substrate for all dynamic state, subconscious/background agents delivering updates through signals. Boundaries: not a pub/sub bus, not a replacement for tools/memory/processors, currently requires Mastra memory (resource/thread). Multi-process pub/sub is available but only matters past single-server. Q&A. Resources at mastra.ai, github.com/mastra-ai/mastra, discord.gg/mastra.`,
 ];
 
 export default [
   Cover,
   Problem_Framing,
-  NotAChatMessage,
   Problem_Traits,
+  NotAChatMessage,
   StrategicFraming,
   CoupledDelivery,
   DecoupledDelivery,
+  HowItWorks,
   SubscribeObserve,
   SendNow,
   QueueNext,
+  SeeItInAction,
+  BeyondMultiplayer,
   ReactiveDemo,
   StateSignals,
   PromptCache,
   NotificationSignals,
-  NotificationDemo,
   Recap,
   Close,
 ] satisfies Page[];
