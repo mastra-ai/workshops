@@ -1,4 +1,5 @@
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
+import { Highlight, themes } from 'prism-react-renderer';
 
 // ─── Design tokens (shared Mastra brand) ─────────────────────────────────────
 export const design: DesignSystem = {
@@ -127,13 +128,39 @@ const Arrow = () => (
   <span style={{ fontFamily: font.mono, fontSize: 26, color: palette.muted, flexShrink: 0 }}>→</span>
 );
 
+const codeTheme = {
+  ...themes.nightOwl,
+  plain: {
+    ...themes.nightOwl.plain,
+    backgroundColor: 'transparent',
+    color: palette.text,
+    fontFamily: font.mono,
+  },
+  styles: themes.nightOwl.styles.map((style) => ({
+    ...style,
+    style: {
+      ...style.style,
+      backgroundColor: 'transparent',
+    },
+  })),
+};
+
+const readableCodeColor = (color?: string) => {
+  if (!color || color === palette.textSoft || color === palette.muted || color === palette.dim) return '#d9d9d9';
+  return color;
+};
+
 const CodeBlock = ({
   label,
   lines,
+  code,
+  language = 'tsx',
   accent = palette.accent,
 }: {
   label?: string;
-  lines: { text: string; color?: string }[];
+  lines?: { text: string; color?: string }[];
+  code?: string;
+  language?: string;
   accent?: string;
 }) => (
   <div
@@ -149,15 +176,31 @@ const CodeBlock = ({
     }}
   >
     {label && (
-      <div style={{ color: palette.muted, fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
+      <div style={{ color: accent, fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
         {label}
       </div>
     )}
-    {lines.map((line, i) => (
-      <div key={i} style={{ color: line.color || palette.textSoft }}>
-        {line.text}
-      </div>
-    ))}
+    {code ? (
+      <Highlight theme={codeTheme} code={code.trim()} language={language}>
+        {({ className, style, tokens, getLineProps, getTokenProps }) => (
+          <pre className={className} style={{ ...style, margin: 0, background: 'transparent', fontFamily: font.mono, fontSize: 17, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+            {tokens.map((line, i) => (
+              <div key={i} {...getLineProps({ line })}>
+                {line.map((token, key) => (
+                  <span key={key} {...getTokenProps({ token })} />
+                ))}
+              </div>
+            ))}
+          </pre>
+        )}
+      </Highlight>
+    ) : (
+      lines?.map((line, i) => (
+        <div key={i} style={{ color: readableCodeColor(line.color), whiteSpace: 'pre', tabSize: 2 }}>
+          {line.text}
+        </div>
+      ))
+    )}
   </div>
 );
 
@@ -677,15 +720,43 @@ const StrategicFraming: Page = () => (
   </Stage>
 );
 
-// 04b — Decouple: the conceptual payoff, on its own beat
-const Decouple: Page = () => (
-  <Stage padding="0 160px">
-    <div style={{ ...fill, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <Eyebrow>Introducing signals</Eyebrow>
-      <div style={{ fontSize: display.beat, lineHeight: 1.1, fontWeight: 700, color: palette.text, letterSpacing: '-0.02em', maxWidth: 1600 }}>
-        The agent loop used to own both execution and context delivery.
-        <br />
-        <span style={{ color: palette.accent }}>Signals decouple those.</span>
+// 04b — Before signals: streaming and context delivery were coupled
+const CoupledDelivery: Page = () => (
+  <Stage padding="0 130px">
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '0.92fr 1.08fr', gap: 72, alignItems: 'center', paddingBottom: 70 }}>
+      <div>
+        <Eyebrow>The old shape</Eyebrow>
+        <SectionTitle
+          maxWidth={760}
+          title={
+            <>
+              Streaming and context delivery were <span style={{ color: palette.accent }}>tightly coupled.</span>
+            </>
+          }
+        />
+        <SubTitle maxWidth={720}>
+          The stream was both the output channel and the only practical way to push new context into the run.
+        </SubTitle>
+      </div>
+
+      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 18, padding: 32, boxShadow: '0 28px 80px rgba(0,0,0,0.35)' }}>
+        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 18 }}>HTML-ish mental model</div>
+        <div style={{ display: 'grid', gap: 14, fontFamily: font.mono }}>
+          <div style={{ color: palette.dim, fontSize: 20 }}>&lt;<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
+          <div style={{ marginLeft: 32, padding: '18px 22px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 23 }}>
+            &lt;token&gt;assistant output&lt;/token&gt;
+          </div>
+          <div style={{ marginLeft: 32, padding: '18px 22px', borderRadius: 12, background: 'rgba(255,179,71,0.08)', border: `1px dashed ${palette.amber}`, color: palette.amber, fontSize: 23 }}>
+            &lt;context&gt;new browser state&lt;/context&gt;
+          </div>
+          <div style={{ marginLeft: 32, padding: '18px 22px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 23 }}>
+            &lt;token&gt;more output&lt;/token&gt;
+          </div>
+          <div style={{ color: palette.dim, fontSize: 20 }}>&lt;/<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
+        </div>
+        <div style={{ marginTop: 24, color: palette.textSoft, fontSize: 22, lineHeight: 1.35 }}>
+          Context had to ride along as another thing inside the same stream.
+        </div>
       </div>
     </div>
 
@@ -693,63 +764,57 @@ const Decouple: Page = () => (
   </Stage>
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// 05 — Section 2: Watch and talk to a live loop
-// ════════════════════════════════════════════════════════════════════════════
-const WatchAndTalk: Page = () => (
-  <Stage padding="0 120px">
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
-      <Eyebrow>Section 2</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Watch and talk to a <span style={{ color: palette.accent }}>live loop.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      A long-running agent is active. Another client or user wants to observe it or send input — without
-      restarting the interaction.
-    </SubTitle>
+// 04c — With signals: context delivery is its own lane
+const DecoupledDelivery: Page = () => (
+  <Stage padding="0 130px">
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '0.92fr 1.08fr', gap: 72, alignItems: 'center', paddingBottom: 70 }}>
+      <div>
+        <Eyebrow>The new shape</Eyebrow>
+        <SectionTitle
+          maxWidth={760}
+          title={
+            <>
+              Signals decouple streaming from <span style={{ color: palette.accent }}>delivering context.</span>
+            </>
+          }
+        />
+        <SubTitle maxWidth={720}>
+          The output stream can keep streaming. Context gets its own addressable lane into the active agent loop.
+        </SubTitle>
+      </div>
 
-      <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-      <div
-        style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderRadius: 14,
-          padding: '24px 28px',
-        }}
-      >
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-          Before Signals
+      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 18, padding: 32, boxShadow: '0 28px 80px rgba(0,0,0,0.35)' }}>
+        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 18 }}>HTML-ish mental model</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 18, alignItems: 'center', fontFamily: font.mono }}>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
+            <div style={{ padding: '16px 18px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 21 }}>
+              &lt;token&gt;assistant output&lt;/token&gt;
+            </div>
+            <div style={{ padding: '16px 18px', borderRadius: 12, background: palette.surfaceHi, border: `1px solid ${palette.borderBright}`, color: palette.textSoft, fontSize: 21 }}>
+              &lt;token&gt;more output&lt;/token&gt;
+            </div>
+            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;/<span style={{ color: palette.textSoft }}>agent-stream</span>&gt;</div>
+          </div>
+
+          <div style={{ width: 54, height: 2, background: palette.borderBright, position: 'relative' }}>
+            <div style={{ position: 'absolute', right: -2, top: -5, width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: `10px solid ${palette.borderBright}` }} />
+          </div>
+
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;<span style={{ color: palette.accent }}>signal-channel</span>&gt;</div>
+            <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(24,251,111,0.08)', border: `1px solid ${palette.accent}`, color: palette.accent, fontSize: 21 }}>
+              &lt;signal type="state"&gt;working memory&lt;/signal&gt;
+            </div>
+            <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(24,251,111,0.08)', border: `1px solid ${palette.accent}`, color: palette.accent, fontSize: 21 }}>
+              &lt;signal type="reactive"&gt;AGENTS.md&lt;/signal&gt;
+            </div>
+            <div style={{ color: palette.dim, fontSize: 19 }}>&lt;/<span style={{ color: palette.accent }}>signal-channel</span>&gt;</div>
+          </div>
         </div>
-        <ul style={{ margin: 0, paddingLeft: 22, fontSize: 20, color: palette.textSoft, lineHeight: 1.6 }}>
-          <li>Restart the interaction to inject context</li>
-          <li>Poll state externally</li>
-          <li>Force traffic through the original stream owner</li>
-          <li>Append regular messages — no active-loop semantics</li>
-        </ul>
-      </div>
-      <div
-        style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderLeft: `3px solid ${palette.accent}`,
-          borderRadius: 14,
-          padding: '24px 28px',
-        }}
-      >
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.accent, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-          With Signals
+        <div style={{ marginTop: 24, color: palette.textSoft, fontSize: 22, lineHeight: 1.35 }}>
+          Context can arrive while the stream continues — or after the loop goes idle.
         </div>
-        <ul style={{ margin: 0, paddingLeft: 22, fontSize: 20, color: palette.textSoft, lineHeight: 1.6 }}>
-          <li>Subscribe to the thread and watch it live</li>
-          <li>Send or queue messages while the loop runs</li>
-          <li>Active vs idle delivery — the loop decides</li>
-          <li>Multiple clients, one agent, no restart</li>
-        </ul>
-      </div>
       </div>
     </div>
 
@@ -758,100 +823,76 @@ const WatchAndTalk: Page = () => (
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 06 — Subscribe + Send API
+// 08 — Subscribe API
 // ════════════════════════════════════════════════════════════════════════════
-const SubscribeSend: Page = () => (
-  <Stage>
-    <Eyebrow>The API</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Make the loop <span style={{ color: palette.accent }}>observable</span> and{' '}
-          <span style={{ color: palette.accent }}>addressable.</span>
-        </>
-      }
-    />
-
-    <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-      <CodeBlock
-        label="subscribe + watch"
-        lines={[
-          { text: 'const sub = await agent.subscribeToThread({', color: palette.muted },
-          { text: '  resourceId, threadId,', color: palette.textSoft },
-          { text: '});', color: palette.muted },
-          { text: '' },
-          { text: 'for await (const chunk of sub.stream) {', color: palette.muted },
-          { text: '  render(chunk); // live updates', color: palette.textSoft },
-          { text: '}', color: palette.muted },
-        ]}
+const SubscribeObserve: Page = () => (
+  <Stage padding="0 120px">
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
+      <Eyebrow>The API</Eyebrow>
+      <SectionTitle
+        maxWidth={1180}
+        title={
+          <>
+            First: <span style={{ color: palette.accent }}>observe the loop.</span>
+          </>
+        }
       />
-      <CodeBlock
-        label="send while running"
-        accent={palette.blue}
-        lines={[
-          { text: 'await agent.sendMessage(', color: palette.muted },
-          { text: '  "Also check the tests,",', color: palette.textSoft },
-          { text: '  { resourceId, threadId,', color: palette.muted },
-          { text: '    ifActive: "queue",', color: palette.blue },
-          { text: '    ifIdle: "stream",', color: palette.blue },
-          { text: '  }', color: palette.muted },
-          { text: ');', color: palette.muted },
-        ]}
-      />
-    </div>
+      <SubTitle maxWidth={1040}>
+        subscribeToThread gives every client the same live view of the agent loop.
+      </SubTitle>
 
-    <div style={{ marginTop: 24, display: 'flex', gap: 16 }}>
-      <Pill label="subscribeToThread" desc="Returns a subscription with .stream for live observation." accent={palette.accent} />
-      <Pill label="sendMessage" desc="Deliver input. ifActive / ifIdle control delivery semantics." accent={palette.blue} />
-      <Pill label="queueMessage" desc="Preserve turn order — messages arrive in sequence." accent={palette.purple} />
+      <div style={{ marginTop: 46, maxWidth: 980 }}>
+        <CodeBlock
+          label="observe"
+          code={`const sub = await agent.subscribeToThread({
+  resourceId,
+  threadId,
+});
+
+for await (const chunk of sub.stream) {
+  render(chunk);
+}`}
+        />
+      </div>
     </div>
 
     <Footer index={8} />
   </Stage>
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// 07 — Tool Approval sidebar
-// ════════════════════════════════════════════════════════════════════════════
-const ToolApproval: Page = () => (
+const SendQueue: Page = () => (
   <Stage padding="0 120px">
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 70 }}>
-      <Eyebrow>Sidebar · control plane</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Tool approval rides the <span style={{ color: palette.accent }}>same path.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      Tool approvals are control-plane input over the subscription — not a separate signal type. The same
-      subscribe/send plumbing handles them.
-    </SubTitle>
+      <Eyebrow>The API</Eyebrow>
+      <SectionTitle
+        maxWidth={1180}
+        title={
+          <>
+            Then: <span style={{ color: palette.blue }}>send into it.</span>
+          </>
+        }
+      />
+      <SubTitle maxWidth={1040}>
+        sendMessage and queueMessage make the active loop addressable without restarting it.
+      </SubTitle>
 
-      <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 12, padding: '20px 24px', fontFamily: font.mono, fontSize: 18, color: palette.textSoft, textAlign: 'center', minWidth: 200 }}>
-        agent calls tool
-      </div>
-      <Arrow />
-      <div style={{ background: palette.surfaceHi2, border: `1px dashed ${palette.borderBright}`, borderRadius: 12, padding: '20px 24px', flex: 1, textAlign: 'center' }}>
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.muted, marginBottom: 8 }}>subscription delivers</div>
-        <div style={{ fontFamily: font.mono, fontSize: 18, color: palette.amber }}>pending tool call → client</div>
-      </div>
-      <Arrow />
-      <div style={{ background: palette.surface, border: `1px solid ${palette.accent}`, borderRadius: 12, padding: '20px 24px', fontFamily: font.mono, fontSize: 18, color: palette.accent, textAlign: 'center', minWidth: 200 }}>
-        approve / decline
-      </div>
-    </div>
-
-      <div style={{ marginTop: 28, display: 'flex', gap: 20 }}>
-      <Pill label="approveToolCall" desc="Resume the loop — tool executes, agent continues." accent={palette.accent} />
-      <Pill label="declineToolCall" desc="Stop the tool — agent gets feedback and adapts." accent={palette.rose} />
-    </div>
-
-      <div style={{ marginTop: 24, fontSize: 22, color: palette.textSoft, lineHeight: 1.45, maxWidth: 1500 }}>
-      The subscription path is the control plane. Observing, sending, and approving all flow through it —
-      one channel, multiple interaction types.
+      <div style={{ marginTop: 46, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <CodeBlock
+          label="send now"
+          accent={palette.blue}
+          code={`await agent.sendMessage(
+  "Also check the tests,"
+  { resourceId, threadId }
+);`}
+        />
+        <CodeBlock
+          label="queue next"
+          accent={palette.accent}
+          code={`await agent.queueMessage(
+  "Also check the tests,"
+  { resourceId, threadId }
+);`}
+        />
       </div>
     </div>
 
@@ -873,7 +914,7 @@ const DemoA: Page = () => (
       }}
     />
     <div style={{ position: 'relative' }}>
-      <Eyebrow color={palette.accent}>Demo A · Mastra Code</Eyebrow>
+      <Eyebrow color={palette.accent}>Demo A</Eyebrow>
       <h1
         style={{
           fontFamily: font.display,
@@ -882,21 +923,20 @@ const DemoA: Page = () => (
           lineHeight: 1.02,
           margin: '28px 0 24px',
           letterSpacing: '-0.035em',
-          maxWidth: 1600,
+          maxWidth: 1500,
         }}
       >
-        A live PR agent that <span style={{ color: palette.accent }}>keeps working</span> while context arrives.
+        Signals in <span style={{ color: palette.accent }}>Mastra Code</span>
       </h1>
-      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.42, marginBottom: 40 }}>
-        Start a real PR task in Mastra Code. Send follow-up steering while the agent is active. Watch reactive
-        guidance appear. See a GitHub notification surface mid-run.
+      <p style={{ fontSize: display.sub, color: palette.textSoft, maxWidth: 1040, lineHeight: 1.42, marginBottom: 40 }}>
+        One live PR agent. Three ways context reaches it while it keeps working.
       </p>
 
       <div style={{ display: 'flex', gap: 32 }}>
         {[
-          { num: '①', label: 'Subscribe + send', desc: 'Section 2 — talk to the live loop', accent: palette.accent },
-          { num: '②', label: 'Reactive guidance', desc: 'Section 3 — processor steers the agent', accent: palette.blue },
-          { num: '③', label: 'GitHub notification', desc: 'Section 5 — external world wakes the agent', accent: palette.purple },
+          { num: '①', label: 'Send while active', desc: 'Queue follow-up context', accent: palette.accent },
+          { num: '②', label: 'Reactive guidance', desc: 'Processor steers the run', accent: palette.blue },
+          { num: '③', label: 'GitHub notification', desc: 'External event wakes the agent', accent: palette.purple },
         ].map((step) => (
           <div
             key={step.num}
@@ -916,7 +956,7 @@ const DemoA: Page = () => (
         ))}
       </div>
     </div>
-    <Footer index={10} />
+    <Footer index={9} />
   </div>
 );
 
@@ -941,23 +981,17 @@ const SteerTheLoop: Page = () => (
     <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 24 }}>
       <CodeBlock
         label="processor hook"
-        lines={[
-          { text: 'class GuidanceProcessor {', color: palette.muted },
-          { text: '  async processInputStep({', color: palette.muted },
-          { text: '    messageList,', color: palette.textSoft },
-          { text: '    sendSignal,', color: palette.blue },
-          { text: '  }) {', color: palette.muted },
-          { text: '    if (detectsRisk(messageList)) {', color: palette.textSoft },
-          { text: '      await sendSignal({', color: palette.accent },
-          { text: '        type: "reactive",', color: palette.accent },
-          { text: '        tagName: "safety-hint",', color: palette.accent },
-          { text: '        contents: "Verify before', color: palette.accent },
-          { text: '          deleting files.",', color: palette.accent },
-          { text: '      });', color: palette.muted },
-          { text: '    }', color: palette.muted },
-          { text: '  }', color: palette.muted },
-          { text: '}', color: palette.muted },
-        ]}
+        code={`class GuidanceProcessor {
+  async processInputStep({ messageList, sendSignal }) {
+    if (detectsRisk(messageList)) {
+      await sendSignal({
+        type: "reactive",
+        tagName: "safety-hint",
+        contents: "Verify before deleting files.",
+      });
+    }
+  }
+}`}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <Insight title="Agent-facing, not UI commands" accent={palette.amber}>
@@ -984,12 +1018,12 @@ const SteerTheLoop: Page = () => (
       </div>
     </div>
 
-    <Footer index={11} />
+    <Footer index={10} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 10 — Reactive signal in Mastra Code TUI
+// 11 — Reactive signal in Mastra Code TUI
 // ════════════════════════════════════════════════════════════════════════════
 const ReactiveDemo: Page = () => (
   <Stage>
@@ -1010,7 +1044,7 @@ const ReactiveDemo: Page = () => (
       {/* TUI simulation */}
       <div
         style={{
-          background: palette.bg,
+          background: '#050505',
           border: `1px solid ${palette.borderBright}`,
           borderRadius: 10,
           padding: '20px 24px',
@@ -1051,12 +1085,12 @@ const ReactiveDemo: Page = () => (
       The processor injected guidance mid-run. The agent never stopped — it received the signal and adjusted course.
     </div>
 
-    <Footer index={12} />
+    <Footer index={11} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 11 — Section 4: State Signals — snapshot vs delta
+// 12 — Section 4: State Signals — snapshot vs delta
 // ════════════════════════════════════════════════════════════════════════════
 const StateSignals: Page = () => (
   <Stage>
@@ -1076,28 +1110,24 @@ const StateSignals: Page = () => (
     <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
       <CodeBlock
         label="snapshot — full state"
-        lines={[
-          { text: 'await agent.sendStateSignal({', color: palette.muted },
-          { text: '  id: "working-memory",', color: palette.textSoft },
-          { text: '  mode: "snapshot",', color: palette.accent },
-          { text: '  cacheKey: hash(state),', color: palette.textSoft },
-          { text: '  contents: rendered,', color: palette.blue },
-          { text: '  value: fullState,', color: palette.purple },
-          { text: '}, { resourceId, threadId });', color: palette.muted },
-        ]}
+        code={`await agent.sendStateSignal({
+  id: "working-memory",
+  mode: "snapshot",
+  cacheKey: hash(state),
+  contents: rendered,
+  value: fullState,
+}, { resourceId, threadId });`}
       />
       <CodeBlock
         label="delta — just what changed"
         accent={palette.amber}
-        lines={[
-          { text: 'await agent.sendStateSignal({', color: palette.muted },
-          { text: '  id: "working-memory",', color: palette.textSoft },
-          { text: '  mode: "delta",', color: palette.amber },
-          { text: '  cacheKey: hash(newState),', color: palette.textSoft },
-          { text: '  contents: diffText,', color: palette.blue },
-          { text: '  delta: changeRecord,', color: palette.purple },
-          { text: '}, { resourceId, threadId });', color: palette.muted },
-        ]}
+        code={`await agent.sendStateSignal({
+  id: "working-memory",
+  mode: "delta",
+  cacheKey: hash(newState),
+  contents: diffText,
+  delta: changeRecord,
+}, { resourceId, threadId });`}
       />
     </div>
 
@@ -1108,12 +1138,12 @@ const StateSignals: Page = () => (
       <Pill label="cacheKey" desc="Stable identity — skip unchanged state." accent={palette.accent} />
     </div>
 
-    <Footer index={13} />
+    <Footer index={12} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 12 — State processor: computeStateSignal
+// 13 — State processor: computeStateSignal
 // ════════════════════════════════════════════════════════════════════════════
 const StateProcessor: Page = () => (
   <Stage>
@@ -1175,12 +1205,12 @@ const StateProcessor: Page = () => (
       </div>
     </div>
 
-    <Footer index={14} />
+    <Footer index={13} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 13 — Prompt cache beat
+// 14 — Prompt cache beat
 // ════════════════════════════════════════════════════════════════════════════
 const PromptCache: Page = () => (
   <Stage>
@@ -1256,12 +1286,12 @@ const PromptCache: Page = () => (
       Dynamic system guidance without rewriting the prompt or destroying prompt cache.
     </div>
 
-    <Footer index={15} />
+    <Footer index={14} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 14 — Demo B: Working Memory state signal in Playground
+// 15 — Demo B: Working Memory state signal in Playground
 // ════════════════════════════════════════════════════════════════════════════
 const DemoB: Page = () => (
   <div style={{ ...fill, padding: '0 120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -1338,12 +1368,12 @@ const DemoB: Page = () => (
         </div>
       </div>
     </div>
-    <Footer index={16} />
+    <Footer index={15} />
   </div>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 15 — Section 5: Notification Signals
+// 16 — Section 5: Notification Signals
 // ════════════════════════════════════════════════════════════════════════════
 const NotificationSignals: Page = () => (
   <Stage>
@@ -1364,19 +1394,14 @@ const NotificationSignals: Page = () => (
       <CodeBlock
         label="send a notification signal"
         accent={palette.purple}
-        lines={[
-          { text: 'await agent.sendNotificationSignal({', color: palette.muted },
-          { text: '  source: "github",', color: palette.purple },
-          { text: '  kind: "ci-status",', color: palette.purple },
-          { text: '  priority: "high",', color: palette.rose },
-          { text: '  summary: "CI failed on main', color: palette.blue },
-          { text: '    — tests/auth.spec.ts",', color: palette.blue },
-          { text: '  dedupeKey: "github:repo#42', color: palette.textSoft },
-          { text: '    :ci:main:a1b2c3",', color: palette.textSoft },
-          { text: '  coalesceKey: "github:repo#42', color: palette.textSoft },
-          { text: '    :ci-status",', color: palette.textSoft },
-          { text: '}, { resourceId, threadId });', color: palette.muted },
-        ]}
+        code={`await agent.sendNotificationSignal({
+  source: "github",
+  kind: "ci-status",
+  priority: "high",
+  summary: "CI failed on main — tests/auth.spec.ts",
+  dedupeKey: "github:repo#42:ci:main:a1b2c3",
+  coalesceKey: "github:repo#42:ci-status",
+}, { resourceId, threadId });`}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <Pill label="source" desc="Who sent it — github, slack, resend." accent={palette.purple} />
@@ -1390,12 +1415,12 @@ const NotificationSignals: Page = () => (
       Signals don't require the agent to be running. <span style={{ color: palette.accent, fontWeight: 600 }}>Idle delivery wakes the loop; active delivery joins it mid-flight.</span>
     </div>
 
-    <Footer index={17} />
+    <Footer index={16} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 16 — Demo A final: GitHub notification in Mastra Code
+// 17 — Demo A final: GitHub notification in Mastra Code
 // ════════════════════════════════════════════════════════════════════════════
 const NotificationDemo: Page = () => (
   <Stage>
@@ -1471,12 +1496,12 @@ const NotificationDemo: Page = () => (
       </div>
     </div>
 
-    <Footer index={18} />
+    <Footer index={17} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 17 — Recap arc
+// 18 — Recap arc
 // ════════════════════════════════════════════════════════════════════════════
 const Recap: Page = () => (
   <Stage padding="0 120px">
@@ -1519,12 +1544,12 @@ const Recap: Page = () => (
       </div>
     </div>
 
-    <Footer index={19} />
+    <Footer index={18} />
   </Stage>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 18 — Close
+// 19 — Close
 // ════════════════════════════════════════════════════════════════════════════
 const Close: Page = () => (
   <div style={{ ...fill, padding: '0 120px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -1587,7 +1612,7 @@ const Close: Page = () => (
         </div>
       </div>
     </div>
-    <Footer index={20} />
+    <Footer index={19} />
   </div>
 );
 
@@ -1612,48 +1637,52 @@ export const notes: (string | undefined)[] = [
   `So name what changed. The agents we're building now look different — and these properties are why all that information has nowhere to go. Long-running — they run for minutes or hours, use tools, browse, wait for approvals. World-aware — they watch GitHub, CI, Slack, email; external systems change state while they're alive. Stateful — working memory, browser state, project state, context shifts under them. Multi-user — multiple clients may be observing, sending input, approving tools. Goal-seeking — a /goal loop self-continues across runs until a stop-condition is met. Multi-channel — one agent reachable from terminal, web, Slack, CI, not a single stream. The previous slide was the symptom; this is the diagnosis.`,
 
   // 05 Strategic Framing — introducing signals
-  `This is the reveal. We built Signals to fill that gap. A signal is a way to send context into a running — or idle — agent, without appending another chat message or restarting the loop. The world sends a signal into the live agent loop. The agent loop used to own both execution and context delivery; signals decouple those. Don't enumerate signal types yet — just name the primitive and what it's for. The next sections show the three concrete kinds in use. End Section 1 here.`,
+  `This is the reveal. We built Signals to fill that gap. A signal is a way to send context into an active or idle agent, delivered right into the loop as it runs. The loop has normal steps, but signals can enter from the side: Slack, AGENTS.md, working memory, user steering. Don't enumerate signal types yet — just name the primitive and what it's for.`,
 
-  // 05 Watch and Talk
-  `Section 2. User problem: a long-running agent is active, and another client or user wants to watch or send input. Before signals: restart, poll, force traffic through the stream owner, or append messages with no active-loop semantics. With signals: subscribe to the thread, send or queue messages, active vs idle delivery. The loop decides how to handle input based on its state.`,
+  // 06 Coupled delivery
+  `Before Signals, streaming and context delivery were tightly coupled. The stream was the visible output channel, but it also became the place people tried to smuggle dynamic context. Use the HTML-ish diagram: output tokens and context updates all ride inside the same agent-stream. That's the old shape we're breaking apart.`,
 
-  // 06 Subscribe + Send API
-  `The API shapes. subscribeToThread returns a subscription with .stream for live observation. sendMessage delivers input — ifActive controls what happens when the loop is running (queue, join, skip), ifIdle controls what happens when it's idle (stream, wake, skip). queueMessage preserves turn order. Multiple clients can subscribe and send to the same thread. These are the verified API shapes — note the field is contents, not content.`,
+  // 07 Decoupled delivery
+  `Signals create a second lane. The output stream keeps doing output. Context gets delivered through a signal channel into the active or idle agent loop. This is the conceptual payoff: context delivery no longer has to pretend to be a chat message, a token, or a restart. End Section 1 here.`,
 
-  // 07 Tool Approval
-  `Sidebar, not a deep dive. Tool approvals are control-plane input over the same subscription path. The subscription delivers pending tool calls to the client. The client approves or declines. This is NOT a separate signal type — it uses the subscribe/send plumbing. One channel, multiple interaction types. Mention it, then move on.`,
 
-  // 08 Demo A intro
-  `Transition to Demo A. We're going to start a real PR task in Mastra Code. While the agent works, we'll send follow-up steering (Section 2), watch reactive guidance appear (Section 3), and see a GitHub notification surface mid-run (Section 5). One cohesive demo that carries three sections. Don't include tool approval unless it happens naturally.`,
+  // 08 Observe API
+  `First handle: observe the loop. subscribeToThread makes the running agent visible to any client with the resource and thread. This is not about sending more context yet — just establishing that the loop is observable while it runs.`,
 
-  // 09 Steer the Loop
+  // 09 Send / Queue API
+  `Second handle: send into the loop. sendMessage and queueMessage let another client add context while the agent is active. ifActive: "queue" preserves order instead of interrupting the current step. Together, the two slides are the small API surface: observe, then address.`,
+
+  // 11 Demo A intro
+  `Transition to Demo A: Signals in Mastra Code. One live PR agent, three ways context reaches it while it keeps working: a queued follow-up, reactive guidance from a processor, and a GitHub notification.`,
+
+  // 11 Steer the Loop
   `Section 3. The agent is already running. A processor notices relevant context or a risky condition and injects a reactive signal. The key correction: reactive signals are agent-facing input, NOT UI commands. They may render in a UI, but their job is to guide the loop. The processor hook is processInputStep — it receives messageList and sendSignal. Before signals: mutate the prompt, restart, hide logic in tools, or hope.`,
 
-  // 10 Reactive Demo
+  // 12 Reactive Demo
   `Demo A continued. In Mastra Code, the agent is fixing a failing test. It runs the tests, they fail. A processor detects the failure pattern and injects a reactive signal: "Check if JWT secret rotation broke the mock." The agent reads the signal, adjusts, and fixes it — without restarting. The signal rendered visibly in the TUI but its purpose was guiding the agent, not triggering a UI action. Open decisions: the reactive source could be AGENTS.md detection, gh pr guidance, or error recovery — pick whichever feels most natural live.`,
 
-  // 11 State Signals
+  // 13 State Signals
   `Section 4. The agent needs fresh changing context: working memory, browser state, project state. Before signals: rewrite system instructions every turn — break prompt cache, lose chronology, stuff state into messages. State signals deliver snapshots and deltas as append-only state updates. Working memory is ONE use case — browser, project, org, runtime state all use the same mechanism. The fields: contents is model-facing rendered text, value is full structured backing state, delta is the machine-readable change, cacheKey is the stable identity to skip unchanged state.`,
 
-  // 12 State Processor
+  // 14 State Processor
   `computeStateSignal runs each step. It compares current state to the last snapshot using cacheKey. If unchanged, skip. If changed and a prior snapshot exists, emit a delta. If no prior snapshot or the snapshot was evicted, emit a full snapshot. The processor decides — the agent code doesn't need to know. Working memory is one use case of this substrate. Before signals: rewrite system instructions every turn and break everything.`,
 
-  // 13 Prompt Cache
+  // 15 Prompt Cache
   `This is the technical payoff. Without signals: you rewrite the system prompt every turn to inject new state — cache broken, latency added, cost increased. With signals: the system prompt stays stable. State updates are appended to conversation history in order as signal messages — snapshot first, then deltas. The prompt cache sees the same prefix every turn. Dynamic system guidance without rewriting the prompt or destroying cache.`,
 
-  // 14 Demo B
+  // 16 Demo B
   `Transition to Demo B. In Mastra Code, signals showed up as a product experience — the agent kept working while context arrived from us, from processors, and from GitHub. One of the most important parts of that system is easier to see in isolation: state. Switch to Playground. Ask the agent to remember a preference. Watch the state signal render. Update the preference — see snapshot vs delta. This is the working memory state signal in isolation.`,
 
-  // 15 Notification Signals
+  // 17 Notification Signals
   `Section 5. External systems need to notify or wake an agent — idle or active. Notification signals carry source, kind, priority, summary (model-facing), dedupeKey (exact event identity — skip duplicates), coalesceKey (group noisy related events), attributes (routing/filtering), and metadata (system-facing). Signals don't require the agent to be running. Idle delivery wakes the loop. Active delivery joins it mid-flight. Use Mastra Code + GitHub Signals as the concrete example — not hypothetical.`,
 
-  // 16 Notification Demo
+  // 18 Notification Demo
   `Demo A final act. The agent is working on the PR. GitHub Signals is polling in the background. It detects a new review comment, classifies it, and delivers a notification signal — all while the agent keeps working. The agent receives the signal, reads the review feedback, and adjusts its approach. No restart, no custom side channel, no noisy chat message. The unlock: agents become world-aware processes, not just chat responders.`,
 
-  // 17 Recap
+  // 19 Recap
   `Section 6. The arc: watch it (subscribeToThread), talk to it (sendMessage/queueMessage), steer it (reactive signals from processors), update its state (state signals — append-only, cache-preserving), wake it from the world (notification signals — external systems reach in). Five capabilities, one primitive class. The loop stays running through all of them.`,
 
-  // 18 Close
+  // 20 Close
   `Agents are becoming live processes. Signals are how you reach them. What's next: notification vendor integrations (GitHub, Slack, Resend, calendars), state signals as the substrate for all dynamic state, subconscious/background agents delivering updates through signals. Boundaries: not a pub/sub bus, not a replacement for tools/memory/processors, currently requires Mastra memory (resource/thread). Multi-process pub/sub is available but only matters past single-server. Q&A. Resources at mastra.ai, github.com/mastra-ai/mastra, discord.gg/mastra.`,
 ];
 
@@ -1663,10 +1692,10 @@ export default [
   NotAChatMessage,
   Problem_Traits,
   StrategicFraming,
-  Decouple,
-  WatchAndTalk,
-  SubscribeSend,
-  ToolApproval,
+  CoupledDelivery,
+  DecoupledDelivery,
+  SubscribeObserve,
+  SendQueue,
   DemoA,
   SteerTheLoop,
   ReactiveDemo,
