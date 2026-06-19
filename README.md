@@ -1,6 +1,6 @@
 # Mastra Company Presentations
 
-All decks are React modules served by [open-slide](https://github.com/vercel-labs/open-slide). One dev server, one build, one design language.
+All decks are React modules served by [open-slide](https://github.com/1weiho/open-slide). One dev server, one build, one design language.
 
 ## Decks
 
