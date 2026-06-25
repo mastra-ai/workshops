@@ -23,10 +23,10 @@ Each demo loads `.env` automatically (via `tsx --env-file=.env`).
 
 | File | What it shows | Run |
 | --- | --- | --- |
-| `basic.ts` | Orchestrator agent delegating to `researcher` + `poet` subagents, logging every harness event | `npx tsx --env-file=.env basic.ts` |
-| `mc.ts` | Wiring **MCP** filesystem tools into the harness so the agent can read the project | `npx tsx --env-file=.env mc.ts` |
-| `basic-tui.ts` | The orchestrator demo inside the interactive **`MastraTUI`** | `npx tsx --env-file=.env basic-tui.ts` |
-| `tui.ts` | A workshop-style coding assistant (build/plan modes + subagents) in the TUI | `npx tsx --env-file=.env tui.ts` |
+| `basic.ts` | Orchestrator agent delegating to `researcher` + `poet` subagents, logging every harness event | `npm run basic` |
+| `mc.ts` | Wiring **MCP** filesystem tools into the harness so the agent can read the project | `npm run mc` |
+| `basic-tui.ts` | The orchestrator demo inside the interactive **`MastraTUI`** | `npm run basic-tui` |
+| `tui.ts` | A workshop-style coding assistant (build/plan modes + subagents) in the TUI | `npm run tui` |
 | `server.ts` | The harness hosted behind an HTTP server with a polished **web chat UI** | `npm run server` |
 
 ### `basic.ts` — one-shot orchestrator
@@ -34,7 +34,7 @@ Each demo loads `.env` automatically (via `tsx --env-file=.env`).
 Sends a single prompt ("research a pangolin, then write a haiku"), delegates research and writing to subagents exactly once, and prints the streamed events plus the final answer.
 
 ```bash
-npx tsx --env-file=.env basic.ts
+npm run basic
 ```
 
 ### `mc.ts` — MCP filesystem tools
@@ -42,7 +42,7 @@ npx tsx --env-file=.env basic.ts
 Spins up the `@modelcontextprotocol/server-filesystem` MCP server scoped to the current directory, flattens its tools into the harness, and asks the agent to read and summarize `package.json`.
 
 ```bash
-npx tsx --env-file=.env mc.ts
+npm run mc
 ```
 
 > First run downloads the MCP server via `npx -y`.
@@ -52,9 +52,9 @@ npx tsx --env-file=.env mc.ts
 Launch the orchestrator (`basic-tui.ts`) or the build/plan coding assistant (`tui.ts`) inside `MastraTUI`. Type to chat; the subagent activity and tool calls render inline.
 
 ```bash
-npx tsx --env-file=.env basic-tui.ts
+npm run basic-tui
 # or
-npx tsx --env-file=.env tui.ts
+npm run tui
 ```
 
 ### `server.ts` — web chat UI

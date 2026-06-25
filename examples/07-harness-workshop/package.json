@@ -5,7 +5,11 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "server": "tsx --env-file=.env server.ts",
+    "basic": "npx tsx --env-file=.env basic.ts",
+    "mc": "npx tsx --env-file=.env mc.ts",
+    "basic-tui": "npx tsx --env-file=.env basic-tui.ts",
+    "tui": "npx tsx --env-file=.env tui.ts",
+    "server": "npx tsx --env-file=.env server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
