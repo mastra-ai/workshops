@@ -57,7 +57,7 @@ const fill = {
 };
 
 // ─── Atoms ───────────────────────────────────────────────────────────────────
-const Eyebrow = ({ children, color = palette.accent }: { children: React.ReactNode; color?: string }) => (
+const Eyebrow = ({ children, color = palette.accent }: { children: ReactNode; color?: string }) => (
   <div
     style={{
       fontSize: 22,
@@ -72,7 +72,7 @@ const Eyebrow = ({ children, color = palette.accent }: { children: React.ReactNo
   </div>
 );
 
-const TOTAL = 13;
+const TOTAL = 17;
 
 const Footer = ({ index }: { index: number }) => (
   <div
@@ -96,11 +96,11 @@ const Footer = ({ index }: { index: number }) => (
   </div>
 );
 
-const Stage = ({ children, padding = '120px 120px 120px' }: { children: React.ReactNode; padding?: string }) => (
+const Stage = ({ children, padding = '120px 120px 120px' }: { children: ReactNode; padding?: string }) => (
   <div style={{ ...fill, padding, display: 'flex', flexDirection: 'column' }}>{children}</div>
 );
 
-const SectionTitle = ({ title }: { title: React.ReactNode }) => (
+const SectionTitle = ({ title }: { title: ReactNode }) => (
   <h1
     style={{
       fontFamily: font.display,
@@ -117,7 +117,7 @@ const SectionTitle = ({ title }: { title: React.ReactNode }) => (
   </h1>
 );
 
-const SubTitle = ({ children }: { children: React.ReactNode }) => (
+const SubTitle = ({ children }: { children: ReactNode }) => (
   <p style={{ fontSize: 30, color: palette.textSoft, lineHeight: 1.4, maxWidth: 1500, margin: 0 }}>{children}</p>
 );
 
@@ -127,9 +127,9 @@ const Pill = ({
   desc,
   accent = palette.accent,
 }: {
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   label: string;
-  desc?: React.ReactNode;
+  desc?: ReactNode;
   accent?: string;
 }) => (
   <div
@@ -196,6 +196,49 @@ const Author = ({ name, role, avatar }: { name: string; role: string; avatar?: s
   </div>
 );
 
+// ─── Shared building blocks ──────────────────────────────────────────────────
+const MonoLabel = ({ children, color = palette.muted }: { children: ReactNode; color?: string }) => (
+  <div
+    style={{
+      fontFamily: font.mono,
+      fontSize: 14,
+      letterSpacing: '0.2em',
+      textTransform: 'uppercase',
+      color,
+      marginBottom: 14,
+    }}
+  >
+    {children}
+  </div>
+);
+
+const Card = ({
+  accent,
+  children,
+  style,
+}: {
+  accent?: string;
+  children: ReactNode;
+  style?: React.CSSProperties;
+}) => (
+  <div
+    style={{
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      ...(accent ? { borderTop: `2px solid ${accent}` } : null),
+      borderRadius: 14,
+      padding: '22px 26px',
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
+
+const Code = ({ children, color = palette.accent }: { children: ReactNode; color?: string }) => (
+  <code style={{ fontFamily: font.mono, fontSize: '0.9em', color }}>{children}</code>
+);
+
 // ════════════════════════════════════════════════════════════════════════════
 // 01 — Cover
 // ════════════════════════════════════════════════════════════════════════════
@@ -243,9 +286,9 @@ const Cover: Page = () => (
           marginBottom: 56,
         }}
       >
-        From raw LLM calls to a steerable, observable, multi-model{' '}
-        <b style={{ color: palette.text }}>harness</b>. What it is, why it matters, and what it
-        enables.
+        A tour of the real harness inside <b style={{ color: palette.text }}>MastraCode</b> — the{' '}
+        <b style={{ color: palette.text }}>Harness</b>, <b style={{ color: palette.text }}>Session</b>, and{' '}
+        run engine that turn an LLM into a steerable, resumable agent.
       </p>
 
       <div style={{ display: 'flex', gap: 64, marginBottom: 56 }}>
@@ -266,7 +309,86 @@ const Cover: Page = () => (
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 02 — Spectrum: Framework vs Harness
+// 02 — "Harness" is everywhere
+// ════════════════════════════════════════════════════════════════════════════
+const QuoteCard = ({ src, quote, accent }: { src: string; quote: string; accent: string }) => (
+  <div
+    style={{
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      borderLeft: `2px solid ${accent}`,
+      borderRadius: 14,
+      padding: '22px 26px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+    }}
+  >
+    <div style={{ fontFamily: font.mono, fontSize: 14, letterSpacing: '0.18em', textTransform: 'uppercase', color: accent }}>{src}</div>
+    <div style={{ fontSize: 22, color: palette.textSoft, lineHeight: 1.4 }}>{quote}</div>
+  </div>
+);
+
+const Everywhere: Page = () => (
+  <Stage>
+    <Eyebrow>The word of the year</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          "Harness" is <span style={{ color: palette.accent }}>everywhere.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      OpenAI, Stripe, Thoughtworks, Anthropic — everyone says "harness" now. The trouble: it means a
+      different thing in every sentence. <b style={{ color: palette.text }}>Agent = Model + Harness</b> —
+      "everything except the model" — is true but says almost nothing.
+    </SubTitle>
+
+    <div style={{ marginTop: 52, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+      <QuoteCard
+        src="Thoughtworks · Fowler"
+        quote="Guides and sensors a team builds around a coding agent — a control system to earn enough trust to supervise less."
+        accent={palette.blue}
+      />
+      <QuoteCard
+        src="The plain-English version"
+        quote="Everything around the model that grounds it in reality — tools, context, guardrails, a verify step — so a rented black box behaves reliably."
+        accent={palette.purple}
+      />
+      <QuoteCard
+        src="Anthropic · Devin"
+        quote="The runtime that turns a model into a product — the loop, tools, memory, and recovery behind Claude Code."
+        accent={palette.accent}
+      />
+    </div>
+
+    <div
+      style={{
+        marginTop: 44,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderRadius: 14,
+        padding: '24px 28px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 18,
+      }}
+    >
+      <span style={{ fontSize: 28 }}>🎯</span>
+      <div style={{ fontSize: 24, color: palette.text, lineHeight: 1.4 }}>
+        Different words, one job: <b style={{ color: palette.accent }}>reliability</b> — make a
+        non-deterministic, rented model do its job anyway. The next slide pins down the two layers and
+        where <b style={{ color: palette.accent }}>Mastra</b> sits.
+      </div>
+    </div>
+
+    <Footer index={2} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 03 — Spectrum: Framework vs Harness
 // ════════════════════════════════════════════════════════════════════════════
 const Spectrum: Page = () => (
   <Stage>
@@ -279,8 +401,9 @@ const Spectrum: Page = () => (
       }
     />
     <SubTitle>
-      Frameworks and harnesses sit at different points on a spectrum of opinionation. Where you sit
-      changes what you're responsible for.
+      Frameworks and harnesses sit at different points on a spectrum of opinionation — and "harness"
+      itself splits in two. <b style={{ color: palette.text }}>Mastra is both:</b> it ships the inner
+      harness, and gives you the <Code>Harness</Code> class to build the outer one.
     </SubTitle>
 
     <div style={{ marginTop: 56, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22 }}>
@@ -299,7 +422,7 @@ const Spectrum: Page = () => (
       <SpectrumCol
         label="Harness"
         title="Complete system"
-        desc="Everything baked in. Memory, context management, the agent loop, safety. All decided for you."
+        desc="Sessions, the agent loop, modes, steering, memory, recovery — assembled and wired for you."
         accent={palette.accent}
         highlight
       />
@@ -307,26 +430,35 @@ const Spectrum: Page = () => (
 
     <div
       style={{
-        marginTop: 56,
-        background: palette.surface,
-        border: `1px solid ${palette.border}`,
-        borderRadius: 14,
-        padding: '24px 28px',
+        marginTop: 40,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 18,
       }}
     >
-      <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-        On the spectrum · where things land
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-        <Landmark icon="🔧" name="Raw ReAct loop" tag="Raw Code" accent={palette.muted} />
-        <div aria-hidden style={{ flex: 1, height: 2, background: palette.border }} />
-        <Landmark icon="🧱" name="Mastra · CrewAI · LangChain" tag="Framework" accent={palette.blue} />
-        <div aria-hidden style={{ flex: 1, height: 2, background: palette.border }} />
-        <Landmark icon="⚡" name="Claude Code · MastraCode" tag="Harness" accent={palette.accent} />
-      </div>
+      <Card accent={palette.blue} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <MonoLabel color={palette.blue}>Inner harness · the agent loop</MonoLabel>
+        <div style={{ fontSize: 24, color: palette.text, lineHeight: 1.4 }}>
+          The orchestration substrate that makes an agent <b style={{ color: palette.text }}>run</b> —
+          the loop, tool execution, memory, retrieval.
+        </div>
+        <div style={{ fontFamily: font.mono, fontSize: 17, color: palette.muted }}>
+          Mastra ships this: the <span style={{ color: palette.blue }}>Agent</span>.
+        </div>
+      </Card>
+      <Card accent={palette.accent} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <MonoLabel color={palette.accent}>Outer harness · what you build</MonoLabel>
+        <div style={{ fontSize: 24, color: palette.text, lineHeight: 1.4 }}>
+          The guides + sensors that make an agent <b style={{ color: palette.text }}>trustworthy</b> —
+          modes, steering, approval, sessions, recovery.
+        </div>
+        <div style={{ fontFamily: font.mono, fontSize: 17, color: palette.muted }}>
+          You build this with the <span style={{ color: palette.accent }}>Harness</span> class.
+        </div>
+      </Card>
     </div>
 
-    <Footer index={2} />
+    <Footer index={3} />
   </Stage>
 );
 
@@ -361,236 +493,71 @@ const SpectrumCol = ({
   </div>
 );
 
-const Landmark = ({ icon, name, tag, accent }: { icon: string; name: string; tag: string; accent: string }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 200 }}>
-    <div
-      style={{
-        width: 64,
-        height: 64,
-        borderRadius: '50%',
-        background: palette.surfaceHi,
-        border: `1px solid ${palette.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 28,
-      }}
-    >
-      {icon}
-    </div>
-    <div style={{ fontSize: 18, color: palette.text, fontWeight: 600, textAlign: 'center' }}>{name}</div>
-    <div style={{ fontFamily: font.mono, fontSize: 13, color: accent, letterSpacing: '0.16em' }}>{tag}</div>
+// ════════════════════════════════════════════════════════════════════════════
+// 04 — The Harness class is purpose-built
+// ════════════════════════════════════════════════════════════════════════════
+const ProductCard = ({ name, kind, accent }: { name: string; kind: string; accent: string }) => (
+  <div
+    style={{
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      borderTop: `2px solid ${accent}`,
+      borderRadius: 14,
+      padding: '20px 22px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      minHeight: 124,
+    }}
+  >
+    <div style={{ fontSize: 26, fontWeight: 700, color: palette.text }}>{name}</div>
+    <div style={{ fontSize: 19, color: palette.textSoft, lineHeight: 1.4 }}>{kind}</div>
   </div>
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// 03 — The Harness (architecture map)
-// ════════════════════════════════════════════════════════════════════════════
-const TheHarness: Page = () => (
+const PurposeBuilt: Page = () => (
   <Stage>
-    <Eyebrow>What is an agent harness?</Eyebrow>
+    <Eyebrow>Why we built it</Eyebrow>
     <SectionTitle
       title={
         <>
-          One loop.{' '}
-          <span style={{ color: palette.accent }}>Every part of the agent</span>{' '}
-          plugged into it.
+          Build your own <span style={{ color: palette.accent }}>Claude Code.</span>
         </>
       }
     />
     <SubTitle>
-      The harness is the stateful orchestrator: it assembles prompts, swaps modes, gates tools,
-      streams events, and enforces policy. The next nine slides walk each piece.
+      Mastra's <Code>Harness</Code> class is purpose-built for the outer harness: it wraps the agent
+      loop and gives you the controls — sessions, modes, steering, subagents, recovery — to build
+      collaborative and headless agent products.
     </SubTitle>
 
-    <div style={{ marginTop: 36, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-      <Pill icon="📝" label="Prompts" desc="Assembled per turn from env, mode, tools, tasks, skills." accent={palette.green} />
-      <Pill icon="📁" label="Workspace" desc="Sandboxed filesystem and shell. Skills as a catalog." accent={palette.blue} />
-      <Pill icon="🧠" label="Memory" desc="Compaction, offloading, prompt caching. Beat Context Rot." accent={palette.purple} />
-      <Pill icon="🎛️" label="Modes" desc="Build, plan, fast, review, triage. Each rewires the agent." accent={palette.amber} />
-      <Pill icon="🛡️" label="Steering" desc="Approve, deny, abort, ask. Interrupts are core UX." accent={palette.rose} />
-      <Pill icon="📡" label="Protocols" desc="Events, MCP, subagents. Everything observable." accent={palette.cyan} />
+    <div style={{ marginTop: 52, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+      <ProductCard name="Claude Code" kind="Collaborative coding agent — HITL, modes, tool approval." accent={palette.accent} />
+      <ProductCard name="CoWork" kind="A teammate in the loop — steerable, resumable sessions." accent={palette.blue} />
+      <ProductCard name="Devin" kind="Autonomous engineer — goal-driven, long-horizon runs." accent={palette.purple} />
+      <ProductCard name="Software Factory" kind="Headless agents at scale — recovery + persisted sessions." accent={palette.amber} />
     </div>
 
     <div
       style={{
-        marginTop: 28,
-        fontFamily: font.mono,
-        fontSize: 12,
-        letterSpacing: '0.18em',
-        textTransform: 'uppercase',
-        color: palette.muted,
-        marginBottom: 10,
+        marginTop: 44,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 18,
       }}
     >
-      …and the thirty other concerns the harness handles for you
-    </div>
-
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8,
-        maxWidth: 1500,
-      }}
-    >
-      {[
-        ['thread management', palette.accent],
-        ['tool approval', palette.amber],
-        ['prompt assembly', palette.purple],
-        ['model routing', palette.cyan],
-        ['abort / steer', palette.rose],
-        ['cost tracking', palette.amber],
-        ['memory compaction', palette.green],
-        ['event emission', palette.accent],
-        ['MCP connections', palette.purple],
-        ['subagent spawn', palette.cyan],
-        ['stream parsing', palette.amber],
-        ['tool policies', palette.amber],
-        ['mode switching', palette.green],
-        ['file sandboxing', palette.rose],
-        ['skills discovery', palette.accent],
-        ['token counting', palette.amber],
-        ['follow-up queue', palette.purple],
-        ['YOLO mode', palette.rose],
-        ['session grants', palette.green],
-        ['LSP diagnostics', palette.cyan],
-        ['prompt caching', palette.amber],
-        ['observation threshold', palette.green],
-        ['auth / OAuth', palette.accent],
-        ['hook system', palette.purple],
-        ['plan approval', palette.amber],
-        ['workspace init', palette.cyan],
-        ['resume threads', palette.amber],
-        ['multi-modal input', palette.accent],
-        ['error recovery', palette.rose],
-        ['thinking level', palette.purple],
-      ].map(([label, color]) => (
-        <span
-          key={label as string}
-          style={{
-            fontFamily: font.mono,
-            fontSize: 13,
-            color: color as string,
-            background: palette.surface,
-            border: `1px solid ${color}33`,
-            borderRadius: 6,
-            padding: '5px 10px',
-            letterSpacing: '0.04em',
-          }}
-        >
-          {label}
-        </span>
-      ))}
-    </div>
-
-    <Footer index={3} />
-  </Stage>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 04 — Prompts & Context
-// ════════════════════════════════════════════════════════════════════════════
-const PromptsContext: Page = () => (
-  <Stage>
-    <Eyebrow>System Prompts &amp; Context</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          The system prompt is{' '}
-          <span style={{ color: palette.accent }}>not a static string.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      The harness assembles it every turn from environment, mode, tools, tasks, and skills. Slash
-      commands let users actively re-orient mid-conversation.
-    </SubTitle>
-
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
-      <div>
-        <div
-          style={{
-            fontFamily: font.mono,
-            fontSize: 14,
-            letterSpacing: '0.2em',
-            color: palette.muted,
-            marginBottom: 16,
-            textTransform: 'uppercase',
-          }}
-        >
-          Passive · assembled per turn
+      <Card accent={palette.accent} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <MonoLabel color={palette.accent}>Collaborative · human-in-the-loop</MonoLabel>
+        <div style={{ fontSize: 22, color: palette.textSoft, lineHeight: 1.4 }}>
+          Leans on the steering layer — modes, tool approval, suspension, follow-ups, plan approval.
         </div>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
-          {[
-            ['ENVIRONMENT', 'cwd, project, branch, platform'],
-            ['MODE PROMPT', 'BUILD / PLAN / FAST behavior'],
-            ['AVAILABLE TOOLS', 'tool list injected per mode'],
-            ['ACTIVE TASKS', 'current todo list from state'],
-            ['AGENTS.MD', 'project-specific instructions'],
-            ['SKILLS', 'available skill catalog'],
-          ].map(([k, v]) => (
-            <li
-              key={k}
-              style={{
-                background: palette.surface,
-                border: `1px solid ${palette.border}`,
-                borderRadius: 10,
-                padding: '14px 18px',
-                display: 'flex',
-                gap: 18,
-                alignItems: 'baseline',
-              }}
-            >
-              <span style={{ fontFamily: font.mono, fontSize: 14, color: palette.accent, letterSpacing: '0.14em', minWidth: 200 }}>
-                {k}
-              </span>
-              <span style={{ fontSize: 20, color: palette.textSoft }}>{v}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <div
-          style={{
-            fontFamily: font.mono,
-            fontSize: 14,
-            letterSpacing: '0.2em',
-            color: palette.muted,
-            marginBottom: 16,
-            textTransform: 'uppercase',
-          }}
-        >
-          Active · slash commands
+      </Card>
+      <Card accent={palette.amber} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <MonoLabel color={palette.amber}>Headless · autonomous</MonoLabel>
+        <div style={{ fontSize: 22, color: palette.textSoft, lineHeight: 1.4 }}>
+          Leans on the autonomy layer — goal mode, subagents, persisted SessionRecords + recovery.
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {[
-            ['/mode build', 'switch to build'],
-            ['/model opus', 'change provider'],
-            ['/compact', 'force compaction'],
-            ['/yolo on', 'auto-approve tools'],
-            ['/pr-review', 'review current PR'],
-            ['/pr-new', 'create PR'],
-            ['/thread new', 'fresh conversation'],
-            ['/sandbox ~/x', 'grant path access'],
-            ['/commit', 'stage + commit changes'],
-          ].map(([cmd, desc]) => (
-            <div
-              key={cmd}
-              style={{
-                background: palette.surface,
-                border: `1px solid ${palette.border}`,
-                borderRadius: 10,
-                padding: '14px 16px',
-              }}
-            >
-              <div style={{ fontFamily: font.mono, fontSize: 18, color: palette.accent }}>{cmd}</div>
-              <div style={{ fontSize: 16, color: palette.muted, marginTop: 4 }}>{desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </Card>
     </div>
 
     <Footer index={4} />
@@ -598,109 +565,633 @@ const PromptsContext: Page = () => (
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 05 — Workspace
+// 05 — Architecture map
 // ════════════════════════════════════════════════════════════════════════════
-const Workspace: Page = () => (
+const Architecture: Page = () => (
   <Stage>
-    <Eyebrow>Workspace</Eyebrow>
+    <Eyebrow>How it's actually built</Eyebrow>
     <SectionTitle
       title={
         <>
-          The agent needs a{' '}
-          <span style={{ color: palette.accent }}>place to work.</span>
+          Four layers.{' '}
+          <span style={{ color: palette.accent }}>One agent loop.</span>
         </>
       }
     />
     <SubTitle>
-      Skills as a discoverable catalog. A sandboxed filesystem. Purpose-built tools — not bash and
-      pray.
+      The harness in MastraCode is a small stack of objects. The <Code>Harness</Code> owns config and
+      wiring; each <Code>Session</Code> owns a conversation; the run engine drives one turn at a time.
     </SubTitle>
 
-    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-      <Pill
-        icon="🧩"
-        label="Skills"
-        desc={
-          <>
-            Discoverable capabilities the agent activates on demand. Listed in the prompt as a
-            catalog —{' '}
-            <code style={{ fontFamily: font.mono, fontSize: 18, color: palette.accent }}>
-              .mastracode/skills/
-            </code>
-          </>
-        }
-        accent={palette.green}
+    <div style={{ marginTop: 52, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+      <LayerCard
+        n="1"
+        name="Harness"
+        accent={palette.accent}
+        desc="Validates modes, builds the gateway manager, owns workspace/browser, and wires every session."
+        items={['createSession()', 'init() / destroy()', 'buildToolsets()']}
       />
-      <Pill
-        icon="📁"
-        label="Filesystem &amp; Sandbox"
-        desc={
-          <>
-            Reads/writes scoped to project root. Shell sandboxed.{' '}
-            <code style={{ fontFamily: font.mono, fontSize: 18, color: palette.accent }}>/sandbox</code>{' '}
-            grants access. Prevents{' '}
-            <code style={{ fontFamily: font.mono, fontSize: 18, color: palette.red }}>rm -rf /</code>.
-          </>
-        }
+      <LayerCard
+        n="2"
+        name="Session"
         accent={palette.blue}
+        desc="One resource's conversation as focused domain objects — identity, thread, mode, model, OM, permissions."
+        items={['sendMessage()', 'steer() / followUp()', 'mode · model · state']}
+      />
+      <LayerCard
+        n="3"
+        name="SessionRunEngine"
+        accent={palette.purple}
+        desc="Consumes the agent event stream and folds chunks into display messages, token usage, and finish state."
+        items={['processStreamChunk()', 'approval / suspension', 'finish-reason mapping']}
+      />
+      <LayerCard
+        n="4"
+        name="Tools + Storage"
+        accent={palette.amber}
+        desc="Built-in tools, subagents, and a session store that persists identity, mode/model, and pending items."
+        items={['ask_user · task_* · subagent', 'HarnessStorage', 'SessionRecord']}
       />
     </div>
 
-    <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-      <div
-        style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderTop: `2px solid ${palette.green}`,
-          borderRadius: 14,
-          padding: '20px 24px',
-        }}
-      >
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.green, marginBottom: 12, letterSpacing: '0.18em' }}>
-          ✓ PURPOSE-BUILT TOOLS
-        </div>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6, fontSize: 18 }}>
-          <li>📄 string_replace_lsp — edit with LSP diagnostics</li>
-          <li>🔍 search_content — regex across files</li>
-          <li>📂 find_files — glob, .gitignore-aware</li>
-          <li>🌳 ast_smart_edit — AST-aware transforms</li>
-          <li>👁️ view — read with line numbers</li>
-          <li>👤 ask_user — structured Q&amp;A</li>
-        </ul>
-      </div>
-      <div
-        style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderTop: `2px solid ${palette.red}`,
-          borderRadius: 14,
-          padding: '20px 24px',
-        }}
-      >
-        <div style={{ fontFamily: font.mono, fontSize: 16, color: palette.red, marginBottom: 12, letterSpacing: '0.18em' }}>
-          ✗ BASH AND PRAY
-        </div>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6, fontSize: 18, color: palette.textSoft }}>
-          <li>💀 sed -i 's/foo/bar/g' — silent corruption</li>
-          <li>💀 grep -r "pattern" . — no structure</li>
-          <li>💀 find . -name "*.ts" — no .gitignore</li>
-          <li>💀 cat file.ts — no line numbers</li>
-          <li>💀 echo "..." &gt; file — full overwrite</li>
-          <li>💀 read -p "?" — TTY hangs</li>
-        </ul>
-      </div>
+    <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 14, fontFamily: font.mono, fontSize: 18, color: palette.muted }}>
+      <span style={{ color: palette.accent }}>Harness</span>
+      <span>→</span>
+      <span style={{ color: palette.blue }}>Session</span>
+      <span>→</span>
+      <span style={{ color: palette.purple }}>RunEngine</span>
+      <span>→</span>
+      <span style={{ color: palette.amber }}>Tools / Storage</span>
+      <span style={{ color: palette.dim }}>· everything below wraps a single Mastra Agent</span>
     </div>
 
     <Footer index={5} />
   </Stage>
 );
 
+const LayerCard = ({
+  n,
+  name,
+  desc,
+  items,
+  accent,
+}: {
+  n: string;
+  name: string;
+  desc: string;
+  items: string[];
+  accent: string;
+}) => (
+  <div
+    style={{
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      borderTop: `2px solid ${accent}`,
+      borderRadius: 14,
+      padding: '20px 22px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+      <span style={{ fontFamily: font.mono, fontSize: 16, color: accent }}>{n}</span>
+      <span style={{ fontSize: 24, fontWeight: 700, color: palette.text }}>{name}</span>
+    </div>
+    <div style={{ fontSize: 17, color: palette.textSoft, lineHeight: 1.45 }}>{desc}</div>
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 5 }}>
+      {items.map((it) => (
+        <li key={it} style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted }}>
+          · {it}
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
 // ════════════════════════════════════════════════════════════════════════════
-// 06 — Memory: Context Rot
+// 04 — The Harness container
+// ════════════════════════════════════════════════════════════════════════════
+const TheHarness: Page = () => (
+  <Stage>
+    <Eyebrow>The container</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          The <span style={{ color: palette.accent }}>Harness</span> wires everything together.
+        </>
+      }
+    />
+    <SubTitle>
+      Construction validates your config and assembles the runtime. <Code>init()</Code> brings storage,
+      workspace, and gateways online, then propagates them to every backing agent.
+    </SubTitle>
+
+    <div style={{ marginTop: 44, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <Card accent={palette.green}>
+        <MonoLabel color={palette.green}>Constructor · validate &amp; assemble</MonoLabel>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
+          <FeatureRow
+            title="validateModes()"
+            desc="Mode IDs must be unique; a mode can't set both tools and additionalTools; transitionsTo can't self-reference or point to an unknown mode."
+          />
+          <FeatureRow
+            title="GatewayManager"
+            desc="Built from your gateways plus defaultGateways, with custom precedence — model IDs route through it for auth and provider selection."
+          />
+          <FeatureRow
+            title="defaultMode"
+            desc="Resolved from defaultModeId, otherwise the configured default or first mode."
+          />
+        </ul>
+      </Card>
+
+      <Card accent={palette.blue}>
+        <MonoLabel color={palette.blue}>init() · bring the runtime online</MonoLabel>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
+          <FeatureRow
+            title="Internal vs external Mastra"
+            desc="Creates an internal Mastra only when storage exists and no parent Mastra is present; otherwise initializes inherited storage on the external one."
+          />
+          <FeatureRow
+            title="Workspace &amp; browser"
+            desc="Supplied as instances or lazy factories. The workspace factory resolves on first use with { requestContext, mastra } and is cached."
+          />
+          <FeatureRow
+            title="Runtime-service propagation"
+            desc="Injects memory, workspace, browser, and pubsub into each backing agent only when it's missing them, then starts heartbeats."
+          />
+        </ul>
+      </Card>
+    </div>
+
+    <Footer index={6} />
+  </Stage>
+);
+
+const FeatureRow = ({ title, desc }: { title: string; desc: ReactNode }) => (
+  <li>
+    <div style={{ fontFamily: font.mono, fontSize: 19, color: palette.text, marginBottom: 4 }}>{title}</div>
+    <div style={{ fontSize: 18, color: palette.textSoft, lineHeight: 1.4 }}>{desc}</div>
+  </li>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 05 — Modes
+// ════════════════════════════════════════════════════════════════════════════
+const Modes: Page = () => (
+  <Stage>
+    <Eyebrow>Modes</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          Same conversation.{' '}
+          <span style={{ color: palette.accent }}>Different agent.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      A mode picks the agent, its tools, and (via the gateway) its model. The harness resolves the
+      agent per mode and caches it — no restart when you switch.
+    </SubTitle>
+
+    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 28 }}>
+      <Card>
+        <MonoLabel color={palette.accent}>getAgentForMode() · resolution order</MonoLabel>
+        <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 14, counterReset: 'r' }}>
+          <ResolveStep
+            n="1"
+            code="mode.agent"
+            desc="Deprecated per-mode agent, if set."
+            accent={palette.muted}
+          />
+          <ResolveStep
+            n="2"
+            code="config.agent"
+            desc="A shared backing agent reused across modes."
+            accent={palette.blue}
+          />
+          <ResolveStep
+            n="3"
+            code="constructed + cached"
+            desc="Otherwise a per-mode Agent is built (needs defaultModelId) and cached. Mode instructions combine with harness instructions; mode.tools + additionalTools merge in."
+            accent={palette.accent}
+          />
+        </ol>
+      </Card>
+
+      <div style={{ display: 'grid', gap: 18 }}>
+        <Card accent={palette.green}>
+          <MonoLabel color={palette.green}>tools vs additionalTools</MonoLabel>
+          <div style={{ fontSize: 20, color: palette.textSoft, lineHeight: 1.45 }}>
+            <Code>tools</Code> means replace, <Code>additionalTools</Code> means augment. Setting both
+            on one mode is rejected at construction. With a shared agent, mode tools arrive as a toolset
+            augment so the agent's own tools survive.
+          </div>
+        </Card>
+        <Card accent={palette.purple}>
+          <MonoLabel color={palette.purple}>gateway-driven models</MonoLabel>
+          <div style={{ fontSize: 20, color: palette.textSoft, lineHeight: 1.45 }}>
+            The agent receives a bare model-id string. Auth and provider routing happen through the
+            Mastra gateways attached to the harness — one switch re-points the model.
+          </div>
+        </Card>
+      </div>
+    </div>
+
+    <Footer index={7} />
+  </Stage>
+);
+
+const ResolveStep = ({ n, code, desc, accent }: { n: string; code: string; desc: ReactNode; accent: string }) => (
+  <li style={{ display: 'flex', gap: 14, alignItems: 'baseline' }}>
+    <span
+      style={{
+        fontFamily: font.mono,
+        fontSize: 14,
+        color: accent,
+        border: `1px solid ${accent}`,
+        borderRadius: 6,
+        padding: '2px 8px',
+        flexShrink: 0,
+      }}
+    >
+      {n}
+    </span>
+    <span>
+      <span style={{ fontFamily: font.mono, fontSize: 20, color: accent }}>{code}</span>
+      <span style={{ fontSize: 18, color: palette.textSoft, lineHeight: 1.4, display: 'block', marginTop: 3 }}>
+        {desc}
+      </span>
+    </span>
+  </li>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 06 — Prompts & request context
+// ════════════════════════════════════════════════════════════════════════════
+const PromptsContext: Page = () => (
+  <Stage>
+    <Eyebrow>Toolsets &amp; request context</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          What the agent can do is{' '}
+          <span style={{ color: palette.accent }}>assembled per turn.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      <Code>buildToolsets()</Code> composes the tool surface from built-ins, your config, and subagents
+      — minus anything disabled or denied. <Code>buildRequestContext()</Code> seeds the live harness
+      state every tool sees.
+    </SubTitle>
+
+    <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 28 }}>
+      <Card>
+        <MonoLabel color={palette.accent}>buildToolsets() · the recipe</MonoLabel>
+        <div style={{ display: 'grid', gap: 8 }}>
+          <ToolsetLine sign="+" color={palette.green} label="built-ins" detail="ask_user · submit_plan · task_write · task_update · task_complete · task_check" />
+          <ToolsetLine sign="+" color={palette.green} label="config.tools" detail="your harness tools (resolved if a function)" />
+          <ToolsetLine sign="+" color={palette.blue} label="subagent" detail="auto-wired when subagents are configured" />
+          <ToolsetLine sign="−" color={palette.amber} label="disableBuiltinTools" detail="explicitly removed built-ins" />
+          <ToolsetLine sign="−" color={palette.red} label="deny policy" detail="tools the permission rules deny" />
+          <ToolsetLine sign="+" color={palette.purple} label="modeTools" detail="mode tools as an augment (shared agent)" />
+        </div>
+      </Card>
+
+      <Card accent={palette.cyan}>
+        <MonoLabel color={palette.cyan}>buildRequestContext() · the 'harness' state</MonoLabel>
+        <div style={{ fontSize: 20, color: palette.textSoft, lineHeight: 1.5 }}>
+          Seeds <Code>requestContext.get('harness')</Code> with harness, session, thread, and resource
+          state, the abort signal, the resolved workspace, event emission, and subagent model lookup.
+        </div>
+        <div style={{ marginTop: 16, fontSize: 19, color: palette.textSoft, lineHeight: 1.5 }}>
+          State is live: tools read and write through{' '}
+          <Code>session.state.get / set / update</Code> instead of a static blob.
+        </div>
+      </Card>
+    </div>
+
+    <Footer index={8} />
+  </Stage>
+);
+
+const ToolsetLine = ({ sign, color, label, detail }: { sign: string; color: string; label: string; detail: string }) => (
+  <div
+    style={{
+      display: 'flex',
+      gap: 14,
+      alignItems: 'baseline',
+      background: palette.bg,
+      border: `1px solid ${palette.border}`,
+      borderRadius: 10,
+      padding: '11px 16px',
+    }}
+  >
+    <span style={{ fontFamily: font.mono, fontSize: 20, color, width: 18, flexShrink: 0 }}>{sign}</span>
+    <span style={{ fontFamily: font.mono, fontSize: 17, color: palette.text, minWidth: 210 }}>{label}</span>
+    <span style={{ fontSize: 16, color: palette.muted }}>{detail}</span>
+  </div>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 07 — Session as domain objects
+// ════════════════════════════════════════════════════════════════════════════
+const SessionDomains: Page = () => (
+  <Stage>
+    <Eyebrow>The Session</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          One conversation,{' '}
+          <span style={{ color: palette.accent }}>fourteen small objects.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      Instead of one god-object, a <Code>Session</Code> is split into focused domains. Each owns a
+      slice of state, so the run loop and steering logic stay readable.
+    </SubTitle>
+
+    <div style={{ marginTop: 44, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+      {[
+        ['identity', 'owner, resource, ids', palette.accent],
+        ['thread', 'create, rename, clone, switch', palette.blue],
+        ['stream', 'live run output', palette.purple],
+        ['suspensions', 'pending tool calls', palette.amber],
+        ['follow-ups', 'queued user messages', palette.cyan],
+        ['approval', 'plan + tool gating', palette.green],
+        ['run', 'abort + run-state', palette.rose],
+        ['model', 'per-thread model', palette.blue],
+        ['mode', 'active mode selection', palette.amber],
+        ['om', 'observational memory', palette.purple],
+        ['permissions', 'tool policy rules', palette.red],
+        ['subagents', 'name resolution', palette.cyan],
+        ['display', 'tokens + display msgs', palette.green],
+        ['state', 'live session state', palette.accent],
+      ].map(([name, desc, color]) => (
+        <DomainCard key={name} name={name} desc={desc} accent={color} />
+      ))}
+    </div>
+
+    <div style={{ marginTop: 32, fontSize: 22, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.5 }}>
+      The harness injects every dependency through one wiring step, so a session never reaches back
+      into the harness — it just <span style={{ color: palette.accent }}>asks its domains</span>.
+    </div>
+
+    <Footer index={9} />
+  </Stage>
+);
+
+const DomainCard = ({ name, desc, accent }: { name: string; desc: string; accent: string }) => (
+  <div
+    style={{
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      borderLeft: `3px solid ${accent}`,
+      borderRadius: 10,
+      padding: '14px 16px',
+    }}
+  >
+    <div style={{ fontFamily: font.mono, fontSize: 18, color: accent }}>{name}</div>
+    <div style={{ fontSize: 15, color: palette.muted, marginTop: 4 }}>{desc}</div>
+  </div>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 08 — Message flow
+// ════════════════════════════════════════════════════════════════════════════
+const MessageFlow: Page = () => (
+  <Stage>
+    <Eyebrow>Message flow</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          Four ways a message{' '}
+          <span style={{ color: palette.accent }}>reaches the agent.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      Every entry point ends in <Code>sendSignal()</Code>, which dispatches with{' '}
+      <Code>ifActive</Code> / <Code>ifIdle</Code> semantics — queue into a live run, or start a fresh one.
+    </SubTitle>
+
+    <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
+      <Pill
+        icon="✉️"
+        label="sendMessage()"
+        desc="Builds the input, sends a signal, waits for accepted — and when idle, also waits for agent_end."
+        accent={palette.green}
+      />
+      <Pill
+        icon="🛞"
+        label="steer()"
+        desc="Aborts the current run, clears the follow-up queue, emits an empty-queue state, then sends."
+        accent={palette.amber}
+      />
+      <Pill
+        icon="📨"
+        label="followUp()"
+        desc="Enqueues during an active run; sends immediately when the session is idle."
+        accent={palette.blue}
+      />
+      <Pill
+        icon="🚰"
+        label="drainFollowUpQueue()"
+        desc="Dequeues, re-queues on failure, and either feeds the live stream or falls back to sendMessage()."
+        accent={palette.cyan}
+      />
+    </div>
+
+    <div
+      style={{
+        marginTop: 36,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderRadius: 14,
+        padding: '20px 26px',
+        fontFamily: font.mono,
+        fontSize: 19,
+        color: palette.textSoft,
+        lineHeight: 1.5,
+        maxWidth: 1500,
+      }}
+    >
+      <span style={{ color: palette.muted }}>// sendSignal()</span> creates a user signal, ensures the
+      thread + subscription exist, <span style={{ color: palette.amber }}>declines a pending tool approval</span>{' '}
+      when a new message interrupts a run, waits out the post-abort window, then dispatches to{' '}
+      <span style={{ color: palette.accent }}>agent.sendSignal()</span>.
+    </div>
+
+    <Footer index={10} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 09 — Run engine
+// ════════════════════════════════════════════════════════════════════════════
+const RunEngine: Page = () => (
+  <Stage>
+    <Eyebrow>SessionRunEngine</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          The run engine{' '}
+          <span style={{ color: palette.accent }}>folds the stream.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      One engine owns the run loop: it consumes the agent's event stream, folds chunks into Harness
+      display messages and token usage, and decides how each run ends.
+    </SubTitle>
+
+    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
+      <Card>
+        <MonoLabel color={palette.accent}>processStreamChunk() handles</MonoLabel>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 17, color: palette.textSoft }}>
+          {[
+            'text / reasoning',
+            'tool-call input',
+            'tool results / errors',
+            'approval events',
+            'suspension events',
+            'finish / error / goal',
+            'OM lifecycle',
+            'system reminders',
+            'signals / user msgs',
+            'sandbox stdout/stderr',
+          ].map((c) => (
+            <div key={c} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+              <span style={{ color: palette.accent }}>·</span>
+              <span>{c}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card accent={palette.amber}>
+        <MonoLabel color={palette.amber}>finish-reason → stopReason</MonoLabel>
+        <div style={{ display: 'grid', gap: 12 }}>
+          <FinishRow from="stop · end-turn" to="complete" color={palette.green} />
+          <FinishRow from="tool-calls" to="tool_use" color={palette.blue} />
+          <FinishRow from="anything else" to="terminal error" color={palette.red} />
+          <div style={{ fontSize: 17, color: palette.muted, lineHeight: 1.45, marginTop: 4 }}>
+            Non-success reasons surface through <Code color={palette.muted}>describeNonSuccessFinishReason()</Code>{' '}
+            instead of a silent complete. Server-side fallback models emit an info notice.
+          </div>
+        </div>
+      </Card>
+    </div>
+
+    <Footer index={11} />
+  </Stage>
+);
+
+const FinishRow = ({ from, to, color }: { from: string; to: string; color: string }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+    <span style={{ fontFamily: font.mono, fontSize: 19, color: palette.textSoft, minWidth: 230 }}>{from}</span>
+    <span style={{ color: palette.muted }}>→</span>
+    <span style={{ fontFamily: font.mono, fontSize: 19, color }}>{to}</span>
+  </div>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 10 — Steering & HITL
+// ════════════════════════════════════════════════════════════════════════════
+const Steering: Page = () => (
+  <Stage>
+    <Eyebrow>Human-in-the-loop</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          The harness should{' '}
+          <span style={{ color: palette.accent }}>ask, not just act.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      Interrupts aren't edge cases — they're core UX. The run engine gates side effects, suspends on
+      interactive tools, and gates intent before any plan executes.
+    </SubTitle>
+
+    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
+      <Pill
+        icon="🛡️"
+        label="Tool approval gate"
+        desc={
+          <>
+            On a tool call the engine runs <Code>resolveToolApproval()</Code>: auto-approve or
+            auto-deny fixed policies, otherwise arm approval state and emit{' '}
+            <Code>tool_approval_required</Code>.
+          </>
+        }
+        accent={palette.green}
+      />
+      <Pill
+        icon="⏸️"
+        label="Tool suspension"
+        desc={
+          <>
+            Interactive tools like <Code>ask_user</Code> suspend the run, surface a question, and
+            resume once the human answers.
+          </>
+        }
+        accent={palette.purple}
+      />
+      <Pill
+        icon="📋"
+        label="Plan approval"
+        desc={
+          <>
+            <Code>submit_plan</Code> gates intent: approve, reject, or request changes before any code
+            changes happen.
+          </>
+        }
+        accent={palette.blue}
+      />
+      <Pill
+        icon="⛔"
+        label="Abort + follow-up"
+        desc="Abort kills a runaway run; the follow-up queue holds the next message until the current op finishes."
+        accent={palette.amber}
+      />
+    </div>
+
+    <div
+      style={{
+        marginTop: 30,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderLeft: `2px solid ${palette.cyan}`,
+        borderRadius: 14,
+        padding: '20px 26px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 18,
+      }}
+    >
+      <span style={{ fontSize: 26 }}>✅</span>
+      <div style={{ fontSize: 22, color: palette.text, lineHeight: 1.4 }}>
+        <b style={{ color: palette.cyan }}>Verify · goal mode + judges.</b>{' '}
+        Approval gates the <i>act</i>; verification checks the <i>result</i>. A{' '}
+        <Code>/goal</Code> is a persistent objective — after each turn a judge scores it and returns{' '}
+        <Code>complete · continue · pause · wait-for-input</Code>, bounded by a turn budget.
+      </div>
+    </div>
+
+    <Footer index={12} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 11 — Memory: Context Rot + OM
 // ════════════════════════════════════════════════════════════════════════════
 const Memory: Page = () => (
-  <Stage>
-    <Eyebrow>Memory</Eyebrow>
+  <Stage padding="100px 120px 120px">
+    <Eyebrow>Observational memory</Eyebrow>
     <SectionTitle
       title={
         <>
@@ -710,67 +1201,66 @@ const Memory: Page = () => (
       }
     />
     <SubTitle>
-      As the window fills, models degrade — reasoning gets worse, instructions get lost, costs
-      spike. Three strategies, one live demo.
+      As the window fills, models degrade. Observational Memory watches token counts and rolls the
+      conversation up — observations first, then reflections — on real thresholds.
     </SubTitle>
 
-    <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+    <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
       <Pill
-        icon="🗜️"
-        label="Compaction"
-        desc="At threshold, summarize and compress — don't just truncate. Agent keeps a clean window."
+        icon="👁️"
+        label="Observation · 30k tok"
+        desc="When message tokens cross the observation threshold (default 30,000), the OM observer summarizes recent turns into observations."
         accent={palette.green}
       />
       <Pill
-        icon="📤"
-        label="Offloading"
-        desc="Large tool outputs clutter context. Keep head + tail; offload the body to disk on demand."
-        accent={palette.blue}
+        icon="🪞"
+        label="Reflection · 40k tok"
+        desc="When observation tokens cross the reflection threshold (default 40,000), observations are distilled further into reflections."
+        accent={palette.purple}
       />
       <Pill
-        icon="💰"
-        label="Prompt Caching"
-        desc="Stable prefix = cache hits. Compaction preserves the prefix; caches stay warm."
-        accent={palette.amber}
+        icon="🧊"
+        label="Buffering"
+        desc="In-flight observations and reflections are buffered and restored on reload, so progress survives restarts."
+        accent={palette.blue}
       />
     </div>
 
     <LiveContextDemo />
 
-    <Footer index={6} />
+    <Footer index={13} />
   </Stage>
 );
 
 // ─── Live context-fill demo (Memory slide) ───────────────────────────────────
 type DemoBar = { id: number; role: 'user' | 'asst' | 'tool' | 'obs'; t: number };
 const demoScript: { role: 'user' | 'asst' | 'tool'; text: string; t: number }[] = [
-  { role: 'user', text: 'Fix the auth bug in login.ts', t: 120 },
-  { role: 'asst', text: 'Let me look at the file...', t: 80 },
+  { role: 'user', text: 'Fix the auth bug in login.ts', t: 1200 },
+  { role: 'asst', text: 'Let me look at the file...', t: 800 },
   { role: 'tool', text: 'view("src/auth/login.ts") → 240 lines', t: 2800 },
-  { role: 'asst', text: 'Found the issue — missing token refresh', t: 150 },
-  { role: 'tool', text: 'string_replace_lsp(...) → 2 diagnostics', t: 1200 },
-  { role: 'asst', text: 'Fixed. Running tests...', t: 90 },
+  { role: 'asst', text: 'Found the issue — missing token refresh', t: 1500 },
+  { role: 'tool', text: 'string_replace_lsp(...) → 2 diagnostics', t: 2200 },
+  { role: 'asst', text: 'Fixed. Running tests...', t: 900 },
   { role: 'tool', text: 'execute_command("npm test") → 47 tests', t: 4200 },
-  { role: 'asst', text: 'All tests pass. Checking types...', t: 100 },
+  { role: 'asst', text: 'All tests pass. Checking types...', t: 1000 },
   { role: 'tool', text: 'execute_command("tsc --noEmit") → clean', t: 3800 },
-  { role: 'user', text: 'Now add rate limiting to the API', t: 110 },
-  { role: 'asst', text: 'Exploring the API structure...', t: 90 },
-  { role: 'tool', text: 'search_content("rateLimit") → 0 matches', t: 800 },
+  { role: 'user', text: 'Now add rate limiting to the API', t: 1100 },
+  { role: 'asst', text: 'Exploring the API structure...', t: 900 },
+  { role: 'tool', text: 'search_content("rateLimit") → 0 matches', t: 1800 },
   { role: 'tool', text: 'view("src/api/middleware/") → 5 files', t: 3200 },
-  { role: 'asst', text: 'No existing rate limiting. Adding it...', t: 160 },
+  { role: 'asst', text: 'No existing rate limiting. Adding it...', t: 1600 },
   { role: 'tool', text: 'write_file("rate-limit.ts")', t: 2400 },
   { role: 'tool', text: 'string_replace_lsp("api/index.ts")', t: 1800 },
   { role: 'tool', text: 'execute_command("npm test") → 52 tests', t: 5200 },
 ];
 
+// OM observation threshold default (see harness loadOMProgress: 30_000).
 const THRESHOLD = 30000;
 
 function LiveContextDemo() {
   const [tokens, setTokens] = useState(0);
   const [bars, setBars] = useState<DemoBar[]>([]);
-  const [hits, setHits] = useState(0);
-  const [misses, setMisses] = useState(0);
-  const [compactions, setCompactions] = useState(0);
+  const [observations, setObservations] = useState(0);
   const [step, setStep] = useState(0);
   const [running, setRunning] = useState(false);
   const idRef = useRef(0);
@@ -787,8 +1277,8 @@ function LiveContextDemo() {
       const newBar: DemoBar = { id: idRef.current++, role: s.role, t: s.t };
 
       if (next >= THRESHOLD * 0.9) {
-        // compaction
-        setBars(prev => {
+        // observation rollup
+        setBars((prev) => {
           const keep = prev.slice(-2);
           const obsBars: DemoBar[] = [
             { id: idRef.current++, role: 'obs', t: 1200 },
@@ -798,14 +1288,12 @@ function LiveContextDemo() {
           return [...obsBars, ...keep, newBar];
         });
         setTokens(Math.floor(next * 0.3));
-        setCompactions(c => c + 1);
-        setMisses(m => m + 1);
+        setObservations((c) => c + 1);
       } else {
-        setBars(prev => [...prev, newBar]);
+        setBars((prev) => [...prev, newBar]);
         setTokens(next);
-        setHits(h => h + 1);
       }
-      setStep(s => s + 1);
+      setStep((s) => s + 1);
     }, 700);
     return () => clearTimeout(timer);
   }, [running, step, tokens]);
@@ -814,9 +1302,7 @@ function LiveContextDemo() {
     setRunning(false);
     setTokens(0);
     setBars([]);
-    setHits(0);
-    setMisses(0);
-    setCompactions(0);
+    setObservations(0);
     setStep(0);
   };
 
@@ -836,7 +1322,7 @@ function LiveContextDemo() {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ fontFamily: font.mono, fontSize: 13, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-          Live · Context fill → Compaction → Cache
+          Live · Context fill → Observation rollup
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           {!running && step < demoScript.length && (
@@ -851,7 +1337,7 @@ function LiveContextDemo() {
         {/* Left: meter + bars */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontFamily: font.mono, fontSize: 13, color: palette.textSoft }}>
-            <span>Context window</span>
+            <span>Message tokens</span>
             <span style={{ color: pct > 85 ? palette.rose : palette.textSoft }}>
               {tokens.toLocaleString()} / {THRESHOLD.toLocaleString()} tok
             </span>
@@ -863,23 +1349,23 @@ function LiveContextDemo() {
           <div
             style={{
               marginTop: 10,
-              maxHeight: 160,
+              maxHeight: 150,
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column-reverse',
               gap: 3,
             }}
           >
-            {[...bars].slice(-12).reverse().map(b => (
+            {[...bars].slice(-11).reverse().map((b) => (
               <div key={b.id} style={{ display: 'flex', gap: 8, alignItems: 'center', fontFamily: font.mono, fontSize: 11 }}>
                 <span style={{ width: 38, color: roleColor(b.role), letterSpacing: '0.06em' }}>{b.role}</span>
                 <div
                   style={{
-                    height: 6,
-                    width: `${Math.min(95, Math.max(8, (b.t / 5000) * 95))}%`,
-                    background: roleColor(b.role),
-                    opacity: 0.7,
+                    height: 9,
                     borderRadius: 3,
+                    background: roleColor(b.role),
+                    opacity: b.role === 'obs' ? 0.9 : 0.55,
+                    width: `${Math.min(100, (b.t / 5200) * 100)}%`,
                   }}
                 />
               </div>
@@ -887,26 +1373,16 @@ function LiveContextDemo() {
           </div>
         </div>
 
-        {/* Right: cache + counters */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Counter label="cache hits" value={hits} color={palette.accent} />
-          <Counter label="cache misses" value={misses} color={palette.rose} />
-          <Counter label="compactions" value={compactions} color={palette.amber} />
-          <div
-            style={{
-              marginTop: 4,
-              padding: '8px 12px',
-              background: palette.bg,
-              border: `1px solid ${palette.border}`,
-              borderRadius: 8,
-              fontFamily: font.mono,
-              fontSize: 11,
-              color: palette.muted,
-              lineHeight: 1.5,
-            }}
-          >
-            Threshold: 90%. On trigger: compress to observations, reset prefix, mark cache miss once. Stable prefix → every other turn is a hit.
-          </div>
+        {/* Right: OM stats */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'center' }}>
+          <DemoStat label="observation rollups" value={observations} accent={palette.green} />
+          <DemoStat label="messages processed" value={step} accent={palette.blue} />
+          <DemoStat
+            label="window state"
+            value={pct > 85 ? 'near threshold' : pct > 60 ? 'filling' : 'healthy'}
+            accent={fillColor}
+            text
+          />
         </div>
       </div>
     </div>
@@ -915,527 +1391,205 @@ function LiveContextDemo() {
 
 function roleColor(role: DemoBar['role']) {
   switch (role) {
-    case 'user': return palette.cyan;
-    case 'asst': return palette.accent;
-    case 'tool': return palette.amber;
-    case 'obs': return palette.purple;
+    case 'user':
+      return palette.blue;
+    case 'asst':
+      return palette.text;
+    case 'tool':
+      return palette.amber;
+    case 'obs':
+      return palette.green;
   }
 }
 
-function DemoBtn({ children, onClick }: { children: ReactNode; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        background: 'transparent',
-        border: `1px solid ${palette.border}`,
-        color: palette.text,
-        fontFamily: font.mono,
-        fontSize: 12,
-        padding: '5px 12px',
-        borderRadius: 6,
-        cursor: 'pointer',
-        letterSpacing: '0.06em',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Counter({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, padding: '6px 12px', background: palette.bg, border: `1px solid ${palette.border}`, borderRadius: 8 }}>
-      <span style={{ fontFamily: font.mono, fontSize: 11, color: palette.muted, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{label}</span>
-      <span style={{ fontFamily: font.display, fontSize: 22, fontWeight: 700, color }}>{value}</span>
-    </div>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// 07 — Modes
-// ════════════════════════════════════════════════════════════════════════════
-const Modes: Page = () => (
-  <Stage>
-    <Eyebrow>Modes</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Same agent.{' '}
-          <span style={{ color: palette.accent }}>Different behavior.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      Each mode rewires the agent: different prompt, different tools, different model, different
-      approval policy. The harness swaps them without restarting the conversation.
-    </SubTitle>
-
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22 }}>
-      <ModeCard name="PLAN" tagline="Explore, design, submit" tools="read-only · ask_user · submit_plan" model="opus" accent={palette.blue} />
-      <ModeCard name="BUILD" tagline="Code, edit, ship" tools="full file + shell · LSP · AST" model="sonnet" accent={palette.green} />
-      <ModeCard name="FAST" tagline="Quick edits, no ceremony" tools="view · string_replace_lsp" model="haiku" accent={palette.amber} />
-      <ModeCard name="REVIEW" tagline="Read PRs, comment, suggest" tools="git · gh · view" model="sonnet" accent={palette.purple} />
-      <ModeCard name="TRIAGE" tagline="Sort issues, label, route" tools="gh · search_content" model="haiku" accent={palette.rose} />
-      <ModeCard name="CUSTOM" tagline="Bring your own" tools="user-defined" model="any" accent={palette.text} />
-    </div>
-
-    <Footer index={7} />
-  </Stage>
-);
-
-const ModeCard = ({
-  name,
-  tagline,
-  tools,
-  model,
-  accent,
-}: {
-  name: string;
-  tagline: string;
-  tools: string;
-  model: string;
-  accent: string;
-}) => (
-  <div
+const DemoBtn = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
+  <button
+    onClick={onClick}
     style={{
-      background: palette.surface,
-      border: `1px solid ${palette.border}`,
-      borderTop: `2px solid ${accent}`,
-      borderRadius: 14,
-      padding: '22px 26px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10,
+      fontFamily: font.mono,
+      fontSize: 14,
+      color: palette.text,
+      background: palette.surfaceHi,
+      border: `1px solid ${palette.borderBright}`,
+      borderRadius: 8,
+      padding: '6px 14px',
+      cursor: 'pointer',
     }}
   >
-    <div style={{ fontFamily: font.mono, fontSize: 28, fontWeight: 700, color: accent, letterSpacing: '0.06em' }}>{name}</div>
-    <div style={{ fontSize: 22, color: palette.text, fontWeight: 600 }}>{tagline}</div>
-    <div style={{ fontSize: 16, color: palette.muted, marginTop: 6 }}>
-      <span style={{ fontFamily: font.mono, color: palette.textSoft }}>tools:</span> {tools}
-    </div>
-    <div style={{ fontSize: 16, color: palette.muted }}>
-      <span style={{ fontFamily: font.mono, color: palette.textSoft }}>model:</span> {model}
-    </div>
-  </div>
+    {children}
+  </button>
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// 08 — Steering
-// ════════════════════════════════════════════════════════════════════════════
-const Steering: Page = () => (
-  <Stage>
-    <Eyebrow>Human-in-the-Loop</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          The harness should{' '}
-          <span style={{ color: palette.accent }}>ask, not just act.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      Users need to interrupt, bail, and queue the next message. Interrupts aren't edge cases —
-      they're core UX.
-    </SubTitle>
-
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 22 }}>
-      <Pill
-        icon="📋"
-        label="Plan Approval"
-        desc="Agent submits a plan. You approve, deny, or edit before any code changes."
-        accent={palette.blue}
-      />
-      <Pill
-        icon="🛡️"
-        label="Tool Approval"
-        desc="Approve, deny, or always-allow tool calls before they execute."
-        accent={palette.green}
-      />
-      <Pill
-        icon="⛔"
-        label="Abort"
-        desc="Kill the current operation. Or steer mid-stream to redirect the agent."
-        accent={palette.red}
-      />
-      <Pill
-        icon="📨"
-        label="Follow-Up"
-        desc="Queue a message while the agent is busy. Sent after the current op finishes."
-        accent={palette.amber}
-      />
-    </div>
-
-    <div
-      style={{
-        marginTop: 40,
-        fontSize: 26,
-        color: palette.textSoft,
-        maxWidth: 1500,
-        lineHeight: 1.45,
-      }}
-    >
-      Plan approval gates intent.{' '}
-      <span style={{ color: palette.green }}>Tool approval gates side effects.</span>{' '}
-      Abort and follow-up gate flow. The agent never runs alone.
-    </div>
-
-    <Footer index={8} />
-  </Stage>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 09 — Protocols (events + MCP + subagents)
-// ════════════════════════════════════════════════════════════════════════════
-const Protocols: Page = () => (
-  <Stage>
-    <Eyebrow>The connective tissue</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Every action.{' '}
-          <span style={{ color: palette.accent }}>Every state change. Observable.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      The harness emits events for everything. Protocols connect in (MCP). Subagents fan work out.
-      If it's not emitting events, you're flying blind.
-    </SubTitle>
-
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 28 }}>
-      <div>
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-          Events out · who's listening
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <Subscriber name="TUI" desc="Renders messages, tool calls, approvals" accent={palette.green} />
-          <Subscriber name="OM" desc="Tracks tokens, triggers compaction" accent={palette.purple} />
-          <Subscriber name="Hooks" desc="Policy checks, notifications, logging" accent={palette.amber} />
-          <Subscriber name="Cost" desc="Token counting, usage persistence" accent={palette.blue} />
-        </div>
-      </div>
-
-      <div>
-        <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
-          Protocols in · MCP &amp; subagents
-        </div>
-        <div
-          style={{
-            background: palette.surface,
-            border: `1px solid ${palette.border}`,
-            borderRadius: 12,
-            padding: '18px 20px',
-            fontFamily: font.mono,
-            fontSize: 16,
-            color: palette.textSoft,
-            lineHeight: 1.55,
-            marginBottom: 14,
-          }}
-        >
-          <span style={{ color: palette.muted }}>// mcp.json</span>
-          <br />
-          {'{'}
-          <br />
-          &nbsp;&nbsp;<span style={{ color: palette.accent }}>"playwright"</span>: {'{ "command": "npx", "args": ["@playwright/mcp"] }'},
-          <br />
-          &nbsp;&nbsp;<span style={{ color: palette.accent }}>"github"</span>: {'{ "command": "npx", "args": ["@github/mcp-server"] }'}
-          <br />
-          {'}'}
-        </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <SubAgent icon="🔍" label="Explore" />
-          <SubAgent icon="📋" label="Plan" />
-          <SubAgent icon="⚡" label="Execute" />
-        </div>
-      </div>
-    </div>
-
-    <Footer index={9} />
-  </Stage>
-);
-
-const Subscriber = ({ name, desc, accent }: { name: string; desc: string; accent: string }) => (
-  <div
-    style={{
-      background: palette.surface,
-      border: `1px solid ${palette.border}`,
-      borderTop: `2px solid ${accent}`,
-      borderRadius: 12,
-      padding: '14px 18px',
-    }}
-  >
-    <div style={{ fontFamily: font.mono, fontSize: 16, color: accent, letterSpacing: '0.16em', textTransform: 'uppercase' }}>{name}</div>
-    <div style={{ fontSize: 18, color: palette.textSoft, marginTop: 6 }}>{desc}</div>
-  </div>
-);
-
-const SubAgent = ({ icon, label }: { icon: string; label: string }) => (
-  <div
-    style={{
-      flex: 1,
-      background: palette.surface,
-      border: `1px solid ${palette.border}`,
-      borderRadius: 12,
-      padding: '14px 0',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 6,
-    }}
-  >
-    <div style={{ fontSize: 28 }}>{icon}</div>
-    <div style={{ fontFamily: font.mono, fontSize: 14, color: palette.textSoft, letterSpacing: '0.16em' }}>{label}</div>
-  </div>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 10 — Streaming & Multi-Model
-// ════════════════════════════════════════════════════════════════════════════
-const Streaming: Page = () => (
-  <Stage>
-    <Eyebrow>Streaming &amp; Multi-Model</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          One harness.{' '}
-          <span style={{ color: palette.accent }}>Many models.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      Streaming is not optional — design for resumability. The harness routes per mode, supports
-      OAuth and API keys, and tracks cost across providers.
-    </SubTitle>
-
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
-      <ModelCard name="Claude Opus 4.6" provider="Anthropic" use="BUILD mode" strength="Reasoning" cost="$15/1M in" auth="OAuth · Claude Max" accent={palette.purple} />
-      <ModelCard name="GPT-5.3 Codex" provider="OpenAI" use="PLAN mode" strength="Code analysis" cost="$12/1M in" auth="OAuth · Codex" accent={palette.green} />
-      <ModelCard name="ZAI-GLM 4.7" provider="Cerebras" use="FAST mode" strength="Speed" cost="$0.60/1M in" auth="API key" accent={palette.amber} />
-      <ModelCard name="Gemini 2.5 Flash" provider="Google" use="OM Observer" strength="Compression" cost="$0.15/1M in" auth="API key" accent={palette.blue} />
-      <ModelCard name="Moonshot Kimi" provider="Moonshot AI" use="Cost-sensitive" strength="Budget coding" cost="$0.30/1M in" auth="API key" accent={palette.cyan} />
-      <ModelCard name="Your model" provider="Any provider" use="Custom mode" strength="Your choice" cost="varies" auth="—" accent={palette.muted} />
-    </div>
-
-    <div
-      style={{
-        marginTop: 28,
-        fontSize: 22,
-        color: palette.textSoft,
-        maxWidth: 1500,
-        lineHeight: 1.5,
-      }}
-    >
-      <b style={{ color: palette.accent }}>Key design point:</b> interrupts happen mid-stream. Save
-      what was streamed, clean up, and restart with the new context.
-    </div>
-
-    <Footer index={10} />
-  </Stage>
-);
-
-const ModelCard = ({
-  name,
-  provider,
-  use,
-  strength,
-  cost,
-  auth,
-  accent,
-}: {
-  name: string;
-  provider: string;
-  use: string;
-  strength: string;
-  cost: string;
-  auth: string;
-  accent: string;
-}) => (
-  <div
-    style={{
-      background: palette.surface,
-      border: `1px solid ${palette.border}`,
-      borderTop: `2px solid ${accent}`,
-      borderRadius: 12,
-      padding: '16px 18px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 4,
-    }}
-  >
-    <div style={{ fontSize: 22, fontWeight: 700, color: palette.text }}>{name}</div>
-    <div style={{ fontFamily: font.mono, fontSize: 14, color: accent, letterSpacing: '0.14em', textTransform: 'uppercase' }}>{provider}</div>
-    <div style={{ marginTop: 8, fontSize: 16, color: palette.textSoft }}>
-      <span style={{ color: palette.muted }}>use </span>
-      {use}
-    </div>
-    <div style={{ fontSize: 16, color: palette.textSoft }}>
-      <span style={{ color: palette.muted }}>strength </span>
-      {strength}
-    </div>
-    <div style={{ fontSize: 16, color: palette.textSoft }}>
-      <span style={{ color: palette.muted }}>cost </span>
-      {cost}
-    </div>
-    <div style={{ fontSize: 14, color: palette.muted, marginTop: 4, fontFamily: font.mono }}>● {auth}</div>
-  </div>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 11 — Policies & Cost
-// ════════════════════════════════════════════════════════════════════════════
-const Policies: Page = () => (
-  <Stage>
-    <Eyebrow>Tool policies &amp; cost awareness</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          Parallelism is the norm.{' '}
-          <span style={{ color: palette.accent }}>Govern it.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      Define tool approvals per tool or per category. Track tokens, usage, and costs — especially in
-      YOLO mode.
-    </SubTitle>
-
-    <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 28 }}>
-      <div
-        style={{
-          background: palette.surface,
-          border: `1px solid ${palette.border}`,
-          borderRadius: 14,
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.6fr repeat(3, 1fr)',
-            padding: '14px 22px',
-            fontFamily: font.mono,
-            fontSize: 14,
-            color: palette.muted,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            borderBottom: `1px solid ${palette.border}`,
-          }}
-        >
-          <span>Tool</span>
-          <span style={{ textAlign: 'center' }}>Allow</span>
-          <span style={{ textAlign: 'center' }}>Ask</span>
-          <span style={{ textAlign: 'center' }}>Deny</span>
-        </div>
-        {[
-          ['view', 'allow'],
-          ['string_replace_lsp', 'allow'],
-          ['execute_command', 'ask'],
-          ['delete_file', 'ask'],
-          ['web_search', 'allow'],
-          ['rm -rf /', 'deny'],
-        ].map(([tool, state]) => (
-          <PolicyRow key={tool} tool={tool} state={state as 'allow' | 'ask' | 'deny'} />
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <Stat value="42,180" label="prompt tokens" accent={palette.blue} />
-        <Stat value="8,340" label="completion tokens" accent={palette.purple} />
-        <Stat value="$0.78" label="estimated cost" accent={palette.accent} highlight />
-        <Stat value="67%" label="cache hit rate" accent={palette.amber} />
-      </div>
-    </div>
-
-    <div
-      style={{
-        marginTop: 32,
-        fontSize: 22,
-        color: palette.textSoft,
-        maxWidth: 1500,
-        lineHeight: 1.5,
-      }}
-    >
-      <b style={{ color: palette.amber }}>YOLO mode</b> auto-approves all tool calls. Faster — but
-      every policy is overridden. Only use when you trust the agent and the workspace.
-    </div>
-
-    <Footer index={11} />
-  </Stage>
-);
-
-const PolicyRow = ({ tool, state }: { tool: string; state: 'allow' | 'ask' | 'deny' }) => {
-  const cell = (col: 'allow' | 'ask' | 'deny') => {
-    const active = state === col;
-    const color = col === 'allow' ? palette.green : col === 'ask' ? palette.amber : palette.red;
-    return (
-      <span
-        style={{
-          textAlign: 'center',
-          fontFamily: font.mono,
-          fontSize: 14,
-          color: active ? color : palette.dim,
-          letterSpacing: '0.18em',
-        }}
-      >
-        {active ? '●' : '○'}
-      </span>
-    );
-  };
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1.6fr repeat(3, 1fr)',
-        padding: '12px 22px',
-        fontSize: 18,
-        color: palette.textSoft,
-        borderBottom: `1px solid ${palette.border}`,
-        alignItems: 'center',
-      }}
-    >
-      <span style={{ fontFamily: font.mono, color: palette.text }}>{tool}</span>
-      {cell('allow')}
-      {cell('ask')}
-      {cell('deny')}
-    </div>
-  );
-};
-
-const Stat = ({
-  value,
+const DemoStat = ({
   label,
+  value,
   accent,
-  highlight,
+  text,
 }: {
-  value: string;
   label: string;
+  value: number | string;
   accent: string;
-  highlight?: boolean;
+  text?: boolean;
 }) => (
   <div
     style={{
-      background: palette.surface,
-      border: `1px solid ${highlight ? accent : palette.border}`,
-      borderRadius: 12,
-      padding: '16px 20px',
+      background: palette.bg,
+      border: `1px solid ${palette.border}`,
+      borderRadius: 10,
+      padding: '12px 16px',
       display: 'flex',
       alignItems: 'baseline',
       justifyContent: 'space-between',
-      gap: 14,
+      gap: 12,
     }}
   >
-    <span style={{ fontFamily: font.display, fontSize: 38, fontWeight: 800, color: accent, letterSpacing: '-0.02em' }}>
+    <span style={{ fontFamily: font.display, fontSize: text ? 22 : 32, fontWeight: 800, color: accent, letterSpacing: '-0.02em' }}>
       {value}
     </span>
-    <span style={{ fontFamily: font.mono, fontSize: 14, color: palette.muted, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+    <span style={{ fontFamily: font.mono, fontSize: 13, color: palette.muted, letterSpacing: '0.12em', textTransform: 'uppercase', textAlign: 'right' }}>
       {label}
     </span>
   </div>
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 12 — Production-Ready Checklist
+// 12 — Subagents
+// ════════════════════════════════════════════════════════════════════════════
+const Subagents: Page = () => (
+  <Stage>
+    <Eyebrow>Subagents</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          Delegate work,{' '}
+          <span style={{ color: palette.accent }}>forked or fresh.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      When you configure subagents, <Code>createSubagentTool()</Code> exposes one <Code>subagent</Code>{' '}
+      tool. Each call picks an <Code>agentType</Code>, a <Code>task</Code>, and whether to fork.
+    </SubTitle>
+
+    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <Card accent={palette.blue} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ fontSize: 28, fontWeight: 700, color: palette.text }}>Non-forked</div>
+        <div style={{ fontFamily: font.mono, fontSize: 15, color: palette.blue, letterSpacing: '0.14em' }}>
+          SELF-CONTAINED DELEGATION
+        </div>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8, fontSize: 19, color: palette.textSoft, lineHeight: 1.4 }}>
+          <li>· Runs with the subagent definition's own config</li>
+          <li>· Its own instructions, tools, and model</li>
+          <li>· Can't see the parent conversation — the task must carry all context</li>
+          <li>· Optional <Code>modelId</Code> override per call</li>
+        </ul>
+      </Card>
+
+      <Card accent={palette.accent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ fontSize: 28, fontWeight: 700, color: palette.text }}>Forked</div>
+        <div style={{ fontFamily: font.mono, fontSize: 15, color: palette.accent, letterSpacing: '0.14em' }}>
+          CONTEXT-DEPENDENT · CACHE-FRIENDLY
+        </div>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8, fontSize: 19, color: palette.textSoft, lineHeight: 1.4 }}>
+          <li>· Reuses the parent agent + a cloned parent thread</li>
+          <li>· Keeps the prompt prefix cache-friendly</li>
+          <li>· Requires memory; <Code>modelId</Code> is ignored (parent's model)</li>
+          <li>· Clone tagged <Code>forkedSubagent</Code> + <Code>parentThreadId</Code>, hidden from pickers</li>
+        </ul>
+      </Card>
+    </div>
+
+    <div style={{ marginTop: 30, fontFamily: font.mono, fontSize: 19, color: palette.textSoft }}>
+      <span style={{ color: palette.muted }}>resolved as</span>{' '}
+      <span style={{ color: palette.accent }}>forked ?? definition.forked ?? false</span>
+    </div>
+
+    <Footer index={14} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 13 — Persistence & recovery
+// ════════════════════════════════════════════════════════════════════════════
+const Persistence: Page = () => (
+  <Stage>
+    <Eyebrow>Persistence &amp; recovery</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          Sessions survive{' '}
+          <span style={{ color: palette.accent }}>a restart.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      <Code>HarnessStorage</Code> persists each session as a <Code>SessionRecord</Code>. Pending items
+      capture anything mid-flight, so a resumed session can pick up exactly where it stopped.
+    </SubTitle>
+
+    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: 28 }}>
+      <Card>
+        <MonoLabel color={palette.accent}>SessionRecord · what's stored</MonoLabel>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 17, color: palette.textSoft }}>
+          {[
+            'ownerId · resourceId · threadId',
+            'parent / subagent lineage',
+            'origin + source metadata',
+            'modeId · modelId',
+            'title',
+            'metadata + state blobs',
+            'pending items',
+            'createdAt · lastActivityAt',
+          ].map((c) => (
+            <div key={c} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+              <span style={{ color: palette.accent }}>·</span>
+              <span>{c}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 16, fontSize: 17, color: palette.muted, lineHeight: 1.45 }}>
+          <Code color={palette.muted}>updateSession()</Code> preserves id + createdAt and refreshes
+          lastActivityAt. Origins: <Code color={palette.muted}>top-level · subagent-tool · direct-local · remote-resolve</Code>.
+        </div>
+      </Card>
+
+      <Card accent={palette.amber}>
+        <MonoLabel color={palette.amber}>Pending items · resume points</MonoLabel>
+        <div style={{ display: 'grid', gap: 10 }}>
+          <PendingRow kind="tool-approval" desc="a tool call waiting on approve / deny" color={palette.green} />
+          <PendingRow kind="tool-suspension" desc="an interactive tool waiting on input" color={palette.purple} />
+          <PendingRow kind="question" desc="an ask_user question awaiting an answer" color={palette.blue} />
+          <PendingRow kind="plan-approval" desc="a submitted plan awaiting a decision" color={palette.cyan} />
+        </div>
+        <div style={{ marginTop: 14, fontSize: 16, color: palette.muted, lineHeight: 1.45 }}>
+          Status moves through <Code color={palette.muted}>pending → responded / canceled / failed</Code>.
+        </div>
+      </Card>
+    </div>
+
+    <Footer index={15} />
+  </Stage>
+);
+
+const PendingRow = ({ kind, desc, color }: { kind: string; desc: string; color: string }) => (
+  <div
+    style={{
+      display: 'flex',
+      gap: 14,
+      alignItems: 'baseline',
+      background: palette.bg,
+      border: `1px solid ${palette.border}`,
+      borderRadius: 10,
+      padding: '11px 16px',
+    }}
+  >
+    <span style={{ fontFamily: font.mono, fontSize: 17, color, minWidth: 180 }}>{kind}</span>
+    <span style={{ fontSize: 16, color: palette.muted }}>{desc}</span>
+  </div>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// 14 — Production checklist
 // ════════════════════════════════════════════════════════════════════════════
 const Checklist: Page = () => (
   <Stage>
@@ -1443,115 +1597,34 @@ const Checklist: Page = () => (
     <SectionTitle
       title={
         <>
-          What makes a harness{' '}
-          <span style={{ color: palette.accent }}>production-ready.</span>
+          What the harness{' '}
+          <span style={{ color: palette.accent }}>actually gives you.</span>
         </>
       }
     />
-    <SubTitle>This is the bar. Ten boxes. If you tick all ten, you've shipped a harness.</SubTitle>
+    <SubTitle>Twelve subsystems, all real and demoable in MastraCode today.</SubTitle>
 
-    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-      <Check item="Stateful, resumable execution" tag="Harness" />
-      <Check item="Dynamic, tuned system prompts" tag="Prompts" />
-      <Check item="Right workspace primitives + tools" tag="Workspace" />
-      <Check item="Context Rot mitigation — compaction + offloading" tag="Memory" />
-      <Check item="Modes that rewire agent behavior" tag="Modes" />
-      <Check item="Real HITL — interrupts, bailing, free-form" tag="Steering" />
-      <Check item="Event emission throughout" tag="Protocols" />
-      <Check item="Streaming UX across form factors" tag="Streaming" />
-      <Check item="Tool policies + cost tracking" tag="Policies" />
-      <Check item="Multi-model and multi-modal" tag="Streaming" />
+    <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <Check item="Validated modes that re-resolve the agent" tag="Modes" />
+      <Check item="Per-turn toolset assembly with deny filtering" tag="Toolsets" />
+      <Check item="Gateway-driven multi-model routing" tag="Gateways" />
+      <Check item="Session split into focused domain objects" tag="Session" />
+      <Check item="sendMessage / steer / followUp flow" tag="Messages" />
+      <Check item="Stream folded into display + token usage" tag="RunEngine" />
+      <Check item="Tool approval, suspension, plan approval" tag="Steering" />
+      <Check item="Goal mode + judge-driven verification" tag="Goals" />
+      <Check item="Observational memory on token thresholds" tag="Memory" />
+      <Check item="Forked + non-forked subagents" tag="Subagents" />
+      <Check item="Sandboxed workspace + browser, lazily resolved" tag="Workspace" />
+      <Check item="Persisted SessionRecord + pending items" tag="Storage" />
     </div>
 
-    <div
-      style={{
-        marginTop: 32,
-        fontSize: 24,
-        color: palette.textSoft,
-        maxWidth: 1500,
-        lineHeight: 1.5,
-      }}
-    >
-      Tick all ten and you've shipped a harness. But the bar keeps moving — next slide.
+    <div style={{ marginTop: 32, fontSize: 24, color: palette.textSoft, maxWidth: 1500, lineHeight: 1.5 }}>
+      None of this is aspirational — every box maps to code in{' '}
+      <span style={{ color: palette.accent }}>packages/core/src/harness</span>.
     </div>
 
-    <Footer index={12} />
-  </Stage>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// 13 — What's Next (futures + close)
-// ════════════════════════════════════════════════════════════════════════════
-const Futures: Page = () => (
-  <Stage>
-    <Eyebrow>What's next</Eyebrow>
-    <SectionTitle
-      title={
-        <>
-          The harness{' '}
-          <span style={{ color: palette.accent }}>keeps evolving.</span>
-        </>
-      }
-    />
-    <SubTitle>
-      Everything we covered today is table stakes. The frontier is long-horizon autonomous
-      execution — agents that run for hours, self-verify, and recover from failure without humans.
-    </SubTitle>
-
-    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
-      <Pill
-        icon="🔄"
-        label="Long-Horizon Execution"
-        desc="Agents that plan ahead, execute across many turns, and self-verify progress. The harness manages checkpoints, rollback, and recovery."
-        accent={palette.green}
-      />
-      <Pill
-        icon="🧬"
-        label="Model–Harness Co-evolution"
-        desc="Models get better at tool use → harnesses give them more tools → models train on richer harness traces. A feedback loop that compounds."
-        accent={palette.purple}
-      />
-      <Pill
-        icon="🤖"
-        label="Parallel Agent Orchestration"
-        desc="Subagents that run in parallel, share context through the harness, and coordinate without stepping on each other."
-        accent={palette.blue}
-      />
-      <Pill
-        icon="🔧"
-        label="Dynamic Tool Assembly"
-        desc="The harness decides which tools to surface based on the current task — not a static list, a context-aware toolkit."
-        accent={palette.amber}
-      />
-    </div>
-
-    <div
-      style={{
-        marginTop: 36,
-        background: palette.surface,
-        border: `1px solid ${palette.border}`,
-        borderLeft: `3px solid ${palette.accent}`,
-        borderRadius: 12,
-        padding: '20px 26px',
-        maxWidth: 1500,
-      }}
-    >
-      <div style={{ fontSize: 26, color: palette.text, fontWeight: 700, marginBottom: 8 }}>
-        Now go build it.
-      </div>
-      <div style={{ fontSize: 20, color: palette.textSoft, lineHeight: 1.5 }}>
-        Everything you've seen today is implemented in{' '}
-        <b style={{ color: palette.accent }}>MastraCode</b>, on top of the Mastra framework. The
-        harness pattern is open-source and ready to extend.
-      </div>
-      <div style={{ marginTop: 14, display: 'flex', gap: 24, fontFamily: font.mono, fontSize: 16 }}>
-        <span style={{ color: palette.accent }}>📖 mastra.ai</span>
-        <span style={{ color: palette.textSoft }}>💻 github.com/mastra-ai</span>
-        <span style={{ color: palette.textSoft }}>💬 discord.gg/mastra</span>
-      </div>
-    </div>
-
-    <Footer index={13} />
+    <Footer index={16} />
   </Stage>
 );
 
@@ -1585,6 +1658,82 @@ const Check = ({ item, tag }: { item: string; tag: string }) => (
 );
 
 // ════════════════════════════════════════════════════════════════════════════
+// 15 — What's next (futures + close)
+// ════════════════════════════════════════════════════════════════════════════
+const Futures: Page = () => (
+  <Stage>
+    <Eyebrow>What's next</Eyebrow>
+    <SectionTitle
+      title={
+        <>
+          The harness{' '}
+          <span style={{ color: palette.accent }}>keeps evolving.</span>
+        </>
+      }
+    />
+    <SubTitle>
+      The foundation is here. The frontier is long-horizon autonomous execution — agents that run for
+      hours, self-verify, and recover from failure without a human in the loop.
+    </SubTitle>
+
+    <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
+      <Pill
+        icon="🔄"
+        label="Long-Horizon Execution"
+        desc="Pending items and SessionRecords already make runs resumable. Next: checkpoints, rollback, and self-verification across many turns."
+        accent={palette.green}
+      />
+      <Pill
+        icon="🤖"
+        label="Parallel Orchestration"
+        desc="Subagents run delegated work today. Next: many subagents in parallel, coordinating through the harness without stepping on each other."
+        accent={palette.blue}
+      />
+      <Pill
+        icon="🧬"
+        label="Model–Harness Co-evolution"
+        desc="Better tool use → richer toolsets → models trained on richer harness traces. A loop that compounds."
+        accent={palette.purple}
+      />
+      <Pill
+        icon="🔧"
+        label="Dynamic Harnesses"
+        desc="buildToolsets() already composes per turn. Next: the agent assembles its own harness for the task — tools, guardrails, and a verify step generated on the fly, plan-mode on steroids."
+        accent={palette.amber}
+      />
+    </div>
+
+    <div
+      style={{
+        marginTop: 36,
+        background: palette.surface,
+        border: `1px solid ${palette.border}`,
+        borderLeft: `3px solid ${palette.accent}`,
+        borderRadius: 12,
+        padding: '20px 26px',
+        maxWidth: 1500,
+      }}
+    >
+      <div style={{ fontSize: 26, color: palette.text, fontWeight: 700, marginBottom: 8 }}>
+        Now go build it.
+      </div>
+      <div style={{ fontSize: 20, color: palette.textSoft, lineHeight: 1.5 }}>
+        Everything you've seen lives in{' '}
+        <b style={{ color: palette.accent }}>MastraCode</b>, on top of the Mastra framework — the
+        harness is open-source and ready to extend.
+      </div>
+      <div style={{ marginTop: 14, display: 'flex', gap: 24, fontFamily: font.mono, fontSize: 16 }}>
+        <span style={{ color: palette.accent }}>📖 mastra.ai</span>
+        <span style={{ color: palette.textSoft }}>💻 github.com/mastra-ai</span>
+        <span style={{ color: palette.textSoft }}>💬 discord.gg/mastra</span>
+      </div>
+    </div>
+
+    <Footer index={17} />
+  </Stage>
+);
+
+// ════════════════════════════════════════════════════════════════════════════
 // Meta + speaker notes
 // ════════════════════════════════════════════════════════════════════════════
 export const meta: SlideMeta = {
@@ -1593,57 +1742,73 @@ export const meta: SlideMeta = {
 
 export const notes: (string | undefined)[] = [
   // 01 Cover
-  `Welcome them. Two presenters: Abhi (CTO) and Alex (DevRel). Whole talk: anatomy of a production agent harness — prompts, workspace, memory, modes, steering, protocols, streaming, policies. We end on a checklist that doubles as a build spec.`,
+  `Welcome them. Two presenters: Abhi (CTO) and Alex (DevRel). This is a code-grounded tour of the actual harness inside MastraCode — the Harness class, the Session, and the run engine. Everything we show maps to packages/core/src/harness.`,
 
-  // 02 Spectrum
-  `Set up the mental model. Three points on a spectrum: raw code, framework, harness. Raw code = total flexibility, total responsibility. Framework = building blocks (Mastra, CrewAI, LangChain). Harness = complete system, decisions baked in (Claude Code, MastraCode). Today we go all the way right — every piece included, no kit assembly.`,
+  // 02 Everywhere
+  `Frame the confusion before defining anything. "Harness" is suddenly everywhere — OpenAI, Stripe, Thoughtworks, Anthropic, Devin all use it. Agent = Model + Harness ("everything except the model") is technically true but useless. The plain-English version (credit Tejas Kumar's talk): a harness is everything around the model that grounds it in reality — tools, context, guardrails, a verify step — so a rented, non-deterministic black box behaves RELIABLY. That's the real why: reliability irrespective of which model the provider actually serves you. It splits into two layers: the OUTER harness (Fowler/Böckeler — guides + sensors a team builds around an agent to earn trust and supervise less) and the INNER / built-in harness (the loop, tools, memory, recovery behind Claude Code). Same word, two layers, one job. Next slide pins them down and shows where Mastra sits.`,
 
-  // 03 The Harness
-  `The architecture map. The model is the part in the middle; the harness is everything around it. Six pillars: Prompts, Workspace, Memory, Modes, Steering, Protocols. The next nine slides walk each piece in turn.`,
+  // 03 Spectrum
+  `Mental model. A spectrum of opinionation: raw code (total flexibility + total responsibility) → framework (building blocks — Mastra, CrewAI, LangChain) → harness (a complete system, all wired). But "harness" itself splits in two. INNER / built-in harness = the orchestration substrate that makes an agent RUN (the loop, tool execution, memory, retrieval) — Mastra ships this as the Agent. OUTER harness = the guides + sensors that make an agent TRUSTWORTHY (modes, steering, tool approval, sessions, recovery) — you BUILD that with the Harness class. The punchline: Mastra is both — it ships the inner harness and gives you the Harness class to build the outer one. The rest of the talk is what's inside that Harness class.`,
 
-  // 04 Prompts & Context
-  `The prompt is not a string — it's a build target. Passive side: harness composes from environment, mode, tool list, active tasks, AGENTS.md, skill catalog. Active side: slash commands let users actively re-orient — switch mode, swap model, force compaction, grant sandbox access. The agent's reality changes turn by turn.`,
+  // 04 PurposeBuilt
+  `Now make it concrete. Claude Code IS an outer harness. Mastra's Harness class is purpose-built to let you build one: it wraps the agent loop and gives you the controls. The same class powers Claude Code (collaborative coding agent), CoWork (a teammate in the loop), Devin (autonomous engineer), and headless software-factory agents. Two operating points, same class: collaborative / HITL products lean on the steering layer (modes, tool approval, suspension, follow-ups, plan approval); headless / autonomous products lean on the autonomy layer (goal mode, subagents, persisted SessionRecords + recovery). Everything from here shows what's inside that Harness class.`,
 
-  // 05 Workspace
-  `The agent needs a place to do work. Skills are a discoverable catalog — listed in the prompt, activated on demand. Filesystem and shell are sandboxed — reads/writes scoped to project root, /sandbox grants explicit access. Compare purpose-built tools (string_replace_lsp, ast_smart_edit) with bash-and-pray (sed -i, grep -r) — point out that bash tools silently corrupt and ignore .gitignore.`,
+  // 05 Architecture
+  `The architecture map. Four layers: Harness owns config + wiring (createSession, init, buildToolsets). Session owns one resource's conversation as small domain objects. SessionRunEngine drives one turn — folding the agent's event stream into display messages and token usage. Tools + Storage provide built-ins, subagents, and persistence. Everything below the Harness ultimately wraps a single Mastra Agent. The next slides walk each layer.`,
 
-  // 06 Memory
-  `Context Rot is real. As the window fills, models degrade — reasoning gets worse, instructions get lost, costs spike. Three strategies: compaction (intelligently summarize, don't truncate), tool-call offloading (keep head + tail of large outputs, offload the body to disk), prompt caching (stable prefix = cache hits — compaction must preserve the prefix or you lose the cache).`,
+  // 06 The Harness
+  `The container. The constructor validates before it assembles: validateModes() enforces unique mode IDs, blocks setting both tools and additionalTools, and validates transitionsTo (no self-reference, no unknown target). It builds the GatewayManager from your gateways plus defaultGateways, and resolves defaultMode. init() creates an internal Mastra only when storage exists and there's no parent Mastra; otherwise it initializes inherited storage on the external one. Workspace and browser can be instances or lazy factories (factory resolves with { requestContext, mastra } and is cached). Then it propagates memory/workspace/browser/pubsub into each backing agent that's missing them and starts heartbeats.`,
 
   // 07 Modes
-  `Modes rewire the agent end-to-end: prompt, tool set, model, approval policy. PLAN explores read-only and submits a plan. BUILD ships code with the full toolset. FAST does quick edits with cheap models. REVIEW reads PRs. TRIAGE sorts issues. CUSTOM is bring-your-own. Same agent, different operating modes — switch without restarting the conversation.`,
+  `Modes. getAgentForMode() resolves in order: deprecated mode.agent, then a shared config.agent, otherwise it constructs and caches a per-mode Agent (which needs defaultModelId). Mode instructions combine with harness instructions; mode.tools + additionalTools merge into that agent. tools means replace, additionalTools means augment — setting both is rejected. With a shared agent, mode tools arrive as a toolset augment so the agent's own tools survive. Models are gateway-driven: the agent gets a bare model-id string and routing/auth happen through the attached Mastra gateways. So a switch re-points the model with no restart.`,
 
-  // 08 Steering
-  `Interrupts are core UX, not edge cases. Plan approval gates intent — agent submits, user approves/denies/edits. Tool approval gates side effects — every dangerous op asks first. Abort kills runaway loops. Follow-up queues messages while the agent is busy. The agent never runs alone.`,
+  // 08 Prompts & request context
+  `What the agent can do is assembled per turn. buildToolsets() starts from built-ins (ask_user, submit_plan, task_write/update/complete/check), adds your config.tools (resolved if it's a function), auto-wires the subagent tool when subagents are configured, removes anything in disableBuiltinTools, drops tools the permission rules deny, and adds modeTools as an augment when there's a shared agent. buildRequestContext() seeds requestContext.get('harness') with harness/session/thread/resource state, the abort signal, the resolved workspace, event emission, and subagent model lookup. State is live — tools go through session.state.get/set/update, not a static blob.`,
 
-  // 09 Protocols
-  `The connective tissue. Events flow out: TUI renders, OM tracks tokens, hooks run policy checks, cost counter runs. Protocols connect in: MCP servers provide tools dynamically. Subagents fan work out: Explore, Plan, Execute — each constrained, each its own thread. If the harness isn't emitting events, you're flying blind.`,
+  // 09 Session domains
+  `The Session is not a god-object. It's split into focused domains: identity, thread, stream, suspensions, follow-ups, approval, run, model, mode, OM, permissions, subagents, display, and state. The harness injects every dependency through one wiring step, so a session never reaches back into the harness — it asks its domains. This is what keeps the run loop and steering logic readable.`,
 
-  // 10 Streaming
-  `Streaming is not optional — design for resumability. Interrupts happen mid-stream. The harness must save what was streamed, clean up, and restart with the new context. Multi-model is the norm: route per mode (Opus for BUILD, FAST model for quick edits, cheap model for the OM Observer). OAuth where available (Claude Max, Codex Plan) — API keys otherwise. Track cost across all of them.`,
+  // 10 Message flow
+  `Four entry points, one dispatch. sendMessage builds the input, sends a signal, waits for accepted, and when idle also waits for agent_end. steer aborts the current run, clears the follow-up queue, emits an empty-queue state, then sends. followUp enqueues during an active run or sends immediately when idle. drainFollowUpQueue dequeues, re-queues on failure, and either feeds the live stream or falls back to sendMessage. All of them funnel into sendSignal(), which ensures thread + subscription, declines a pending tool approval when a new message interrupts a run, waits out the post-abort window, then dispatches to agent.sendSignal() with ifActive / ifIdle semantics.`,
 
-  // 11 Policies
-  `Parallelism is the norm — multiple tools running simultaneously. Govern it. Define approvals per tool or per category: allow, ask, deny. Track every token: prompt, completion, cost, cache hit rate. YOLO mode auto-approves everything — fast, but every policy is overridden. Only use when you trust the agent and the workspace.`,
+  // 11 Run engine
+  `The SessionRunEngine owns the run loop. processStreamChunk handles text/reasoning, tool-call input, tool results/errors, approval + suspension events, finish/error/goal, the OM lifecycle, system reminders, signals/user messages, and sandbox stdout/stderr — folding all of it into display messages and token usage. Finish-reason mapping: stop and end-turn map to complete; tool-calls maps to tool_use; anything else surfaces as a terminal error via describeNonSuccessFinishReason() instead of a silent complete. Server-side fallback models emit an info notice.`,
 
-  // 12 Checklist
-  `The bar. Ten items. Stateful execution, dynamic prompts, right workspace, Context Rot mitigation, modes, real HITL, events, streaming, policies, multi-model. Tick all ten and you've shipped a harness. The bar keeps moving — next slide is what comes next.`,
+  // 12 Steering
+  `Human-in-the-loop is core, not an edge case. On a tool call, the engine runs resolveToolApproval(): fixed policies auto-approve or auto-deny; otherwise it arms approval state and emits tool_approval_required, then routes the decision through approve/decline. Interactive tools like ask_user suspend the run, surface a question, and resume on the answer. submit_plan gates intent before any code changes. Abort kills runaway runs; the follow-up queue holds the next message. Plan approval gates intent, tool approval gates side effects, abort and follow-ups gate flow. And the verify step (Tejas's harness pillar): approval gates the ACT, verification checks the RESULT. In Mastra that's goal mode + judges — a /goal is a persistent objective, and after each turn a judge scores it and returns complete / continue / pause / wait-for-input (GoalEvaluationPayload: passed, status active|paused|done, scorer results, reason), bounded by goalMaxTurns. The deterministic verify-and-retry loop, model- and scorer-driven.`,
 
-  // 13 Futures
-  `What's next. Everything we just covered is table stakes. The frontier is long-horizon autonomous execution — hours of work, self-verification, recovery from failure. Four directions: long-horizon execution (checkpoints, rollback), model-harness co-evolution (a feedback loop that compounds), parallel orchestration (subagents that don't step on each other), dynamic tool assembly (context-aware toolkits, not static lists). Close the talk: everything is in MastraCode, open-source, ready to extend. Now go build it.`,
+  // 13 Memory
+  `Context Rot is real — as the window fills, models degrade. Observational Memory watches token counts on real thresholds. Default observation threshold is 30,000 message tokens: cross it and the observer summarizes recent turns into observations. Default reflection threshold is 40,000 observation tokens: cross it and observations distill into reflections. In-flight observations and reflections are buffered and restored on reload, so progress survives restarts. The live demo shows message tokens climbing and an observation rollup compressing the window when it nears the threshold.`,
+
+  // 14 Subagents
+  `Subagents. When configured, createSubagentTool() exposes one subagent tool; each call picks an agentType (enum), a task, and optionally forked. Non-forked runs use the subagent definition's own config — its own instructions, tools, and model — and can't see the parent conversation, so the task must carry all context; a per-call modelId override is allowed. Forked runs reuse the parent agent and a cloned parent thread to keep the prompt prefix cache-friendly; they require memory, ignore modelId (parent's model is used), and tag the clone with forkedSubagent + parentThreadId so it's hidden from thread pickers. Resolution is forked ?? definition.forked ?? false.`,
+
+  // 15 Persistence
+  `Sessions survive a restart. HarnessStorage persists each session as a SessionRecord: owner/resource/thread IDs, parent + subagent lineage, origin and source metadata, modeId/modelId, title, metadata and state blobs, pending items, and timestamps. updateSession() preserves id and createdAt and refreshes lastActivityAt. Origins are top-level, subagent-tool, direct-local, remote-resolve. Pending items are the resume points: tool-approval, tool-suspension, question, and plan-approval — each moving through pending → responded / canceled / failed. So a resumed session knows exactly what it was waiting on.`,
+
+  // 16 Checklist
+  `The bar — and it's all real. Validated modes that re-resolve the agent, per-turn toolset assembly with deny filtering, gateway-driven multi-model routing, the Session split into domains, the message flow, the run engine folding the stream, full steering (tool approval / suspension / plan approval), goal mode + judge-driven verification, observational memory on token thresholds, forked + non-forked subagents, a sandboxed workspace + browser, and persisted SessionRecords with pending items. Every box maps to code in packages/core/src/harness — nothing aspirational.`,
+
+  // 17 Futures
+  `What's next. The foundation is here; the frontier is long-horizon autonomous execution. Four directions, each grounded in what already exists: long-horizon execution (pending items + SessionRecords already make runs resumable — next is checkpoints, rollback, self-verification), parallel orchestration (subagents today — next is many in parallel coordinating through the harness), model-harness co-evolution (a compounding loop), and dynamic harnesses (buildToolsets already composes per turn — next, per Tejas's 2027 prediction, the agent generates its own harness for the task: tools, guardrails, and a verify step on the fly — plan-mode on steroids). Close: it's all in MastraCode, open-source, ready to extend. Now go build it.`,
 ];
 
 export default [
   Cover,
+  Everywhere,
   Spectrum,
+  PurposeBuilt,
+  Architecture,
   TheHarness,
-  PromptsContext,
-  Workspace,
-  Memory,
   Modes,
+  PromptsContext,
+  SessionDomains,
+  MessageFlow,
+  RunEngine,
   Steering,
-  Protocols,
-  Streaming,
-  Policies,
+  Memory,
+  Subagents,
+  Persistence,
   Checklist,
   Futures,
 ] satisfies Page[];
