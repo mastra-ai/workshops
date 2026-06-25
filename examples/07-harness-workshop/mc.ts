@@ -1,65 +1,62 @@
-import { createMastraCode } from "mastracode";
+import { Agent } from "@mastra/core/agent";
+import { Harness } from "@mastra/core/harness";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+import { MCPClient } from "@mastra/mcp";
+import { logEvent } from "./log-events.js";
 
-const { harness, mcpManager } = createMastraCode();
+const storage = new LibSQLStore({
+    id: "mc-store",
+    url: "file:./mastra.db",
+});
 
-harness.subscribe((event) => {
-    switch (event.type) {
-        case "agent_start":
-            console.log("\n--- Agent started ---");
-            break;
-        case "tool_start":
-            console.log(`  [tool] ${event.toolName} called`);
-            break;
-        case "tool_end":
-            console.log(`  [tool] finished ${event.isError ? "(error)" : "(ok)"}`);
-            break;
-        case "subagent_start":
-            console.log(`\n  >> Subagent [${event.agentType}] spawned`);
-            console.log(`     task: "${event.task}"`);
-            console.log(`     model: ${event.modelId}`);
-            break;
-        case "subagent_end":
-            console.log(`  << Subagent [${event.agentType}] done (${event.durationMs}ms)`);
-            console.log(`     result: ${event.result.slice(0, 120)}${event.result.length > 120 ? "…" : ""}`);
-            break;
-        case "message_end": {
-            const text = event.message.content
-                .filter((c): c is Extract<typeof c, { type: "text" }> => c.type === "text")
-                .map((c) => c.text)
-                .join("");
-            if (text) {
-                console.log(`\nassistant: ${text}`);
-            }
-            break;
-        }
-        case "usage_update":
-            if (event.usage.totalTokens > 0) {
-                console.log(
-                    `\n--- Tokens: ${event.usage.promptTokens} in + ${event.usage.completionTokens} out = ${event.usage.totalTokens} total ---`,
-                );
-            }
-            break;
-        case "error":
-            console.error(`\n[ERROR] ${event.error.message}`);
-            break;
-        case "agent_end":
-            console.log(`\n--- Agent finished (${event.reason ?? "complete"}) ---`);
-            break;
-    }
+// A filesystem MCP server scoped to this project gives the agent read access
+// to the working directory through MCP-provided tools.
+const mcp = new MCPClient({
+    servers: {
+        filesystem: {
+            command: "npx",
+            args: ["-y", "@modelcontextprotocol/server-filesystem", process.cwd()],
+        },
+    },
+});
+
+// Flatten the connected MCP tools into a single tools object the Harness can
+// hand to every mode agent.
+const mcpTools = await mcp.listTools();
+
+const agent = new Agent({
+    id: "assistant",
+    name: "Assistant",
+    instructions: `You are a helpful assistant with filesystem access via MCP tools.
+Use the available tools to read files and answer questions about this project.`,
+    model: "anthropic/claude-haiku-4-5",
+});
+
+const harness = new Harness({
+    id: "mc-harness",
+    agent,
+    modes: [{ id: "chat", name: "Chat", default: true }],
+    storage,
+    memory: new Memory({ storage }),
+    tools: mcpTools,
 });
 
 await harness.init();
-if (mcpManager) await mcpManager.init();
-await harness.selectOrCreateThread();
-harness.grantSessionTool("subagent");
-harness.grantSessionCategory("read");
+const session = await harness.createSession();
 
-console.log("Modes:", harness.getModes().map((m) => m.id).join(", "));
-console.log("Current mode:", harness.getCurrentModeId());
+session.subscribe(logEvent);
+
+// MCP-provided tools fall in the "read" category; grant it for the session so
+// the agent can call them without prompting.
+session.grantCategory("read");
+
+console.log("Modes:", harness.listModes().map((m) => m.id).join(", "));
+console.log("Current mode:", session.mode.get());
 console.log("");
 
 const prompt = "Read the package.json file in this project and summarize what dependencies we're using.";
 console.log(`user: ${prompt}`);
-await harness.sendMessage(prompt);
+await session.sendMessage({ content: prompt });
 
-if (mcpManager) await mcpManager.disconnect();
+await mcp.disconnect();

@@ -5,16 +5,18 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "server": "tsx --env-file=.env server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mastra/core": "latest",
-    "@mastra/libsql": "latest",
-    "@mastra/memory": "latest",
-    "mastracode": "latest",
+    "@mastra/core": "1.47.0-alpha.2",
+    "@mastra/libsql": "1.14.1-alpha.1",
+    "@mastra/mcp": "1.12.0-alpha.0",
+    "@mastra/memory": "1.21.2-alpha.0",
+    "mastracode": "0.25.1-alpha.2",
     "zod": "latest"
   }
 }
