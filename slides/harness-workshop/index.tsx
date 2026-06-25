@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
 import abhiAvatar from './assets/abhi-avatar.jpg';
+import alexAvatar from './assets/alex-avatar.jpg';
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 // Mastra brand: bg #020202, foreground #d9d9d9, primary #18fb6f.
@@ -293,7 +294,7 @@ const Cover: Page = () => (
 
       <div style={{ display: 'flex', gap: 64, marginBottom: 56 }}>
         <Author name="Abhi Aiyer" role="Founder / CTO, Mastra" avatar={abhiAvatar} />
-        <Author name="Alex Booker" role="Developer Advocate, Mastra" />
+        <Author name="Alex Booker" role="Head of DX, Mastra" avatar={alexAvatar} />
       </div>
 
       <div style={{ display: 'flex', gap: 28, fontFamily: font.mono, fontSize: 20 }}>
