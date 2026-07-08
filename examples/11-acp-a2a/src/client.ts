@@ -5,6 +5,7 @@ const client = new MastraClient({
 });
 
 const a2aClient = client.getA2A("mastra-release-supervisor-agent");
+
 const x = await a2aClient.getAgentCard();
 console.log(x);
 
@@ -39,13 +40,13 @@ function getTaskInfo() {
   }, 1000);
 }
 
-getTaskInfo();
+// getTaskInfo();
 console.log("start streaming");
 for await (const chunk of task) {
   if (chunk.kind === "task") {
     taskId = chunk.id;
   }
-  // console.log(chunk);
+  console.log(chunk);
 }
 console.log("done");
 clearTimeout(timeoutRef);
