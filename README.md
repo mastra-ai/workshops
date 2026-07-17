@@ -1,25 +1,30 @@
-# Mastra Company Presentations
+# Mastra Workshops
 
-All decks are React modules served by [open-slide](https://github.com/1weiho/open-slide). One dev server, one build, one design language.
+Workshop code lives in top-level directories. The decks and their OpenSlide project live under `slides/`.
 
-## Decks
+## Workshops
 
-| Deck | URL | Description |
-|------|-----|-------------|
-| **Browser & Channels** | [`/s/browser-channels`](slides/browser-channels/) | Two primitives every agent needs: Browser to drive a screen, Channels to be reachable. |
-| **Building Agents That Never Forget** | [`/s/om-workshop`](slides/om-workshop/) | Observational Memory + Harness Architecture. |
-| **Agent Harness** | [`/s/harness-workshop`](slides/harness-workshop/) | What it is, why it matters, and what it enables. |
-| **Guardrails and Beyond** | [`/s/processors-workshop`](slides/processors-workshop/) | Control the agent loop with Mastra Processors. |
-| **Mastra 101 Masterclass** | [`/s/mastra-101-masterclass`](slides/mastra-101-masterclass/) | End-to-end Mastra fundamentals with a support/refund follow-along. |
+| Title | Code | Slides |
+| --- | --- | --- |
+| Agent-to-Agent with Mastra ([Luma](https://luma.com/mastra-d04q)) | `agent-to-agent` | `slides/agent-to-agent` |
+| What is an Agent Harness? And How to Build a Great One! ([Luma](https://luma.com/mastra-0kae)) | `agent-harness` | `slides/agent-harness` |
+| Channels and Browser Deep Dive ([Luma](https://luma.com/hkoc0rjj)) | `channels-and-browser` | `slides/channels-and-browser` |
+| Introducing Observational Memory + How We Used It To Build A Coding Agent (w/ Mastra) ([Luma](https://luma.com/nn4nxix8)) | `personal-assistant-agent`, `code-research-agent`, `playwright-agent`, `mastra-code` | `slides/observational-memory` |
+| Mastra 101 Masterclass | `mastra-101` | `slides/mastra-101` |
+| Building Multi-Agent Architectures with Mastra ([Luma](https://luma.com/nctl14q0)) | `multi-agent-architectures` | None |
+| Guardrails and beyond: Control the agent loop with Mastra processors ([Luma](https://luma.com/jz42wrql)) | `guardrails`, `beyond-guardrails`, `enterprise-pipeline` | `slides/processors` |
+| Wake, Notify, and Steer Long-Running Agents with Signals ([Luma](https://luma.com/mastra-ka8t)) | None | `slides/signals` |
+| Build a Software Factory with Mastra ([Luma](https://luma.com/mastra-fxyk)) | None | `slides/software-factory` |
+| Build Realtime Voice Agents with Mastra ([Luma](https://luma.com/mastra-4h08)) | None | `slides/realtime-voice-agents` |
 
 ## Running
 
 ```bash
+cd slides
 pnpm install
-pnpm dev      # http://localhost:5173 — dashboard lists every deck
-              # http://localhost:5173/s/<deck-id> jumps straight to one
-pnpm build    # static production build into ./dist
-pnpm preview  # serve the production build
+pnpm dev      # http://localhost:5173
+pnpm build    # static production build into slides/dist
+pnpm preview
 ```
 
 **Keyboard navigation:** ← → arrow keys move between slides.
@@ -64,34 +69,20 @@ Existing decks expose their tokens as named exports (`palette`, `font`, atoms li
 ## Project Structure
 
 ```
-├── slides/
-│   ├── browser-channels/
-│   ├── om-workshop/
-│   ├── harness-workshop/
-│   └── processors-workshop/
-├── examples/                       # Workshop code examples
-├── open-slide.config.ts
-├── package.json
-└── tsconfig.json
+├── agent-to-agent/
+├── channels-and-browser/
+├── guardrails/
+├── mastra-101/
+├── ...                             # Other workshop code
+└── slides/
+    ├── agent-to-agent/
+    ├── channels-and-browser/
+    ├── processors/
+    ├── ...                         # Other decks
+    ├── open-slide.config.ts
+    ├── package.json
+    └── tsconfig.json
 ```
-
-## Workshop Examples
-
-| Directory | Description |
-|-----------|-------------|
-| `examples/00-personal-assistant-agent` | OM-powered personal assistant agent |
-| `examples/01-code-research-agent` | OM-powered code research agent |
-| `examples/02-playwright-agent` | OM-powered Playwright browser agent |
-| `examples/03-mastra-code` | Progressive MastraCode agent examples (basic → full TUI) |
-| `examples/04-guardrails` | Basic guardrails processor example |
-| `examples/05-beyond-guardrails` | Advanced processor patterns beyond guardrails |
-| `examples/06-enterprise-pipeline` | Enterprise-grade processor pipeline |
-| `examples/07-harness-workshop` | Agent harness workshop example |
-| `examples/08-multi-agent-networks` | Council + supervisor multi-agent demos |
-| `examples/09-browser-channels-workshop` | Browser + Channels workshop example |
-| `examples/10-mastra-101-masterclass` | Follow-along support/refund app for the Mastra 101 deck |
-
-Each example directory has its own `package.json`. Install and run individually — see each example's README for instructions.
 
 ## Links
 
