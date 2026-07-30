@@ -1,4 +1,7 @@
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
+import demoVideo from './assets/channels-demo-steering.mp4';
+import slackHandoff from './assets/slack-handoff.png';
+import slackMultiplayer from './assets/slack-multiplayer.png';
 
 export const design: DesignSystem = {
   palette: {
@@ -137,32 +140,6 @@ const Card = ({
   </div>
 );
 
-const Person = ({ name, color, message }: { name: string; color: string; message: string }) => (
-  <Card accent={color} style={{ padding: '22px 26px' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-      <div
-        style={{
-          width: 42,
-          height: 42,
-          borderRadius: 999,
-          display: 'grid',
-          placeItems: 'center',
-          background: `${color}20`,
-          border: `1px solid ${color}70`,
-          color,
-          fontFamily: font.mono,
-          fontSize: 18,
-          fontWeight: 700,
-        }}
-      >
-        {name[0]}
-      </div>
-      <div style={{ fontSize: 24, fontWeight: 700 }}>{name}</div>
-    </div>
-    <div style={{ color: palette.textSoft, fontSize: 26, lineHeight: 1.35 }}>{message}</div>
-  </Card>
-);
-
 const Arrow = ({ color = palette.muted }: { color?: string }) => (
   <div style={{ color, fontFamily: font.mono, fontSize: 40, lineHeight: 1 }}>→</div>
 );
@@ -198,7 +175,7 @@ const OneConversation: Page = () => (
       }}
     />
     <div style={{ position: 'relative', paddingBottom: 70 }}>
-      <Eyebrow>What we're building</Eyebrow>
+      <Eyebrow>Mastra Workshop</Eyebrow>
       <h1
         style={{
           fontFamily: font.display,
@@ -210,74 +187,53 @@ const OneConversation: Page = () => (
           maxWidth: 1600,
         }}
       >
-        One agent.
+        Build Multiplayer Agents
         <br />
-        One <span style={{ color: palette.accent }}>team conversation.</span>
+        with <span style={{ color: palette.accent }}>Mastra Channels</span>
       </h1>
-      <Subtitle>A Slack thread becomes a shared interface to the same running Mastra agent.</Subtitle>
+      <Subtitle>A Slack thread becomes a shared conversation backed by one Mastra memory thread.</Subtitle>
     </div>
     <Footer index={1} />
   </Stage>
 );
 
-// 02 — Establish the multiplayer scenario before the live demo.
-const SharedThread: Page = () => (
+// 02 — Show the real behavior before explaining the machinery.
+const RecordedDemo: Page = () => (
   <Stage>
-    <div style={{ paddingBottom: 60 }}>
-      <Eyebrow>Shared context</Eyebrow>
-      <Title>
-        One Slack thread → one <span style={{ color: palette.accent }}>Mastra thread.</span>
-      </Title>
-      <Subtitle>Every reply reuses the same memory thread, so the team's context accumulates over time.</Subtitle>
+    <div style={{ paddingBottom: 54 }}>
+      <Eyebrow>Demo</Eyebrow>
 
-      <div style={{ marginTop: 52, display: 'grid', gridTemplateColumns: '1fr 110px 1.1fr', gap: 28, alignItems: 'center' }}>
-        <div style={{ display: 'grid', gap: 18 }}>
-          <Person name="Caleb" color={palette.blue} message="Investigate why CI is failing on the release PR." />
-          <Person name="Alex" color={palette.purple} message="Also check whether the migration is safe to roll back." />
-        </div>
-        <div style={{ display: 'grid', placeItems: 'center' }}>
-          <Arrow color={palette.accent} />
-        </div>
-        <Card accent={palette.accent} style={{ minHeight: 270, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ fontFamily: font.mono, color: palette.accent, fontSize: 17, letterSpacing: '0.18em' }}>ONE MASTRA MEMORY THREAD</div>
-          <div style={{ fontSize: 40, fontWeight: 800, margin: '16px 0 12px' }}>Shared history</div>
-          <div style={{ fontSize: 27, lineHeight: 1.4, color: palette.textSoft }}>
-            Both requests land in the same conversation history while preserving who sent each one.
-          </div>
-        </Card>
+      <div
+        style={{
+          margin: '28px auto 0',
+          width: 1156,
+          aspectRatio: '16 / 9',
+          borderRadius: 20,
+          border: `1px solid ${palette.borderBright}`,
+          background: palette.surface,
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 24px 80px rgba(0, 0, 0, 0.5)',
+        }}
+      >
+        <video
+          src={demoVideo}
+          controls
+          playsInline
+          preload="metadata"
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', background: '#000' }}
+        />
+      </div>
+
+      <div style={{ margin: '22px auto 0', width: 1156, textAlign: 'center', fontSize: 26, lineHeight: 1.4, color: palette.textSoft }}>
+        New messages <b style={{ color: palette.accent }}>steer the agent</b> while it is still working.
       </div>
     </div>
     <Footer index={2} />
   </Stage>
 );
 
-// 03 — Cue the live Slack demo.
-const LiveDemo: Page = () => (
-  <Stage>
-    <div style={{ paddingBottom: 70 }}>
-      <Eyebrow color={palette.blue}>Live demo · Caleb</Eyebrow>
-      <Title>
-        Let's use the agent from <span style={{ color: palette.blue }}>Slack.</span>
-      </Title>
-      <div style={{ marginTop: 52, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 22 }}>
-        {[
-          ['01', 'Start', 'Send the first request in a new Slack thread.'],
-          ['02', 'Join', 'A second teammate adds context to the same conversation.'],
-          ['03', 'Continue', 'The agent responds with the combined context intact.'],
-        ].map(([number, title, body], index) => (
-          <Card key={number} accent={[palette.blue, palette.purple, palette.accent][index]} style={{ minHeight: 250 }}>
-            <div style={{ fontFamily: font.mono, fontSize: 20, color: [palette.blue, palette.purple, palette.accent][index] }}>{number}</div>
-            <div style={{ fontSize: 38, fontWeight: 800, margin: '18px 0 14px' }}>{title}</div>
-            <div style={{ fontSize: 27, lineHeight: 1.45, color: palette.textSoft }}>{body}</div>
-          </Card>
-        ))}
-      </div>
-    </div>
-    <Footer index={3} />
-  </Stage>
-);
-
-// 04 — Alex takes over for the setup speedrun.
+// 03 — Hold a clean handoff while Alex shares his screen.
 const SetupHandoff: Page = () => (
   <Stage>
     <div
@@ -285,211 +241,210 @@ const SetupHandoff: Page = () => (
       style={{
         position: 'absolute',
         inset: 0,
-        background: `radial-gradient(900px 540px at 78% 48%, ${palette.amber}14 0%, transparent 65%)`,
+        background: `radial-gradient(900px 540px at 50% 50%, ${palette.amber}14 0%, transparent 68%)`,
       }}
     />
-    <div style={{ position: 'relative', paddingBottom: 70 }}>
-      <Eyebrow color={palette.amber}>Setup speedrun · Alex</Eyebrow>
-      <h1
-        style={{
-          fontFamily: font.display,
-          fontSize: 142,
-          fontWeight: 900,
-          lineHeight: 0.98,
-          letterSpacing: '-0.045em',
-          margin: '34px 0 30px',
-          maxWidth: 1600,
-        }}
-      >
-        From a blank app to Slack in <span style={{ color: palette.amber }}>3–5 minutes.</span>
+    <div style={{ position: 'relative', textAlign: 'center', paddingBottom: 70 }}>
+      <Eyebrow color={palette.amber}>Setup</Eyebrow>
+      <h1 style={{ fontFamily: font.display, fontSize: 172, fontWeight: 900, lineHeight: 0.96, letterSpacing: '-0.05em', margin: '42px 0 0' }}>
+        Alex
       </h1>
-      <Subtitle>Then we'll come back and unpack what Channels did for us.</Subtitle>
     </div>
-    <Footer index={4} owner="ALEX" />
+    <Footer index={3} owner="ALEX" />
   </Stage>
 );
 
-// 05 — End-to-end mental model after the setup.
+// 04 — Signals let input reach a run independently from its output stream.
 const UnderTheHood: Page = () => (
   <Stage>
-    <div style={{ paddingBottom: 60 }}>
+    <div style={{ paddingBottom: 56 }}>
       <Eyebrow>How it works</Eyebrow>
-      <Title>
-        What happened after someone pressed <span style={{ color: palette.accent }}>Send?</span>
+      <Title maxWidth={1700}>
+        Messages can reach the agent <span style={{ color: palette.accent }}>while it is already running.</span>
       </Title>
-      <div style={{ marginTop: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18 }}>
-        <FlowNode label="Slack event" detail="message + thread + sender" color={palette.blue} />
-        <Arrow />
-        <FlowNode label="Channel adapter" detail="normalize the platform" color={palette.purple} />
-        <Arrow />
-        <FlowNode label="Signal" detail="deliver context" color={palette.accent} />
-        <Arrow />
-        <FlowNode label="Agent loop" detail="reason + tools + memory" color={palette.amber} />
-        <Arrow />
-        <FlowNode label="Slack reply" detail="stream + edit in place" color={palette.blue} />
+      <Subtitle maxWidth={1580}>
+        Channels gives inbound context and outbound responses separate lanes through the same agent loop.
+      </Subtitle>
+
+      <div style={{ marginTop: 42, display: 'grid', gap: 22 }}>
+        <Card accent={palette.purple} style={{ padding: '24px 30px', display: 'grid', gridTemplateColumns: '230px 1fr', alignItems: 'center', gap: 28 }}>
+          <div>
+            <div style={{ fontFamily: font.mono, fontSize: 17, color: palette.purple, letterSpacing: '0.16em' }}>INBOUND · SIGNAL</div>
+            <div style={{ marginTop: 10, fontSize: 23, lineHeight: 1.3, color: palette.textSoft }}>New context enters the active conversation.</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+            <FlowNode label="Slack message" detail="thread + sender + content" color={palette.blue} />
+            <Arrow color={palette.purple} />
+            <FlowNode label="Attributed signal" detail="addressed to the thread" color={palette.purple} />
+            <Arrow color={palette.accent} />
+            <FlowNode label="Agent loop" detail="receives it at the next step" color={palette.accent} />
+          </div>
+        </Card>
+
+        <Card accent={palette.blue} style={{ padding: '24px 30px', display: 'grid', gridTemplateColumns: '230px 1fr', alignItems: 'center', gap: 28 }}>
+          <div>
+            <div style={{ fontFamily: font.mono, fontSize: 17, color: palette.blue, letterSpacing: '0.16em' }}>OUTBOUND · STREAM</div>
+            <div style={{ marginTop: 10, fontSize: 23, lineHeight: 1.3, color: palette.textSoft }}>The response keeps moving back to Slack.</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+            <FlowNode label="Agent loop" detail="text + tools + reasoning" color={palette.accent} />
+            <Arrow color={palette.blue} />
+            <FlowNode label="Response chunks" detail="processed independently" color={palette.blue} />
+            <Arrow color={palette.blue} />
+            <FlowNode label="Slack reply" detail="the same reply keeps updating" color={palette.blue} />
+          </div>
+        </Card>
       </div>
-      <div style={{ marginTop: 54, fontSize: 31, color: palette.textSoft, lineHeight: 1.45, maxWidth: 1500 }}>
-        Channels handles the platform boundary. The agent keeps working with Mastra concepts: messages, threads, signals, tools, and memory.
+
+      <div style={{ marginTop: 28, fontSize: 27, color: palette.textSoft, lineHeight: 1.4 }}>
+        A new message does not have to wait for the current response to finish—and it does not become an output chunk.
+      </div>
+    </div>
+    <Footer index={4} />
+  </Stage>
+);
+
+// 05 — Shared conversation, individual attribution, and attachments.
+const SenderAttribution: Page = () => (
+  <Stage>
+    <div style={{ paddingBottom: 54 }}>
+      <Eyebrow>Group threads, solved</Eyebrow>
+      <Title maxWidth={1720}>
+        Everyone can add context. <span style={{ color: palette.accent }}>The agent knows who said what.</span>
+      </Title>
+
+      <div style={{ marginTop: 38, display: 'grid', gridTemplateColumns: '0.85fr 1.15fr', gap: 28 }}>
+        <Card accent={palette.blue} style={{ padding: '26px 32px' }}>
+          <div style={{ fontFamily: font.mono, fontSize: 19, color: palette.blue, letterSpacing: '0.18em', marginBottom: 20 }}>IN SLACK</div>
+          {[
+            ['Alex', '@Mastra I got this error with Opus 5: “The model stopped because it reached its maximum output length before finishing.”'],
+            ['Caleb', 'Yeah, I hit it for tool calls with very long input. Mostly write_plan.'],
+            ['Abhi', 'Yeah dude, I saw it only with Opus 5.'],
+          ].map(([name, message], index) => (
+            <div key={name} style={{ display: 'grid', gridTemplateColumns: '88px 1fr', gap: 14, marginTop: index === 0 ? 0 : 18 }}>
+              <span style={{ fontSize: 22, fontWeight: 750, color: [palette.blue, palette.purple, palette.rose][index] }}>{name}</span>
+              <span style={{ fontSize: 22, lineHeight: 1.4, color: palette.textSoft }}>{message}</span>
+            </div>
+          ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '88px 1fr', gap: 14, marginTop: 18 }}>
+            <span style={{ fontSize: 22, fontWeight: 750, color: palette.blue }}>Alex</span>
+            <div style={{ display: 'inline-flex', width: 'fit-content', alignItems: 'center', gap: 10, padding: '10px 14px', border: `1px solid ${palette.border}`, borderRadius: 8, fontFamily: font.mono, fontSize: 18, color: palette.text }}>
+              <span style={{ color: palette.accent }}>▧</span> opus-5-error.png
+            </div>
+          </div>
+        </Card>
+
+        <Card accent={palette.accent} style={{ padding: '26px 32px' }}>
+          <div style={{ fontFamily: font.mono, fontSize: 19, color: palette.accent, letterSpacing: '0.18em', marginBottom: 18 }}>WHAT THE AGENT SEES</div>
+          <div style={{ fontFamily: font.mono, fontSize: 17.5, lineHeight: 1.48, color: palette.textSoft }}>
+            <div>&lt;user name=<span style={{ color: palette.blue }}>&quot;Alex&quot;</span> id=<span style={{ color: palette.blue }}>&quot;U123&quot;</span>&gt;</div>
+            <div style={{ paddingLeft: 18, color: palette.text }}>@Mastra I got this error with Opus 5: “The model stopped...”</div>
+            <div>&lt;/user&gt;</div>
+            <div style={{ height: 8 }} />
+            <div>&lt;user name=<span style={{ color: palette.purple }}>&quot;Caleb&quot;</span> id=<span style={{ color: palette.purple }}>&quot;U456&quot;</span>&gt;</div>
+            <div style={{ paddingLeft: 18, color: palette.text }}>I hit it for tool calls with very long input. Mostly write_plan.</div>
+            <div>&lt;/user&gt;</div>
+            <div style={{ height: 8 }} />
+            <div>&lt;user name=<span style={{ color: palette.rose }}>&quot;Abhi&quot;</span> id=<span style={{ color: palette.rose }}>&quot;U789&quot;</span>&gt;</div>
+            <div style={{ paddingLeft: 18, color: palette.text }}>Yeah dude, I saw it only with Opus 5.</div>
+            <div>&lt;/user&gt;</div>
+            <div style={{ height: 8 }} />
+            <div>&lt;user name=<span style={{ color: palette.blue }}>&quot;Alex&quot;</span> id=<span style={{ color: palette.blue }}>&quot;U123&quot;</span>&gt;</div>
+            <div style={{ paddingLeft: 18, color: palette.muted }}>[Attached image/png file: opus-5-error.png]</div>
+            <div>&lt;/user&gt;</div>
+            <div style={{ color: palette.accent }}>{`{ type: "file", mediaType: "image/png", data: "data:image/png;base64,iVBO…" }`}</div>
+          </div>
+        </Card>
+      </div>
+
+      <div style={{ marginTop: 22, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22 }}>
+        <div style={{ fontSize: 20, lineHeight: 1.4, color: palette.textSoft }}>
+          <b style={{ color: palette.text }}>Every contribution stays attributable.</b> Each inbound message carries the sender's identity.
+        </div>
+        <div style={{ fontSize: 20, lineHeight: 1.4, color: palette.textSoft }}>
+          <b style={{ color: palette.text }}>Attachments become model input.</b> Inline images are delivered as file parts alongside the text.
+        </div>
       </div>
     </div>
     <Footer index={5} />
   </Stage>
 );
 
-// 06 — Shared conversation, individual attribution.
-const SenderAttribution: Page = () => (
+// 06 — Show a conversation moving naturally from one person to another.
+const MultiplayerMoment: Page = () => (
   <Stage>
-    <div style={{ paddingBottom: 58 }}>
-      <Eyebrow>Multi-user awareness</Eyebrow>
-      <Title>
-        Every signal keeps its <span style={{ color: palette.accent }}>author.</span>
+    <div style={{ paddingBottom: 54 }}>
+      <Eyebrow>Real Slack thread</Eyebrow>
+      <Title maxWidth={1700}>
+        A conversation can move <span style={{ color: palette.accent }}>from one person to another.</span>
       </Title>
-      <Subtitle>Messages share one thread, but Channels preserves who contributed each piece of context.</Subtitle>
-      <div style={{ marginTop: 42, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 26 }}>
-        {[
-          { name: 'Caleb', id: 'U012AB3CD4E', message: 'Investigate the failing release.', color: palette.blue },
-          { name: 'Alex', id: 'U045EF6GH7I', message: 'Check rollback safety too.', color: palette.purple },
-        ].map(item => (
-          <Card key={item.id} accent={item.color} style={{ padding: '26px 30px' }}>
-            <Person name={item.name} color={item.color} message={item.message} />
-            <div
-              style={{
-                fontFamily: font.mono,
-                fontSize: 18,
-                lineHeight: 1.65,
-                color: palette.textSoft,
-                marginTop: 20,
-                padding: '16px 20px',
-                borderRadius: 12,
-                background: palette.surfaceHi,
-              }}
-            >
-              attributes.authorName: <span style={{ color: item.color }}>{item.name}</span>
-              <br />
-              attributes.authorId: <span style={{ color: item.color }}>{item.id}</span>
-              <br />
-              channels.slack.author: <span style={{ color: palette.text }}>original sender payload</span>
-            </div>
-          </Card>
-        ))}
+
+      <div style={{ margin: '34px auto 0', width: 1234, height: 530, borderRadius: 18, border: `1px solid ${palette.borderBright}`, background: palette.surface, overflow: 'hidden', boxShadow: '0 20px 70px rgba(0, 0, 0, 0.45)' }}>
+        <img
+          src={slackHandoff}
+          alt="Caleb hands a Slack conversation to Joel and the agent responds to Joel"
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+        />
       </div>
-      <div
-        style={{
-          marginTop: 24,
-          padding: '16px 24px',
-          borderRadius: 12,
-          background: `${palette.accent}0d`,
-          border: `1px solid ${palette.accent}45`,
-          fontFamily: font.mono,
-          fontSize: 20,
-          color: palette.textSoft,
-          textAlign: 'center',
-        }}
-      >
-        shared threadId: <span style={{ color: palette.accent }}>slack:C_TEAM:release-482</span>
+
+      <div style={{ margin: '22px auto 0', width: 1234, fontSize: 22, lineHeight: 1.4, color: palette.textSoft }}>
+        Caleb invites Joel into the thread. The agent follows the handoff and responds to Joel in the same shared conversation.
       </div>
     </div>
     <Footer index={6} />
   </Stage>
 );
 
-// 07 — Explain why input cannot be coupled to an output stream.
-const SeparateLanes: Page = () => (
+// 07 — Show the agent retaining attribution as more people join the thread.
+const GroupConversation: Page = () => (
   <Stage>
-    <div style={{ paddingBottom: 55 }}>
-      <Eyebrow>The important split</Eyebrow>
-      <Title>
-        Input and output travel on <span style={{ color: palette.accent }}>different lanes.</span>
+    <div style={{ paddingBottom: 54 }}>
+      <Eyebrow>Real Slack thread</Eyebrow>
+      <Title maxWidth={1700}>
+        As more people join, <span style={{ color: palette.accent }}>the agent stays oriented.</span>
       </Title>
-      <div style={{ marginTop: 50, display: 'grid', gridTemplateColumns: '1fr 250px 1fr', gap: 34, alignItems: 'stretch' }}>
-        <Card accent={palette.purple} style={{ minHeight: 325 }}>
-          <div style={{ fontFamily: font.mono, fontSize: 17, color: palette.purple, letterSpacing: '0.16em' }}>INBOUND · SIGNALS</div>
-          <div style={{ fontSize: 36, fontWeight: 800, margin: '20px 0 22px' }}>Context can arrive anytime.</div>
-          {['A teammate replies', 'Someone corrects a detail', 'Another request joins the thread'].map(item => (
-            <div key={item} style={{ fontSize: 25, color: palette.textSoft, marginTop: 14 }}>+ {item}</div>
-          ))}
-        </Card>
 
-        <div style={{ display: 'grid', placeItems: 'center' }}>
-          <div
-            style={{
-              width: 220,
-              height: 220,
-              borderRadius: 999,
-              display: 'grid',
-              placeItems: 'center',
-              textAlign: 'center',
-              background: palette.surfaceHi,
-              border: `2px solid ${palette.accent}`,
-              boxShadow: `0 0 80px ${palette.accent}18`,
-              fontSize: 32,
-              fontWeight: 850,
-              lineHeight: 1.12,
-            }}
-          >
-            running
-            <br />
-            agent
-          </div>
-        </div>
+      <div style={{ margin: '34px auto 0', width: 960, height: 620, borderRadius: 18, border: `1px solid ${palette.borderBright}`, background: palette.surface, overflow: 'hidden', boxShadow: '0 20px 70px rgba(0, 0, 0, 0.45)' }}>
+        <img
+          src={slackMultiplayer}
+          alt="Daniel, Joel, Caleb, and ExampleAgent participate in one Slack thread"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}
+        />
+      </div>
 
-        <Card accent={palette.blue} style={{ minHeight: 325 }}>
-          <div style={{ fontFamily: font.mono, fontSize: 17, color: palette.blue, letterSpacing: '0.16em' }}>OUTBOUND · STREAM</div>
-          <div style={{ fontSize: 36, fontWeight: 800, margin: '20px 0 22px' }}>The response keeps streaming.</div>
-          {['Text arrives incrementally', 'Tool progress remains visible', 'Slack updates the same reply'].map(item => (
-            <div key={item} style={{ fontSize: 25, color: palette.textSoft, marginTop: 14 }}>→ {item}</div>
-          ))}
-        </Card>
+      <div style={{ marginTop: 22, textAlign: 'center', fontSize: 22, lineHeight: 1.4, color: palette.textSoft }}>
+        Daniel, Joel, Caleb, and the agent all contribute without losing who said what.
       </div>
     </div>
     <Footer index={7} />
   </Stage>
 );
 
-// 08 — The payoff: new context can steer a live process.
-const Steering: Page = () => (
+// 08 — Close on the three capabilities attendees should remember.
+const ChannelsGuarantees: Page = () => (
   <Stage>
     <div style={{ paddingBottom: 58 }}>
-      <Eyebrow>The result</Eyebrow>
+      <Eyebrow>What Channels gives the agent</Eyebrow>
       <Title>
-        Steering is what makes the agent <span style={{ color: palette.accent }}>multiplayer.</span>
+        Shared conversation. <span style={{ color: palette.accent }}>Multiplayer context.</span>
       </Title>
-      <div style={{ marginTop: 52, position: 'relative' }}>
-        <div style={{ position: 'absolute', left: 80, right: 80, top: 71, height: 2, background: palette.borderBright }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 26, position: 'relative' }}>
-          {[
-            { n: '01', title: 'Agent starts', body: 'Investigating CI failures', color: palette.amber },
-            { n: '02', title: 'Caleb adds context', body: 'Look at the release workflow', color: palette.blue },
-            { n: '03', title: 'Alex redirects', body: 'Check rollback safety too', color: palette.purple },
-            { n: '04', title: 'Agent adapts', body: 'The next step accounts for both', color: palette.accent },
-          ].map(item => (
-            <div key={item.n} style={{ textAlign: 'center' }}>
-              <div
-                style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: 999,
-                  background: palette.bg,
-                  border: `2px solid ${item.color}`,
-                  display: 'grid',
-                  placeItems: 'center',
-                  margin: '36px auto 26px',
-                  fontFamily: font.mono,
-                  fontSize: 19,
-                  color: item.color,
-                  boxShadow: `0 0 30px ${item.color}18`,
-                }}
-              >
-                {item.n}
-              </div>
-              <div style={{ fontSize: 29, fontWeight: 800, color: palette.text }}>{item.title}</div>
-              <div style={{ fontSize: 23, lineHeight: 1.4, color: palette.textSoft, marginTop: 12 }}>{item.body}</div>
+      <div style={{ marginTop: 50, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 26 }}>
+        {[
+          { n: '01', title: 'Shared thread', body: 'One platform thread maps to one Mastra memory thread.', color: palette.blue },
+          { n: '02', title: 'Attributable input', body: 'Every message retains its sender and platform metadata.', color: palette.purple },
+          { n: '03', title: 'Live steering', body: 'New input can reach the agent while output streams independently.', color: palette.accent },
+        ].map(item => (
+          <Card key={item.n} accent={item.color} style={{ minHeight: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ fontFamily: font.mono, fontSize: 18, color: item.color }}>{item.n}</div>
+            <div>
+              <div style={{ fontSize: 35, fontWeight: 850 }}>{item.title}</div>
+              <div style={{ marginTop: 16, fontSize: 25, lineHeight: 1.4, color: palette.textSoft }}>{item.body}</div>
             </div>
-          ))}
-        </div>
+          </Card>
+        ))}
       </div>
-      <div style={{ marginTop: 58, textAlign: 'center', fontSize: 33, color: palette.textSoft }}>
-        People do not get separate conversations. New context reaches the active loop or wakes the same thread.
+      <div style={{ marginTop: 48, textAlign: 'center', fontSize: 31, lineHeight: 1.4, color: palette.textSoft }}>
+        That is the difference between putting an agent in Slack and making it <b style={{ color: palette.text }}>part of the conversation.</b>
       </div>
     </div>
     <Footer index={8} />
@@ -502,23 +457,23 @@ export const meta: SlideMeta = {
 };
 
 export const notes: (string | undefined)[] = [
-  `Alex has already framed Channels and why Slack is the main example. My job here is to make the result concrete before we explain the setup. The simplest definition is one agent participating in one ongoing team conversation. This is not several private chats that happen to use the same bot. The Slack thread itself is the shared interface to the same running agent.`,
-  `Set up the demo story before switching screens. AgentChannels maps the external Slack thread to one Mastra memory thread using channel metadata, then reuses that mapping for later replies. I start with a request. Alex joins the same Slack thread and adds a constraint. Both messages land in the same conversation history, but the author metadata stays distinct. That combination — shared thread context plus individual sender attribution — is the multiplayer behavior we want to make visible.`,
-  `Switch to Slack. Start a clean thread with a deterministic request. Have Alex reply with an extra constraint while the agent is running or immediately after the first response begins. Then send one follow-up that depends on both messages. Do not open code yet. The purpose is only to prove the experience before explaining the machinery.`,
-  `Hand back to Alex for the setup speedrun. He starts from a blank Mastra app and follows the Slack guide. Keep this slide visible during the handoff. When he finishes, take over again with: "That gets the agent connected. Now let's look at what had to happen after someone pressed Send."`,
-  `This is the first mental model, not an exhaustive architecture diagram. Slack sends an event with the message, thread, and sender. The channel adapter normalizes Slack-specific details. Channels delivers that context into the agent loop as a signal. The agent keeps using normal Mastra tools and memory. Its output stream is rendered back into Slack, usually by updating the same response as tokens arrive.`,
-  `Slow down here because sender attribution is one of the most important multiplayer differences. Caleb and Alex share the same thread ID, so their messages contribute to the same conversation. Each message still carries its own user identity. That lets the agent understand who said what. Later, if we expand the workshop, this becomes the bridge into authorization and RequestContext. For this version, stop at attribution.`,
-  `A normal request-response handler assumes input arrives, output streams, and then the turn ends. That breaks when another teammate replies while the agent is still working. Channels uses signals for inbound context, while the response remains an outbound stream. New context does not need to masquerade as another output chunk or wait for a brand-new run.`,
-  `Close this first section with the practical definition of multiplayer. The agent starts working, multiple people add or correct context, and the running loop can adapt. It does not create an isolated agent for every message. Pause here and decide with Alex whether to continue into authentication, RequestContext, Factory, and SlackProvider, or move to questions and live code.`,
+  `Alex has already framed Channels and why Slack is the main example. Make the result concrete before explaining setup: one agent participating in an ongoing team conversation. The Slack thread is a shared interface backed by one Mastra memory thread. Avoid saying one permanently running process—the signal pipeline can deliver to an active run or wake a new run on the same thread.`,
+  `Play the prerecorded Slack demo without narration. Caleb asks the agent to research AgentChannels, then adds attachment handling while the research is already running. He asks for progress, stops the run, and asks for a short summary. Point out that each follow-up enters the same active thread and changes what the agent does next. The purpose is to show steering before explaining the signal machinery.`,
+  `Hand to Alex and leave this clean slide visible while he starts sharing his screen. Alex walks through the Slack setup live. When he finishes, take over again with: "That connects the agent. Now let's trace one message through the system."`,
+  `Start with the problem this solves: in a shared Slack thread, a second person can add context while the agent is already working. Channels maps the platform thread to the Mastra memory thread and delivers that message as an attributed Signal. If a run already owns the thread, the Signal reaches that loop; otherwise it wakes a run on the same thread. Be precise: this does not interrupt the model in the middle of a token. The new context is incorporated at the next model step. Meanwhile, the outbound processor independently keeps rendering response chunks into the same Slack reply. That separation between inbound Signals and the outbound stream is what makes live steering possible.`,
+  `This example is adapted from a real MastraCode Slack thread. Alex tags the agent with an Opus 5 output-length error. Caleb narrows it to tool calls with long input, especially write_plan, and Abhi confirms he only saw it with Opus 5. Their replies arrive as separate inbound messages on the same Mastra thread, each carrying its own authorName, authorId, and authorMention attributes. Alex then adds a screenshot. Channels emits a wrapped text part describing the attachment followed by a structured file part; image files are converted to image content by the model adapter. The XML on screen is intentionally simplified to name and id for readability.`,
+  `Move from steering by one person to a real multiplayer handoff. Caleb explicitly invites Joel into the conversation, Joel asks his own question, and the agent responds to Joel in the same Slack thread. The shared thread is the continuity boundary—not whichever person spoke first.`,
+  `Now show the same idea with more participants. Daniel, Joel, Caleb, and the agent all contribute naturally. The important point is not the joke—it is that every message remains attributable, so the agent can follow the conversation and respond to the right person as the group changes.`,
+  `Close with three guarantees rather than another example: shared thread mapping, attributable input, and live steering. Together they explain the phrase multiplayer agent. Stop here for this version rather than expanding into authentication, RequestContext, Factory, or SlackProvider.`,
 ];
 
 export default [
   OneConversation,
-  SharedThread,
-  LiveDemo,
+  RecordedDemo,
   SetupHandoff,
   UnderTheHood,
   SenderAttribution,
-  SeparateLanes,
-  Steering,
+  MultiplayerMoment,
+  GroupConversation,
+  ChannelsGuarantees,
 ] satisfies Page[];
