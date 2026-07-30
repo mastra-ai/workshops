@@ -246,9 +246,6 @@ const SetupHandoff: Page = () => (
     />
     <div style={{ position: 'relative', textAlign: 'center', paddingBottom: 70 }}>
       <Eyebrow color={palette.amber}>Setup</Eyebrow>
-      <h1 style={{ fontFamily: font.display, fontSize: 172, fontWeight: 900, lineHeight: 0.96, letterSpacing: '-0.05em', margin: '42px 0 0' }}>
-        Alex
-      </h1>
     </div>
     <Footer index={3} owner="ALEX" />
   </Stage>
@@ -464,7 +461,13 @@ export const notes: (string | undefined)[] = [
   `This example is adapted from a real MastraCode Slack thread. Alex tags the agent with an Opus 5 output-length error. Caleb narrows it to tool calls with long input, especially write_plan, and Abhi confirms he only saw it with Opus 5. Their replies arrive as separate inbound messages on the same Mastra thread, each carrying its own authorName, authorId, and authorMention attributes. Alex then adds a screenshot. Channels emits a wrapped text part describing the attachment followed by a structured file part; image files are converted to image content by the model adapter. The XML on screen is intentionally simplified to name and id for readability.`,
   `Move from steering by one person to a real multiplayer handoff. Caleb explicitly invites Joel into the conversation, Joel asks his own question, and the agent responds to Joel in the same Slack thread. The shared thread is the continuity boundary—not whichever person spoke first.`,
   `Now show the same idea with more participants. Daniel, Joel, Caleb, and the agent all contribute naturally. The important point is not the joke—it is that every message remains attributable, so the agent can follow the conversation and respond to the right person as the group changes.`,
-  `Close with three guarantees rather than another example: shared thread mapping, attributable input, and live steering. Together they explain the phrase multiplayer agent. Stop here for this version rather than expanding into authentication, RequestContext, Factory, or SlackProvider.`,
+  `Close the core Channels section with three guarantees: shared thread mapping, attributable input, and live steering. Let this feel like a real ending. Then pause before moving into the optional deeper material rather than turning the summary into another transition slide.`,
+  `Use this as a clean reset. The first section explained what makes a channel agent multiplayer. The deep dive is about what application developers can build at the event boundary: custom policy, authenticated identities, tenant-specific runs, and managed Slack apps.`,
+  `Channels provides default behavior for direct messages, mentions, and subscribed-thread messages, but each handler is replaceable. A custom handler receives the thread, message, defaultHandler, and a fresh RequestContext. It can inspect or block the event, write context for the run, then call the default behavior. Factory uses this exact seam for every Slack event that could start or continue a run.`,
+  `Factory requires users to link Slack before an agent run begins. The user is already signed into Mastra, then Slack OIDC proves which Slack workspace and user they control. Factory stores that mapping. When an event arrives, the handler resolves the workspace and sender against the link. An unlinked sender gets a private connect card; a linked sender resolves to the correct Mastra user, organization, and Factory project.`,
+  `The important part is not the literal user object on screen. It is that the custom handler can modify the same RequestContext the agent run receives. Factory currently uses it to select the linked user's credentials and tenant boundary. The same seam can drive per-user model selection, usage accounting, tool access, data access, instructions, memory, or skills. Those are application decisions, not hard-coded Channels behavior.`,
+  `Once identity is resolved per message, the same Slack-facing agent can serve different organizations safely. A team member, customer, and unlinked guest may all reach the same platform endpoint, but they do not receive the same runtime. The account link and RequestContext choose the tenant, credentials, tools, data, and policy before dispatch. Emphasize that Channels creates the hook; Factory is one concrete implementation.`,
+  `Separate this from Factory's custom authentication story. SlackProvider is a ChannelProvider registered on the Mastra instance. Calling connect creates a Slack app from a generated manifest and returns its OAuth installation URL. Active installations are stored, adapters are restored when Mastra starts, webhook traffic is routed to the right agent, and manifest drift is updated automatically. This is the managed app lifecycle around normal AgentChannels.`,
 ];
 
 export default [
