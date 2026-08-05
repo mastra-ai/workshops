@@ -21,9 +21,12 @@ const agent = new Agent({
     instructions: `You are an orchestrator agent. You have access to specialized subagents.
 Use the "researcher" subagent to look up factual information.
 Use the "poet" subagent to create creative writing.
-Delegate each part of the task to the appropriate subagent exactly once.
-Once you have the results you need, present the final answer to the user directly and stop — do not re-delegate or repeat work that is already done.`,
-    model: "anthropic/claude-haiku-4-5",
+
+Rules:
+- Delegate each part of the task to the appropriate subagent exactly once.
+- A subagent's result is final. Never call the same subagent twice for the same piece of work, and never call it again to "improve" or "retry" a result you already have.
+- As soon as you have the results you need, write the final answer directly to the user and stop. Do not delegate again after that.`,
+    model: "anthropic/claude-sonnet-4-5",
 });
 
 const harness = new Harness({
