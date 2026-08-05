@@ -47,9 +47,12 @@ const session = await harness.createSession();
 
 session.subscribe(logEvent);
 
-// MCP-provided tools fall in the "read" category; grant it for the session so
-// the agent can call them without prompting.
+// Grant every MCP-provided tool by name so the agent can call them without
+// hitting an approval gate (the silent "hang" was a pending approval prompt).
 session.grantCategory("read");
+for (const toolName of Object.keys(mcpTools)) {
+    session.grantTool(toolName);
+}
 
 console.log("Modes:", harness.listModes().map((m) => m.id).join(", "));
 console.log("Current mode:", session.mode.get());

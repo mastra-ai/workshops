@@ -25,8 +25,7 @@ Each demo loads `.env` automatically (via `tsx --env-file=.env`).
 | --- | --- | --- |
 | `basic.ts` | Orchestrator agent delegating to `researcher` + `poet` subagents, logging every harness event | `npm run basic` |
 | `mc.ts` | Wiring **MCP** filesystem tools into the harness so the agent can read the project | `npm run mc` |
-| `basic-tui.ts` | The orchestrator demo inside the interactive **`MastraTUI`** | `npm run basic-tui` |
-| `tui.ts` | A workshop-style coding assistant (build/plan modes + subagents) in the TUI | `npm run tui` |
+| `basic-tui.ts` | The orchestrator demo inside a minimal interactive terminal UI | `npm run basic-tui` |
 | `server.ts` | The harness hosted behind an HTTP server with a polished **web chat UI** | `npm run server` |
 
 ### `basic.ts` — one-shot orchestrator
@@ -47,15 +46,15 @@ npm run mc
 
 > First run downloads the MCP server via `npx -y`.
 
-### `basic-tui.ts` & `tui.ts` — interactive TUI
+### `basic-tui.ts` — interactive TUI
 
-Launch the orchestrator (`basic-tui.ts`) or the build/plan coding assistant (`tui.ts`) inside `MastraTUI`. Type to chat; the subagent activity and tool calls render inline.
+Launch the orchestrator inside a minimal readline-based terminal UI (`simple-tui.ts`). The model is taken from the agent/harness config, so there is no login or model-selection step. Type to chat; subagent activity and tool calls render inline.
 
 ```bash
 npm run basic-tui
-# or
-npm run tui
 ```
+
+Commands inside the TUI: `/mode <id>` switches the session mode (e.g. `/mode plan`), `/exit` quits.
 
 ### `server.ts` — web chat UI
 

@@ -15,9 +15,15 @@ const agent = new Agent({
     instructions: `You are an orchestrator agent. You have access to specialized subagents.
 Use the "researcher" subagent to look up factual information.
 Use the "poet" subagent to create creative writing.
-Delegate each part of the task to the appropriate subagent exactly once.
-Once you have the results you need, present the final answer to the user directly and stop — do not re-delegate or repeat work that is already done.`,
-    model: "anthropic/claude-haiku-4-5",
+
+Rules:
+- Delegate each part of the task to the appropriate subagent exactly once.
+- A subagent's result is final. Never call the same subagent twice for the same piece of work, and never call it again to "improve" or "retry" a result you already have.
+- As soon as you have the results you need, write the final answer directly to the user and stop. Do not delegate again after that.`,
+    model: "anthropic/claude-sonnet-4-5",
+    // Hard guardrail: cap the orchestrator loop so a runaway delegation loop
+    // can't spin forever. A normal task is research -> poet -> answer.
+    defaultOptions: { maxSteps: 6 },
 });
 
 const harness = new Harness({
@@ -29,7 +35,6 @@ const harness = new Harness({
         options: {
             observationalMemory: true,
         },
-        storage,
     }),
     subagents: [
         {
@@ -56,6 +61,10 @@ const harness = new Harness({
 // the Session — the Harness only manufactures sessions.
 await harness.init();
 const session = await harness.createSession();
+
+// Start a fresh thread each run so the demo always works from scratch
+// instead of resuming the persisted conversation (and answering from memory).
+await session.thread.create();
 
 session.subscribe(logEvent);
 

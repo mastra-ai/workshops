@@ -2,7 +2,7 @@ import { Agent } from "@mastra/core/agent";
 import { Harness } from "@mastra/core/harness";
 import { Memory } from "@mastra/memory";
 import { LibSQLStore } from "@mastra/libsql";
-import { MastraTUI } from "mastracode/tui";
+import { SimpleTUI } from "./simple-tui.js";
 
 const storage = new LibSQLStore({
   id: "basic-store",
@@ -15,8 +15,15 @@ const agent = new Agent({
   instructions: `You are an orchestrator agent. You have access to specialized subagents.
 Use the "researcher" subagent to look up factual information.
 Use the "poet" subagent to create creative writing.
-Always delegate to the appropriate subagent rather than answering directly.`,
-  model: "anthropic/claude-haiku-4-5",
+
+Rules:
+- Delegate each part of the task to the appropriate subagent exactly once.
+- A subagent's result is final. Never call the same subagent twice for the same piece of work, and never call it again to "improve" or "retry" a result you already have.
+- As soon as you have the results you need, write the final answer directly to the user and stop. Do not delegate again after that.`,
+  model: "anthropic/claude-sonnet-4-5",
+  // Hard guardrail: cap the orchestrator loop so a runaway delegation loop
+  // can't spin forever. A normal task is research -> poet -> answer.
+  defaultOptions: { maxSteps: 6 },
 });
 
 const harness = new Harness({
@@ -24,7 +31,7 @@ const harness = new Harness({
   agent,
   modes: [{ id: "chat", name: "Chat", default: true }],
   storage,
-  memory: new Memory({ storage }),
+  memory: new Memory(),
   omConfig: {
     defaultObservationThreshold: 40_000,
     defaultReflectionThreshold: 40_000,
@@ -53,11 +60,12 @@ const harness = new Harness({
 await harness.init();
 const session = await harness.createSession();
 
-const tui = new MastraTUI({
+const tui = new SimpleTUI({
   harness,
   session,
   appName: "Basic Harness TUI",
-  verbose: true,
+  grantTools: ["subagent"],
+  freshThread: true,
 });
 
 await tui.run();
