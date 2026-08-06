@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
 import preAiSoftwareLoop from './assets/pre-ai-software-loop.png';
 import softwareFactoryDiagram from './assets/software-factory.png';
-import shaneAvatar from './assets/shane-avatar.jpg';
+import abhiAvatar from './assets/abhi-avatar.jpg';
 import alexAvatar from './assets/alex-avatar.jpg';
 
 export const design: DesignSystem = {
@@ -46,7 +46,7 @@ const font = {
   mono: 'Geist Mono, JetBrains Mono, ui-monospace, Menlo, Monaco, Consolas, monospace',
 };
 
-const TOTAL = 24;
+const TOTAL = 27;
 
 const fill: CSSProperties = {
   width: '100%',
@@ -210,6 +210,35 @@ const Card = ({
     </div>
     <div style={{ marginTop: 18, fontSize: 34, lineHeight: 1.12, fontWeight: 850, color: palette.text }}>{title}</div>
     <div style={{ marginTop: 18, fontSize: 24, lineHeight: 1.36, color: palette.textSoft }}>{children}</div>
+  </div>
+);
+
+const FactoryNote = ({ children, accent = palette.accent }: { children: ReactNode; accent?: string }) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16,
+      borderRadius: 14,
+      border: `1px solid ${accent}44`,
+      background: `linear-gradient(120deg, ${accent}12 0%, ${palette.surface} 72%)`,
+      padding: '18px 24px',
+    }}
+  >
+    <span
+      style={{
+        flexShrink: 0,
+        fontFamily: font.mono,
+        fontSize: 15,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        color: accent,
+        fontWeight: 750,
+      }}
+    >
+      In Mastra Factory
+    </span>
+    <span style={{ fontSize: 22, lineHeight: 1.32, color: palette.textSoft }}>{children}</span>
   </div>
 );
 
@@ -495,7 +524,7 @@ const Cover: Page = () => (
         A practical maturity model for automating SDLC loops with agents, workflows, gates, context, and human operators.
       </p>
       <div style={{ display: 'flex', gap: 64, marginTop: 58, marginBottom: 52 }}>
-        <PersonCard avatar={shaneAvatar} name="Shane Thomas" role="CPO & Founder, Mastra" accent={palette.green} />
+        <PersonCard avatar={abhiAvatar} name="Abhi Aiyer" role="CTO & Founder, Mastra" accent={palette.green} />
         <PersonCard avatar={alexAvatar} name="Alex Booker" role="Head of DX, Mastra" accent={palette.blue} />
       </div>
       <div style={{ display: 'flex', gap: 28, fontFamily: font.mono, fontSize: 20 }}>
@@ -692,6 +721,11 @@ const ExternalTriggers: Page = () => (
         Operators still see the run, but they are not always the person who starts it.
       </Card>
     </div>
+    <div style={{ marginTop: 26 }}>
+      <FactoryNote accent={palette.blue}>
+        GitHub and Linear intake are the real wake-up: an opened issue or PR becomes a linked work item on a board.
+      </FactoryNote>
+    </div>
   </Stage>
 );
 
@@ -788,6 +822,11 @@ const HumanGates: Page = () => (
         Keep gates for ambiguous or risky work. Relax them for simple repeatable lanes.
       </Card>
     </div>
+    <div style={{ marginTop: 26 }}>
+      <FactoryNote accent={palette.green}>
+        Gates are governed board transitions — a work item only moves planning → execute once its plan is approved.
+      </FactoryNote>
+    </div>
   </Stage>
 );
 
@@ -798,6 +837,11 @@ const RiskRouter: Page = () => (
     <Subtitle>Every factory needs a router that separates safe automation lanes from ambiguous work that must stop for humans.</Subtitle>
     <div style={{ marginTop: 44 }}>
       <RiskMatrix />
+    </div>
+    <div style={{ marginTop: 26 }}>
+      <FactoryNote accent={palette.amber}>
+        A typed rules engine is the router: leaves decide per event and actor — a trusted GitHub actor lands in triage, everything else in intake.
+      </FactoryNote>
     </div>
   </Stage>
 );
@@ -829,6 +873,11 @@ const AgentsInPlanning: Page = () => (
       <Card label="Test strategist" title="Plans proof" accent={palette.amber}>Defines unit, integration, browser, and regression checks before coding.</Card>
       <Card label="Human" title="Aligns intent" accent={palette.green}>Approves the plan or redirects before compute turns into code.</Card>
     </div>
+    <div style={{ marginTop: 30 }}>
+      <FactoryNote accent={palette.purple}>
+        The <Code color={palette.purple}>factory-plan</Code> skill runs this: verify understanding, write a phased plan, then transition the item to execute.
+      </FactoryNote>
+    </div>
   </Stage>
 );
 
@@ -847,6 +896,11 @@ const PrReconciliation: Page = () => (
       <FlowNode label="Reconciler" detail="Deduplicate, rank, assign owners" accent={palette.green} style={{ flex: 0.9 }} />
       <Arrow label="short list" />
       <FlowNode label="Human reviewer" detail="Decides the final tradeoff" accent={palette.blue} style={{ flex: 0.9 }} />
+    </div>
+    <div style={{ marginTop: 34 }}>
+      <FactoryNote accent={palette.green}>
+        The <Code color={palette.green}>factory-review</Code> skill is the reconciler: it weighs history and quality, then publishes one verdict on the PR.
+      </FactoryNote>
     </div>
   </Stage>
 );
@@ -930,32 +984,117 @@ const MastraMap: Page = () => (
     <Eyebrow>How this maps to Mastra</Eyebrow>
     <Title>Mastra gives each factory part a job.</Title>
     <PrimitiveMap />
+    <div style={{ marginTop: 24 }}>
+      <FactoryNote accent={palette.accent}>
+        Factory wires these together: skills are the workers, boards are the assembly lines, the dispatcher is the supervisor, and rules plus intake are the signals.
+      </FactoryNote>
+    </div>
   </Stage>
 );
 
-const MastraBlueprints: Page = () => (
-  <Stage index={22} padding="0 140px" glow={palette.blue}>
-    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <h1
-        style={{
-          fontFamily: font.display,
-          fontSize: 154,
-          fontWeight: 950,
-          lineHeight: 0.95,
-          letterSpacing: '-0.055em',
-          margin: 0,
-          color: palette.text,
-          textAlign: 'center',
-        }}
-      >
-        Mastra <span style={{ color: palette.accent }}>Blueprints</span>
-      </h1>
+const FactoryReveal: Page = () => (
+  <Stage index={22} padding="0 120px" glow={palette.green}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <Eyebrow>Mastra Factory</Eyebrow>
+      <Title size={92} maxWidth={1580}>
+        These ideas already ship as <span style={{ color: palette.accent }}>Mastra Factory</span>.
+      </Title>
+      <Subtitle maxWidth={1440}>
+        An agent-powered software factory: work enters, moves through governed stages, and leaves as reviewed PRs — on two independent boards.
+      </Subtitle>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 54 }}>
+        <div>
+          <div style={{ fontFamily: font.mono, fontSize: 16, letterSpacing: '0.16em', textTransform: 'uppercase', color: palette.blue, marginBottom: 16 }}>Work board</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <FlowNode label="Intake" accent={palette.blue} style={{ flex: 1, minWidth: 120 }} />
+            <Arrow />
+            <FlowNode label="Triage" accent={palette.purple} style={{ flex: 1, minWidth: 120 }} />
+            <Arrow />
+            <FlowNode label="Planning" accent={palette.amber} style={{ flex: 1, minWidth: 120 }} />
+            <Arrow />
+            <FlowNode label="Execute" accent={palette.rose} style={{ flex: 1, minWidth: 120 }} />
+            <Arrow />
+            <FlowNode label="Done" accent={palette.green} style={{ flex: 1, minWidth: 120 }} />
+          </div>
+        </div>
+        <div>
+          <div style={{ fontFamily: font.mono, fontSize: 16, letterSpacing: '0.16em', textTransform: 'uppercase', color: palette.rose, marginBottom: 16 }}>Review board</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <FlowNode label="Review" detail="PR verdict published" accent={palette.rose} style={{ flex: 1 }} />
+            <Arrow />
+            <FlowNode label="Done" detail="Merge stays human" accent={palette.green} style={{ flex: 1 }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </Stage>
+);
+
+const FactoryRules: Page = () => (
+  <Stage index={23} glow={palette.amber}>
+    <Eyebrow>The control plane</Eyebrow>
+    <Title>Rules turn events into governed decisions.</Title>
+    <Subtitle>Typed rules map every board, tool, GitHub, and Linear event to a decision. Effects are deferred, then executed by a dispatcher that leases, retries, and never double-applies.</Subtitle>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 46 }}>
+      <FlowNode label="Event" detail="Issue, PR, tool result, stage" accent={palette.blue} style={{ flex: 1 }} />
+      <Arrow />
+      <FlowNode label="Typed decision" detail="Transition, invoke skill, notify" accent={palette.amber} style={{ flex: 1 }} />
+      <Arrow />
+      <FlowNode label="Deferred dispatch" detail="Leased, retried, idempotent" accent={palette.purple} style={{ flex: 1 }} />
+      <Arrow />
+      <FlowNode label="Skill or move" detail="Work advances one step" accent={palette.green} style={{ flex: 1 }} />
+    </div>
+    <div style={{ marginTop: 40 }}>
+      <CodePanel label="A rule leaf" accent={palette.amber}>{`onEvent: pullRequestOpened →
+  trusted actor?  upsert work item on review board, stage "review"
+  otherwise       upsert work item, stage "intake"`}</CodePanel>
+    </div>
+  </Stage>
+);
+
+const FactorySkills: Page = () => (
+  <Stage index={24} glow={palette.purple}>
+    <Eyebrow>Autonomous runbooks</Eyebrow>
+    <Title>Four skills do the factory work.</Title>
+    <Subtitle>Each runs in one pass, records its reasoning as it goes, and ends with a single governed transition — never waiting on a human mid-run.</Subtitle>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 48 }}>
+      <Card label="factory-triage" title="Trace, don't guess" accent={palette.blue}>
+        Traces code history, diagnoses root cause, posts a handoff, then transitions to planning or done.
+      </Card>
+      <Card label="factory-plan" title="Verify, then plan" accent={palette.amber}>
+        Confirms understanding, writes a phased plan with risks, then transitions to execute.
+      </Card>
+      <Card label="factory-review" title="History before opinions" accent={palette.green}>
+        Weighs history and quality, publishes one verdict on the PR, then transitions to done.
+      </Card>
+      <Card label="configure-factory-rules" title="Typed, not clever" accent={palette.purple}>
+        Edits typed rules in deployment code, preserves public shape, and verifies with tests.
+      </Card>
+    </div>
+  </Stage>
+);
+
+const FactorySafety: Page = () => (
+  <Stage index={25} glow={palette.rose}>
+    <Eyebrow>Keep humans in control</Eyebrow>
+    <Title>Autonomy is bounded by design.</Title>
+    <Subtitle>The factory runs agents hard, but the guardrails are structural — isolation, idempotency, and a human-owned finish line.</Subtitle>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, marginTop: 54 }}>
+      <Card label="Isolation" title="Per-project sandboxes" accent={palette.cyan}>
+        Every session runs in a cloned VM the fleet provisions, reattaches, and tears down under a budget — never on the web host.
+      </Card>
+      <Card label="Idempotency" title="A replay-safe ledger" accent={palette.blue}>
+        Decisions are hashed and committed once; a retried or replayed event advances the same work item to the same place.
+      </Card>
+      <Card label="Human finish" title="A merge never auto-completes" accent={palette.green}>
+        A merged PR nudges a person or agent to confirm the work is done — it does not silently close the item.
+      </Card>
     </div>
   </Stage>
 );
 
 const NextSteps: Page = () => (
-  <Stage index={23}>
+  <Stage index={26}>
     <Eyebrow>Next steps</Eyebrow>
     <Title>Already using coding agents? Make the lane trustworthy.</Title>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 22, marginTop: 54 }}>
@@ -1000,7 +1139,7 @@ const LinkTile = ({ label, href, accent }: { label: string; href: string; accent
 );
 
 const Closing: Page = () => (
-  <Stage index={24} padding="0 120px" section="MASTRA WORKSHOP" glow={palette.green}>
+  <Stage index={27} padding="0 120px" section="MASTRA WORKSHOP" glow={palette.green}>
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <Eyebrow>Closing</Eyebrow>
       <h1
@@ -1019,7 +1158,7 @@ const Closing: Page = () => (
       </h1>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginTop: 34 }}>
         <LinkTile label="Mastra" href="@mastra" accent={palette.green} />
-        <LinkTile label="Shane" href="@smthomas3" accent={palette.blue} />
+        <LinkTile label="Abhi" href="@abhiaiyer" accent={palette.blue} />
         <LinkTile label="Alex" href="@bookercodes" accent={palette.purple} />
         <LinkTile label="YouTube" href="youtube.com/@mastra-ai" accent={palette.rose} />
         <LinkTile label="Careers" href="mastra.ai/careers" accent={palette.amber} />
@@ -1035,7 +1174,7 @@ export const meta: SlideMeta = {
 };
 
 export const notes: (string | undefined)[] = [
-  `Open by naming the ambition plainly: people are asking how to build a software factory or automate SDLC. This workshop is not about pretending humans disappear. It is about moving humans from repetitive factory-line work into operator roles where they set goals, approve risky decisions, and stop the line when something looks wrong. Introduce Shane first as CPO and Founder, then Alex as Head of DX, matching the workshop cover pattern.`,
+  `Open by naming the ambition plainly: people are asking how to build a software factory or automate SDLC. This workshop is not about pretending humans disappear. It is about moving humans from repetitive factory-line work into operator roles where they set goals, approve risky decisions, and stop the line when something looks wrong. Introduce Abhi first as CTO and Founder, then Alex as Head of DX, matching the workshop cover pattern.`,
   `Set the frame for the whole session. A software factory is not binary. Most teams start by making code generation faster, then discover review and quality become the bottleneck. The maturity path is to add gates, context, telemetry, and risk routing before increasing autonomy. Transition into the pre-AI factory so the audience sees this is an extension of their existing process, not a brand-new religion.`,
   `Walk the loop slowly using the supplied diagram: customer feedback, trends, team insights, issues, Slack, and monitoring all become work. Then trace the human SDLC lane from triage to planning to code to review to merge. Emphasize the inner review loop and the outer feedback loop back into monitoring and customers.`,
   `Define terms defensively. Software factory and automating SDLC both mean controlled loops, gates, and feedback systems. Code generation alone is not a factory. A factory has visible flow, checkpoints, and records. The talk is about deciding which parts of that loop are safe to automate and which parts still require human judgment.`,
@@ -1056,9 +1195,12 @@ export const notes: (string | undefined)[] = [
   `Tie this to council and supervisor patterns. Agents can collaborate, deliberate, or compete. Security, product, tests, operations, and maintainability specialists can check the same proposal independently, then a synthesizer turns disagreement into a decision record. The value is structured dissent before production.`,
   `Use the complex factory diagram to zoom out. The advanced pattern is not one agent doing everything; it is a network of intake sources, routers, planning loops, implementation lanes, review systems, monitoring, and human gates. Point out that the same control ideas repeat at every scale.`,
   `Map the story into Mastra primitives. Agents are the workers. Workflows are the assembly lines. AgentControllers are the floor supervisor: they assign the right worker, watch status, and pause or halt the line. Agent Signals are the factory communication lines between agents, controllers, humans, and outside systems; webhooks can wake the factory up. Tools and MCP give agents hands and sensors. Observability captures state, traces, metrics, decisions, scores, and regression evidence. Keep this conceptual unless showing current docs.`,
-  `Use this as a placeholder transition into the live demo and supporting diagrams. Say that the concrete Mastra implementation lives in the blueprints and examples rather than overloading the workshop deck with API details.`,
+  `Reveal Mastra Factory as the concrete payoff of everything so far. It is an agent-powered software factory built on Mastra: work enters, moves through governed stages, and leaves as reviewed PRs. Emphasize the two independent boards — the work board runs intake, triage, planning, execute, done; the review board runs review then done. This is the same loop-gate-record shape from the opening, now shipping as a product.`,
+  `Explain the control plane. A typed rules engine maps every board, tool, GitHub, and Linear event to a decision: transition an item, upsert a linked work item, invoke a skill, send a message, or notify. Crucially, effects are deferred — a dispatcher polls, leases work, retries with backoff, and commits each decision once against an idempotent, replay-safe ledger. Use the rule-leaf example: an opened PR from a trusted actor lands on the review board; an untrusted one stops in intake. This is the risk router made concrete.`,
+  `Introduce the four autonomous skills as the workers. factory-triage traces history and diagnoses root cause before handing off. factory-plan verifies understanding then writes a phased plan. factory-review weighs history and quality then publishes one verdict on the PR. configure-factory-rules edits the typed rules safely. Stress the shared discipline: each runs in one pass, records reasoning as assumptions, and ends with a single governed transition — never pausing for human input mid-run.`,
+  `Land the human-control message with structural guardrails. Every session runs in an isolated per-project sandbox — a cloned VM the fleet provisions, reattaches, and tears down under a budget, never on the web host. Decisions are hashed and idempotent, so replays are safe. And the finish line stays human: a merged PR nudges a person or agent to confirm completion rather than silently closing the item. Autonomy is high, but bounded by design.`,
   `Close the instructional arc with tangible next steps for teams already using coding agents. They should map one lane, add plan gates, define pre-PR proof, wire context, route by risk, and measure trust. The point is practical operating discipline, not a calendar-based transformation plan.`,
-  `End with the links and the core message: build the factory, but keep humans in control. Invite people to follow Mastra, Shane, and Alex, watch the Mastra YouTube channel, check careers, or reach out through the contact page.`,
+  `End with the links and the core message: build the factory, but keep humans in control. Invite people to follow Mastra, Abhi, and Alex, watch the Mastra YouTube channel, check careers, or reach out through the contact page.`,
 ];
 
 export default [
@@ -1083,7 +1225,10 @@ export default [
   AgentsCheckingAgents,
   ComplexFactory,
   MastraMap,
-  MastraBlueprints,
+  FactoryReveal,
+  FactoryRules,
+  FactorySkills,
+  FactorySafety,
   NextSteps,
   Closing,
 ] satisfies Page[];
