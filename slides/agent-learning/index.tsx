@@ -571,6 +571,38 @@ const StageLabel = ({ children, accent = false }: { children: React.ReactNode; a
   </div>
 );
 
+// Sits under a stage label to mark where the pain actually starts.
+const StageNote = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <div
+      style={{
+        position: 'absolute',
+        bottom: -134,
+        left: '50%',
+        width: 1,
+        height: 26,
+        background: 'linear-gradient(#3a3654, #6b62b8)',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        bottom: -186,
+        left: -70,
+        right: -70,
+        textAlign: 'center',
+        fontFamily: font.mono,
+        fontSize: 25,
+        lineHeight: 1.3,
+        letterSpacing: '0.03em',
+        color: '#a99df8',
+      }}
+    >
+      {children}
+    </div>
+  </>
+);
+
 const stageColumn = {
   position: 'relative' as const,
   height: 420,
@@ -637,6 +669,7 @@ const Scale: Page = () => (
       <div style={{ ...stageColumn, width: 240 }}>
         <TraceStack layers={10} />
         <StageLabel>1,000 traces</StageLabel>
+        <StageNote>Already too many to read</StageNote>
       </div>
 
       <Arrow />
@@ -1455,12 +1488,12 @@ const Themes: Page = () => (
 );
 
 // ────────────────────────────────────────────────────────────────────────────
-// Living model page — themes drift, split, and emerge over time
+// Living model page — themes swell, fade, and emerge over time
 
 const CX0 = 470;
 const CX1 = 1744;
-const ROW_TOP = 372;
-const ROW_GAP = 130;
+const ROW_TOP = 396;
+const ROW_GAP = 138;
 
 const shieldIcon = (
   <>
@@ -1469,14 +1502,13 @@ const shieldIcon = (
   </>
 );
 
+// Band height is the only variable — it reads as share of traces. Nothing
+// drifts vertically, so there is no second encoding to misread.
 type Stream = {
   title: string;
   color: string;
   icon: React.ReactNode;
   width: number[];
-  center: number[];
-  trails: number[];
-  fork?: { from: number; width: number[]; center: number[] };
 };
 
 const STREAMS: Stream[] = [
@@ -1484,46 +1516,31 @@ const STREAMS: Stream[] = [
     title: 'Password Reset',
     color: palette.green,
     icon: themeIcons.user,
-    width: [1, 0.92, 0.48, 0.3, 0.22, 0.18, 0.14],
-    center: [0, 5, 14, 8, 2, 8, 4],
-    trails: [0],
+    width: [1, 0.96, 0.82, 0.58, 0.4, 0.3, 0.24],
   },
   {
     title: 'Billing',
     color: '#e8b339',
     icon: themeIcons.billing,
-    width: [0.9, 1, 0.6, 0.4, 0.42, 0.3, 0.24],
-    center: [0, -3, 8, 14, 5, 10, 5],
-    trails: [0],
+    width: [0.38, 0.5, 0.72, 0.88, 0.8, 0.62, 0.54],
   },
   {
     title: 'Report Generation',
     color: '#8b7ff5',
     icon: themeIcons.report,
-    width: [0.74, 0.84, 0.22, 0.08, 0.2, 0.16, 0.12],
-    center: [0, 8, 22, 12, -2, 1, -2],
-    trails: [0],
+    width: [0.76, 0.66, 0.46, 0.28, 0.16, 0.09, 0.05],
   },
   {
     title: 'MCP\nAuthentication',
     color: palette.blue,
     icon: shieldIcon,
-    width: [0.04, 0.3, 0.44, 0.5, 0.56, 0.5, 0.3],
-    center: [-30, -16, -4, 4, 2, 6, 12],
-    trails: [-30, 16],
-    fork: {
-      from: 0.66,
-      width: [0.05, 0.4, 0.75, 1],
-      center: [4, -6, -20, -30],
-    },
+    width: [0, 0, 0.08, 0.34, 0.66, 0.9, 1],
   },
   {
     title: 'Other',
     color: '#9a9aa8',
     icon: themeIcons.other,
-    width: [0.46, 0.6, 0.4, 0.56, 0.4, 0.5, 0.36],
-    center: [0, -8, 6, -6, 8, -3, 3],
-    trails: [-24, 22],
+    width: [0.46, 0.56, 0.44, 0.6, 0.46, 0.58, 0.5],
   },
 ];
 
@@ -1536,25 +1553,17 @@ const sampleKf = (kf: number[], t: number) => {
   return kf[i] * (1 - s) + kf[i + 1] * s;
 };
 
-const ribbon = (
-  widthKf: number[],
-  centerKf: number[],
-  rowY: number,
-  tFrom = 0,
-  maxHalf = 38,
-) => {
+const ribbon = (widthKf: number[], rowY: number, maxHalf = 48) => {
   const N = 90;
   const top: string[] = [];
   const bottom: string[] = [];
 
   for (let j = 0; j < N; j++) {
-    const local = j / (N - 1);
-    const t = tFrom + (1 - tFrom) * local;
+    const t = j / (N - 1);
     const x = CX0 + (CX1 - CX0) * t;
-    const cy = rowY + sampleKf(centerKf, local);
-    const half = Math.max(0.6, sampleKf(widthKf, local) * maxHalf);
-    top.push(`${x} ${cy - half}`);
-    bottom.push(`${x} ${cy + half}`);
+    const half = sampleKf(widthKf, t) * maxHalf;
+    top.push(`${x} ${rowY - half}`);
+    bottom.push(`${x} ${rowY + half}`);
   }
 
   return {
@@ -1625,7 +1634,17 @@ const MathBadge = () => (
   </div>
 );
 
-const StepLabel = ({ x, y, children }: { x: number; y: number; children: React.ReactNode }) => (
+const StepLabel = ({
+  x,
+  y,
+  note,
+  children,
+}: {
+  x: number;
+  y: number;
+  note?: string;
+  children: React.ReactNode;
+}) => (
   <div
     style={{
       position: 'absolute',
@@ -1642,6 +1661,19 @@ const StepLabel = ({ x, y, children }: { x: number; y: number; children: React.R
     }}
   >
     {children}
+    {note ? (
+      <div
+        style={{
+          marginTop: 8,
+          fontSize: 18,
+          letterSpacing: '0.04em',
+          textTransform: 'none',
+          color: palette.dim,
+        }}
+      >
+        {note}
+      </div>
+    ) : null}
   </div>
 );
 
@@ -1657,7 +1689,7 @@ const rng = (s: number) => {
 
 const THEME_COLORS = [palette.green, '#e8b339', palette.blue];
 
-// Three clusters in a shared 2-D coordinate space, reused across both math pages
+// Three clusters in a shared drawing space, reused across both math pages
 // so the second page reads as the first one extended through time.
 const CLUSTERS = [
   { cx: 0.3, cy: 0.34, r: 0.15 },
@@ -1830,8 +1862,8 @@ const ThemeMath: Page = () => {
       <StepLabel x={855} y={488}>
         project
       </StepLabel>
-      <StepLabel x={1165} y={782}>
-        2-D coordinates
+      <StepLabel x={1165} y={782} note="drawn here in two">
+        5-D coordinates
       </StepLabel>
       <StepLabel x={1427} y={488}>
         cluster
@@ -2052,7 +2084,7 @@ const ThemeAlignment: Page = () => (
         color: palette.textSoft,
       }}
     >
-      Same coordinates every time — so{' '}
+      The same coordinate space every time — so{' '}
       <span style={{ color: 'var(--osd-accent)' }}>change is real, not an artifact.</span>
     </div>
   </div>
@@ -2092,41 +2124,42 @@ const LivingModel: Page = () => (
       <defs>
         {STREAMS.map((stream, i) => (
           <linearGradient key={stream.title} id={`stream-${i}`} x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor={stream.color} stopOpacity={0.68} />
-            <stop offset="55%" stopColor={stream.color} stopOpacity={0.5} />
-            <stop offset="100%" stopColor={stream.color} stopOpacity={0.42} />
+            <stop offset="0%" stopColor={stream.color} stopOpacity={0.34} />
+            <stop offset="55%" stopColor={stream.color} stopOpacity={0.6} />
+            <stop offset="100%" stopColor={stream.color} stopOpacity={0.82} />
           </linearGradient>
         ))}
       </defs>
 
+      {[0, 1, 2, 3, 4, 5].map((i) => {
+        const x = CX0 + (CX1 - CX0) * (0.05 + i * 0.185);
+        return (
+          <path
+            key={i}
+            d={`M ${x} 344 V ${ROW_TOP + 4 * ROW_GAP + 66}`}
+            stroke="#1c1c28"
+            strokeWidth={1.4}
+          />
+        );
+      })}
+
       {STREAMS.map((stream, i) => {
         const rowY = ROW_TOP + i * ROW_GAP;
-        const { area, edge } = ribbon(stream.width, stream.center, rowY);
-        const fork = stream.fork
-          ? ribbon(stream.fork.width, stream.fork.center, rowY, stream.fork.from, 22)
-          : null;
+        const { area, edge } = ribbon(stream.width, rowY);
         return (
           <g key={stream.title}>
             <path d={area} fill={`url(#stream-${i})`} />
-            <path d={edge} fill="none" stroke={stream.color} strokeWidth={1.6} opacity={0.8} />
-            {fork && (
-              <>
-                <path d={fork.area} fill={`url(#stream-${i})`} />
-                <path d={fork.edge} fill="none" stroke={stream.color} strokeWidth={1.6} opacity={0.8} />
-              </>
-            )}
-            {stream.trails.flatMap((offset) =>
-              Array.from({ length: 5 }, (_, k) => (
-                <circle
-                  key={`${offset}-${k}`}
-                  cx={CX1 + 26 + k * 26}
-                  cy={rowY + offset + sampleKf(stream.center, 1)}
-                  r={3.4}
-                  fill={stream.color}
-                  opacity={0.9 - k * 0.13}
-                />
-              )),
-            )}
+            <path d={edge} fill="none" stroke={stream.color} strokeWidth={2} opacity={0.95} />
+            {Array.from({ length: 5 }, (_, k) => (
+              <circle
+                key={k}
+                cx={CX1 + 26 + k * 26}
+                cy={rowY}
+                r={3.4}
+                fill={stream.color}
+                opacity={0.9 - k * 0.13}
+              />
+            ))}
           </g>
         );
       })}
@@ -2162,6 +2195,22 @@ const LivingModel: Page = () => (
         <div style={{ fontSize: 32, lineHeight: 1.18, whiteSpace: 'pre-line' }}>{stream.title}</div>
       </div>
     ))}
+
+    <div
+      style={{
+        position: 'absolute',
+        top: 200,
+        right: 176,
+        fontFamily: font.mono,
+        fontSize: 22,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: palette.muted,
+      }}
+    >
+      Band height = share of traces
+    </div>
+
   </div>
 );
 
@@ -5000,6 +5049,7 @@ const Understanding: Page = () => (
     </div>
   </div>
 );
+
 
 export const transition: SlideTransition = {
   duration: 200,
