@@ -1,29 +1,23 @@
 import { Mastra } from '@mastra/core/mastra';
-import { createTool } from '@mastra/core/tools';
 import { LibSQLStore } from '@mastra/libsql';
 import { PinoLogger } from '@mastra/loggers';
-import { z } from 'zod';
 
-// The only code-defined component in this project. Everything else —
-// the workflows — is created at runtime over HTTP as JSON.
-const greetingTool = createTool({
-  id: 'create-greeting',
-  description: 'Create a greeting for a name',
-  inputSchema: z.object({ name: z.string() }),
-  outputSchema: z.object({ message: z.string() }),
-  execute: async ({ name }) => ({ message: `Hello, ${name}!` }),
-});
+import { greetingTool, shoutTool } from './tools/greeting-tools';
+import { reverseTextTool, shoutTextTool, whisperTextTool, wordStatsTool } from './tools/text-tools';
 
-const shoutTool = createTool({
-  id: 'shout',
-  description: 'Uppercase a message',
-  inputSchema: z.object({ message: z.string() }),
-  outputSchema: z.object({ message: z.string() }),
-  execute: async ({ message }) => ({ message: `${message.toUpperCase()}!!!` }),
-});
-
+// The only code-defined components in this project are tools. There are
+// ZERO code-defined workflows — every workflow is created at runtime over
+// HTTP as JSON (see workflows/ and scripts/).
 export const mastra = new Mastra({
-  tools: { 'create-greeting': greetingTool, shout: shoutTool },
+  tools: {
+    // Dynamic workflow `tool` entries reference these keys via `toolId`.
+    'create-greeting': greetingTool,
+    shout: shoutTool,
+    'word-stats': wordStatsTool,
+    'shout-text': shoutTextTool,
+    'whisper-text': whisperTextTool,
+    'reverse-text': reverseTextTool,
+  },
   storage: new LibSQLStore({
     id: 'mastra-storage',
     // Dynamic workflow definitions persist here (workflowDefinitions domain),

@@ -1,12 +1,19 @@
 {
-  "name": "dynamic-workflows-workshop",
+  "name": "12-dynamic-workflows",
   "version": "1.0.0",
+  "private": true,
   "description": "Dynamic workflows workshop demo — workflow definitions as data",
   "scripts": {
     "dev": "mastra dev",
     "build": "mastra build",
-    "start": "mastra start",
-    "demo": "./demo/api-demo.sh"
+    "typecheck": "tsc --noEmit",
+    "demo:1": "tsx scripts/01-create-and-run.ts",
+    "demo:2": "tsx scripts/02-validation.ts",
+    "demo:3": "tsx scripts/03-live-update.ts",
+    "demo:4": "tsx scripts/04-parallel-remix.ts",
+    "demo:5": "tsx scripts/05-conditional-router.ts",
+    "demo:6": "tsx scripts/06-bulk-foreach.ts",
+    "demo:7": "tsx scripts/07-manage.ts"
   },
   "packageManager": "pnpm@10.27.0",
   "type": "module",
@@ -22,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^25.2.3",
     "mastra": "latest",
+    "tsx": "^4.19.0",
     "typescript": "^5.9.3"
   }
 }
