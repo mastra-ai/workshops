@@ -2843,6 +2843,206 @@ const BulletCard = ({
 );
 
 // ────────────────────────────────────────────────────────────────────────────
+// What is Mastra — context for a room that may not know us. Anchored on the
+// 140px margin of the opening slides rather than the PageHead grid, because it
+// belongs to the introduction, not to the argument.
+
+const MASTRA_PRIMITIVES = [
+  { title: 'Agents', lines: ['Models, tools,', 'and memory'] },
+  { title: 'Workflows', lines: ['Durable', 'control flow'] },
+  { title: 'Tools & MCP', lines: ['Typed calls out', 'to your systems'] },
+  { title: 'Memory', lines: ['Recall across', 'conversations'] },
+  { title: 'Observability', lines: ['Every run,', 'fully traced'] },
+];
+
+// 5 cards across the 1640px column: 5 × 304 + 4 × 30 = 1640.
+const MP = { x0: 140, step: 334, w: 304, y: 660, h: 190 };
+
+// @mastra/core, downloads per month, Aug 2025 → Jul 2026, in millions.
+const DOWNLOADS = [0.42, 0.7, 0.98, 1.0, 1.16, 1.4, 1.81, 2.28, 3.02, 3.98, 4.47, 5.38];
+
+// The plot sits in the right column, beside the headline rather than under it.
+const DL = { x0: 1006, x1: 1640, yBase: 512, yTop: 280, max: 5.6 };
+const dlX = (i: number) => DL.x0 + (i * (DL.x1 - DL.x0)) / (DOWNLOADS.length - 1);
+const dlY = (v: number) => DL.yBase - (v / DL.max) * (DL.yBase - DL.yTop);
+
+// Catmull-Rom through every month, so the shape is the data and not a guess.
+const smoothPath = (pts: [number, number][]) => {
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+};
+
+const DL_POINTS: [number, number][] = DOWNLOADS.map((v, i) => [dlX(i), dlY(v)]);
+const DL_LINE = smoothPath(DL_POINTS);
+const DL_AREA = `${DL_LINE} L ${DL.x1} ${DL.yBase} L ${DL.x0} ${DL.yBase} Z`;
+
+const DownloadCurve = () => (
+  <>
+    <div
+      style={{
+        position: 'absolute',
+        left: DL.x0,
+        top: 232,
+        fontFamily: font.mono,
+        fontSize: 21,
+        letterSpacing: '0.14em',
+        textTransform: 'uppercase',
+        color: palette.muted,
+      }}
+    >
+      @mastra/core · downloads per month
+    </div>
+
+    <svg width={1920} height={1080} viewBox="0 0 1920 1080" aria-hidden style={{ position: 'absolute', inset: 0 }}>
+      <defs>
+        <linearGradient id="dl-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={palette.accent} stopOpacity={0.3} />
+          <stop offset="100%" stopColor={palette.accent} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+
+      {[2, 4].map((v) => (
+        <line key={v} x1={DL.x0} x2={DL.x1} y1={dlY(v)} y2={dlY(v)} stroke="#1d1d29" strokeWidth={1} />
+      ))}
+      <line x1={DL.x0} x2={DL.x1} y1={DL.yBase} y2={DL.yBase} stroke="#262634" strokeWidth={1} />
+
+      <path d={DL_AREA} fill="url(#dl-fill)" />
+      <path d={DL_LINE} fill="none" stroke={palette.accent} strokeWidth={3} strokeLinecap="round" />
+
+      {DL_POINTS.slice(0, -1).map(([x, y]) => (
+        <circle key={x} cx={x} cy={y} r={3.5} fill="#0a0a0f" stroke={`${palette.accent}96`} strokeWidth={1.5} />
+      ))}
+      <circle cx={DL.x1} cy={dlY(5.38)} r={9} fill={palette.accent} opacity={0.22} />
+      <circle cx={DL.x1} cy={dlY(5.38)} r={5.5} fill={palette.accent} />
+    </svg>
+
+    <div style={{ position: 'absolute', left: DL.x1 + 22, top: dlY(5.38) - 46 }}>
+      <div
+        style={{
+          fontFamily: 'var(--osd-font-display)',
+          fontSize: 46,
+          fontWeight: 800,
+          lineHeight: 1,
+          letterSpacing: '-0.03em',
+          color: 'var(--osd-accent)',
+        }}
+      >
+        5.4M
+      </div>
+      <div style={{ fontFamily: font.mono, fontSize: 20, color: palette.muted, marginTop: 8 }}>
+        in July
+      </div>
+    </div>
+
+    <div
+      style={{
+        position: 'absolute',
+        left: DL.x0,
+        top: 524,
+        width: DL.x1 - DL.x0,
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontFamily: font.mono,
+        fontSize: 20,
+        color: palette.dim,
+      }}
+    >
+      <span>Aug 2025</span>
+      <span>Jul 2026</span>
+    </div>
+  </>
+);
+
+const WhatIsMastra: Page = () => (
+  <div style={fill}>
+    <PageNumber />
+
+    <div style={{ position: 'absolute', left: 140, top: 200 }}>
+      <Eyebrow>What is Mastra</Eyebrow>
+    </div>
+
+    <h1
+      style={{
+        position: 'absolute',
+        left: 140,
+        top: 248,
+        margin: 0,
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 88,
+        fontWeight: 800,
+        lineHeight: 1.06,
+        letterSpacing: '-0.035em',
+      }}
+    >
+      The TypeScript
+      <br />
+      framework for
+      <br />
+      AI agents.
+    </h1>
+
+    <div style={{ position: 'absolute', left: 140, top: 566, fontSize: 36, color: palette.textSoft }}>
+      The plumbing an agent needs in production.
+    </div>
+
+    <Backdrop cx={1330} cy={400} rx={520} ry={260} />
+    <DownloadCurve />
+
+    <Backdrop cx={960} cy={MP.y + MP.h / 2} rx={880} ry={250} />
+
+    {MASTRA_PRIMITIVES.map((primitive, i) => (
+      <FlowNode
+        key={primitive.title}
+        x={MP.x0 + i * MP.step}
+        y={MP.y}
+        w={MP.w}
+        h={MP.h}
+        title={primitive.title}
+        lines={primitive.lines}
+        tone={i === MASTRA_PRIMITIVES.length - 1 ? 'accent' : 'default'}
+        size={34}
+      />
+    ))}
+
+    <div
+      style={{
+        position: 'absolute',
+        left: 140,
+        top: 890,
+        display: 'flex',
+        gap: 22,
+        fontFamily: font.mono,
+        fontSize: 26,
+        letterSpacing: '0.08em',
+        color: palette.muted,
+      }}
+    >
+      <span>Open source</span>
+      <span style={{ color: palette.dim }}>·</span>
+      <span>
+        <span style={{ color: 'var(--osd-accent)' }}>27k</span> stars on GitHub
+      </span>
+    </div>
+
+    <Takeaway>
+      That last one is why I&apos;m here.{' '}
+      <span style={{ color: 'var(--osd-accent)' }}>Every agent already emits the data.</span>
+    </Takeaway>
+  </div>
+);
+
+// ────────────────────────────────────────────────────────────────────────────
 // Struggle — names the received wisdom, then shows the hole in it. This is the
 // question the whole deck answers, so it lands before the roadmap.
 
@@ -5169,6 +5369,7 @@ const ThankYou: Page = () => (
 export default [
   Title,
   AboutMe,
+  WhatIsMastra,
   TraceStory,
   Scale,
   Struggle,
