@@ -1,0 +1,27 @@
+{
+  "name": "dynamic-workflows-workshop",
+  "version": "1.0.0",
+  "description": "Dynamic workflows workshop demo — workflow definitions as data",
+  "scripts": {
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "start": "mastra start",
+    "demo": "./demo/api-demo.sh"
+  },
+  "packageManager": "pnpm@10.27.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@mastra/core": "latest",
+    "@mastra/libsql": "latest",
+    "@mastra/loggers": "latest",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "mastra": "latest",
+    "typescript": "^5.9.3"
+  }
+}
