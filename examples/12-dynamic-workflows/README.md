@@ -34,7 +34,7 @@ Each script prints the workflow JSON, the exact HTTP requests it makes, and the 
 
 | # | Command | Beat |
 |---|---------|------|
-| 1 | `pnpm demo:1` | **Create + run.** `POST /api/stored/workflows` with `greeting-workflow.json`, then `POST /api/workflows/greeting-workflow/start-async` → `Hello, Ada!` — no restart. |
+| 1 | `pnpm demo:1` | **Create + run.** `POST /api/stored/workflows` with `greeting-workflow.json`, then `POST /api/workflows/greeting-workflow/start-async` → `Hello, Brandon!` — no restart. |
 | 2 | `pnpm demo:2` | **Validation.** `broken-workflow.json` references a nonexistent tool → structured `missing-reference` issue; list proves nothing was persisted. |
 | 3 | `pnpm demo:3` | **Live update.** `greeting-workflow-v2.json` adds a `shout` step under the same id → output becomes `HELLO, ADA!!!!` instantly. |
 | 4 | `pnpm demo:4` | **Mapping.** `order-receipt.json` is a single mapping step — templates, constants, field picks. Pure data shaping, no tools, no LLM. |

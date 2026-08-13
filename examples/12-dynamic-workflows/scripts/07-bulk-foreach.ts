@@ -14,9 +14,9 @@ show(`HTTP ${saved.status}`, saved.json);
 
 banner('Run with four names (concurrency: 2)');
 const result = await run('bulk-greeter', [
+  { name: 'Brandon' },
+  { name: 'Nik' },
   { name: 'Ada' },
   { name: 'Grace' },
-  { name: 'Alan' },
-  { name: 'Edsger' },
 ]);
 show(`HTTP ${result.status}`, result.json);

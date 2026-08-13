@@ -15,9 +15,9 @@ const saved = await upsert(def);
 show(`HTTP ${saved.status}`, saved.json);
 
 banner('Run the root — it invokes the nested helper, then amplifies');
-const result = await run('fanfare-greeting', { name: 'Ada' });
+const result = await run('fanfare-greeting', { name: 'Brandon' });
 show(`HTTP ${result.status}`, result.json);
 
 banner('The helper is a real, individually runnable workflow too');
-const helper = await run('polite-greeting', { name: 'Grace' });
+const helper = await run('polite-greeting', { name: 'Nik' });
 show(`HTTP ${helper.status}`, helper.json);

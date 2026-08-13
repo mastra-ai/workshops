@@ -15,6 +15,6 @@ show(`HTTP ${saved.status}`, saved.json);
 
 banner('Run (watch the ~2s pause before the result lands)');
 const started = Date.now();
-const result = await run('delayed-greeting', { name: 'Ada' });
+const result = await run('delayed-greeting', { name: 'Brandon' });
 const elapsed = ((Date.now() - started) / 1000).toFixed(1);
 show(`HTTP ${result.status} after ${elapsed}s`, result.json);

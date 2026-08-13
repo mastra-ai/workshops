@@ -14,7 +14,7 @@ const saved = await upsert(def);
 show(`HTTP ${saved.status}`, saved.json);
 
 banner('Run it immediately — no restart');
-const result = await run('greeting-workflow', { name: 'Ada' });
+const result = await run('greeting-workflow', { name: 'Brandon' });
 show(`HTTP ${result.status}`, result.json);
 
 console.log('→ Open Studio: greeting-workflow now appears under Workflows.');
