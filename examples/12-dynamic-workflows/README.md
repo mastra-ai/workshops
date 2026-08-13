@@ -30,7 +30,9 @@ MASTRA_BASE_URL=http://localhost:4112/api pnpm demo:1
 
 ## Demo run-sheet
 
-Each script prints the workflow JSON, the exact HTTP requests it makes, and the responses. Run them in order (or cherry-pick — each is self-contained):
+Each script prints the workflow JSON, the exact HTTP requests it makes, and the responses. Each script's header comment states why that beat is in the demo. Run them in order (or cherry-pick — each is self-contained):
+
+The sequence is deliberate: **1–3** establish the lifecycle (create → validate → live-update), **4–10** walk through every graph entry type (mapping → parallel → conditional → foreach → loop → sleep → nested bundle), **11** completes CRUD and hands off to Mastra Code.
 
 | # | Command | Beat |
 |---|---------|------|
@@ -65,15 +67,15 @@ Kill and restart `pnpm dev`, then re-run any workflow (or just refresh Studio): 
 
 Writing this JSON by hand gets old fast. In Mastra Code (build mode), the `create-workflow` tool delegates to a workflow-builder agent that discovers registered agents/tools/workflows, composes a definition, and saves it through the same API.
 
-Prepared prompts, in ramping complexity (all five verified end-to-end):
+Prepared prompts, in ramping complexity (all five verified end-to-end). The ramp mirrors the API beats — deterministic → agent step → conditional → parallel → foreach — so the audience watches the agent reach for the same primitives you just demoed by hand:
 
-| # | Prompt | What it builds |
-|---|--------|----------------|
-| 1 | `build me a workflow that takes a file path, reads the file, and reports its word count` | mapping → `execute_command` tool step (`wc -w`) → mapping. Deterministic, no LLM in the loop. |
-| 2 | `build me a workflow that researches a topic and writes a summary` | single agent step doing live web research. |
-| 3 | `build me a workflow that triages a bug report: if it mentions a crash or data loss, write an urgent escalation note, otherwise a polite standard reply` | agent classify (structured output) → conditional with two helper workflows → step-array merge. |
-| 4 | `build me a workflow that takes meeting notes and produces both action items and an executive summary, then combines them into one report` | two agent steps with prompt mappings → combining mapping. |
-| 5 | `build me a workflow that summarizes every markdown file in a directory and combines the summaries into a single report` | `find` tool step → agent building `{prompt}` array → **foreach** over files (concurrency 3) → synthesis agent. |
+| # | Prompt | What it builds | Why it's here |
+|---|--------|----------------|---------------|
+| 1 | `build me a workflow that takes a file path, reads the file, and reports its word count` | mapping → `execute_command` tool step (`wc -w`) → mapping. Deterministic, no LLM in the loop. | The agent picks cheap deterministic steps when it can — "pay for the thinking once." |
+| 2 | `build me a workflow that researches a topic and writes a summary` | single agent step doing live web research. | LLM judgment *inside* the workflow, but the orchestration is fixed and replayable. |
+| 3 | `build me a workflow that triages a bug report: if it mentions a crash or data loss, write an urgent escalation note, otherwise a polite standard reply` | agent classify (structured output) → conditional with two helper workflows → step-array merge. | The agent authors predicates and a helper bundle on its own — the branch-merge pattern from beat 6, unprompted. |
+| 4 | `build me a workflow that takes meeting notes and produces both action items and an executive summary, then combines them into one report` | two agent steps with prompt mappings → combining mapping. | Multi-agent pipeline: one input fans into two analyses merged into one report. |
+| 5 | `build me a workflow that summarizes every markdown file in a directory and combines the summaries into a single report` | `find` tool step → agent building `{prompt}` array → **foreach** over files (concurrency 3) → synthesis agent. | The showpiece: a real map-reduce over files, composed entirely from chat. |
 
 Then in the TUI:
 
