@@ -1,6 +1,12 @@
 // Beat 6 — Conditional routing with the declarative predicate DSL.
-// No closures: predicates are JSON (eq/gt/in/and/or/...), aligned index-for-index
-// with the branch steps. A mapping with a step ARRAY merges whichever branch ran.
+//
+// What it shows: no closures — predicates are JSON (eq/gt/in/and/or/...),
+// aligned index-for-index with the branch steps. A mapping with a step ARRAY
+// merges whichever branch actually ran.
+//
+// Why it matters: routing logic as data means an end user, an agent, or a
+// visual editor can define "if urgent → escalate" rules without you shipping
+// code. This is the pattern behind user-configurable triage and routing.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

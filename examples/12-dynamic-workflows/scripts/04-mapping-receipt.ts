@@ -1,5 +1,12 @@
-// Beat 4 — Pure data shaping with a mapping step: templates, constants, field picks.
-// No tools, no LLM — the whole workflow is one mapping projection.
+// Beat 4 — Pure data shaping with a mapping step.
+//
+// What it shows: templates, constants, and field picks — the whole workflow is
+// one mapping projection. (On the wire, mapConfig is a JSON-encoded string.)
+//
+// Why it matters: mappings are the glue when adjacent steps' shapes don't line
+// up — and they're free: no tool call, no LLM, fully deterministic. Knowing
+// what they CAN'T do (arithmetic, arbitrary code) tells you when to reach for
+// a tool instead.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

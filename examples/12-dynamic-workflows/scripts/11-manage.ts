@@ -1,5 +1,11 @@
 // Beat 11 — Full CRUD over stored workflows: list, inspect, delete.
-// Deleting removes the storage row AND unregisters the live workflow.
+//
+// What it shows: list and fetch return the same JSON you saved; delete removes
+// the storage row AND unregisters the live workflow in one call.
+//
+// Why it matters: workflows have a full lifecycle you can expose to your
+// users — their automations are rows they can inspect and remove, not code
+// only you can touch.
 import { banner, checkServer, get, list, remove, show } from './lib';
 
 await checkServer();

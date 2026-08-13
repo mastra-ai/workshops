@@ -1,4 +1,10 @@
-// Beat 7 — foreach: run one step per array item, order preserved, bounded concurrency.
+// Beat 7 — foreach: one step per array item.
+//
+// What it shows: foreach runs the inner step once per item, order preserved,
+// with a declared concurrency cap (2 here — watch the batching).
+//
+// Why it matters: batch processing as data — greet N users, process N files,
+// enrich N records — with a concurrency limit you declare instead of implement.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

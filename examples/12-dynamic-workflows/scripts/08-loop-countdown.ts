@@ -1,6 +1,12 @@
 // Beat 8 — Loops: repeat a step until a declarative predicate says stop.
-// The classic polling/retry pattern, expressed entirely as data. Note the loop
-// step's output shape must satisfy its own input shape — iteration N+1 eats N's output.
+//
+// What it shows: `dountil` re-runs the step while the JSON predicate is false.
+// The loop step's output must satisfy its own input shape — iteration N+1
+// eats N's output.
+//
+// Why it matters: polling and retry — "check until the job is done" — is the
+// most common loop in real integrations, and here it's expressed entirely as
+// data. No while loop, no code to ship.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

@@ -1,5 +1,11 @@
 // Beat 3 — Upsert semantics: saving the same id replaces the live registration.
-// v2 adds a `shout` step. New runs pick up the new graph instantly.
+//
+// What it shows: v2 adds a `shout` step under the same id. New runs pick up
+// the new graph instantly; in-flight runs finish on the graph they started with.
+//
+// Why it matters: iterating on a workflow becomes a config change, not a
+// release. Users can edit their own automations in place — no redeploy,
+// no downtime, no version juggling.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

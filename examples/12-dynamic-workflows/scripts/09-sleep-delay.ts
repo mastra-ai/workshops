@@ -1,5 +1,12 @@
-// Beat 9 — Sleep steps: pause mid-graph for a literal duration, then continue.
-// Output passes through unchanged. (sleepUntil takes an ISO date instead.)
+// Beat 9 — Sleep steps: pause mid-graph, then continue.
+//
+// What it shows: sleep pauses for a literal duration (2s here — the response
+// time proves it); output passes through unchanged. sleepUntil takes an ISO
+// date instead.
+//
+// Why it matters: time as a first-class step — cool-off periods, rate-limit
+// spacing, scheduled follow-ups — declared in the graph instead of buried in
+// setTimeout code.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

@@ -1,5 +1,11 @@
 // Beat 2 — Strict validation on save.
-// A broken definition is rejected BEFORE anything is persisted, with structured issues.
+//
+// What it shows: a broken definition is rejected BEFORE anything is persisted,
+// with structured, machine-readable issues pointing at the exact graph entry.
+//
+// Why it matters: runtime authoring means accepting definitions from authors
+// you don't control — end users, LLMs, visual editors. Strict save validation
+// is what makes that safe: a bad definition can never reach storage or boot.
 import { banner, checkServer, list, loadWorkflow, show, upsert } from './lib';
 
 await checkServer();

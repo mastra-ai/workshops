@@ -1,6 +1,12 @@
-// Beat 10 — Composition: a root workflow nests a helper workflow, and both save
-// atomically as one bundle (`dependencies`). Dependency-ordered, cycle-detected —
-// either the whole set lands or none of it does.
+// Beat 10 — Composition: nested workflows saved as an atomic bundle.
+//
+// What it shows: the root references a helper by workflowId; the helper rides
+// along in `dependencies`. One POST saves both — dependency-ordered,
+// cycle-detected, all-or-nothing.
+//
+// Why it matters: you can grow a library of reusable sub-workflows that users
+// and agents compose into bigger ones. Atomic saves mean you never end up with
+// a half-registered set.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

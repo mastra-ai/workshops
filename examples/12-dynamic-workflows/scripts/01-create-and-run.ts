@@ -1,5 +1,11 @@
 // Beat 1 — Workflow definitions as data.
-// A workflow is just JSON: save it over HTTP, run it immediately. No deploy, no restart.
+//
+// What it shows: the whole lifecycle in one call — POST a JSON graph, it's
+// validated, persisted, registered, and runnable immediately.
+//
+// Why it matters: a workflow stops being something you ship and becomes
+// something you store. Anything that can produce JSON — an HTTP client, an
+// LLM, a visual editor — can author one, with no deploy and no restart.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

@@ -1,5 +1,11 @@
 // Beat 5 — Parallel fan-out + mapping merge.
-// Three transforms run concurrently on the same input; a mapping step merges the results.
+//
+// What it shows: every parallel child gets the same input concurrently; the
+// output is an object keyed by child id, which a mapping step then merges.
+//
+// Why it matters: independent analyses of the same input — classify AND
+// extract AND score — run concurrently without you writing any orchestration
+// code. The fan-out/fan-in shape is declared, not implemented.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();

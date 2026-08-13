@@ -69,13 +69,13 @@ Writing this JSON by hand gets old fast. In Mastra Code (build mode), the `creat
 
 Prepared prompts, in ramping complexity (all five verified end-to-end). The ramp mirrors the API beats — deterministic → agent step → conditional → parallel → foreach — so the audience watches the agent reach for the same primitives you just demoed by hand:
 
-| # | Prompt | What it builds | Why it's here |
-|---|--------|----------------|---------------|
-| 1 | `build me a workflow that takes a file path, reads the file, and reports its word count` | mapping → `execute_command` tool step (`wc -w`) → mapping. Deterministic, no LLM in the loop. | The agent picks cheap deterministic steps when it can — "pay for the thinking once." |
-| 2 | `build me a workflow that researches a topic and writes a summary` | single agent step doing live web research. | LLM judgment *inside* the workflow, but the orchestration is fixed and replayable. |
-| 3 | `build me a workflow that triages a bug report: if it mentions a crash or data loss, write an urgent escalation note, otherwise a polite standard reply` | agent classify (structured output) → conditional with two helper workflows → step-array merge. | The agent authors predicates and a helper bundle on its own — the branch-merge pattern from beat 6, unprompted. |
-| 4 | `build me a workflow that takes meeting notes and produces both action items and an executive summary, then combines them into one report` | two agent steps with prompt mappings → combining mapping. | Multi-agent pipeline: one input fans into two analyses merged into one report. |
-| 5 | `build me a workflow that summarizes every markdown file in a directory and combines the summaries into a single report` | `find` tool step → agent building `{prompt}` array → **foreach** over files (concurrency 3) → synthesis agent. | The showpiece: a real map-reduce over files, composed entirely from chat. |
+| # | Prompt | What it builds | Why it matters |
+|---|--------|----------------|----------------|
+| 1 | `build me a workflow that takes a file path, reads the file, and reports its word count` | mapping → `execute_command` tool step (`wc -w`) → mapping. Deterministic, no LLM in the loop. | The agent *chose* deterministic steps: you pay for LLM reasoning once at author time, then every run is cheap, instant, and reproducible. |
+| 2 | `build me a workflow that researches a topic and writes a summary` | single agent step doing live web research. | LLM judgment *inside* the workflow, but the orchestration around it is fixed — the same research pipeline replays identically for any topic. |
+| 3 | `build me a workflow that triages a bug report: if it mentions a crash or data loss, write an urgent escalation note, otherwise a polite standard reply` | agent classify (structured output) → conditional with two helper workflows → step-array merge. | One sentence of intent became routing rules (predicates + helper bundle) — user-configurable triage without anyone writing branching code. |
+| 4 | `build me a workflow that takes meeting notes and produces both action items and an executive summary, then combines them into one report` | two agent steps with prompt mappings → combining mapping. | One input fanned into two analyses and merged — the multi-step report pipeline you'd otherwise hand-code, described in plain language. |
+| 5 | `build me a workflow that summarizes every markdown file in a directory and combines the summaries into a single report` | `find` tool step → agent building `{prompt}` array → **foreach** over files (concurrency 3) → synthesis agent. | A real map-reduce over files, composed entirely from chat — the same shape scales to any "do this for every item, then combine" job. |
 
 Then in the TUI:
 
