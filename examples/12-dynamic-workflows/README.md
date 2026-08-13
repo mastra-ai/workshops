@@ -18,7 +18,7 @@ The only code in this project is a handful of tools (`src/mastra/tools/`) and a 
 
 ```bash
 pnpm install --ignore-workspace
-rm -f mastra.db .mastra/output/mastra.db*   # start clean before demoing
+rm -f mastra.db* .mastra/output/mastra.db* src/mastra/public/mastra.db*   # start clean before demoing
 pnpm dev
 ```
 
