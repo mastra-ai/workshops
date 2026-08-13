@@ -10,10 +10,14 @@
     "demo:1": "tsx scripts/01-create-and-run.ts",
     "demo:2": "tsx scripts/02-validation.ts",
     "demo:3": "tsx scripts/03-live-update.ts",
-    "demo:4": "tsx scripts/04-parallel-remix.ts",
-    "demo:5": "tsx scripts/05-conditional-router.ts",
-    "demo:6": "tsx scripts/06-bulk-foreach.ts",
-    "demo:7": "tsx scripts/07-manage.ts"
+    "demo:4": "tsx scripts/04-mapping-receipt.ts",
+    "demo:5": "tsx scripts/05-parallel-remix.ts",
+    "demo:6": "tsx scripts/06-conditional-triage.ts",
+    "demo:7": "tsx scripts/07-bulk-foreach.ts",
+    "demo:8": "tsx scripts/08-loop-countdown.ts",
+    "demo:9": "tsx scripts/09-sleep-delay.ts",
+    "demo:10": "tsx scripts/10-compose-bundle.ts",
+    "demo:11": "tsx scripts/11-manage.ts"
   },
   "packageManager": "pnpm@10.27.0",
   "type": "module",

@@ -1,0 +1,35 @@
+{
+  "id": "fanfare-greeting",
+  "description": "Root workflow that nests the polite-greeting helper, then amplifies its output — saved atomically as a bundle",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "required": ["name"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": { "message": { "type": "string" } },
+    "required": ["message"]
+  },
+  "graph": [
+    { "type": "workflow", "id": "greet", "workflowId": "polite-greeting" },
+    { "type": "tool", "id": "amplify", "toolId": "shout" }
+  ],
+  "dependencies": [
+    {
+      "id": "polite-greeting",
+      "description": "Helper workflow: create a polite greeting for a name",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "name": { "type": "string" } },
+        "required": ["name"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": { "message": { "type": "string" } },
+        "required": ["message"]
+      },
+      "graph": [{ "type": "tool", "id": "greet", "toolId": "create-greeting" }]
+    }
+  ]
+}

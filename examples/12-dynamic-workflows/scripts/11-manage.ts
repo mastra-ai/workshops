@@ -1,4 +1,4 @@
-// Beat 7 — Full CRUD over stored workflows: list, inspect, delete.
+// Beat 11 — Full CRUD over stored workflows: list, inspect, delete.
 // Deleting removes the storage row AND unregisters the live workflow.
 import { banner, checkServer, get, list, remove, show } from './lib';
 

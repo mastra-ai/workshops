@@ -4,6 +4,12 @@ import { PinoLogger } from '@mastra/loggers';
 
 import { greetingTool, shoutTool } from './tools/greeting-tools';
 import { reverseTextTool, shoutTextTool, whisperTextTool, wordStatsTool } from './tools/text-tools';
+import {
+  classifyPriorityTool,
+  countDownTool,
+  normalReplyTool,
+  urgentReplyTool,
+} from './tools/support-tools';
 
 // The only code-defined components in this project are tools. There are
 // ZERO code-defined workflows — every workflow is created at runtime over
@@ -17,6 +23,10 @@ export const mastra = new Mastra({
     'shout-text': shoutTextTool,
     'whisper-text': whisperTextTool,
     'reverse-text': reverseTextTool,
+    'classify-priority': classifyPriorityTool,
+    'urgent-reply': urgentReplyTool,
+    'normal-reply': normalReplyTool,
+    'count-down': countDownTool,
   },
   storage: new LibSQLStore({
     id: 'mastra-storage',

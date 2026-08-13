@@ -1,4 +1,4 @@
-// Beat 6 — foreach: run one step per array item, order preserved, bounded concurrency.
+// Beat 7 — foreach: run one step per array item, order preserved, bounded concurrency.
 import { banner, checkServer, loadWorkflow, run, show, upsert } from './lib';
 
 await checkServer();
