@@ -1,0 +1,36 @@
+{
+  "id": "support-triage",
+  "description": "Classify a support message by priority, route it to the right handler, and merge the chosen branch into one reply",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "text": { "type": "string" } },
+    "required": ["text"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "reply": { "type": "string" },
+      "priority": { "type": "string" }
+    },
+    "required": ["reply", "priority"]
+  },
+  "graph": [
+    { "type": "tool", "id": "classify", "toolId": "classify-priority" },
+    {
+      "type": "conditional",
+      "steps": [
+        { "type": "tool", "id": "handle-urgent", "toolId": "urgent-reply" },
+        { "type": "tool", "id": "handle-normal", "toolId": "normal-reply" }
+      ],
+      "predicates": [
+        { "op": "eq", "left": { "path": "inputData.priority" }, "right": { "literal": "urgent" } },
+        { "op": "eq", "left": { "path": "inputData.priority" }, "right": { "literal": "normal" } }
+      ]
+    },
+    {
+      "type": "mapping",
+      "id": "merge",
+      "mapConfig": "{\"reply\":{\"step\":[\"handle-urgent\",\"handle-normal\"],\"path\":\"reply\"},\"priority\":{\"step\":\"classify\",\"path\":\"priority\"}}"
+    }
+  ]
+}

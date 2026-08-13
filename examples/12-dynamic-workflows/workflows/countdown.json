@@ -1,0 +1,34 @@
+{
+  "id": "countdown",
+  "description": "Decrement a counter in a loop until it reaches zero — the polling/retry pattern as data",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "count": { "type": "number" } },
+    "required": ["count"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "finalCount": { "type": "number" },
+      "startedAt": { "type": "number" }
+    },
+    "required": ["finalCount", "startedAt"]
+  },
+  "graph": [
+    {
+      "type": "loop",
+      "step": { "type": "tool", "id": "tick", "toolId": "count-down" },
+      "loopType": "dountil",
+      "predicate": {
+        "op": "lte",
+        "left": { "path": "inputData.count" },
+        "right": { "literal": 0 }
+      }
+    },
+    {
+      "type": "mapping",
+      "id": "report",
+      "mapConfig": "{\"finalCount\":{\"step\":\"tick\",\"path\":\"count\"},\"startedAt\":{\"initData\":true,\"path\":\"count\"}}"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "order-receipt",
+  "description": "Format an order into a receipt using a single mapping step — templates and constants, no tools, no LLM",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "item": { "type": "string" },
+      "quantity": { "type": "number" }
+    },
+    "required": ["item", "quantity"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "summary": { "type": "string" },
+      "status": { "type": "string" },
+      "item": { "type": "string" }
+    },
+    "required": ["summary", "status", "item"]
+  },
+  "graph": [
+    {
+      "type": "mapping",
+      "id": "format-receipt",
+      "mapConfig": "{\"summary\":{\"template\":\"Receipt: ${initData.quantity} × ${initData.item}\"},\"status\":{\"value\":\"received\"},\"item\":{\"initData\":true,\"path\":\"item\"}}"
+    }
+  ]
+}

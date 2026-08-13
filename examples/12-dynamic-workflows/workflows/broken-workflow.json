@@ -1,0 +1,15 @@
+{
+  "id": "broken-workflow",
+  "description": "References a tool that does not exist — save is rejected",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "required": ["name"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": { "message": { "type": "string" } },
+    "required": ["message"]
+  },
+  "graph": [{ "type": "tool", "id": "greet", "toolId": "does-not-exist" }]
+}

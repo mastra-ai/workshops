@@ -1,0 +1,34 @@
+{
+  "id": "text-remixer",
+  "description": "Fan a text out to three transforms in parallel, then merge the results with a mapping",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "text": { "type": "string" } },
+    "required": ["text"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "shouted": { "type": "string" },
+      "whispered": { "type": "string" },
+      "reversed": { "type": "string" },
+      "original": { "type": "string" }
+    },
+    "required": ["shouted", "whispered", "reversed", "original"]
+  },
+  "graph": [
+    {
+      "type": "parallel",
+      "steps": [
+        { "type": "tool", "id": "shout", "toolId": "shout-text" },
+        { "type": "tool", "id": "whisper", "toolId": "whisper-text" },
+        { "type": "tool", "id": "reverse", "toolId": "reverse-text" }
+      ]
+    },
+    {
+      "type": "mapping",
+      "id": "merge",
+      "mapConfig": "{\"shouted\":{\"step\":\"shout\",\"path\":\"text\"},\"whispered\":{\"step\":\"whisper\",\"path\":\"text\"},\"reversed\":{\"step\":\"reverse\",\"path\":\"text\"},\"original\":{\"initData\":true,\"path\":\"text\"}}"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "delayed-greeting",
+  "description": "Greet, pause for dramatic effect, then shout — a sleep step in the middle of the graph",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "required": ["name"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": { "message": { "type": "string" } },
+    "required": ["message"]
+  },
+  "graph": [
+    { "type": "tool", "id": "greet", "toolId": "create-greeting" },
+    { "type": "sleep", "id": "dramatic-pause", "duration": 2000 },
+    { "type": "tool", "id": "amplify", "toolId": "shout" }
+  ]
+}

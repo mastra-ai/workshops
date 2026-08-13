@@ -1,0 +1,15 @@
+{
+  "id": "greeting-workflow",
+  "description": "Create a greeting for the supplied name",
+  "inputSchema": {
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "required": ["name"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": { "message": { "type": "string" } },
+    "required": ["message"]
+  },
+  "graph": [{ "type": "tool", "id": "greet", "toolId": "create-greeting" }]
+}

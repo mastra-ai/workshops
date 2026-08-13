@@ -1,0 +1,27 @@
+{
+  "id": "bulk-greeter",
+  "description": "Greet every name in a list using foreach",
+  "inputSchema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": { "name": { "type": "string" } },
+      "required": ["name"]
+    }
+  },
+  "outputSchema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": { "message": { "type": "string" } },
+      "required": ["message"]
+    }
+  },
+  "graph": [
+    {
+      "type": "foreach",
+      "step": { "type": "tool", "id": "greet-each", "toolId": "create-greeting" },
+      "opts": { "concurrency": 2 }
+    }
+  ]
+}
