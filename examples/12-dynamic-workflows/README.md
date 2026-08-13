@@ -82,7 +82,7 @@ Then in the TUI:
 /workflows run <id-from-the-save-message> {"path": "/tmp/notes"}
 ```
 
-> The model picks the workflow id — read it off the save confirmation rather than assuming.
+> The model picks the workflow id and exact graph shape — read the id off the save confirmation rather than assuming. If a save fails validation (most likely on prompt 5), just re-send the same prompt; the builder typically lands it on the next attempt.
 
 ## Files
 
