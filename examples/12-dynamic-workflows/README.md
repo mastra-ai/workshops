@@ -71,8 +71,8 @@ Prepared prompts, in ramping complexity (all five verified end-to-end). The ramp
 
 | # | Prompt | What it builds | Why it matters |
 |---|--------|----------------|----------------|
-| 1 | `build me a workflow that takes a file path, reads the file, and reports its word count` | mapping → `execute_command` tool step (`wc -w`) → mapping. Deterministic, no LLM in the loop. | The agent *chose* deterministic steps: you pay for LLM reasoning once at author time, then every run is cheap, instant, and reproducible. |
-| 2 | `build me a workflow that researches a topic and writes a short summary — cap it at 3 sources and about 300 words` | single agent step doing live web research. | LLM judgment *inside* the workflow, but the orchestration around it is fixed — the same research pipeline replays identically for any topic. Without the cap, the agent tends to build a workflow that produces a long cited report (slow on stage). |
+| 1 | `build me a workflow that takes a file path, reads the file, and reports its word count` | mapping → `execute_command` tool step (`wc -w`) → mapping. Usually deterministic, no LLM in the loop. | The agent *chose* deterministic steps: you pay for LLM reasoning once at author time, then every run is cheap, instant, and reproducible. (Occasionally it adds a small agent step to parse the output — still a fine demo.) |
+| 2 | `build me a workflow that takes a product description and writes a one-line marketing tagline` | mapping builds the prompt → single fast agent step → structured `{ tagline }`. | LLM judgment *inside* the workflow, but the orchestration around it is fixed — the same pipeline replays identically for any product. One quick agent call, no web search, so it stays snappy on stage. |
 | 3 | `build me a workflow that triages a bug report: if it mentions a crash or data loss, write an urgent escalation note, otherwise a polite standard reply` | agent classify (structured output) → conditional with two helper workflows → step-array merge. | One sentence of intent became routing rules (predicates + helper bundle) — user-configurable triage without anyone writing branching code. |
 | 4 | `build me a workflow that takes meeting notes and produces both action items and an executive summary, then combines them into one report` | two agent steps with prompt mappings → combining mapping. | One input fanned into two analyses and merged — the multi-step report pipeline you'd otherwise hand-code, described in plain language. |
 | 5 | `build me a workflow that summarizes every markdown file in a directory and combines the summaries into a single report` | `find` tool step → agent building `{prompt}` array → **foreach** over files (concurrency 3) → synthesis agent. | A real map-reduce over files, composed entirely from chat — the same shape scales to any "do this for every item, then combine" job. |
@@ -84,7 +84,9 @@ Then in the TUI:
 /workflows run <id-from-the-save-message> {"path": "/tmp/notes"}
 ```
 
-> The model picks the workflow id and exact graph shape — read the id off the save confirmation rather than assuming. If a save fails validation (most likely on prompt 5), just re-send the same prompt; the builder typically lands it on the next attempt.
+> The model picks the workflow id, the input field names, and the exact graph shape — read the run command off the save confirmation rather than assuming (e.g. the tagline workflow may want `productDescription`, not `description`). If a save fails validation (most likely on prompt 5), just re-send the same prompt; the builder typically lands it on the next attempt.
+>
+> Prompt 1's graph shape varies by run: sometimes it's fully deterministic (`wc -w`), sometimes the model reads the file and counts words with an agent step — which is slower and can be off by one. If the save summary shows an agent doing the counting and you want the deterministic version, re-send the prompt.
 
 ## Files
 
