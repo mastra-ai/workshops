@@ -5144,6 +5144,159 @@ const Understanding: Page = () => (
   </div>
 );
 
+// ────────────────────────────────────────────────────────────────────────────
+// Next workshop — a concise handoff from understanding behavior to improving it.
+
+const NEXT_WORKSHOP_STAGES = [
+  {
+    number: '01',
+    label: 'Detect',
+    title: 'Find the issue',
+    body: 'Notice which themes changed, surged, or started failing.',
+    color: palette.orange,
+  },
+  {
+    number: '02',
+    label: 'Investigate',
+    title: 'Confirm the pattern',
+    body: 'Return to the traces and separate a real failure from noise.',
+    color: palette.blue,
+  },
+  {
+    number: '03',
+    label: 'Generate',
+    title: 'Build the dataset',
+    body: 'Turn the evidence into representative evaluation cases.',
+    color: palette.green,
+  },
+  {
+    number: '04',
+    label: 'Measure',
+    title: 'Create the scorer',
+    body: 'Define success and prove whether the agent actually improved.',
+    color: palette.accent,
+  },
+];
+
+const NextWorkshopStage = ({
+  number,
+  label,
+  title,
+  body,
+  color,
+  left,
+}: (typeof NEXT_WORKSHOP_STAGES)[number] & { left: number }) => (
+  <div
+    style={{
+      position: 'absolute',
+      left,
+      top: 370,
+      width: 360,
+      height: 360,
+      padding: '36px 34px',
+      boxSizing: 'border-box',
+      borderRadius: 20,
+      border: `1px solid ${color}52`,
+      background: `linear-gradient(180deg, ${color}12 0%, ${palette.surface} 54%)`,
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <span
+        style={{
+          fontFamily: font.mono,
+          fontSize: 21,
+          fontWeight: 700,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color,
+        }}
+      >
+        {label}
+      </span>
+      <span style={{ fontFamily: font.mono, fontSize: 20, color: palette.dim }}>{number}</span>
+    </div>
+    <div style={{ marginTop: 44, fontSize: 40, fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.025em' }}>{title}</div>
+    <div style={{ marginTop: 24, fontSize: 27, lineHeight: 1.4, color: palette.textSoft }}>{body}</div>
+    <div
+      style={{
+        position: 'absolute',
+        left: 34,
+        right: 34,
+        bottom: 0,
+        height: 3,
+        borderRadius: '3px 3px 0 0',
+        background: color,
+        boxShadow: `0 0 24px ${color}80`,
+      }}
+    />
+  </div>
+);
+
+const NextWorkshop: Page = () => (
+  <div style={fill}>
+    <PageNumber />
+    <Backdrop cx={960} cy={565} rx={900} ry={430} />
+
+    <div
+      style={{
+        position: 'absolute',
+        top: 86,
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        fontFamily: font.mono,
+        fontSize: 24,
+        fontWeight: 700,
+        letterSpacing: '0.22em',
+        textTransform: 'uppercase',
+        color: 'var(--osd-accent)',
+      }}
+    >
+      Next workshop
+    </div>
+    <h2
+      style={{
+        position: 'absolute',
+        top: 142,
+        left: 0,
+        right: 0,
+        margin: 0,
+        textAlign: 'center',
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 88,
+        fontWeight: 800,
+        letterSpacing: '-0.035em',
+      }}
+    >
+      Detecting issues through themes
+    </h2>
+    <div
+      style={{
+        position: 'absolute',
+        top: 262,
+        left: 260,
+        right: 260,
+        textAlign: 'center',
+        fontSize: 34,
+        color: palette.textSoft,
+      }}
+    >
+      Detect meaningful changes in themes, investigate the traces behind them, and turn the evidence into datasets and scorers.
+    </div>
+
+    <svg width={1920} height={1080} viewBox="0 0 1920 1080" aria-hidden style={{ position: 'absolute', inset: 0 }}>
+      <FlowArrow d="M 484 553 H 520" head={[530, 553]} color={`${palette.orange}8c`} />
+      <FlowArrow d="M 890 553 H 926" head={[936, 553]} color={`${palette.blue}8c`} />
+      <FlowArrow d="M 1296 553 H 1332" head={[1342, 553]} color={`${palette.green}8c`} />
+    </svg>
+
+    <NextWorkshopStage {...NEXT_WORKSHOP_STAGES[0]} left={124} />
+    <NextWorkshopStage {...NEXT_WORKSHOP_STAGES[1]} left={530} />
+    <NextWorkshopStage {...NEXT_WORKSHOP_STAGES[2]} left={936} />
+    <NextWorkshopStage {...NEXT_WORKSHOP_STAGES[3]} left={1342} />
+
+  </div>
+);
 
 export const transition: SlideTransition = {
   duration: 200,
@@ -5290,15 +5443,6 @@ export default [
   LivingModel,
   Sankey,
   Understanding,
-  InvestigationAct,
-  CandidateFlow,
-  GraysonIntro,
-  Investigation,
-  ChangeAct,
-  ProposedFix,
-  Validation,
-  Deployment,
-  Proof,
-  Closer,
+  NextWorkshop,
   ThankYou,
 ] satisfies Page[];
