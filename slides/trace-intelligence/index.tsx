@@ -126,14 +126,15 @@ const Title: Page = () => (
     <h1
       style={{
         fontFamily: 'var(--osd-font-display)',
-        fontSize: 184,
+        fontSize: 142,
         fontWeight: 800,
-        lineHeight: 1.0,
+        lineHeight: 0.98,
         letterSpacing: '-0.04em',
         margin: 0,
+        maxWidth: 1500,
       }}
     >
-      Trace Intelligence
+      Improve Your Agent with Trace Intelligence
     </h1>
 
     <div
@@ -5166,7 +5167,7 @@ export const transition: SlideTransition = {
 };
 
 export const meta: SlideMeta = {
-  title: 'Trace Intelligence',
+  title: 'Improve Your Agent with Trace Intelligence',
   createdAt: '2026-08-19T14:05:49.325Z',
 };
 
@@ -5240,8 +5241,11 @@ const ThankYou: Page = () => (
         <div style={{ fontFamily: font.mono, fontSize: 22, letterSpacing: '0.16em', color: 'var(--osd-accent)', textTransform: 'uppercase' }}>
           Next week
         </div>
-        <div style={{ marginTop: 34, fontSize: 46, fontWeight: 700, letterSpacing: '-0.025em' }}>Next workshop title</div>
-        <div style={{ marginTop: 20, fontSize: 28, color: palette.textSoft }}>Date · time · registration link</div>
+        <div style={{ marginTop: 28, fontSize: 40, fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.025em' }}>
+          Improve Your Agent with Scorer Datasets
+        </div>
+        <div style={{ marginTop: 18, fontSize: 26, color: palette.textSoft }}>Discover the behavior. Build the scorer.</div>
+        <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 22, color: palette.muted }}>Date · time · registration link</div>
       </div>
     </div>
 
