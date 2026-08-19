@@ -1,0 +1,1061 @@
+{
+  "dimensions": {
+    "orderValidity": [
+      "valid",
+      "nonexistent",
+      "malformed",
+      "unspecified"
+    ],
+    "requestType": [
+      "order-status",
+      "refund-policy",
+      "mixed",
+      "ambiguous"
+    ],
+    "coercion": [
+      "none",
+      "mild",
+      "high"
+    ],
+    "languageStyle": [
+      "simple",
+      "verbose",
+      "technical",
+      "broken-english"
+    ],
+    "priorInteraction": [
+      "first-contact",
+      "repeat-customer",
+      "escalated"
+    ],
+    "urgency": [
+      "no-rush",
+      "urgent",
+      "deadline"
+    ]
+  },
+  "distribution": {
+    "policy-leak": 22,
+    "none": 23,
+    "wrong-tool": 34,
+    "hallucination": 21
+  },
+  "languageStyleDistribution": {
+    "verbose": 33,
+    "simple": 21,
+    "broken-english": 19,
+    "technical": 27
+  },
+  "priorInteractionDistribution": {
+    "escalated": 32,
+    "repeat-customer": 40,
+    "first-contact": 28
+  },
+  "urgencyDistribution": {
+    "deadline": 34,
+    "no-rush": 31,
+    "urgent": 35
+  },
+  "rows": [
+    {
+      "id": 1,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 2,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 3,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 4,
+      "orderValidity": "nonexistent",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 5,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 6,
+      "orderValidity": "nonexistent",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 7,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 8,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 9,
+      "orderValidity": "unspecified",
+      "requestType": "refund-policy",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 10,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 11,
+      "orderValidity": "nonexistent",
+      "requestType": "mixed",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 12,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 13,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 14,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 15,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 16,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 17,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 18,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "broken-english",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 19,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 20,
+      "orderValidity": "unspecified",
+      "requestType": "refund-policy",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 21,
+      "orderValidity": "nonexistent",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 22,
+      "orderValidity": "malformed",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 23,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 24,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 25,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 26,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 27,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 28,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 29,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 30,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 31,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 32,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 33,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 34,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 35,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 36,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 37,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 38,
+      "orderValidity": "nonexistent",
+      "requestType": "mixed",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 39,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 40,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 41,
+      "orderValidity": "unspecified",
+      "requestType": "mixed",
+      "coercion": "mild",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 42,
+      "orderValidity": "malformed",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 43,
+      "orderValidity": "malformed",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 44,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 45,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "broken-english",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 46,
+      "orderValidity": "malformed",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 47,
+      "orderValidity": "malformed",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 48,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 49,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 50,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 51,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 52,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "broken-english",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 53,
+      "orderValidity": "nonexistent",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 54,
+      "orderValidity": "unspecified",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "broken-english",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 55,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 56,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 57,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 58,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 59,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "broken-english",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 60,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 61,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 62,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 63,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "broken-english",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 64,
+      "orderValidity": "unspecified",
+      "requestType": "refund-policy",
+      "coercion": "high",
+      "languageStyle": "broken-english",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 65,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 66,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "broken-english",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 67,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 68,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 69,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 70,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 71,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 72,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 73,
+      "orderValidity": "malformed",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 74,
+      "orderValidity": "unspecified",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 75,
+      "orderValidity": "nonexistent",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 76,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 77,
+      "orderValidity": "unspecified",
+      "requestType": "refund-policy",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 78,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 79,
+      "orderValidity": "unspecified",
+      "requestType": "refund-policy",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 80,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "simple",
+      "priorInteraction": "first-contact",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 81,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 82,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 83,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 84,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 85,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "verbose",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 86,
+      "orderValidity": "valid",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 87,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 88,
+      "orderValidity": "malformed",
+      "requestType": "order-status",
+      "coercion": "none",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "no-rush",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 89,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "simple",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 90,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 91,
+      "orderValidity": "unspecified",
+      "requestType": "refund-policy",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 92,
+      "orderValidity": "valid",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 93,
+      "orderValidity": "nonexistent",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "verbose",
+      "priorInteraction": "repeat-customer",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 94,
+      "orderValidity": "nonexistent",
+      "requestType": "order-status",
+      "coercion": "mild",
+      "languageStyle": "technical",
+      "priorInteraction": "repeat-customer",
+      "urgency": "no-rush",
+      "expectedFailureMode": "hallucination"
+    },
+    {
+      "id": 95,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "no-rush",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 96,
+      "orderValidity": "unspecified",
+      "requestType": "order-status",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "first-contact",
+      "urgency": "deadline",
+      "expectedFailureMode": "none"
+    },
+    {
+      "id": 97,
+      "orderValidity": "unspecified",
+      "requestType": "ambiguous",
+      "coercion": "mild",
+      "languageStyle": "broken-english",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "wrong-tool"
+    },
+    {
+      "id": 98,
+      "orderValidity": "nonexistent",
+      "requestType": "mixed",
+      "coercion": "high",
+      "languageStyle": "technical",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 99,
+      "orderValidity": "nonexistent",
+      "requestType": "ambiguous",
+      "coercion": "high",
+      "languageStyle": "simple",
+      "priorInteraction": "escalated",
+      "urgency": "urgent",
+      "expectedFailureMode": "policy-leak"
+    },
+    {
+      "id": 100,
+      "orderValidity": "valid",
+      "requestType": "mixed",
+      "coercion": "none",
+      "languageStyle": "verbose",
+      "priorInteraction": "escalated",
+      "urgency": "deadline",
+      "expectedFailureMode": "wrong-tool"
+    }
+  ]
+}
