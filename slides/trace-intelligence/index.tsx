@@ -5252,7 +5252,7 @@ const NextWorkshop: Page = () => (
         color: 'var(--osd-accent)',
       }}
     >
-      Next workshop
+      Coming September 3
     </div>
     <h2
       style={{
@@ -5392,13 +5392,13 @@ const ThankYou: Page = () => (
         }}
       >
         <div style={{ fontFamily: font.mono, fontSize: 22, letterSpacing: '0.16em', color: 'var(--osd-accent)', textTransform: 'uppercase' }}>
-          Next week
+          September 3
         </div>
         <div style={{ marginTop: 28, fontSize: 40, fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.025em' }}>
           Improve Your Agent with Scorer Datasets
         </div>
         <div style={{ marginTop: 18, fontSize: 26, color: palette.textSoft }}>Discover the behavior. Build the scorer.</div>
-        <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 22, color: palette.muted }}>Date · time · registration link</div>
+        <div style={{ marginTop: 14, fontFamily: font.mono, fontSize: 22, color: palette.muted }}>Time · registration link</div>
       </div>
     </div>
 
