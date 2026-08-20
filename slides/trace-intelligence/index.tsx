@@ -2,6 +2,10 @@ import type { DesignSystem, Page, SlideMeta, SlideTransition } from '@open-slide
 import { useSlidePageNumber, ImagePlaceholder } from '@open-slide/core';
 import alexAvatar from './assets/alex-avatar.jpg';
 import danielAvatar from './assets/daniel.png';
+import eric from './assets/eric.jpg';
+import eric2 from './assets/eric2.png';
+
+
 
 export const notes: (string | undefined)[] = [
   undefined,
@@ -29,7 +33,7 @@ export const design: DesignSystem = {
   palette: {
     bg: '#0a0a0f',
     text: '#f2f2f5',
-    accent: '#8b7ff5',
+    accent: '#18fb6f',
   },
   fonts: {
     display: '"Geist", "Inter", system-ui, -apple-system, sans-serif',
@@ -119,6 +123,10 @@ const Title: Page = () => (
       justifyContent: 'center',
       padding: '0 140px',
       boxSizing: 'border-box',
+      background:
+        `radial-gradient(1100px 600px at 18% 22%, ${palette.green}1a 0%, transparent 60%),` +
+        `radial-gradient(900px 500px at 82% 78%, ${palette.surfaceHi} 0%, transparent 65%),` +
+        'var(--osd-bg)',
     }}
   >
     <PageNumber />
@@ -134,7 +142,8 @@ const Title: Page = () => (
         maxWidth: 1500,
       }}
     >
-      Improve Your Agent with Trace Intelligence
+      <span style={{ display: 'block' }}>Improve Your Agent with</span>
+      <span style={{ display: 'block', color: 'var(--osd-accent)' }}>Trace Intelligence</span>
     </h1>
 
     <div
@@ -185,6 +194,10 @@ const AboutMe: Page = () => (
       justifyContent: 'center',
       padding: '0 140px',
       boxSizing: 'border-box',
+      background:
+        `radial-gradient(1100px 600px at 18% 22%, ${palette.accent}20 0%, transparent 60%),` +
+        `radial-gradient(900px 500px at 82% 78%, ${palette.surfaceHi} 0%, transparent 65%),` +
+        'var(--osd-bg)',
     }}
   >
     <PageNumber />
@@ -202,18 +215,11 @@ const AboutMe: Page = () => (
           boxSizing: 'border-box',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', objectPosition: '50% 50%', objectViewBox: 'inset(2.07% 12.44% 16.79% 8.22%)' }}>
           <div
-            style={{
-              width: 180,
-              height: 180,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '2px solid var(--osd-accent)',
-              boxShadow: '0 0 0 8px rgba(139, 127, 245, 0.12)',
-            }}
+            style={{ width: 180, height: 180, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--osd-accent)', boxShadow: '0 0 0 8px rgba(139, 127, 245, 0.12)', objectFit: 'cover' }}
           >
-            <ImagePlaceholder hint="Circular headshot of Eric Pinzur" width={180} height={180} />
+            <img src={eric2} alt='Circular headshot of Eric Pinzur' style={{ width: 180, height: 180, objectFit: 'cover', objectPosition: '50% 50%' }} />
           </div>
           <div style={{ fontFamily: font.mono, fontSize: 22, color: 'var(--osd-accent)', letterSpacing: '0.18em' }}>
             01
@@ -5190,7 +5196,7 @@ const NextWorkshopStage = ({
     style={{
       position: 'absolute',
       left,
-      top: 370,
+      top: 430,
       width: 360,
       height: 360,
       padding: '36px 34px',
@@ -5235,7 +5241,7 @@ const NextWorkshopStage = ({
 const NextWorkshop: Page = () => (
   <div style={fill}>
     <PageNumber />
-    <Backdrop cx={960} cy={565} rx={900} ry={430} />
+    <Backdrop cx={960} cy={625} rx={900} ry={430} />
 
     <div
       style={{
@@ -5285,9 +5291,9 @@ const NextWorkshop: Page = () => (
     </div>
 
     <svg width={1920} height={1080} viewBox="0 0 1920 1080" aria-hidden style={{ position: 'absolute', inset: 0 }}>
-      <FlowArrow d="M 484 553 H 520" head={[530, 553]} color={`${palette.orange}8c`} />
-      <FlowArrow d="M 890 553 H 926" head={[936, 553]} color={`${palette.blue}8c`} />
-      <FlowArrow d="M 1296 553 H 1332" head={[1342, 553]} color={`${palette.green}8c`} />
+      <FlowArrow d="M 484 610 H 520" head={[530, 610]} color={`${palette.orange}8c`} />
+      <FlowArrow d="M 890 610 H 926" head={[936, 610]} color={`${palette.blue}8c`} />
+      <FlowArrow d="M 1296 610 H 1332" head={[1342, 610]} color={`${palette.green}8c`} />
     </svg>
 
     <NextWorkshopStage {...NEXT_WORKSHOP_STAGES[0]} left={124} />
