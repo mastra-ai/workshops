@@ -18,7 +18,7 @@ When any of those paths reach the point of *writing React code for a page*, this
 
 - Put the slide under `slides/<kebab-case-id>/`.
 - Entry is `slides/<id>/index.tsx`. Images/videos/fonts go under `slides/<id>/assets/`.
-- Do **not** touch `package.json`, `open-slide.config.ts`, or other slides.
+- Do **not** touch `open-slide/package.json`, `open-slide/open-slide.config.ts`, or other slides.
 - Do not add dependencies. Only `react` and standard web APIs are available.
 - A slide is **one `index.tsx` plus `assets/`** — nothing else. Do not create sibling `.tsx`/`.ts` files (`Card.tsx`, `components/`, `helpers.ts`, etc.); helper components and constants go inside `index.tsx`. Do not create `README.md` or other prose files either.
 
@@ -617,7 +617,7 @@ This applies whenever the *visual element* repeats, not whenever the *data* does
 - ❌ Installing packages. Only `react` and standard web APIs are available.
 - ❌ Writing CSS to a shared file. Inline styles or scoped classnames only.
 - ❌ Creating `README.md` or other prose files inside the slide folder.
-- ❌ Editing `package.json`, `open-slide.config.ts`, or other slides.
+- ❌ Editing `open-slide/package.json`, `open-slide/open-slide.config.ts`, or other slides.
 - ❌ Sprinkling `<ImagePlaceholder>` across pages "for visual interest". Placeholders are for content the user owns; they're not stock-photo slots.
 - ❌ Using a placeholder for an icon or decorative shape — those are typography/SVG problems, not asset problems.
 - ❌ Rendering visually repeated elements with `array.map(...)` over a data array. Define a component and instantiate it explicitly per item (`<Card />`, `<Card />`, `<Card />`) so the inspector can edit each independently — a shared `map` body mutates every instance at once.

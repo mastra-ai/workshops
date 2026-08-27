@@ -246,5 +246,5 @@ Do not run the dev server. Do not modify real slides — even to demonstrate the
 - ❌ Treating `themes/<id>.demo.tsx` as a real slide. It is preview-only and lives outside the slides list; never put it under `slides/`.
 - ❌ Importing from `@/` or any slide-specific helper inside the demo. The demo is self-contained.
 - ❌ Inventing palette / fonts when the user supplied images or an existing slide. Extract, don't fabricate.
-- ❌ Editing `slides/`, `packages/`, `package.json`, or `open-slide.config.ts`.
+- ❌ Editing `slides/`, `packages/`, `open-slide/package.json`, or `open-slide/open-slide.config.ts`.
 - ❌ Skipping the Fixed components section. Title and Footer are the most common reuse target — they must be paste-ready.

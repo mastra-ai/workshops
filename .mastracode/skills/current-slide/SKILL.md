@@ -1,6 +1,6 @@
 ---
 name: current-slide
-description: Resolve which slide, page, and (optionally) selected element the user is currently viewing in the open-slide dev server. Consult this whenever the user references "this page", "this slide", "this element", "the slide I'm on", "the current page", or any deictic reference to slide content without naming it. Re-read `node_modules/.open-slide/current.json` at the start of every such turn — the user navigates between turns, so a value you read earlier in the conversation is almost certainly stale.
+description: Resolve which slide, page, and (optionally) selected element the user is currently viewing in the open-slide dev server. Consult this whenever the user references "this page", "this slide", "this element", "the slide I'm on", "the current page", or any deictic reference to slide content without naming it. Re-read `open-slide/node_modules/.open-slide/current.json` at the start of every such turn — the user navigates between turns, so a value you read earlier in the conversation is almost certainly stale.
 ---
 
 # Where is the user right now?
@@ -20,10 +20,10 @@ A "continue editing" follow-up is exactly the case where the user has likely jus
 ## How to read it
 
 ```
-node_modules/.open-slide/current.json
+open-slide/node_modules/.open-slide/current.json
 ```
 
-Path is relative to the project root (the user's `cwd`, the directory that contains `slides/` and `package.json`). Use the `Read` tool. The file is JSON.
+Path is relative to the repository root (the user's `cwd`). The runtime package is under `open-slide/`, while slide source files are under `slides/`. Use the `Read` tool. The file is JSON.
 
 ## What you get
 
@@ -35,7 +35,7 @@ Path is relative to the project root (the user's `cwd`, the directory that conta
   "totalPages": 8,
   "slideTitle": "Q2 Roadmap",
   "view": "slides",
-  "pagePath": "slides/q2-roadmap/index.tsx",
+  "pagePath": "../slides/q2-roadmap/index.tsx",
   "selection": {
     "line": 42,
     "column": 6,
@@ -49,7 +49,7 @@ Path is relative to the project root (the user's `cwd`, the directory that conta
 - `slideId` — folder name under `slides/`. Use as-is for any `/__slides/<id>/...` API or as the URL segment.
 - `pageIndex` — 0-based, for use with the page array in `index.tsx` (`export default [Cover, Body, ...]`).
 - `pageNumber` — 1-based, for use in messages to the user ("page 3 of 8") and for the URL `?p=N`.
-- `pagePath` — relative path to the slide source. Hand straight to `Read` / `Edit`.
+- `pagePath` — path to the slide source relative to `open-slide/`. Resolve it from that directory before passing it to `Read` / `Edit` (for example, `../slides/q2-roadmap/index.tsx` resolves to the repository's `slides/q2-roadmap/index.tsx`).
 - `view` — `"slides"` (canvas view) or `"assets"` (asset manager). If `"assets"`, the user is browsing files for that slide rather than viewing a page.
 - `selection` — `null` if nothing is selected. Otherwise, the JSX element the user picked in the inspector overlay:
   - `line` (1-indexed) and `column` (0-indexed) point to the JSX opening tag inside `pagePath`. This is the canonical handle — match against the source line, not the rendered DOM.
@@ -90,9 +90,9 @@ A *newer* `updatedAt` than the one you saw last turn is the normal signal that t
 
 User: "tighten the spacing on this page"
 
-1. Read `node_modules/.open-slide/current.json`.
+1. Read `open-slide/node_modules/.open-slide/current.json`.
 2. Check `updatedAt` is recent.
-3. Read `pagePath` (e.g. `slides/q2-roadmap/index.tsx`).
+3. Resolve `pagePath` from `open-slide/`, then read it (e.g. `../slides/q2-roadmap/index.tsx` resolves to `slides/q2-roadmap/index.tsx` from the repository root).
 4. Identify the page at `pageIndex` in the default-exported array.
 5. Consult the `slide-authoring` skill for spacing rules, then edit that page in place.
 
@@ -102,7 +102,7 @@ If `current.json` is missing or stale, ask: "Which slide and page should I tight
 
 User: "make this bigger"
 
-1. Read `node_modules/.open-slide/current.json`.
+1. Read `open-slide/node_modules/.open-slide/current.json`.
 2. If `selection` is non-null, the user means that element. Read `pagePath`, jump to `selection.line`, and find the JSX opening tag near that line/column. Confirm with the snippet in `selection.text` and the `tagName`.
 3. Consult `slide-authoring` for type-scale and layout rules before editing.
 4. Edit the JSX node in place.
