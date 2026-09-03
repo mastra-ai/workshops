@@ -635,9 +635,211 @@ const ErrorAnalysisSteps: Page = () => (
   </div>
 );
 
+const ReviewLoopPhase = ({
+  number,
+  title,
+  detail,
+  color,
+  badge,
+}: {
+  number: string;
+  title: string;
+  detail: string;
+  color: string;
+  badge?: string;
+}) => (
+  <div
+    style={{
+      height: 190,
+      boxSizing: 'border-box',
+      padding: '26px 28px',
+      borderRadius: 20,
+      border: `1px solid ${badge ? color : colors.border}`,
+      background: badge ? `${color}0f` : `linear-gradient(145deg, ${colors.panelRaised}, ${colors.panel})`,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+    }}
+  >
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span style={{ color, fontSize: 21, fontWeight: 850, letterSpacing: '0.14em' }}>{number}</span>
+      {badge ? (
+        <span
+          style={{
+            padding: '6px 10px',
+            borderRadius: 999,
+            background: `${color}18`,
+            color,
+            fontSize: 16,
+            fontWeight: 800,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}
+        >
+          {badge}
+        </span>
+      ) : null}
+    </div>
+    <div>
+      <div style={{ fontSize: 35, fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.035em' }}>{title}</div>
+      <div style={{ marginTop: 11, color: colors.muted, fontSize: 22, lineHeight: 1.3 }}>{detail}</div>
+    </div>
+  </div>
+);
+
+const FlowArrow = ({ direction = 'right' }: { direction?: 'right' | 'left' }) => (
+  <div
+    aria-hidden="true"
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: colors.muted,
+      fontSize: 38,
+    }}
+  >
+    {direction === 'right' ? '→' : '←'}
+  </div>
+);
+
+const ExperimentReviewLoop: Page = () => (
+  <div
+    style={{
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+      padding: '80px 120px 70px',
+      background:
+        'radial-gradient(980px 560px at 86% 8%, rgba(66, 217, 255, 0.1), transparent 66%), var(--osd-bg)',
+      color: 'var(--osd-text)',
+      fontFamily: 'var(--osd-font-body)',
+    }}
+  >
+    <style>{animationStyles}</style>
+
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 48 }}>
+      <div>
+        <div
+          style={{
+            marginBottom: 14,
+            color: 'var(--osd-accent)',
+            fontSize: 23,
+            fontWeight: 850,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Experiment review skill
+        </div>
+        <h1
+          className="error-analysis-enter"
+          style={{
+            margin: 0,
+            fontFamily: 'var(--osd-font-display)',
+            fontSize: 80,
+            fontWeight: 850,
+            lineHeight: 1,
+            letterSpacing: '-0.05em',
+          }}
+        >
+          The experiment review loop
+        </h1>
+      </div>
+
+      <div
+        style={{
+          marginTop: 38,
+          padding: '15px 20px',
+          borderRadius: 999,
+          border: `1px solid ${colors.amber}`,
+          color: colors.amber,
+          fontSize: 21,
+          fontWeight: 800,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+        }}
+      >
+        Human in the loop
+      </div>
+    </div>
+
+    <div className="error-analysis-enter" style={{ position: 'relative', animationDelay: '100ms' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 64px 1fr 64px 1fr' }}>
+        <ReviewLoopPhase number="01" title="Load evidence" detail="Select the latest experiment and fetch every result." color="var(--osd-accent)" />
+        <FlowArrow />
+        <ReviewLoopPhase number="02" title="Detect failures" detail="Generate candidate signals—not final judgments." color="var(--osd-accent)" />
+        <FlowArrow />
+        <ReviewLoopPhase number="03" title="Embed & cluster" detail="Project similar failures into common patterns." color="var(--osd-accent)" />
+      </div>
+
+      <div
+        aria-hidden="true"
+        style={{
+          height: 74,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          paddingRight: 210,
+          color: colors.muted,
+          fontSize: 38,
+        }}
+      >
+        ↓
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 64px 1fr 64px 1fr' }}>
+        <ReviewLoopPhase number="06" title="Re-review & iterate" detail="Update the rubric, reports, tags, and next sample." color={colors.green} />
+        <FlowArrow direction="left" />
+        <ReviewLoopPhase
+          number="05"
+          title="Consume feedback"
+          detail="Let human judgment correct the machine taxonomy."
+          color={colors.amber}
+          badge="Human"
+        />
+        <FlowArrow direction="left" />
+        <ReviewLoopPhase number="04" title="Queue samples" detail="Send diverse representatives to Studio Inbox." color={colors.green} />
+      </div>
+
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: 28,
+          bottom: -70,
+          width: 520,
+          height: 54,
+          borderLeft: `2px solid ${colors.green}70`,
+          borderBottom: `2px solid ${colors.green}70`,
+          borderRadius: '0 0 0 18px',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 570,
+          bottom: -80,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          color: colors.green,
+          fontSize: 20,
+          fontWeight: 750,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+        }}
+      >
+        ↻ Feedback sharpens the next pass
+      </div>
+    </div>
+  </div>
+);
+
 export const meta: SlideMeta = {
   title: 'Error Analysis',
   createdAt: '2026-09-03T05:28:29.693Z',
 };
 
-export default [BuildingEvals, ErrorAnalysis, ErrorAnalysisSteps] satisfies Page[];
+export default [BuildingEvals, ErrorAnalysis, ErrorAnalysisSteps, ExperimentReviewLoop] satisfies Page[];
