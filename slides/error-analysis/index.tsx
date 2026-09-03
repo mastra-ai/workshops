@@ -767,7 +767,7 @@ const ExperimentReviewLoop: Page = () => (
 
     <div className="error-analysis-enter" style={{ position: 'relative', animationDelay: '100ms' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 64px 1fr 64px 1fr' }}>
-        <ReviewLoopPhase number="01" title="Load evidence" detail="Select the latest experiment and fetch every result." color="var(--osd-accent)" />
+        <ReviewLoopPhase number="01" title="Load experiment results" detail="Select the latest experiment and fetch every result." color="var(--osd-accent)" />
         <FlowArrow />
         <ReviewLoopPhase number="02" title="Detect failures" detail="Generate candidate signals—not final judgments." color="var(--osd-accent)" />
         <FlowArrow />
