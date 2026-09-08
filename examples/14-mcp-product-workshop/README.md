@@ -33,7 +33,7 @@ pnpm demo:v2
 pnpm demo:failures
 ```
 
-Expected: shared REST/CLI order; five discoverable MCP tools; workflow stages and returned order resource; green modern/legacy/stdio proof; zero unauthorized/cancelled writes and one write after retries. Each demo owns fresh server state and cleanup. Installation/build time is outside this five-minute path.
+Expected: shared REST/CLI order; six discoverable MCP tools (including generated workflow and live-event wrapper); workflow stages and returned order resource; green modern/legacy/stdio proof; zero unauthorized/cancelled writes and one write after retries. Each demo owns fresh server state and cleanup. Installation/build time is outside this five-minute path.
 
 For independent Inspector verification: `pnpm demo:inspector`. For the full automated gate: `pnpm typecheck`, `pnpm test`, `pnpm build`.
 

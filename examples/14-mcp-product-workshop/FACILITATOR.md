@@ -59,7 +59,7 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 
 - **State:** fresh fixtures; Inspector package cached; signed-in Cursor only for optional human demonstration.
 - **Commands:** `pnpm demo:discover`, then `pnpm demo:inspector`.
-- **Expected:** five tools including generated `run_processReturnWorkflow`, policy resource, order template, reply prompt; authorized order read. Registry curl asserts modern 2026-07-28 and explicit legacy 2025-11-25.
+- **Expected:** six tools including generated `run_processReturnWorkflow` and live-event wrapper `processReturnWithProgress`, policy resource, order template, reply prompt; authorized order read. Registry curl asserts modern 2026-07-28 and explicit legacy 2025-11-25.
 - **Teaching point:** descriptions and schemas are the product interface. `callApi` is test-only and absent. Resources are not executable tools; prompt invocation is optional.
 - **Host chapter:** run `pnpm serve` in a dedicated terminal. In another, `source .runtime/server.env`. Follow `docs/client-setup.md` exactly for Inspector UI / Cursor. Open Studio's MCP list and inspect both registered servers. This is a human checkpoint, not a claim that Cursor automation ran.
 - **Fallback:** programmatic client + Inspector CLI output. If signed-in Cursor is unavailable, skip its mutation; never burn wire/failure time troubleshooting login.
@@ -69,8 +69,8 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 
 - **State:** fresh ORD-001, not the order already mutated by a host.
 - **Command:** `pnpm demo:workflow`.
-- **Expected:** `eligibility`, `draft`, `completion`; success; order resource now `returned`.
-- **Teaching point:** staged behavior is more than an arbitrary endpoint. The workflow rejects high-value orders; interactive `createReturn` owns their confirmation. Show source steps and the returned execution path. The execution path is a final result, not a claim of streamed progress events.
+- **Expected:** generated workflow result lists `eligibility`, `draft`, `completion`; the `processReturnWithProgress` wrapper then emits actual `WORKFLOW LOG` and `WORKFLOW PROGRESS` events (1/3 through 3/3), followed by the order resource now `returned`. The same idempotency key replays without another return.
+- **Teaching point:** automatic workflow exposure returns the final execution path; it does not automatically translate step events to MCP. The narrow wrapper uses public `mcp.log`/`mcp.progress` helpers and an ephemeral application-owned reporter to expose each completed stage. The client opts into per-request logging and progress. Do not persist this callback across durable suspension. Both paths run the same workflow; interactive `createReturn` still owns high-value confirmation.
 - **Fallback:** the real-HTTP workflow test in `tests/mcp-http.test.ts` and its asserted step path. Do not fabricate progress/log messages if a host doesn't display them.
 - **Cleanup:** script disconnects and closes the server. Explain process-local storage on restart.
 

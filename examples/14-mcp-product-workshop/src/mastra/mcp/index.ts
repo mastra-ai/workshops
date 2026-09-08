@@ -5,10 +5,11 @@ import { returnsService } from '../../domain/service.js';
 import { getOrder, checkReturnEligibility } from '../tools/reads.js';
 import { createReturn, returnRiskScore } from '../tools/mutations.js';
 import { processReturnWorkflow } from '../workflows/returns.js';
+import { processReturnWithProgress } from '../tools/workflow.js';
 
 const capabilities = {
   version: '1.0.0',
-  tools: { getOrder, checkReturnEligibility, createReturn, returnRiskScore },
+  tools: { getOrder, checkReturnEligibility, createReturn, returnRiskScore, processReturnWithProgress },
   workflows: { processReturnWorkflow },
   resources: {
     listResources: async ({ extra }: Parameters<NonNullable<ConstructorParameters<typeof MCPServer>[0]['resources']>['listResources']>[0]) => {

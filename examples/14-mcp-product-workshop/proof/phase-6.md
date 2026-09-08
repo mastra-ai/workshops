@@ -7,7 +7,7 @@ Development proof only. MCP source overlay: `a5019083edc3d147f35692fcb0c94099abb
 - Twelve setup/education slides plus optional questions, using the Mastra palette, typography, footer and sparse layout. Exact workshop title and presenters on cover/catalogue/run sheet.
 - `FACILITATOR.md`: 25/60/5 timing, one continuous demo, setup/expected output/fallback/cleanup for each chapter, drop-order rule and 30-minute extension.
 - README: setup, five-minute reviewer path, slide-to-code map, state boundary and troubleshooting.
-- `scripts/demo-workflow.ts`: actual HTTP workflow invocation; eligibility/draft/completion path, result and mutated resource all asserted. These are final execution results, not streamed progress events.
+- `scripts/demo-workflow.ts`: actual HTTP workflow invocation; eligibility/draft/completion path, result and mutated resource all asserted. At the Phase 6 commit these were final execution results, not streamed progress events. The Phase 7 development follow-up adds a live-event wrapper and `tests/workflow-progress.test.ts` asserting real logs/progress before the resource read.
 - Open-slide frozen install and production build passed. All thirteen pages rendered at 1920×1080. Automated DOM bounds checks found no overflow; computed animation is `none` under reduced motion. All pages visually reviewed for contrast, wrapping and code legibility.
 - Example typecheck, 25 tests and build passed. Full scripted rehearsal executed from shell, including surfaces, discovery, workflow, Inspector, modern wire, failures and CLI fallback. Commands allocate fresh state and close their owned processes. Interactive env-file sourcing/registry curl were exercised during Studio checks.
 
@@ -36,4 +36,4 @@ Under repository `.mastracode/proof/mcp-product-workshop/` (gitignored):
 - `studio-local-{modern,legacy}.{txt,png}`: successful local-asset assertions.
 - `rehearse.mjs`, `rehearsal.txt`, `demo.cast`: actual scripted demo output and timestamped asciicast recording. This is an automated rehearsal, not human timing approval.
 
-Remaining human gates: signed-in Cursor discovery/call recording; second-person README rehearsal; owner approval of the full timed delivery. Streamed workflow progress/log presentation has not been verified; only staged final results are claimed. Stable MCP 2.x registry installation remains a release gate, not something the local override proves.
+Remaining human gates: signed-in Cursor discovery/call recording; second-person README rehearsal; owner approval of the full timed delivery. The follow-up workflow demo verifies streamed progress/log presentation in addition to staged final results. Stable MCP 2.x registry installation remains a release gate, not something the local override proves.

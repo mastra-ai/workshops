@@ -35,6 +35,13 @@ export class ReturnsService {
     const reason = order.status === 'returned' ? 'ALREADY_RETURNED' : order.ageDays > policy.returnWindowDays ? 'EXPIRED' : 'ELIGIBLE';
     return eligibilitySchema.parse({ orderId: id, eligible: reason === 'ELIGIBLE', reason, requiresConfirmation: order.totalCents >= policy.highValueCents });
   }
+  previousReturn(identity: Identity, input: z.infer<typeof returnRequestSchema>) {
+    this.authorizedOrder(identity, input.orderId);
+    const previous = this.returns.get(JSON.stringify([identity.tenantId, input.idempotencyKey]));
+    if (!previous) return undefined;
+    if (previous.fingerprint !== JSON.stringify([input.orderId, input.reason])) throw new DomainError('CONFLICT', 'Idempotency key already used for a different request.');
+    return structuredClone(previous.result);
+  }
   createReturn(identity: Identity, input: unknown, confirmed = false) {
     const parsed = returnRequestSchema.safeParse(input);
     if (!parsed.success) throw new DomainError('INVALID_INPUT', 'Provide an orderId, reason, and idempotencyKey of 8–100 characters.');

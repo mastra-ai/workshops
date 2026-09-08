@@ -4,25 +4,34 @@ import { identityFromContext } from '../../domain/auth.js';
 import { DomainError, returnRequestSchema, returnSchema } from '../../domain/schemas.js';
 import { returnsService } from '../../domain/service.js';
 
+import { reportStage } from './progress.js';
+
 const draftSchema = returnRequestSchema.extend({ refundCents: z.number().int().nonnegative() });
 const eligibility = createStep({
   id: 'eligibility', inputSchema: returnRequestSchema, outputSchema: returnRequestSchema,
   execute: async ({ inputData, requestContext }) => {
     const result = returnsService.checkEligibility(identityFromContext(requestContext), inputData.orderId);
-    if (!result.eligible) throw new DomainError('INELIGIBLE', result.reason);
+    if (!result.eligible && !returnsService.previousReturn(identityFromContext(requestContext), inputData)) throw new DomainError('INELIGIBLE', result.reason);
     if (result.requiresConfirmation) throw new DomainError('CONFIRMATION_REQUIRED', 'Use createReturn with interactive confirmation for high-value orders.');
+    await reportStage(requestContext, 'eligibility', 1);
     return inputData;
   },
 });
 const draft = createStep({
   id: 'draft', inputSchema: returnRequestSchema, outputSchema: draftSchema,
-  execute: async ({ inputData, requestContext }) => ({ ...inputData, refundCents: returnsService.getOrder(identityFromContext(requestContext), inputData.orderId).totalCents }),
+  execute: async ({ inputData, requestContext }) => {
+    const draft = { ...inputData, refundCents: returnsService.getOrder(identityFromContext(requestContext), inputData.orderId).totalCents };
+    await reportStage(requestContext, 'draft', 2);
+    return draft;
+  },
 });
 const completion = createStep({
   id: 'completion', inputSchema: draftSchema, outputSchema: returnSchema,
   execute: async ({ inputData, requestContext }) => {
     const { refundCents, ...request } = inputData;
-    return returnsService.createReturn(identityFromContext(requestContext), request);
+    const result = returnsService.createReturn(identityFromContext(requestContext), request);
+    await reportStage(requestContext, 'completion', 3);
+    return result;
   },
 });
 export const processReturnWorkflow = createWorkflow({
