@@ -22,6 +22,10 @@ export class ReturnsService {
     if (!order) throw new DomainError('FORBIDDEN', 'Order unavailable in your account.');
     return order;
   }
+  listOrders(identity: Identity) {
+    if (!identitySchema.safeParse(identity).success) throw new DomainError('UNAUTHORIZED', 'Authentication required.');
+    return this.orders.filter(order => order.tenantId === identity.tenantId).map(order => orderSchema.parse(order));
+  }
   getOrder(identity: Identity, id: string) { return orderSchema.parse(this.authorizedOrder(identity, id)); }
   checkEligibility(identity: Identity, id: string) {
     const order = this.getOrder(identity, id);

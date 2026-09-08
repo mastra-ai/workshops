@@ -4,11 +4,13 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.27.0",
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "dev": "mastra dev",
     "build": "mastra build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.check.json",
     "test": "vitest run",
     "reset": "tsx scripts/reset.ts",
     "demo:surfaces": "tsx scripts/demo-surfaces.ts",
