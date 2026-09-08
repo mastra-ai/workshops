@@ -9,6 +9,8 @@
   },
   "scripts": {
     "dev": "mastra dev",
+    "serve": "tsx scripts/serve.ts",
+    "demo:inspector": "tsx scripts/clients/inspector.ts",
     "build": "mastra build",
     "typecheck": "tsc --noEmit -p tsconfig.check.json",
     "test": "vitest run",
