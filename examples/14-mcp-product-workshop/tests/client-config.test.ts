@@ -10,3 +10,8 @@ test('Cursor template uses environment placeholders rather than credentials or p
   });
   expect(raw).not.toMatch(/workshop-north|\/Users\/|\/tmp\/|localhost:\d+/);
 });
+
+test('optional stdio template launches only the protocol harness using a project placeholder', async () => {
+  const config = JSON.parse(await readFile(new URL('../docs/clients/stdio-mcp.json', import.meta.url), 'utf8'));
+  expect(config.mcpServers['returns-protocol-lab']).toEqual({ command: 'pnpm', args: ['-C', '${env:RETURNS_DESK_PROJECT}', 'exec', 'tsx', 'scripts/protocol/stdio-server.ts'] });
+});

@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import { z } from 'zod';
+import { execFileSync } from 'node:child_process';
 import { MCPClient } from '@mastra/mcp';
 import { noopObserve } from '@mastra/core/tools';
 import { startServer } from '../scripts/server.js';
@@ -11,6 +12,13 @@ function client(tenant: string, era: 'modern' | 'legacy' = 'modern') {
   const result = new MCPClient({ id: `test-${clients.length}`, servers: { returns: { url: new URL(`${server.baseUrl}/api/mcp/returns-${era}/mcp`), requestInit: { headers: { authorization: `Bearer workshop-${tenant}` } }, ...(era === 'legacy' ? { protocolVersion: '2025-11-25' as const } : {}) } } });
   clients.push(result); return result;
 }
+test('allocated server registry reports resolved modern and explicit legacy revisions through curl', () => {
+  const registry = JSON.parse(execFileSync('curl', ['-fsS', `${server.baseUrl}/api/mcp/v0/servers`], { encoding: 'utf8' }));
+  expect(registry.servers).toEqual(expect.arrayContaining([
+    expect.objectContaining({ id: 'returns-modern', protocol_version: '2026-07-28' }),
+    expect.objectContaining({ id: 'returns-legacy', protocol_version: '2025-11-25' }),
+  ]));
+});
 test('modern and legacy clients discover and read authorized resources', async () => {
   for (const era of ['modern', 'legacy'] as const) {
     const connection = client('north', era);

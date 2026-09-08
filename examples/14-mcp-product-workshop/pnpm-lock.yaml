@@ -18,6 +18,9 @@ importers:
         specifier: ^4.4.3
         version: 4.5.4
     devDependencies:
+      '@modelcontextprotocol/client':
+        specifier: 2.0.0
+        version: 2.0.0
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.1

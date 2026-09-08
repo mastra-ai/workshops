@@ -69,4 +69,6 @@ Approve only the bounded local mutation. Repeat the call with the same key: ther
 
 `docs/clients/cursor-mcp.json` also illustrates the generic remote JSON shape (`mcpServers`, URL and headers). These keys and `${env:...}` interpolation are host-specific, not part of MCP. Adapt them to the installed host's documented format. Hosts without remote HTTP support may need a compatible bridge; do not silently switch to SSE.
 
-The optional local stdio configuration is supplied with the Phase 4 negotiation harness, not as a production deployment alternative. Remote multi-user deployments need HTTPS and proper OAuth; this local bearer-token exercise is not an OAuth server.
+The optional `docs/clients/stdio-mcp.json` starts the protocol-only stdio harness. Set `RETURNS_DESK_PROJECT` to this example directory in your host environment and adapt interpolation to the host. This harness permits discovery/public policy reads but injects no tenant identity, so tenant tools correctly reject calls. It is not a second production deployment path. `pnpm demo:v2` uses this same server through a byte-recording proxy to prove Mastra's omitted negotiation sends `server/discover`.
+
+Remote multi-user deployments need HTTPS and proper OAuth; this local bearer-token exercise is not an OAuth server.

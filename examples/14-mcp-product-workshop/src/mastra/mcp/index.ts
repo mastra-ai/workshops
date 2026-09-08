@@ -1,5 +1,6 @@
 import { MCPServer } from '@mastra/mcp';
-import { identitySchema, orderIdSchema, policy, DomainError } from '../../domain/schemas.js';
+import { identitySchema, orderIdSchema, DomainError } from '../../domain/schemas.js';
+import { readPublicPolicy } from '../../domain/public-policy.js';
 import { returnsService } from '../../domain/service.js';
 import { getOrder, checkReturnEligibility } from '../tools/reads.js';
 import { createReturn, returnRiskScore } from '../tools/mutations.js';
@@ -20,7 +21,7 @@ const capabilities = {
     },
     resourceTemplates: async () => [{ uriTemplate: 'returns://orders/{orderId}', name: 'Authorized order state', mimeType: 'application/json' }],
     getResourceContent: async ({ uri, extra }: Parameters<NonNullable<ConstructorParameters<typeof MCPServer>[0]['resources']>['getResourceContent']>[0]) => {
-      if (uri === 'returns://policies/current') return { text: JSON.stringify(policy) };
+      if (uri === 'returns://policies/current') return { text: JSON.stringify(readPublicPolicy()) };
       const match = /^returns:\/\/orders\/(ORD-\d{3})$/.exec(uri);
       if (!match) throw new DomainError('INVALID_INPUT', 'Unknown resource.');
       const identity = identitySchema.safeParse(extra.authInfo?.extra?.user);
