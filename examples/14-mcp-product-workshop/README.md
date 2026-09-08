@@ -6,7 +6,13 @@ Returns Desk is a deterministic local commerce application: one business layer w
 
 ## Development baseline
 
-Requires Node 22.13+ and pnpm. This scaffold is not yet a runnable workshop. The registration smoke test intentionally fails until Phase 1 implements the application. Demo script entries reserve the approved command names; their implementations follow in order.
+Requires Node 22.13+ and pnpm. Phase 1 provides runnable REST/CLI surfaces; MCP demos are still being implemented. The registration smoke test now passes.
+
+`pnpm demo:surfaces` starts an isolated Mastra server on an allocated port, compares a REST lookup with a real CLI process, then closes the server. `pnpm dev` starts the interactive server. GET `/returns/orders/ORD-001` and POST `/returns` require `Authorization: Bearer workshop-north` (or `workshop-south`). These are public local teaching credentials, not production secrets.
+
+CLI: `RETURNS_TENANT=north pnpm exec tsx src/cli.ts get ORD-001`. For a mutation: `return ORD-001 damaged unique-key-001`. Each CLI process/server has fresh in-memory fixtures; this example does not provide shared persistent storage. Restart a running server to reset its state. `pnpm reset` resets only its own process; automated demos always start fresh servers.
+
+The optional `src/mastra/agents/support.ts` is deliberately not registered. To use it, supply your model key and a trusted `RequestContext` containing `identity: {tenantId, userId}`. The model cannot choose that identity. Both read tools call the same authorized service.
 
 ```bash
 pnpm install --frozen-lockfile
