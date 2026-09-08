@@ -28,6 +28,8 @@ const draft = createStep({
 const completion = createStep({
   id: 'completion', inputSchema: draftSchema, outputSchema: returnSchema,
   execute: async ({ inputData, requestContext }) => {
+    const signal = requestContext?.get('returns.abortSignal');
+    if (signal instanceof AbortSignal && signal.aborted) throw new DomainError('CANCELLED', 'Return workflow cancelled before mutation.');
     const { refundCents, ...request } = inputData;
     const result = returnsService.createReturn(identityFromContext(requestContext), request);
     await reportStage(requestContext, 'completion', 3);

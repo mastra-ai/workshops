@@ -2,6 +2,7 @@ import { afterAll, beforeAll, expect, test } from 'vitest';
 import { z } from 'zod';
 import { execFileSync } from 'node:child_process';
 import { MCPClient } from '@mastra/mcp';
+import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { noopObserve } from '@mastra/core/tools';
 import { startServer } from '../scripts/server.js';
 let server: Awaited<ReturnType<typeof startServer>>;
@@ -45,6 +46,17 @@ test('registered workflow executes through the real HTTP tool boundary', async (
   expect(workflowResult.status).toBe('success');
   expect(workflowResult.stepExecutionPath).toEqual(['eligibility', 'draft', 'completion']);
   expect((await connection.resources.read('returns', 'returns://orders/ORD-001')).contents[0]).toHaveProperty('text', JSON.stringify({ id: 'ORD-001', totalCents: 4900, ageDays: 5, status: 'returned' }));
+});
+test('raw MCP response never echoes sensitive request metadata', async () => {
+  const raw = new Client({ name: 'metadata-proof', version: '1.0.0' }, { versionNegotiation: { mode: { pin: '2026-07-28' } } });
+  try {
+    await raw.connect(new StreamableHTTPClientTransport(new URL(`${server.baseUrl}/api/mcp/returns-modern/mcp`), { requestInit: { headers: { authorization: 'Bearer workshop-north' } } }));
+    const result = await raw.callTool({ name: 'getOrder', arguments: { orderId: 'ORD-001' }, _meta: { authorization: 'FORBIDDEN-SECRET-MARKER', baggage: 'private=FORBIDDEN-BAGGAGE', traceparent: '00-11111111111111111111111111111111-2222222222222222-01' } });
+    expect(result.isError).toBeFalsy();
+    expect(JSON.stringify(result)).toContain('11111111111111111111111111111111');
+    expect(JSON.stringify(result)).not.toContain('FORBIDDEN');
+    expect(JSON.stringify(result)).not.toContain('2222222222222222');
+  } finally { await raw.close(); }
 });
 test('transport rejects missing authentication', async () => {
   const response = await fetch(`${server.baseUrl}/api/mcp/returns-modern/mcp`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });

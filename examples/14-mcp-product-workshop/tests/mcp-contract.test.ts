@@ -1,9 +1,11 @@
-import { beforeEach, expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { RequestContext } from '@mastra/core/request-context';
 import { z } from 'zod';
 import { returnsModern, returnsLegacy } from '../src/mastra/mcp/index.js';
 import { returnsService } from '../src/domain/service.js';
 import { processReturnWorkflow } from '../src/mastra/workflows/returns.js';
+import { processReturnWithProgress } from '../src/mastra/tools/workflow.js';
+import { noopObserve } from '@mastra/core/tools';
 
 // Deliberately broad anti-contract: no operation semantics, authorization or side-effect boundary.
 const callApi = z.object({ method: z.string(), path: z.string(), body: z.unknown() });
@@ -26,6 +28,14 @@ test('read and scalar contracts preserve public shapes', async () => {
   expect(await returnsModern.executeTool('getOrder', { orderId: 'ORD-001' }, options)).toEqual({ id: 'ORD-001', totalCents: 4900, ageDays: 5, status: 'delivered' });
   expect(await returnsModern.executeTool('returnRiskScore', { orderId: 'ORD-001' }, options)).toBe(20);
 });
+test('invalid domain output fails the tool output contract instead of being coerced', async () => {
+  const spy = vi.spyOn(returnsService, 'getOrder').mockReturnValue({ id: 'ORD-001', totalCents: -1, ageDays: 5, status: 'delivered' });
+  try {
+    const result = await returnsModern.executeTool('getOrder', { orderId: 'ORD-001' }, { requestContext: context() });
+    expect(result).toMatchObject({ error: true });
+    expect(JSON.stringify(result)).toContain('totalCents');
+  } finally { spy.mockRestore(); }
+});
 test('mutating tool retries converge without bypassing high-value confirmation', async () => {
   const options = { requestContext: context() };
   const request = { orderId: 'ORD-001', reason: 'damaged', idempotencyKey: 'contract-001' };
@@ -33,6 +43,15 @@ test('mutating tool retries converge without bypassing high-value confirmation',
   expect(await returnsModern.executeTool('createReturn', request, options)).toEqual(first);
   expect(returnsService.mutationCount).toBe(1);
   await expect(returnsModern.executeTool('createReturn', { ...request, orderId: 'ORD-002', idempotencyKey: 'contract-002' }, options)).rejects.toThrow();
+  expect(returnsService.mutationCount).toBe(1);
+});
+test('live workflow wrapper rejects cancellation and conflicting retries without another write', async () => {
+  const input = { orderId: 'ORD-001', reason: 'damaged' as const, idempotencyKey: 'wrapper-001' };
+  const controller = new AbortController(); controller.abort();
+  await expect(processReturnWithProgress.execute?.(input, { requestContext: context(), abortSignal: controller.signal, observe: noopObserve })).rejects.toMatchObject({ code: 'CANCELLED' });
+  expect(returnsService.mutationCount).toBe(0);
+  await returnsModern.executeTool('processReturnWithProgress', input, { requestContext: context() });
+  await expect(returnsModern.executeTool('processReturnWithProgress', { ...input, reason: 'wrong-item' }, { requestContext: context() })).rejects.toThrow('Idempotency key already used for a different request.');
   expect(returnsService.mutationCount).toBe(1);
 });
 test('workflow reaches completion for standard orders and blocks ineligible orders', async () => {
