@@ -63,27 +63,27 @@ const Both: Page = () => <Canvas>
   <div style={{ display: 'flex', marginTop: 78, gap: 80 }}>
     <section style={{ width: 808, paddingRight: 60, borderRight: `1px solid ${c.line}` }}>
       <div style={{ fontSize: 108, color: c.blue }}>CLI</div>
-      <Line>For people who want commands.</Line>
+      <Line>Agents can use the shell, too.</Line>
       <div style={{ fontFamily: mono, fontSize: 34, padding: '36px 0', marginTop: 38, color: c.blue }}>$ returns get ORD-001</div>
     </section>
     <section style={{ flex: 1 }}>
       <div style={{ fontSize: 108, color: c.green }}>MCP</div>
-      <Line>For agents that need your product.</Line>
-      <div style={{ fontSize: 42, lineHeight: 1.25, padding: '36px 0', marginTop: 38 }}>“Can this order be returned?”</div>
+      <Line>A shared protocol across hosts.</Line>
+      <div style={{ fontFamily: mono, fontSize: 34, padding: '36px 0', marginTop: 38, color: c.green }}>tools/list → tools/call</div>
     </section>
   </div>
-  <div style={{ position: 'absolute', bottom: 25, fontSize: 34, color: c.muted }}>Same business logic. Different ways in.</div>
+  <div style={{ position: 'absolute', bottom: 25, fontSize: 34, color: c.muted }}>Shell composition and MCP can work together.</div>
 </Canvas>;
 
 const Decision: Page = () => <Canvas>
-  <Label>Start with who’s using it</Label>
-  <h1 style={heading}>Who is this for?</h1>
+  <Label>Starting points, not rules</Label>
+  <h1 style={heading}>Where will it run?</h1>
   <div style={{ marginTop: 68 }}>
     {[
-      ['Your support engineers', 'CLI', c.blue],
-      ['Customers in their own assistant', 'MCP', c.green],
-      ['Customers inside your product', 'Embedded agent', c.text],
-      ['Another application', 'API', c.text],
+      ['A shell you can provision', 'CLI', c.blue],
+      ['A customer’s MCP-capable host', 'MCP', c.green],
+      ['Your own UX and reasoning loop', 'Embedded agent', c.text],
+      ['A deterministic app integration', 'API', c.text],
     ].map(([user, choice, color]) => <div key={choice} style={{ display: 'flex', alignItems: 'center', borderTop: `1px solid ${c.line}`, padding: '27px 0', gap: 38 }}>
       <div style={{ fontSize: 40, width: 1020 }}>{user}</div><span style={{ color: c.muted, fontSize: 36 }}>→</span><div style={{ fontSize: 40, color }}>{choice}</div>
     </div>)}
@@ -119,9 +119,9 @@ const Primitives: Page = () => <Canvas>
   <h1 style={heading}>An action. A document. A prompt.</h1>
   <div style={{ marginTop: 70 }}>
     {[
-      ['Tool', 'createReturn(…)', 'Do something', c.green],
-      ['Resource', 'returns://policies/current', 'Read something', c.blue],
-      ['Prompt', 'draft-customer-reply', 'Prepare instructions', c.text],
+      ['Tool', 'createReturn(…)', 'Model-selected', c.green],
+      ['Resource', 'returns://policies/current', 'App-managed', c.blue],
+      ['Prompt', 'draft-customer-reply', 'User-invoked', c.text],
     ].map(([kind, example, meaning, color]) => <div key={kind} style={{ display: 'flex', alignItems: 'center', padding: '32px 0', borderTop: `1px solid ${c.line}` }}>
       <div style={{ width: 260, fontSize: 38, color }}>{kind}</div><div style={{ width: 1000, fontFamily: mono, fontSize: 36 }}>{example}</div><div style={{ fontSize: 28, color: c.muted }}>{meaning}</div>
     </div>)}
@@ -131,7 +131,7 @@ const Primitives: Page = () => <Canvas>
 
 const Contracts: Page = () => <Canvas>
   <div style={{ display: 'flex', height: '100%', gap: 85 }}>
-    <div style={{ width: 575, paddingTop: 70 }}><Label>Tool design</Label><h1 style={{ ...heading, fontSize: 99 }}>Make the<br />action<br />obvious.</h1><Line style={{ fontSize: 34 }}>Name the job,<br />not the HTTP request.</Line></div>
+    <div style={{ width: 575, paddingTop: 70 }}><Label>Tool design</Label><h1 style={{ ...heading, fontSize: 99 }}>Make the<br />action<br />obvious.</h1><Line style={{ fontSize: 34 }}>Clear inputs.<br />Useful results.<br />Test on real tasks.</Line></div>
     <div style={{ flex: 1, paddingTop: 40 }}>
       <div style={{ fontFamily: mono, color: c.muted, fontSize: 29, padding: '25px 0' }}>callApi({`{ method, path, body }`})</div>
       <div style={{ color: c.green, fontSize: 65, margin: '12px 0' }}>↓</div>
@@ -144,14 +144,14 @@ const Modern: Page = () => <Canvas>
   <Label>Stateless Streamable HTTP</Label>
   <h1 style={heading}>No transport session to keep alive.</h1>
   <div style={{ display: 'flex', marginTop: 80, gap: 88 }}>
-    <section style={{ width: 780 }}><div style={{ fontSize: 30, color: c.muted }}>EXPLICIT LEGACY</div><div style={{ fontSize: 46, marginTop: 20 }}>A session between calls</div>
+    <section style={{ width: 780 }}><div style={{ fontSize: 30, color: c.muted }}>OUR LEGACY SERVER</div><div style={{ fontSize: 46, marginTop: 20 }}>A session between calls</div>
       <svg viewBox="0 0 780 230" width="780" height="230" role="img" aria-label="Legacy: initialize a session, then make two calls using its session ID"><path d="M55 116 H725" stroke={c.muted} strokeWidth="3" fill="none" />{[70, 390, 710].map((x, i) => <g key={x}><circle cx={x} cy={116} r={14} fill={c.bg} stroke={c.muted} strokeWidth={3} /><text x={x} y={78} textAnchor="middle" fontFamily={mono} fontSize={26} fill={c.text}>{i === 0 ? 'init' : 'call'}</text></g>)}<text x="390" y="186" textAnchor="middle" fontFamily={mono} fontSize="25" fill={c.muted}>same session ID</text></svg>
     </section>
-    <section style={{ flex: 1 }}><div style={{ fontSize: 30, color: c.green }}>MODERN DEFAULT · v2</div><div style={{ fontSize: 46, marginTop: 20 }}>Each request stands alone</div>
+    <section style={{ flex: 1 }}><div style={{ fontSize: 30, color: c.green }}>MASTRA v2 · 2026-07-28</div><div style={{ fontSize: 46, marginTop: 20 }}>Each request stands alone</div>
       <svg viewBox="0 0 780 230" width="780" height="230" role="img" aria-label="Modern: two independent call and response exchanges without a transport session ID">{[0, 1].map(i => <g key={i}><path d={`M50 ${66 + i * 100} H725 m-14 -10 l14 10 -14 10`} stroke={c.green} strokeWidth="3" fill="none" /><text x="388" y={48 + i * 100} textAnchor="middle" fontFamily={mono} fontSize="26" fill={c.text}>request → response</text></g>)}</svg>
     </section>
   </div>
-  <Line style={{ fontSize: 32, marginTop: 44 }}>Available before v2 as opt-in. Now the default.</Line>
+  <Line style={{ fontSize: 32, marginTop: 44 }}>Opt-in before Mastra v2. Default in our v2 build.</Line>
 </Canvas>;
 
 const Safety: Page = () => <Canvas>
@@ -160,7 +160,7 @@ const Safety: Page = () => <Canvas>
   <div style={{ display: 'flex', alignItems: 'center', marginTop: 104, gap: 38 }}>
     {['Authorize', 'Confirm', 'Write once'].map((label, i) => <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 38 }}><div><div style={{ fontFamily: mono, fontSize: 28, color: c.green, marginBottom: 20 }}>0{i + 1}</div><div style={{ fontSize: 64 }}>{label}</div></div>{i < 2 && <span style={{ fontSize: 48, color: c.line, padding: '40px 30px 0' }}>→</span>}</div>)}
   </div>
-  <Line style={{ marginTop: 90, fontSize: 32 }}>Local token in this lab. Production: HTTPS + OAuth + tenant authorization.</Line>
+  <Line style={{ marginTop: 90, fontSize: 32 }}>Public remote server: HTTPS + OAuth. Every return: tenant authorization.</Line>
 </Canvas>;
 
 const ReturnsDesk: Page = () => <Canvas>
@@ -193,14 +193,14 @@ const Questions: Page = () => <Canvas>
 export const notes: (string | undefined)[] = [
   'Welcome and introduce Daniel Lew and Alex Booker. The promise: wrap an existing application so customers can use it from the agents they already have. The core path needs no model key. Spend 25 minutes on this setup, then 60 minutes in one continuous demo and five on questions.',
   'The quotation is an illustrative customer question, not a testimonial. Use Daniel’s coworker analogy: every agent has habits, a learning curve, and quirks. Customers may prefer ChatGPT or Claude over learning another product-specific assistant. MCP is a way to meet them there.',
-  'MCP is back in the conversation, but the CLI discussion was not wrong. CLIs suit engineers and scripts. Agents can also use CLIs when the deployment and permissions make sense. MCP adds a discoverable, typed boundary for external hosts. These are not exclusive choices.',
-  'Ask the audience which interface they would ship. These are starting points, not rules: ask about technical skill, who owns the reasoning loop and authentication, local versus remote deployment, discovery, and side effects. An embedded agent fits when the product owns UX, model policy, and orchestration. Both is a valid answer.',
-  'The host owns the reasoning loop and tool selection. MCP describes the calls and carries requests and responses. The application checks identity, tenant scope, and business permissions. Walk the outgoing getOrder request and the returning data. The labels are schematic, not a complete wire transcript.',
+  'The strongest CLI argument is composition and progressive disclosure: read help when needed, pipe or filter results without copying every intermediate value through model context. Mario Zechner demonstrates this for browser tools (2025-11-02): https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp . His tool counts and token costs describe that setup, not every MCP host. Anthropic demonstrates the same principle over MCP with code execution: https://www.anthropic.com/engineering/code-execution-with-mcp . Cloudflare also wraps MCP tools in a TypeScript API: https://blog.cloudflare.com/code-mode . Protocol choice and model-facing execution strategy are separate decisions. Neither CLI nor MCP is inherently cheaper or safer. Do not present vendor benchmark ratios as universal results.',
+  'These are architectural recommendations, not protocol rules. Can you install a CLI and provide scoped credentials in the execution environment? Does the customer’s host support your MCP transport and authentication? Who owns approvals and the reasoning loop? A CLI can call a remote API; MCP can run locally over stdio. Do not equate CLI with local or MCP with remote. Ask the audience to change one assumption and reconsider the answer. Source for local/remote architecture and host/client/server roles: https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture .',
+  'The host coordinates the model, consent and MCP clients; a client communicates with a server. MCP does not supply the reasoning loop or make your product automatically discoverable to every assistant. The user or host must configure access and support the chosen features. The application checks identity, tenant scope and business permissions. Walk the outgoing getOrder request and returning data. Labels are schematic, not JSON-RPC wire syntax. Sources: https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture and https://modelcontextprotocol.io/specification/2026-07-28/server/tools .',
   'Show how REST, CLI, the optional embedded agent, and MCP all call ReturnsService. An adapter does not duplicate eligibility or idempotency rules. In the live demo, compare the surfaces before inspecting the MCP registration.',
-  'Tools perform operations, resources expose readable context, and prompts provide reusable instructions rather than execute a mutation. A workflow-backed tool can coordinate eligibility, draft, and completion. The demo shows both the generated workflow tool and a narrow wrapper with live log/progress events.',
-  'Contrast the test-only callApi contract with createReturn. Beyond the name, explain required identifiers, when to use the tool, side effects, authorization scope, errors, and output schemas. Show the actual descriptions and schemas during discovery. Neither code snippet here is a complete invocation.',
-  'The diagram compares this workshop’s explicit 2025-11-25 sessionful server with modern 2026-07-28 HTTP. Stateless transport does not mean stateless business data or that streams cannot stay open. Modern behavior was supported before v2 as opt-in; v2 changes the default. Tools, resources, prompts, workflows, and Streamable HTTP itself predate v2. MRTR elicitation and subscriptions/listen are shown live. Keep cache hints, trace metadata, CIMD, and the exact novelty/scope table in FACILITATOR.md and RELEASE.md, not on screen.',
-  'Authenticate the caller, authorize the tenant and operation, and confirm high-value returns before writing. Enforce idempotency for retries, keep replayed reads safe, propagate cancellation before commit, and redact internal failures. The local bearer token is a teaching boundary, not a production OAuth implementation. CIMD supplies client metadata; it does not replace authorization.',
+  'The intended control model matters: model-selected tools, application-managed resources, user-invoked prompts. These are design conventions; the tools specification does not mandate a particular UI. Tools can be read-only too; a resource is not the only way to read. A prompt returns messages, not an executed workflow. Workflow-backed tools are Mastra application behavior, not a fourth MCP primitive. Sources: https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts and https://modelcontextprotocol.io/specification/2026-07-28/server/tools . Demonstrate both the generated workflow tool and narrow wrapper with log/progress events.',
+  'Anthropic recommends task-oriented tools, unambiguous inputs, meaningful bounded outputs, actionable errors and evaluations with agents: https://www.anthropic.com/engineering/writing-tools-for-agents . Contrast callApi with createReturn: the former requires API knowledge in addition to the task. This is not a rule that generic tools are always bad; code-mode gateways can be useful when paired with discovery and enforced access controls. Test realistic tool selection and recovery, not just schema validity. Our deterministic tests prove contracts and side effects, not model success rates; signed-in host testing remains a separate check. Neither snippet is a complete invocation. Show descriptions, reason codes and output schemas in the demo.',
+  'The July 2026 specification removes protocol-level sessions and makes requests self-describing: https://blog.modelcontextprotocol.io/posts/2026-07-28 . That simplifies routing across server instances, but does not remove database coordination, application state or long-lived subscription streams. The left diagram describes OUR sessionful legacy server, not a claim that all older HTTP implementations required sessions. Mastra already supported 2026 behavior as opt-in: https://github.com/mastra-ai/mastra/pull/20929 and https://github.com/mastra-ai/mastra/pull/20931 . Our unmerged v2 build changes the default; it is not a released npm package yet. Show raw session headers, MRTR and subscriptions/listen live. The stdio auto probe is separate from pinned HTTP discovery. Keep the full novelty/scope table in FACILITATOR.md.',
+  'Three distinct decisions: host consent to a tool call, server authorization of the caller and tenant, and domain confirmation of a high-value return. None substitutes for the others. For protected HTTP servers, validate tokens intended for this server; do not pass inbound bearer tokens through to unrelated APIs. Source: https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization/security-considerations . Tool results remain untrusted content; schemas do not prevent prompt injection. Source: https://modelcontextprotocol.io/docs/2026-07-28/develop/clients/client-best-practices . Idempotency is our application guarantee, not an MCP exactly-once guarantee. Keep writes after confirmation, and explain cancellation cannot undo an already committed return. The lab token is not production OAuth. CIMD identifies client metadata; it does not grant business permission.',
   'This is a diagrammatic fixture card, not a screenshot of a commerce UI. ORD-001 is a $49 order purchased five days ago. Data is process-local; restart resets it. The same service is exposed by modern and explicit-legacy adapters. Subscriptions use only the non-sensitive public policy resource because URI membership does not authorize tenant data.',
   'Leave the slides now. Follow FACILITATOR.md: shared surfaces, discovery, workflow, modern wire proof, and failure drills. Show the real scalar structuredContent 80 and the failure summary with abortedWrites 0, concurrentRetries 12, committedWrites 1 in terminal output, not on this transition. Drop the optional prompt and Cursor mutation first if time is short; keep the wire and failure demos.',
   'Optional closing slide after the entire demo. Ask for one concrete capability participants could expose in their own application. Leave time for questions rather than repeating a checklist.',

@@ -31,8 +31,8 @@ Each demo owns fresh state, allocates a port and closes its process/clients. `re
 | --- | --- | --- |
 | 1 · Cover + hosts | 2 min | Welcome, introduce Daniel Lew and Alex Booker. Promise: a callable product, not a new assistant. No model key needed. |
 | 2 · Coworkers | 2 min | Every agent has a learning curve and quirks. Ask who already has a preferred assistant. Nontechnical users may prefer their existing host. |
-| 3 · False binary | 2 min | MCP has re-entered the conversation; CLI debates need not produce a winner. A CLI is excellent for explicit local automation. |
-| 4 · Decision lab | 4 min | Classify support engineer, customer assistant and embedded checkout helper. Ask who owns reasoning/auth; consider user skill, locality, discovery and side effects. Accept “both.” |
+| 3 · CLI / MCP | 2 min | Steelman CLI: agents can use shells, read help on demand and filter intermediate results. Anthropic and Cloudflare also do code execution over MCP. Protocol choice is not context strategy. No universal token-cost ratio. |
+| 4 · Decision lab | 4 min | Start with the execution environment: can you provision a shell and credentials, or must you integrate with a customer’s host? Ask who owns reasoning/auth. CLI can be remote; MCP can be local. Accept “both.” |
 | 5 · Boundary | 2 min | The host controls reasoning; the product controls authorization. Discovery is not permission. |
 | 6 · Shared domain | 2 min | Four surfaces, one service. Reuse semantics, not HTTP calls between adapters. Processes share code, not in-memory state. |
 | 7 · Primitives | 2 min | Tool = action, resource = context, prompt = reusable instructions. Workflow = coordinated application behavior exposed as a tool. |
@@ -44,7 +44,7 @@ Each demo owns fresh state, allocates a port and closes its process/clients. `re
 
 ### Detail for the presenter, not the screen
 
-The deck exports per-slide speaker notes. Slide numbers and the 25/60/5 timing are unchanged. The customer quotation on slide 2 is illustrative, not a testimonial; emphasize Daniel’s point that agents, like coworkers, have habits and quirks you learn. The slide 11 receipt is a diagram of the real ORD-001 fixture, not an application screenshot.
+The deck exports per-slide speaker notes with primary-source links. Read [Workshop claims and sources](docs/research.md) before presenting: it maps every slide to evidence and distinguishes protocol facts, implementation proof, practitioner findings and our recommendations. Slide numbers and the 25/60/5 timing are unchanged. The customer quotation on slide 2 is illustrative, not a testimonial; emphasize Daniel’s point that agents, like coworkers, have habits and quirks you learn. The slide 11 receipt is a diagram of the real ORD-001 fixture, not an application screenshot.
 
 For slide 9, keep the release distinctions precise:
 
