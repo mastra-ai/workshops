@@ -13,7 +13,7 @@ export const eligibilitySchema = z.object({ orderId: orderIdSchema, eligible: z.
 export const returnRequestSchema = z.object({ orderId: orderIdSchema, idempotencyKey: z.string().min(8).max(100), reason: z.enum(['damaged', 'wrong-item', 'changed-mind']) }).strict();
 export type ReturnRequest = z.infer<typeof returnRequestSchema>;
 export const returnSchema = z.object({ id: z.string(), orderId: orderIdSchema, refundCents: z.number().int().nonnegative(), status: z.literal('created') });
-export const publicErrorSchema = z.object({ error: z.object({ code: z.enum(['UNAUTHORIZED', 'FORBIDDEN', 'INVALID_INPUT', 'INELIGIBLE', 'CONFIRMATION_REQUIRED', 'CONFLICT', 'INTERNAL']), message: z.string() }) });
+export const publicErrorSchema = z.object({ error: z.object({ code: z.enum(['UNAUTHORIZED', 'FORBIDDEN', 'INVALID_INPUT', 'INELIGIBLE', 'CONFIRMATION_REQUIRED', 'CONFLICT', 'CANCELLED', 'INTERNAL']), message: z.string() }) });
 export type ErrorCode = z.infer<typeof publicErrorSchema>['error']['code'];
 export class DomainError extends Error {
   constructor(public readonly code: ErrorCode, message: string) { super(message); }

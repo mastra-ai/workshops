@@ -1,7 +1,7 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { identityFromContext } from '../../domain/auth.js';
-import { DomainError, orderIdSchema, returnRequestSchema, returnSchema } from '../../domain/schemas.js';
+import { DomainError, publicError, orderIdSchema, returnRequestSchema, returnSchema } from '../../domain/schemas.js';
 import { returnsService } from '../../domain/service.js';
 
 export const createReturn = createTool({
@@ -11,11 +11,20 @@ export const createReturn = createTool({
   outputSchema: returnSchema,
   execute: async (input, context) => {
     const identity = identityFromContext(context?.requestContext);
+    const signal = context?.mcp?.extra.signal ?? context?.abortSignal;
+    const checkCancellation = () => { if (signal?.aborted) throw new DomainError('CANCELLED', 'Return request cancelled before writing.'); };
     try {
+      returnsService.getOrder(identity, input.orderId);
+      await returnsService.prepareReturn(signal);
+      checkCancellation();
       // Let the service resolve idempotent replays before asking for confirmation.
       return returnsService.createReturn(identity, input);
     } catch (error) {
-      if (!(error instanceof DomainError) || error.code !== 'CONFIRMATION_REQUIRED') throw error;
+      checkCancellation();
+      if (!(error instanceof DomainError) || error.code !== 'CONFIRMATION_REQUIRED') {
+        const safe = publicError(error).error;
+        throw new DomainError(safe.code, safe.message);
+      }
       const elicitation = context?.mcp?.elicitation;
       if (!elicitation) throw error;
       const response = await elicitation.sendRequest({
@@ -29,7 +38,9 @@ export const createReturn = createTool({
         });
       if (response.action !== 'accept' || response.content?.confirmed !== true) throw error;
       // Recheck authorization, eligibility and idempotency after the interaction.
-      return returnsService.createReturn(identity, input, true);
+      checkCancellation();
+      try { return returnsService.createReturn(identity, input, true); }
+      catch (error) { const safe = publicError(error).error; throw new DomainError(safe.code, safe.message); }
     }
   },
 });

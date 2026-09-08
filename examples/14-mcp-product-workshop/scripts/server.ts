@@ -16,10 +16,13 @@ export async function startServer() {
   child.stderr.on('data', data => { output += data; });
   const baseUrl = `http://localhost:${port}`;
   async function close() {
-    if (child.exitCode !== null) return;
+    if (child.exitCode !== null || child.signalCode !== null) return;
+    const exited = once(child, 'exit');
     if (child.pid) process.kill(-child.pid, 'SIGTERM');
-    await Promise.race([once(child, 'exit'), new Promise(resolve => setTimeout(resolve, 3000))]);
-    if (child.exitCode === null && child.pid) process.kill(-child.pid, 'SIGKILL');
+    const timer = setTimeout(() => {
+      if (child.exitCode === null && child.signalCode === null && child.pid) process.kill(-child.pid, 'SIGKILL');
+    }, 3000);
+    try { await exited; } finally { clearTimeout(timer); }
   }
   try {
     for (let attempt = 0; attempt < 120; attempt++) {

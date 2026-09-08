@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { setTimeout } from 'node:timers/promises';
 import { DomainError, identitySchema, orderIdSchema, orderSchema, eligibilitySchema, policy, returnSchema, returnRequestSchema, type Identity } from './schemas.js';
 
 const storedOrderSchema = orderSchema.extend({ tenantId: z.enum(['north', 'south']) });
@@ -13,6 +14,8 @@ const seed = storedOrderSchema.array().parse([
 export class ReturnsService {
   private orders = structuredClone(seed);
   private returns = new Map<string, { fingerprint: string; result: z.infer<typeof returnSchema> }>();
+  // Stand-in for a cancellable external preflight, with no side effects.
+  async prepareReturn(signal?: AbortSignal) { await setTimeout(50, undefined, { signal }); }
   get mutationCount() { return this.returns.size; }
   reset() { this.orders = structuredClone(seed); this.returns.clear(); }
   private authorizedOrder(identity: Identity, id: string) {
