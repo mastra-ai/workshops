@@ -37,10 +37,24 @@ Each demo owns fresh state, allocates a port and closes its process/clients. `re
 | 6 · Shared domain | 2 min | Four surfaces, one service. Reuse semantics, not HTTP calls between adapters. Processes share code, not in-memory state. |
 | 7 · Primitives | 2 min | Tool = action, resource = context, prompt = reusable instructions. Workflow = coordinated application behavior exposed as a tool. |
 | 8 · Contracts | 2 min | Open `tests/mcp-contract.test.ts` later for the unregistered callApi anti-contract. A generic wrapper shifts knowledge and safety burden onto the model. |
-| 9 · Modern | 2 min | Explicitly read the three columns. 2026 support predates v2; v2 makes it the default. Modern HTTP is not a mandatory server/discover probe. |
+| 9 · Modern | 2 min | Walk the two transport illustrations: legacy carries a session ID across calls; modern requests stand alone. 2026 support predates v2; v2 makes it the default. Stateless transport does not mean stateless business data. |
 | 10 · Production | 2 min | Identity is not authorization; stateless transport is not stateless business data. Local bearer fixtures are not OAuth. |
 | 11 · Returns Desk | 2 min | Set the outcome: read an order, complete a return, prove one write after replay. Public policy updates only. |
 | 12 · Transition | 1 min | Leave the deck. Show actual requests/responses and source, not screenshots as correctness proof. |
+
+### Detail for the presenter, not the screen
+
+The deck exports per-slide speaker notes. Slide numbers and the 25/60/5 timing are unchanged. The customer quotation on slide 2 is illustrative, not a testimonial; emphasize Daniel’s point that agents, like coworkers, have habits and quirks you learn. The slide 11 receipt is a diagram of the real ORD-001 fixture, not an application screenshot.
+
+For slide 9, keep the release distinctions precise:
+
+| Newly defaulted in v2 | Supported before v2 | Not implemented in this workshop |
+| --- | --- | --- |
+| Omitted config selects 2026-07-28: stateless HTTP, replay-based elicitation and modern subscriptions | Tools, resources, prompts, workflow tools and Streamable HTTP; native 2026 behavior was opt-in | Tasks, sampling, completions, roots and a production OAuth authorization server |
+
+The modern HTTP leg is pinned and does not need a `server/discover` probe; the auto-negotiated stdio leg shows that probe. Save MRTR replay details, `subscriptions/listen`, trace metadata, cache hints and CIMD for the live demonstration or optional extension.
+
+Slide 12 is only the transition. Show `structuredContent: 80` from the real wire capture, and `abortedWrites: 0`, `concurrentRetries: 12`, `committedWrites: 1` from the real failure drill when those chapters run. Do not read a protocol excerpt before the audience has seen the application.
 
 ## Continuous live demo: 25:00–85:00
 

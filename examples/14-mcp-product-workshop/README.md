@@ -64,7 +64,7 @@ The [deck](../../slides/mcp-product-workshop/index.tsx) has twelve setup slides,
 | 5–6 | Ownership boundary; one domain/many surfaces | `src/domain/service.ts`, `src/cli.ts`, `src/mastra/api/returns.ts`; `demo:surfaces` |
 | 7 | Tools/resources/prompts/workflow mental model | `src/mastra/mcp/index.ts`, `src/mastra/workflows/returns.ts`; `demo:discover`, `demo:workflow` |
 | 8 | Narrow contracts vs broad callApi | `src/mastra/tools/`, `tests/mcp-contract.test.ts` |
-| 9 | v2 defaults vs existing support | `scripts/protocol/`, `proof/expected/`; `demo:v2` |
+| 9 | Sessionful vs stateless HTTP; newly default in v2 | `scripts/protocol/`, `proof/expected/`; `demo:v2` |
 | 10 | Production responsibilities | `src/domain/auth.ts`, `src/mastra/tools/mutations.ts`, `docs/production.md`; `demo:failures` |
 | 11–12 | Returns Desk and transition to live demo | All demo scripts in the sequence above |
 | 13 | Recap/questions | First bounded read + next production boundary |
