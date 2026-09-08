@@ -1,5 +1,21 @@
 # Verification record
 
+## Current development evidence
+
+- [MCP contracts and authorization spike](phase-2.md)
+- [Independent client / Inspector](phase-3.md)
+- [Modern, legacy and stdio wire proof](phase-4.md): raw sanitized fixtures under `expected/`.
+- [Production failures](phase-5.md): cancellation, redaction and concurrent retries.
+- [Deck, instructor materials and Studio checks](phase-6.md).
+
+Regenerate with `pnpm demo:v2`; protocol tests compare the sanitized semantic assertions. Run `pnpm demo:failures` for the production drill and `pnpm demo:workflow` for staged execution and the resulting order resource. All require the local v2 overlay until the coordinated release.
+
+Local visual/recording evidence lives at repository `.mastracode/proof/mcp-product-workshop/` (gitignored). Screenshots supplement—not replace—wire assertions. The published Studio baseline still shows SSE on modern servers; only the local stack's Studio assets pass that visual assertion.
+
+**Release blocked:** the registry query for `@mastra/mcp@^2.0.0` returned E404 on 2026-09-08. No released-package proof or human approval is claimed. Cursor login/call recording, second-person five-minute path, full timed owner review and final adversarial review remain open. Workflow staged results are verified; live progress/log emission is not yet verified.
+
+## Historical scaffold gate
+
 ## Phase 0 — development baseline
 
 - Isolated branch: `feat/mcp-product-workshop`, based on `origin/main` at `12793d7`.

@@ -6,6 +6,7 @@ All decks are React modules served by [open-slide](https://github.com/1weiho/ope
 
 | Workshop | Slides | Code |
 |----------|--------|------|
+| **MCP is so back! Build Tools for the Agents Your Users Already Use**<br>Daniel Lew and Alex Booker show how to expose one product through bounded tools, resources and workflows. Development preview; coordinated MCP v2 release gate pending. | [`mcp-product-workshop`](slides/mcp-product-workshop/) | [`14-mcp-product-workshop`](examples/14-mcp-product-workshop/) |
 | **Building Agents That Never Forget**<br>Connects observational memory, agent harnesses, and MastraCode through four progressive agent examples. | [`om-workshop`](slides/om-workshop/) | [`00-personal-assistant-agent`](examples/00-personal-assistant-agent/)<br>[`01-code-research-agent`](examples/01-code-research-agent/)<br>[`02-playwright-agent`](examples/02-playwright-agent/)<br>[`03-mastra-code`](examples/03-mastra-code/) |
 | **Guardrails and Beyond**<br>Demonstrates Mastra Processors through input guardrails, model routing, monitoring, cost controls, and enterprise pipelines. | [`processors-workshop`](slides/processors-workshop/) | [`04-guardrails`](examples/04-guardrails/)<br>[`05-beyond-guardrails`](examples/05-beyond-guardrails/)<br>[`06-enterprise-pipeline`](examples/06-enterprise-pipeline/) |
 | **Agent Harness**<br>Shows how a harness gives agents subagents, MCP tools, event streaming, terminal interfaces, and server-hosted chat. | [`harness-workshop`](slides/harness-workshop/) | [`07-harness-workshop`](examples/07-harness-workshop/) |
