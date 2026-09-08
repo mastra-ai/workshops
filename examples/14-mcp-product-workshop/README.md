@@ -94,6 +94,6 @@ The optional `src/mastra/agents/support.ts` is not registered or required. It ne
 
 ## Proof and release
 
-[Proof index](proof/README.md) maps automated assertions and transcript fixtures. [Production guidance](docs/production.md) covers authorization, cancellation, error redaction, durable idempotency, ingress, OAuth/CIMD and limitations.
+[Release checklist and handoff](RELEASE.md) records exact versions, release-mode commands and outstanding human checks. [Proof index](proof/README.md) maps automated assertions and transcript fixtures. [Production guidance](docs/production.md) covers authorization, cancellation, error redaction, durable idempotency, ingress, OAuth/CIMD and limitations.
 
 Before public launch: released `@mastra/mcp@^2.0.0`, clean frozen install and complete rerun; signed-in Cursor recording; second-person five-minute rehearsal; owner timing/recording approval; final review with no must-fix findings. No local overlay is a substitute for those release gates.

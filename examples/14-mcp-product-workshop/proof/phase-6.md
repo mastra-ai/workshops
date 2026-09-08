@@ -9,7 +9,7 @@ Development proof only. MCP source overlay: `a5019083edc3d147f35692fcb0c94099abb
 - README: setup, five-minute reviewer path, slide-to-code map, state boundary and troubleshooting.
 - `scripts/demo-workflow.ts`: actual HTTP workflow invocation; eligibility/draft/completion path, result and mutated resource all asserted. At the Phase 6 commit these were final execution results, not streamed progress events. The Phase 7 development follow-up adds a live-event wrapper and `tests/workflow-progress.test.ts` asserting real logs/progress before the resource read.
 - Open-slide frozen install and production build passed. All thirteen pages rendered at 1920×1080. Automated DOM bounds checks found no overflow; computed animation is `none` under reduced motion. All pages visually reviewed for contrast, wrapping and code legibility.
-- Example typecheck, 25 tests and build passed. Full scripted rehearsal executed from shell, including surfaces, discovery, workflow, Inspector, modern wire, failures and CLI fallback. Commands allocate fresh state and close their owned processes. Interactive env-file sourcing/registry curl were exercised during Studio checks.
+- At the Phase 6 commit, example typecheck, 25 tests and build passed. [Phase 7 follow-up](phase-7-development.md) records 29 passing tests after adding workflow event and negative-boundary coverage. Full scripted rehearsal executed from shell, including surfaces, discovery, workflow, Inspector, modern wire, failures and CLI fallback. Commands allocate fresh state and close their owned processes. Interactive env-file sourcing/registry curl were exercised during Studio checks.
 
 ## Studio: record both the failed baseline and the local success
 
