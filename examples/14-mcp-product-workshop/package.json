@@ -1,0 +1,34 @@
+{
+  "name": "14-mcp-product-workshop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.27.0",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "reset": "tsx scripts/reset.ts",
+    "demo:surfaces": "tsx scripts/demo-surfaces.ts",
+    "demo:discover": "tsx scripts/demo-discover.ts",
+    "demo:workflow": "tsx scripts/demo-workflow.ts",
+    "demo:v2": "tsx scripts/demo-modern.ts",
+    "demo:failures": "tsx scripts/demo-failures.ts",
+    "setup:local-v2": "node scripts/setup-local-v2.mjs"
+  },
+  "dependencies": {
+    "@mastra/core": "^1.64.0",
+    "@mastra/mcp": "^1.17.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "mastra": "^1.27.3",
+    "semver": "^7.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
