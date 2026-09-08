@@ -60,13 +60,13 @@ The [deck](../../slides/mcp-product-workshop/index.tsx) has twelve setup slides,
 
 | Slides | Concept | Source / demo |
 | --- | --- | --- |
-| 1–4 | User preference, coworkers, MCP vs CLI, decision lab | README + facilitator decision questions |
-| 5–6 | Ownership boundary; one domain/many surfaces | `src/domain/service.ts`, `src/cli.ts`, `src/mastra/api/returns.ts`; `demo:surfaces` |
-| 7 | Tools/resources/prompts/workflow mental model | `src/mastra/mcp/index.ts`, `src/mastra/workflows/returns.ts`; `demo:discover`, `demo:workflow` |
-| 8 | Narrow contracts vs broad callApi | `src/mastra/tools/`, `tests/mcp-contract.test.ts` |
-| 9 | Sessionful vs stateless HTTP; newly default in v2 | `scripts/protocol/`, `proof/expected/`; `demo:v2` |
-| 10 | Production responsibilities | `src/domain/auth.ts`, `src/mastra/tools/mutations.ts`, `docs/production.md`; `demo:failures` |
-| 11–12 | Returns Desk and transition to live demo | All demo scripts in the sequence above |
+| 1–4 | Familiar assistant → return request → CLI/MCP decision | `src/domain/service.ts`; facilitator decision questions and `docs/research.md` |
+| 5–6 | Configured access; one domain/many surfaces | `src/domain/service.ts`, `src/cli.ts`, `src/mastra/api/returns.ts`; `demo:surfaces` |
+| 7 | Task-oriented contracts vs broad callApi | `src/mastra/tools/`, `tests/mcp-contract.test.ts` |
+| 8 | Tools/resources/prompts/workflow mental model | `src/mastra/mcp/index.ts`, `src/mastra/workflows/returns.ts`; `demo:discover`, `demo:workflow` |
+| 9–10 | Self-contained requests; confirmation and change streams | `scripts/protocol/`, `proof/expected/`; `demo:v2`, `demo:workflow` |
+| 11 | Lost-response design question; authorization and safe retries | `src/domain/auth.ts`, `src/mastra/tools/mutations.ts`, `docs/production.md`; `demo:failures` proves replay/concurrency, not dropped post-commit responses |
+| 12 | Transition to one continuous return demonstration | All demo scripts in the sequence above |
 | 13 | Recap/questions | First bounded read + next production boundary |
 
 ## What is—and is not—new

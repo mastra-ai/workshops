@@ -30,21 +30,23 @@ Each demo owns fresh state, allocates a port and closes its process/clients. `re
 | Slide | Time | Speaker notes / question |
 | --- | --- | --- |
 | 1 · Cover + hosts | 2 min | Welcome, introduce Daniel Lew and Alex Booker. Promise: a callable product, not a new assistant. No model key needed. |
-| 2 · Coworkers | 2 min | Every agent has a learning curve and quirks. Ask who already has a preferred assistant. Nontechnical users may prefer their existing host. |
-| 3 · CLI / MCP | 2 min | Steelman CLI: agents can use shells, read help on demand and filter intermediate results. Anthropic and Cloudflare also do code execution over MCP. Protocol choice is not context strategy. No universal token-cost ratio. |
-| 4 · Decision lab | 4 min | Start with the execution environment: can you provision a shell and credentials, or must you integrate with a customer’s host? Ask who owns reasoning/auth. CLI can be remote; MCP can be local. Accept “both.” |
-| 5 · Boundary | 2 min | The host controls reasoning; the product controls authorization. Discovery is not permission. |
-| 6 · Shared domain | 2 min | Four surfaces, one service. Reuse semantics, not HTTP calls between adapters. Processes share code, not in-memory state. |
-| 7 · Primitives | 2 min | Tool = action, resource = context, prompt = reusable instructions. Workflow = coordinated application behavior exposed as a tool. |
-| 8 · Contracts | 2 min | Open `tests/mcp-contract.test.ts` later for the unregistered callApi anti-contract. A generic wrapper shifts knowledge and safety burden onto the model. |
-| 9 · Modern | 2 min | Walk the two transport illustrations: legacy carries a session ID across calls; modern requests stand alone. 2026 support predates v2; v2 makes it the default. Stateless transport does not mean stateless business data. |
-| 10 · Production | 2 min | Identity is not authorization; stateless transport is not stateless business data. Local bearer fixtures are not OAuth. |
-| 11 · Returns Desk | 2 min | Set the outcome: read an order, complete a return, prove one write after replay. Public policy updates only. |
+| 2 · Coworkers | 2 min | Ask who already has a preferred assistant. Agents have habits and quirks to learn; this is a product hypothesis, not a universal preference. Bridge: give that assistant one useful job. |
+| 3 · Returns Desk | 2 min | “Can I return this order?” Establish the application before the protocol. ORD-001 is the normal path; ORD-002 will need confirmation. We create a return record, not a real financial refund. |
+| 4 · CLI / MCP decision | 3 min | Same task, different environment: provisioned support shell → CLI/API; compatible customer host → consider MCP; your UX/reasoning → embedded agent; deterministic integration → API. Change one assumption. Both is valid. Give CLI composition/on-demand help its due; code execution can also run over MCP. |
+| 5 · Boundary | 2 min | Trace the order request. Notion’s real setup requires connection, OAuth and workspace permissions. Host compatibility is a check, not a promise; a configured server is not global discovery. |
+| 6 · Shared domain | 2 min | Four surfaces, one service. Processes share code, not in-memory state. Ask which rule would drift if copied across four adapters. |
+| 7 · Contracts | 2 min | A return, not an API puzzle. GitHub added selective loading so two tools did not require 27. Keep tools useful, not merely numerous. Inspect actual descriptions/schemas later; callApi remains unregistered. |
+| 8 · Primitives | 2 min | Name the pieces only after seeing the task: return tool, policy resource, optional reply prompt. Workflow is application behavior behind a tool. Host UI/support varies. |
+| 9 · Independent requests | 2 min | No initialize or session ID; version/capabilities travel per request. Less protocol-session coordination, not less business responsibility. Distinguish July spec from Mastra’s v2 default. |
+| 10 · Interaction | 2 min | Confirmation returns input_required; retry with the answer. Separate opted-in subscription stream for policy changes; progress/logs stay with their request. Two practical consequences, not an RPC inventory. |
+| 11 · Lost response | 3 min | Ask whether the return happened. New protocol request ID is not a new business operation: keep the idempotency key. Authorize, confirm, deduplicate. Modern stream resumption is gone; this motivates the failure drill. |
 | 12 · Transition | 1 min | Leave the deck. Show actual requests/responses and source, not screenshots as correctness proof. |
 
 ### Detail for the presenter, not the screen
 
-The deck exports per-slide speaker notes with primary-source links. Read [Workshop claims and sources](docs/research.md) before presenting: it maps every slide to evidence and distinguishes protocol facts, implementation proof, practitioner findings and our recommendations. Slide numbers and the 25/60/5 timing are unchanged. The customer quotation on slide 2 is illustrative, not a testimonial; emphasize Daniel’s point that agents, like coworkers, have habits and quirks you learn. The slide 11 receipt is a diagram of the real ORD-001 fixture, not an application screenshot.
+The deck exports per-slide speaker notes with primary-source links. Read [Workshop claims and sources](docs/research.md), including the second-pass audit and complete major-change map. The story is now **familiar assistant → one return → choose access → reuse rules → design tools → operate safely → demonstrate**. Returns Desk moves to slide 3; the separate decision matrix is folded into slide 4. Contracts precede the primitive vocabulary. Only slides 9–10 focus on new protocol mechanics; slide 11 connects them to application reliability. The total stays 25/60/5.
+
+The quotations on slides 2–3 are illustrative, not testimonials. The slide 3 receipt depicts the real ORD-001 fixture, not an application screenshot. Notion and GitHub are real integration/catalog examples, not evidence that those services or every named host supports 2026-07-28. Before the room opens, check the particular host/version/auth/elicitation combination. No demo claim depends on an unverified client supporting the latest spec.
 
 For slide 9, keep the release distinctions precise:
 
@@ -52,7 +54,9 @@ For slide 9, keep the release distinctions precise:
 | --- | --- | --- |
 | Omitted config selects 2026-07-28: stateless HTTP, replay-based elicitation and modern subscriptions | Tools, resources, prompts, workflow tools and Streamable HTTP; native 2026 behavior was opt-in | Tasks, sampling, completions, roots and a production OAuth authorization server |
 
-The modern HTTP leg is pinned and does not need a `server/discover` probe; the auto-negotiated stdio leg shows that probe. Save MRTR replay details, `subscriptions/listen`, trace metadata, cache hints and CIMD for the live demonstration or optional extension.
+The modern HTTP leg is pinned and does not need a `server/discover` probe; servers must implement discovery, but clients may choose to call it. The auto-negotiated stdio leg shows that probe. Slide 10 previews MRTR and `subscriptions/listen`; the live demonstration supplies actual envelopes. Trace metadata, cache hints, removed methods and the tasks extension belong in the notes/extension, not another setup slide. Use the nine-change map in `docs/research.md` for precise requirements and proof limits.
+
+On slide 11, distinguish **new JSON-RPC request ID** from **same application idempotency key**. A broken stream no longer resumes from an SSE event ID, but loss of the response does not tell you whether a write committed. The slide is a design question: our tests cover replay, concurrency and preflight cancellation, not a deliberately dropped post-commit response or durable multi-instance recovery. Do not present those as tested. SSE remains the framing for modern streamed responses; the deprecated standalone HTTP+SSE transport is a different concept.
 
 Slide 12 is only the transition. Show `structuredContent: 80` from the real wire capture, and `abortedWrites: 0`, `concurrentRetries: 12`, `committedWrites: 1` from the real failure drill when those chapters run. Do not read a protocol excerpt before the audience has seen the application.
 
@@ -93,8 +97,8 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 - **State:** three isolated harness legs, modern overlay active (or released v2 at launch).
 - **Command:** `pnpm demo:v2`.
 - **Expected:** `V2 PROOF GREEN`; regenerated `.runtime/proof/modern.jsonl`, `legacy.jsonl`, `stdio.jsonl`.
-- **Walkthrough:** HTTP modern has no session header; accepted high-value confirmation causes execution replay but exactly one write; decline/cancel cause none. Show scalar `structuredContent: 80`, safe trace correlation and public policy event via `subscriptions/listen`. Show unsubscribed delivery stops. Compare explicit legacy session headers. Finally show stdio auto's opening `server/discover` and the typed modern-pin rejection against legacy.
-- **Teaching point:** only stdio auto demonstrates the opening probe here. HTTP is explicitly pinned. This is a change in operational defaults, not the invention of every capability.
+- **Walkthrough, in story order:** (1) the order request needs no initialize/session header; locate version/capabilities in `_meta`; (2) the high-value return needs confirmation—locate `resultType: "input_required"`, `inputRequests`, the retry’s `inputResponses` and final `complete`; accepted confirmation plus replay writes once, decline/cancel write none; (3) the public policy changes—locate `subscriptions/listen`, its acknowledgment/subscription ID and update, then show unsubscribed delivery stops; (4) compare legacy session headers and stdio auto’s `server/discover` probe with the modern-pin rejection. Scalar `structuredContent: 80` and safe trace correlation are brief bonus observations, not new stories.
+- **Teaching point:** the workflow’s earlier progress/log events belonged to its own request, not this subscription. Request logging requires an explicit `logLevel` opt-in. Only stdio auto demonstrates the opening probe here; HTTP is pinned. Spec-level changes and Mastra’s default adoption are different claims.
 - **Fallback:** committed sanitized `proof/expected/` plus `proof/phase-4.md`; identify it as recorded evidence, never a live run.
 - **Cleanup:** harness closes streams/transports/listeners in finally; no persistent app state.
 
