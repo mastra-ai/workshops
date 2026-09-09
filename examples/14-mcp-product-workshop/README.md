@@ -60,14 +60,14 @@ The [deck](../../slides/mcp-product-workshop/index.tsx) has twelve setup slides,
 
 | Slides | Concept | Source / demo |
 | --- | --- | --- |
-| 1–4 | Familiar assistant → return request → CLI/MCP decision | `src/domain/service.ts`; facilitator decision questions and `docs/research.md` |
-| 5–6 | Configured access; one domain/many surfaces | `src/domain/service.ts`, `src/cli.ts`, `src/mastra/api/returns.ts`; `demo:surfaces` |
-| 7 | Task-oriented contracts vs broad callApi | `src/mastra/tools/`, `tests/mcp-contract.test.ts` |
-| 8 | Tools/resources/prompts/workflow mental model | `src/mastra/mcp/index.ts`, `src/mastra/workflows/returns.ts`; `demo:discover`, `demo:workflow` |
-| 9–10 | Self-contained requests; confirmation and change streams | `scripts/protocol/`, `proof/expected/`; `demo:v2`, `demo:workflow` |
-| 11 | Lost-response design question; authorization and safe retries | `src/domain/auth.ts`, `src/mastra/tools/mutations.ts`, `docs/production.md`; `demo:failures` proves replay/concurrency, not dropped post-commit responses |
-| 12 | Transition to one continuous return demonstration | All demo scripts in the sequence above |
-| 13 | Recap/questions | First bounded read + next production boundary |
+| 1–4 | Familiar assistant; embedded agent vs MCP; users, team capability and both | Facilitator decision questions; `docs/research.md`; optional `src/mastra/agents/support.ts` |
+| 5 | Shared rules, with CLI as another useful interface | `src/domain/service.ts`, CLI/API/tools; `demo:surfaces` |
+| 6–7 | Descriptions, schemas, outputs and actionable errors | `src/mastra/tools/`, `src/domain/schemas.ts`, `src/domain/service.ts`; contract lab |
+| 8 | Expose tools, resources and workflow-backed tools | `src/mastra/mcp/index.ts`, `src/mastra/workflows/returns.ts`; `demo:discover`, `demo:workflow` |
+| 9 | Connect an existing host; evaluate choices and recovery | `docs/client-setup.md`; Inspector and signed-in Cursor human check |
+| 10–11 | Simpler deployment and confirmation without protocol sessions | `scripts/protocol/`, `proof/expected/`; `demo:v2` |
+| 12 | Transition to one continuous application demo | All demo scripts; subscription and production-failure details are taught here, not extra setup slides |
+| 13 | Recap/questions | User, experience, capability, recovery |
 
 ## What is—and is not—new
 

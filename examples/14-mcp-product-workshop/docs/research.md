@@ -2,19 +2,27 @@
 
 Research checked 2026-09-08. This is the evidence behind the presentation, not extra slides. Sources are also linked in the deck’s per-slide speaker notes.
 
-## Second-pass audit: change the story, not just the wording
+## Recenter on the event promise (2026-09-09)
 
-The previous pass improved factual qualifications but kept an abstract sequence: debate → decision matrix → architecture → vocabulary → product. Returns Desk arrived on slide 11, after the audience had already been asked to reason about it. The decision matrix repeated the comparison, while the single modern slide understated the practical interaction changes. The production slide listed responsibilities without giving the audience a failure to reason about.
+The last revision over-weighted protocol mechanics and failures while compressing the event’s first promise—embedded agent versus MCP—into a CLI comparison. Moving the application earlier did not fix that imbalance. Daniel approved this new spine: **choose the experience → design capabilities agents can use → connect them → understand how to run it**.
 
-The revised spine is **familiar assistant → one return → choose access → reuse rules → design tools → operate safely → demonstrate**:
+- Give embedded agent versus MCP an explicit comparison: product-owned experience versus capabilities in an existing assistant. Daniel’s coworker-learning-curve insight explains why that choice matters.
+- Present Daniel and Shane’s internal-agent/external-MCP arrangement as one possible “both,” not a rule about technical users. Ask what users prefer and what the team can support.
+- Keep CLI as a supporting option where installed commands, shell composition and help fit the environment. Share domain code across interfaces; Mastra can support both agent and MCP approaches.
+- Teach descriptions/schema and outputs/errors on separate slides using actual domain contracts. A syntactically valid response does not prove the agent knows its next step.
+- Teach tools/resources/workflows, then connection and evaluation in the intended host. Do not equate SDK invocation with successful agent selection.
+- Two setup slides explain deployment and interactive confirmation. Subscription/discovery details and the lost-response/idempotency discussion move to the continuous demo. The complete change map remains below for presenter accuracy.
 
-- Bring Returns Desk forward to slide 3. Every subsequent example answers “Can I return this order?”
-- Fold the decision lab into the CLI/MCP comparison. Ask what the actual host can run and authorize, not which interface is fashionable.
-- Explain a useful return tool before naming the protocol primitives. Use the policy and optional reply prompt to introduce the other shapes.
-- Limit new-spec setup to two slides: self-contained requests, then confirmation/change delivery. The next slide asks what happens when a response is lost; this motivates application idempotency rather than another protocol lecture.
-- Keep twelve setup slides plus optional questions, then one uninterrupted demo. No extra vendor-logo slide or nine-item changelog slide.
+### Coverage against the advertised event
 
-### Real-world evidence added in this pass
+| Promise | Setup | Live practice |
+| --- | --- | --- |
+| Embedded agent vs MCP | Slides 2–5: learning curve, ownership, audiences, team capability, both and CLI | Shared business service; discuss which experience the intended users need |
+| Descriptions, schemas, outputs, errors | Slides 6–7: purpose/limits, identifiers/values, useful results and next steps | Expanded contract/host chapter, including actual error limitations |
+| Expose tools/workflows/resources; connect existing agents | Slides 8–9 | Registration, independent clients, workflow/resource read and signed-in host check |
+| Stateless/serverless/interactive evolution | Slides 10–11 | Modern wire proof and confirmation; deployment benefit is explained, not claimed as a live serverless deployment |
+
+### Real-world evidence retained from the research
 
 | Source | What it supports | What it does not establish |
 | --- | --- | --- |
@@ -31,24 +39,24 @@ We cite vendor documentation for what that vendor does, not as independent proof
 - **Implementation facts:** Mastra source/history and this example’s executable proofs. A specification requirement does not prove Mastra or a particular host implements it.
 - **Practitioner findings:** observations from a specific implementation, not universal benchmarks.
 - **Workshop recommendations:** our architectural judgment, not protocol requirements.
-- **Product hypothesis:** Daniel’s coworker analogy and both illustrative questions. Neither is measured adoption evidence or a customer testimonial.
+- **Product hypothesis:** Daniel’s coworker analogy and the illustrative customer question. Neither is measured adoption evidence or a customer testimonial.
 
 ## Slide-by-slide grounding
 
 | Slide | Claim / purpose | Evidence and qualification |
 | --- | --- | --- |
-| 1 · Cover | Make one capability available to an existing assistant. | Workshop objective. “MCP is so back!” is the event title, not a measured trend. |
-| 2 · Coworkers | Users may prefer an assistant they know. | Product hypothesis. Validate with the intended users; an embedded experience may be preferable. |
-| 3 · Returns Desk | Find an order, check rules, create one return. | `src/domain/service.ts` and the ORD-001 fixture. The card is a diagram, not a screenshot. This creates a return record, not a payment-provider refund. |
-| 4 · CLI / MCP | Choose for the execution environment and available access. | Zechner, Anthropic and [Cloudflare Code Mode](https://blog.cloudflare.com/code-mode). CLI can call remote APIs; MCP can be local. Embedded agent when owning UX/reasoning, direct API for deterministic integration: our recommendations. |
-| 5 · Boundary | Configured access; host reasoning and server authorization are distinct. | [MCP architecture](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture), Notion setup. Named hosts are possible destinations, not a verified modern-protocol compatibility matrix. |
-| 6 · Shared service | Reuse business rules across adapters. | Application design recommendation. `src/domain/service.ts`, CLI, API and tools; `pnpm demo:surfaces`. Processes share code, not a database. |
-| 7 · Contracts | Expose an understandable task with bounded results and actionable failures. | [Anthropic tool-writing guidance](https://www.anthropic.com/engineering/writing-tools-for-agents), GitHub catalog example, `tests/mcp-contract.test.ts`. Not a blanket ban on generic search/execute gateways. |
-| 8 · Primitives | Tools, resources and prompts serve different interaction roles. | [Server concepts](https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts), [tools specification](https://modelcontextprotocol.io/specification/2026-07-28/server/tools). Model-selected/app-managed/user-invoked are intended patterns, not mandatory UI. Tools can read; workflows are behavior behind tools. |
-| 9 · Independent requests | No initialize/session ID; version and capabilities travel per request. | Changelog; `pnpm demo:v2`. Less session coordination, not no business state. Legacy diagram describes our server, not a universal requirement of older HTTP implementations. |
-| 10 · Interaction | MRTR asks for input through a result/retry; changes have a separate opted-in stream. | Changelog/base protocol; modern JSONL and workflow progress demo. Public policy updates only. Progress/logs belong to their request, not the subscription. |
-| 11 · Lost response | A new request ID is not a new business operation. | Changelog’s removal of stream resumption; application idempotency reasoning. Failure/replay/concurrency tests cover one in-memory write, NOT a dropped post-commit response or durable distributed recovery. |
-| 12–13 · Demo / close | Demonstrate the task, then test its boundaries. | Existing demo scripts and proof fixtures. Signed-in host task completion and human rehearsal remain separate gates. |
+| 1 · Cover | Four advertised outcomes, not a protocol survey | Event brief; title is not a measured adoption claim |
+| 2 · Coworkers | Another agent has a learning curve | Daniel’s product insight; validate user preference, not a universal rule |
+| 3 · Agent / MCP | Own the experience or expose capabilities to another host | [MCP architecture](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture); architectural recommendation, not a claim that one is inherently simpler |
+| 4 · Users and team | Both can fit different audiences | Daniel/Shane scenario; audiences can be reversed. Team expertise affects maintenance and evaluation needs |
+| 5 · Shared code / CLI | Reuse business capabilities; CLI can be a useful alternative | `demo:surfaces`, service/API/CLI/tools; Zechner and Anthropic evidence above. Shared code is not shared process memory |
+| 6 · Description / schema | Explain selection, effects and valid input | [Anthropic tool guidance](https://www.anthropic.com/engineering/writing-tools-for-agents), actual `returnRequestSchema`; displayed contract is condensed, not full registration |
+| 7 · Output / error | Provide facts and a useful next decision | Actual `returnSchema` and `ReturnsService.authorizedOrder` error. Domain excerpts, not identical cross-transport envelopes. Ineligibility prose remains terse; discuss improvement, do not pretend it is ideal |
+| 8 · Primitives | Execute tools, read resources, expose workflow through a tool | [Server concepts](https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts), MCP registration and workflow. Prompts optional; control labels are intended patterns, not mandatory UI |
+| 9 · Connect and evaluate | Test intended host behavior, not only connectivity | Notion setup, `docs/client-setup.md`; named hosts not a modern-protocol compatibility matrix. Cursor remains a human gate |
+| 10 · Deployment | No protocol-session affinity; easier independent request routing | Versioned changelog, modern wire proof. No deployed serverless/multi-replica benchmark; storage and stream/runtime limits remain |
+| 11 · Confirmation | Ask for input through a result and follow-up request | MRTR proof. Schematic single confirmation flow; demo may have multiple rounds. Subscriptions are a separate live chapter |
+| 12–13 · Demo / close | Practice four promises in one continuous demo | FACILITATOR run sheet; deterministic scripts versus human checks explicitly separated |
 
 ## All nine major changes: consequence, placement, evidence
 
@@ -56,15 +64,15 @@ Source for every normative statement below: [2026-07-28 key changes](https://mod
 
 | Change | Practical consequence | Where taught / what is proven |
 | --- | --- | --- |
-| **1. Sessions removed (SEP-2567).** No `Mcp-Session-Id`; list endpoints cannot vary per connection. Cross-call state uses explicit server-minted handles as ordinary tool arguments. | Do not rely on an initialized connection to remember a selected workspace or draft. Authorize explicit handles; a connection-independent catalog is not permission to expose private content. Business state and credentials still matter. | Slide 9; HTTP proof asserts no session header. Handle design and catalog migration are discussion, not new workshop features. The caller’s idempotency key is application logic, not an implementation of server-minted handles. |
-| **2. Handshake removed (SEP-2575).** Each request requires `_meta` protocolVersion and clientCapabilities. ClientInfo and result serverInfo SHOULD identify parties; mismatches return `UnsupportedProtocolVersionError`. | Requests can be routed without protocol-session affinity. Still coordinate shared application data and verify authorization each time. | Slide 9; inspect modern request metadata and modern-pin rejection. The SDK exposes its typed negotiation failure; distinguish it from the wire error name. No live multi-replica routing proof. |
-| **3. `server/discover` added (SEP-2575).** Servers MUST implement it; clients MAY invoke it for selection or stdio compatibility probing. | Discovery is supported, not a mandatory replacement handshake. | Slide 9 notes; stdio auto captures the opening probe. Pinned modern HTTP needs no opening probe. |
-| **4. Change notifications move (SEP-2575).** `subscriptions/listen` replaces the GET endpoint and resource subscribe/unsubscribe calls. One long-lived POST-response stream has explicit notification-type opt-ins, acknowledgement and subscriptionId tagging. | Separate background catalog/resource changes from progress of a call. Subscriptions still consume live-stream resources despite stateless protocol requests. | Slide 10; public-policy listen/update/unsubscribe proof. Workflow progress/logs stay on the originating request. No sensitive order broadcasts: URI membership did not establish authorization. |
-| **5. Methods removed (SEP-2575).** `ping`, `logging/setLevel`, `notifications/roots/list_changed` removed. Logs require request `_meta` logLevel; without it, servers MUST NOT emit `notifications/message`. | Log preference is per request, not connection state. | Slide 10 notes and workflow demo’s explicit logging opt-in. Not a new negative conformance suite for every removed method or missing logLevel. |
+| **1. Sessions removed (SEP-2567).** No `Mcp-Session-Id`; list endpoints cannot vary per connection. Cross-call state uses explicit server-minted handles as ordinary tool arguments. | Do not rely on an initialized connection to remember a selected workspace or draft. Authorize explicit handles; a connection-independent catalog is not permission to expose private content. Business state and credentials still matter. | Slide 10; HTTP proof asserts no session header. Handle design and catalog migration are discussion, not new workshop features. The caller’s idempotency key is application logic, not an implementation of server-minted handles. |
+| **2. Handshake removed (SEP-2575).** Each request requires `_meta` protocolVersion and clientCapabilities. ClientInfo and result serverInfo SHOULD identify parties; mismatches return `UnsupportedProtocolVersionError`. | Requests can be routed without protocol-session affinity. Still coordinate shared application data and verify authorization each time. | Slide 10; inspect modern request metadata and modern-pin rejection. The SDK exposes its typed negotiation failure; distinguish it from the wire error name. No live multi-replica routing proof. |
+| **3. `server/discover` added (SEP-2575).** Servers MUST implement it; clients MAY invoke it for selection or stdio compatibility probing. | Discovery is supported, not a mandatory replacement handshake. | Slide 10 notes; stdio auto captures the opening probe. Pinned modern HTTP needs no opening probe. |
+| **4. Change notifications move (SEP-2575).** `subscriptions/listen` replaces the GET endpoint and resource subscribe/unsubscribe calls. One long-lived POST-response stream has explicit notification-type opt-ins, acknowledgement and subscriptionId tagging. | Separate background catalog/resource changes from progress of a call. Subscriptions still consume live-stream resources despite stateless protocol requests. | Live wire chapter; public-policy listen/update/unsubscribe proof. Workflow progress/logs stay on the originating request. No sensitive order broadcasts: URI membership did not establish authorization. |
+| **5. Methods removed (SEP-2575).** `ping`, `logging/setLevel`, `notifications/roots/list_changed` removed. Logs require request `_meta` logLevel; without it, servers MUST NOT emit `notifications/message`. | Log preference is per request, not connection state. | Workflow demo and reference notes; demo’s explicit logging opt-in. Not a new negative conformance suite for every removed method or missing logLevel. |
 | **6. Tasks become an official extension (SEP-2663).** `io.modelcontextprotocol/tasks` uses `tasks/get` polling and `tasks/update` input; removes blocking `tasks/result` and `tasks/list`; permits unsolicited task handles. | Core MCP and long-running task extension support must be checked separately. | Optional migration discussion only. Not implemented or demonstrated here; a Mastra workflow is not proof of MCP Tasks extension support. |
-| **7. MRTR (SEP-2322).** `InputRequiredResult` with `inputRequests`; client retries the original request with `inputResponses`. | An interaction may replay execution. Put writes after accepted confirmation and enforce application idempotency. | Slide 10; high-value confirmation, decline/cancel and replay with exact mutation-count assertions. |
-| **8. Required `resultType` (SEP-2322).** Ordinary results are `complete`, interim MRTR results `input_required`; absent field from an earlier-protocol server means `complete`. | A result envelope is not necessarily a finished operation. | Slide 10; locate fields in modern JSONL. Earlier-protocol omission behavior is a specification compatibility rule, not a claim every legacy fixture omits the field. |
-| **9. Stream resumption removed (SEP-2575).** No SSE event IDs, `Last-Event-ID` or redelivery. Broken in-flight responses require reissuing with a new request ID. | A lost response leaves application outcome uncertain. For the same intended operation, retain its business idempotency key and reconcile safely. Reauthorize retries. | Slide 11 design question. Existing retry/concurrency tests prove one in-memory return; they do not deliberately sever a post-commit response or prove durable recovery. |
+| **7. MRTR (SEP-2322).** `InputRequiredResult` with `inputRequests`; client retries the original request with `inputResponses`. | An interaction may replay execution. Put writes after accepted confirmation and enforce application idempotency. | Slide 11; high-value confirmation, decline/cancel and replay with exact mutation-count assertions. |
+| **8. Required `resultType` (SEP-2322).** Ordinary results are `complete`, interim MRTR results `input_required`; absent field from an earlier-protocol server means `complete`. | A result envelope is not necessarily a finished operation. | Slide 11; locate fields in modern JSONL. Earlier-protocol omission behavior is a specification compatibility rule, not a claim every legacy fixture omits the field. |
+| **9. Stream resumption removed (SEP-2575).** No SSE event IDs, `Last-Event-ID` or redelivery. Broken in-flight responses require reissuing with a new request ID. | A lost response leaves application outcome uncertain. For the same intended operation, retain its business idempotency key and reconcile safely. Reauthorize retries. | Live failure chapter design question, not a setup slide. Existing retry/concurrency tests prove one in-memory return; they do not deliberately sever a post-commit response or prove durable recovery. |
 
 **SSE precision:** modern POST responses can still use SSE framing. Removing GET subscription delivery and resumability is not removal of response streaming. The separately deprecated legacy HTTP+SSE transport is not the recommended participant transport.
 
@@ -91,7 +99,7 @@ Host consent, server authorization and high-value confirmation are separate deci
 
 Schemas validate shape, not tool usefulness or prompt-injection resistance. Evaluate selection, correct identifiers, recovery and task completion with the intended host. The deterministic suite proves contracts and side effects, not general model success. Cancellation cannot undo a committed transaction; an in-memory idempotency map is not durable production storage. These limitations stay explicit even when the scripted demos are green.
 
-## Revision verification
+## Previous revision verification (2026-09-08)
 
 This narrative-only revision passed a targeted `tsc --noEmit` check and `pnpm build` from `open-slide/`. The existing local deck-proof script regenerated all 13 pages at 1920×1080, checked text overflow/image loading and reduced motion, and produced the contact sheets used for visual review of every slide. Local evidence remains under `.mastracode/proof/mcp-product-workshop/` at repository root (`deck-01.png` through `deck-13.png`, `deck-check.json`, `review-*.png`).
 

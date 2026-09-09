@@ -29,36 +29,38 @@ Each demo owns fresh state, allocates a port and closes its process/clients. `re
 
 | Slide | Time | Speaker notes / question |
 | --- | --- | --- |
-| 1 · Cover + hosts | 2 min | Welcome, introduce Daniel Lew and Alex Booker. Promise: a callable product, not a new assistant. No model key needed. |
-| 2 · Coworkers | 2 min | Ask who already has a preferred assistant. Agents have habits and quirks to learn; this is a product hypothesis, not a universal preference. Bridge: give that assistant one useful job. |
-| 3 · Returns Desk | 2 min | “Can I return this order?” Establish the application before the protocol. ORD-001 is the normal path; ORD-002 will need confirmation. We create a return record, not a real financial refund. |
-| 4 · CLI / MCP decision | 3 min | Same task, different environment: provisioned support shell → CLI/API; compatible customer host → consider MCP; your UX/reasoning → embedded agent; deterministic integration → API. Change one assumption. Both is valid. Give CLI composition/on-demand help its due; code execution can also run over MCP. |
-| 5 · Boundary | 2 min | Trace the order request. Notion’s real setup requires connection, OAuth and workspace permissions. Host compatibility is a check, not a promise; a configured server is not global discovery. |
-| 6 · Shared domain | 2 min | Four surfaces, one service. Processes share code, not in-memory state. Ask which rule would drift if copied across four adapters. |
-| 7 · Contracts | 2 min | A return, not an API puzzle. GitHub added selective loading so two tools did not require 27. Keep tools useful, not merely numerous. Inspect actual descriptions/schemas later; callApi remains unregistered. |
-| 8 · Primitives | 2 min | Name the pieces only after seeing the task: return tool, policy resource, optional reply prompt. Workflow is application behavior behind a tool. Host UI/support varies. |
-| 9 · Independent requests | 2 min | No initialize or session ID; version/capabilities travel per request. Less protocol-session coordination, not less business responsibility. Distinguish July spec from Mastra’s v2 default. |
-| 10 · Interaction | 2 min | Confirmation returns input_required; retry with the answer. Separate opted-in subscription stream for policy changes; progress/logs stay with their request. Two practical consequences, not an RPC inventory. |
-| 11 · Lost response | 3 min | Ask whether the return happened. New protocol request ID is not a new business operation: keep the idempotency key. Authorize, confirm, deduplicate. Modern stream resumption is gone; this motivates the failure drill. |
-| 12 · Transition | 1 min | Leave the deck. Show actual requests/responses and source, not screenshots as correctness proof. |
+| 1 · Cover + hosts | 1 min | Daniel Lew and Alex Booker. Four promises: choose an experience, design reliable tools, connect an agent, understand modern deployment. |
+| 2 · Coworkers | 2 min | Another agent is another collaborator to learn. Does the user want your guided experience or their familiar assistant? Not a universal preference. |
+| 3 · Embedded agent / MCP | 3 min | Compare owning UI/model/behavior with exposing capabilities to another host. Both require authorization and evaluation. Who should own the experience? |
+| 4 · Users and team | 2 min | Daniel/Shane example: internal support agent plus external MCP. Reverse the audiences to test the reasoning. Team expertise affects what you can maintain, not a fixed technology ranking. |
+| 5 · Shared capabilities / CLI | 2 min | Both can reuse the same business service through Mastra. Shell users or agents may prefer CLI help/pipes; compatible hosts may prefer MCP discovery. Direct APIs remain useful. No universal token comparison. |
+| 6 · Descriptions + schemas | 3 min | Introduce Returns Desk as the example. When should createReturn be selected? What does it change? Inspect ID format, enum values and key length. Contrast callApi; do not teach every endpoint as a tool. |
+| 7 · Outputs + errors | 3 min | What happened, and what should the agent do next? Explain result IDs/units, correction versus retry versus stop. Actual domain excerpts, not fabricated wire envelopes. |
+| 8 · Expose the pieces | 2 min | Tools execute, resources supply content, workflows run behind a tool. Prompts are optional. Show registration in the demo. |
+| 9 · Connect and evaluate | 2 min | Connect/authenticate, discover, then try a real task. Judge tool selection, inputs and recovery—not just a green connection indicator. Host compatibility must be checked. |
+| 10 · Deployment | 2 min | Independent requests remove protocol-session affinity, a simpler fit for serverless. Business data still needs storage; streams still have runtime limits. No claim of a deployed serverless benchmark. |
+| 11 · Interaction | 2 min | Request → needs confirmation → answer → complete. No protocol session to keep alive while the user decides. Authorization and confirmation remain application responsibilities. |
+| 12 · Transition | 1 min | Leave slides for one continuous build/demo. Returns Desk is the worked example, not the workshop subject. |
 
 ### Detail for the presenter, not the screen
 
-The deck exports per-slide speaker notes with primary-source links. Read [Workshop claims and sources](docs/research.md), including the second-pass audit and complete major-change map. The story is now **familiar assistant → one return → choose access → reuse rules → design tools → operate safely → demonstrate**. Returns Desk moves to slide 3; the separate decision matrix is folded into slide 4. Contracts precede the primitive vocabulary. Only slides 9–10 focus on new protocol mechanics; slide 11 connects them to application reliability. The total stays 25/60/5.
+The story follows the event promises: **choose the experience → design capabilities agents can use → connect them → understand how to run it**. Daniel’s coworker insight motivates the embedded-agent/MCP choice. Internal versus external and technical versus nontechnical are questions to investigate, not fixed rules. An embedded agent can be ideal for nontechnical customers; internal engineers may already prefer Cursor. Team capability changes the operational work you can support: agent behavior/evaluations, tool quality, authorization and client compatibility.
 
-The quotations on slides 2–3 are illustrative, not testimonials. The slide 3 receipt depicts the real ORD-001 fixture, not an application screenshot. Notion and GitHub are real integration/catalog examples, not evidence that those services or every named host supports 2026-07-28. Before the room opens, check the particular host/version/auth/elicitation combination. No demo claim depends on an unverified client supporting the latest spec.
+The deck exports source-linked notes. [Workshop claims and sources](docs/research.md) retains the primary evidence and all nine spec changes as reference. Only slides 10–11 explain protocol changes. Subscriptions, discovery, request logging and retries stay in the live chapters or extension. Notion and GitHub illustrate real setup/catalog concerns, not universal host support or July-spec adoption.
 
-For slide 9, keep the release distinctions precise:
+For slide 10, keep the release distinctions precise:
 
 | Newly defaulted in v2 | Supported before v2 | Not implemented in this workshop |
 | --- | --- | --- |
 | Omitted config selects 2026-07-28: stateless HTTP, replay-based elicitation and modern subscriptions | Tools, resources, prompts, workflow tools and Streamable HTTP; native 2026 behavior was opt-in | Tasks, sampling, completions, roots and a production OAuth authorization server |
 
-The modern HTTP leg is pinned and does not need a `server/discover` probe; servers must implement discovery, but clients may choose to call it. The auto-negotiated stdio leg shows that probe. Slide 10 previews MRTR and `subscriptions/listen`; the live demonstration supplies actual envelopes. Trace metadata, cache hints, removed methods and the tasks extension belong in the notes/extension, not another setup slide. Use the nine-change map in `docs/research.md` for precise requirements and proof limits.
+On slide 7, the success fields come from `returnSchema`; the error wording comes from `ReturnsService.authorizedOrder`. MCP schema validation can reject malformed input before that domain error. The slide does not promise an identical REST/MCP error envelope. Ineligible creation currently reports `INELIGIBLE` / `EXPIRED`; use eligibility and policy to explain the 30-day limit, and discuss that terse message as an improvement opportunity rather than pretending it is ideal. Keep sensitive internal errors redacted. A return record is not a real payment-provider refund.
 
-On slide 11, distinguish **new JSON-RPC request ID** from **same application idempotency key**. A broken stream no longer resumes from an SSE event ID, but loss of the response does not tell you whether a write committed. The slide is a design question: our tests cover replay, concurrency and preflight cancellation, not a deliberately dropped post-commit response or durable multi-instance recovery. Do not present those as tested. SSE remains the framing for modern streamed responses; the deprecated standalone HTTP+SSE transport is a different concept.
+On slide 9, distinguish an SDK invoking a known tool from an agent selecting the right tool. Inspector/programmatic checks are deterministic; signed-in Cursor task execution remains a human check. Ask the host to look up an order, check eligibility and explain the outcome before mutating. Inspect its actual choices; do not invent a successful host transcript.
 
-Slide 12 is only the transition. Show `structuredContent: 80` from the real wire capture, and `abortedWrites: 0`, `concurrentRetries: 12`, `committedWrites: 1` from the real failure drill when those chapters run. Do not read a protocol excerpt before the audience has seen the application.
+On slide 11, teach only confirmation. During the wire chapter, separately show the public-policy `subscriptions/listen` stream. Workflow progress/logs belong to their request, not that subscription. `server/discover` is required on servers but optional for clients; only our stdio auto leg shows the opening probe. Modern POST responses can still use SSE framing.
+
+During the failure chapter, discuss a lost response: a **new JSON-RPC request ID** is not a **new business operation**. Keep the business idempotency key. Existing tests cover replay/concurrency and preflight cancellation, not a dropped post-commit response or durable multi-instance recovery. This is no longer a setup slide. Show the real failure summary at that point, not before the audience sees the application.
 
 ## Continuous live demo: 25:00–85:00
 
@@ -73,17 +75,19 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 - **Fallback:** run `RETURNS_TENANT=north pnpm exec tsx src/cli.ts get ORD-001`; inspect API test assertions.
 - **Cleanup:** script closes its owned server. No manual deletion needed.
 
-### 2. Discovery and real hosts — 33:00–47:00 (14 min)
+### 2. Tool design, discovery and real hosts — 33:00–55:00 (22 min)
 
 - **State:** fresh fixtures; Inspector package cached; signed-in Cursor only for optional human demonstration.
 - **Commands:** `pnpm demo:discover`, then `pnpm demo:inspector`.
 - **Expected:** six tools including generated `run_processReturnWorkflow` and live-event wrapper `processReturnWithProgress`, policy resource, order template, reply prompt; authorized order read. Registry curl asserts modern 2026-07-28 and explicit legacy 2025-11-25.
-- **Teaching point:** descriptions and schemas are the product interface. `callApi` is test-only and absent. Resources are not executable tools; prompt invocation is optional.
+- **Contract lab (8 min):** inspect `src/mastra/tools/mutations.ts` and `src/domain/schemas.ts`. Ask when the agent should select createReturn, which values it must supply, what changes and what it receives. Compare the test-only `callApi` contract. Show the actual return result and safe-error mapping; explain why field names, units and actionable errors matter. Do not add the broad tool to the server.
+- **Discovery + host (14 min):** run the two client scripts, inspect tool/resource/workflow registration, then follow the host chapter. Ask for an order lookup and eligibility explanation; inspect selection/arguments/results before the bounded mutation. If it chooses poorly, identify the missing description/schema/output information rather than silently retrying until success.
+- **Teaching point:** connection success is necessary, not sufficient. Schema tests prove deterministic contracts, not model task success. Resources are content; prompts are optional. Host behavior must be observed, not inferred from the SDK test.
 - **Host chapter:** run `pnpm serve` in a dedicated terminal. In another, `source .runtime/server.env`. Follow `docs/client-setup.md` exactly for Inspector UI / Cursor. Open Studio's MCP list and inspect both registered servers. This is a human checkpoint, not a claim that Cursor automation ran.
 - **Fallback:** programmatic client + Inspector CLI output. If signed-in Cursor is unavailable, skip its mutation; never burn wire/failure time troubleshooting login.
 - **Cleanup:** disconnect Cursor, stop `pnpm serve` with Ctrl-C. Its env file is removed.
 
-### 3. Workflow-backed capability — 47:00–57:00 (10 min)
+### 3. Workflow-backed capability — 55:00–65:00 (10 min)
 
 - **State:** fresh ORD-001, not the order already mutated by a host.
 - **Command:** `pnpm demo:workflow`.
@@ -92,7 +96,7 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 - **Fallback:** the real-HTTP workflow test in `tests/mcp-http.test.ts` and its asserted step path. Do not fabricate progress/log messages if a host doesn't display them.
 - **Cleanup:** script disconnects and closes the server. Explain process-local storage on restart.
 
-### 4. What modern changes on the wire — 57:00–74:00 (17 min)
+### 4. What modern changes on the wire — 65:00–75:00 (10 min)
 
 - **State:** three isolated harness legs, modern overlay active (or released v2 at launch).
 - **Command:** `pnpm demo:v2`.
@@ -102,7 +106,7 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 - **Fallback:** committed sanitized `proof/expected/` plus `proof/phase-4.md`; identify it as recorded evidence, never a live run.
 - **Cleanup:** harness closes streams/transports/listeners in finally; no persistent app state.
 
-### 5. Production failure drill — 74:00–85:00 (11 min)
+### 5. Production failure drill — 75:00–85:00 (10 min)
 
 - **State:** fresh fixtures; no public fault-injection endpoint.
 - **Command:** `pnpm demo:failures`.
@@ -113,7 +117,7 @@ For each chapter below: run `pnpm reset` first. Do not restart a manually runnin
 
 ## Recap: 85:00–90:00
 
-Optional slide 13. Ask participants to name their first bounded read and their ownership boundary. Point to the five-minute README path. Collect questions. Do not claim release readiness while the release checklist remains open.
+Optional slide 13. Ask participants which users they serve, which experience fits, which capability to expose, and which failure their agent should handle. Point to the five-minute README path. Collect questions. Do not claim release readiness while the release checklist remains open.
 
 **If time is lost:** drop the optional reply prompt and live Cursor mutation first. Shorten source browsing next. **Never drop modern wire proof or the production failure drill.**
 
