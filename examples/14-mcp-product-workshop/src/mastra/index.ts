@@ -2,6 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Mastra } from '@mastra/core/mastra';
 import { LibSQLStore } from '@mastra/libsql';
+import { MastraCompositeStore } from '@mastra/core/storage';
+import { DuckDBStore } from '@mastra/duckdb';
 import { Observability, MastraStorageExporter, SensitiveDataFilter } from '@mastra/observability';
 import { createMcpOAuth, mcpPath, oauthConfigSchema } from './mcp/oauth.js';
 import { fixtureIdentity } from './auth-fixture.js';
@@ -18,6 +20,7 @@ const oauth = process.env.MCP_AUTH_MODE === 'workos' ? createMcpOAuth(oauthConfi
 })) : undefined;
 
 mkdirSync('.runtime', { recursive: true });
+const dbPath = resolve(process.env.MASTRA_DB ?? '.runtime/returns.db');
 export const traceExporter = new MastraStorageExporter({ maxBatchWaitMs: 200 });
 
 export const mastra = new Mastra({
@@ -26,7 +29,13 @@ export const mastra = new Mastra({
   mcpServers: { returnsModern },
   ...(process.env.DEMO_AGENT === '1' ? { agents: { supportAgent } } : {}),
   workflows: { processReturnWorkflow },
-  storage: new LibSQLStore({ id: 'returns-storage', url: `file:${resolve(process.env.MASTRA_DB ?? '.runtime/returns.db')}` }),
+  storage: new MastraCompositeStore({
+    id: 'returns-storage',
+    default: new LibSQLStore({ id: 'returns-libsql', url: `file:${dbPath}` }),
+    domains: {
+      observability: await new DuckDBStore({ path: `${dbPath}.duckdb` }).getStore('observability'),
+    },
+  }),
   observability: new Observability({ configs: { local: {
     serviceName: 'returns-desk', exporters: [traceExporter], spanOutputProcessors: [new SensitiveDataFilter()],
   } } }),

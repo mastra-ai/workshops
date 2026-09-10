@@ -54,7 +54,7 @@ The URL is the origin, **without `/api` appended**. There is one MCP server: `${
 
 REST: GET `/returns/orders/ORD-001`, POST `/returns`, with the same local authorization boundary. CLI: `RETURNS_TENANT=north pnpm exec tsx src/cli.ts get ORD-001`.
 
-**State:** orders and labels are process-local; restart to reset them. Traces persist in LibSQL under `.runtime/`; this is not durable business storage. Automated demos own their listeners. `demo:workflow` can explicitly use `MASTRA_BASE_URL` to leave traces visible in an interactive server.
+**State:** orders and labels are process-local; restart to reset them. Traces, logs and metrics use DuckDB under `.runtime/`, with LibSQL for other Mastra storage domains. The launcher creates fresh databases on each restart; this is not durable business storage. Automated demos own their listeners. `demo:workflow` can explicitly use `MASTRA_BASE_URL` to leave traces visible in an interactive server.
 
 ## Why Mastra: the live demo
 

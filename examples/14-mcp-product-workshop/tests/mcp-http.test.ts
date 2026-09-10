@@ -35,6 +35,18 @@ test('Studio lists registered tools while anonymous execution stays blocked', as
     expect((await fetch(`${server.baseUrl}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status).toBe(401);
   }
 });
+test('Studio can aggregate persisted tool metrics', async () => {
+  const tools = await client('north').listTools();
+  await tools.returns_getOrder.execute?.({ orderId: 'ORD-001' }, { observe: noopObserve });
+  await expect.poll(async () => {
+    const response = await fetch(`${server.baseUrl}/api/observability/metrics/aggregate`, {
+      method: 'POST', headers: { authorization: 'Bearer workshop-north', 'content-type': 'application/json' },
+      body: JSON.stringify({ name: ['mastra_tool_duration_ms'], aggregation: 'count' }),
+    });
+    expect(response.status).toBe(200);
+    return (await response.json()).value;
+  }, { timeout: 5000 }).toBeGreaterThan(0);
+});
 test('client discovers and reads authorized resources', async () => {
     const connection = client('north');
     const tools = await connection.listTools();
