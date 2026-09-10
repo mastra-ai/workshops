@@ -4,13 +4,11 @@ import { readPublicPolicy } from '../../domain/public-policy.js';
 import { returnsService } from '../../domain/service.js';
 import { getOrder, checkReturnEligibility } from '../tools/reads.js';
 import { createReturn, returnRiskScore } from '../tools/mutations.js';
-import { processReturnWorkflow } from '../workflows/returns.js';
-import { processReturnWithProgress } from '../tools/workflow.js';
+import { processReturn } from '../tools/process-return.js';
 
-const capabilities = {
+export const capabilities = {
   version: '1.0.0',
-  tools: { getOrder, checkReturnEligibility, createReturn, returnRiskScore, processReturnWithProgress },
-  workflows: { processReturnWorkflow },
+  tools: { getOrder, checkReturnEligibility, createReturn, processReturn, returnRiskScore },
   resources: {
     listResources: async ({ extra }: Parameters<NonNullable<ConstructorParameters<typeof MCPServer>[0]['resources']>['listResources']>[0]) => {
       const identity = identitySchema.safeParse(extra.authInfo?.extra?.user);
@@ -37,5 +35,4 @@ const capabilities = {
   // Resource reads keep the conservative zero TTL because orders are mutable.
   cacheHints: { 'resources/templates/list': { ttlMs: 60_000, cacheScope: 'public' as const } },
 };
-export const returnsModern = new MCPServer({ ...capabilities, id: 'returns-modern', name: 'Returns Desk — modern' });
-export const returnsLegacy = new MCPServer({ ...capabilities, id: 'returns-legacy', name: 'Returns Desk — legacy', protocolVersion: '2025-11-25' });
+export const returnsModern = new MCPServer({ ...capabilities, id: 'returns-modern', name: 'Returns Desk' });

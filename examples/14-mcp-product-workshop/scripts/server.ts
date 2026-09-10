@@ -1,8 +1,11 @@
 import { spawn } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
+import { randomUUID } from 'node:crypto';
+import { resolve } from 'node:path';
 
-export async function startServer() {
+export async function startServer(env: NodeJS.ProcessEnv = {}) {
   const reservation = createServer();
   reservation.listen(0, '127.0.0.1');
   await once(reservation, 'listening');
@@ -10,11 +13,13 @@ export async function startServer() {
   if (!address || typeof address === 'string') throw new Error('No allocated port');
   const port = address.port;
   await new Promise<void>((resolve, reject) => reservation.close(error => error ? reject(error) : resolve()));
-  const child = spawn('pnpm', ['exec', 'mastra', 'dev'], { env: { ...process.env, PORT: String(port) }, detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
+  await mkdir('.runtime', { recursive: true });
+  const dbPath = resolve(`.runtime/server-${randomUUID()}.db`);
+  const child = spawn('pnpm', ['exec', 'mastra', 'dev'], { env: { ...process.env, MASTRA_DB: dbPath, ...env, PORT: String(port) }, detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
   let output = '';
   child.stdout.on('data', data => { output += data; });
   child.stderr.on('data', data => { output += data; });
-  const baseUrl = `http://localhost:${port}`;
+  const baseUrl = `http://127.0.0.1:${port}`;
   async function close() {
     if (child.exitCode !== null || child.signalCode !== null) return;
     const exited = once(child, 'exit');

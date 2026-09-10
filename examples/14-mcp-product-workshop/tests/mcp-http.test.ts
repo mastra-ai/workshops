@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, test } from 'vitest';
-import { z } from 'zod';
+import { processResultSchema } from '../src/mastra/tools/process-return.js';
 import { execFileSync } from 'node:child_process';
 import { MCPClient } from '@mastra/mcp';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
@@ -9,27 +9,40 @@ let server: Awaited<ReturnType<typeof startServer>>;
 const clients: MCPClient[] = [];
 beforeAll(async () => { server = await startServer(); }, 90_000);
 afterAll(async () => { await Promise.all(clients.map(client => client.disconnect())); await server?.close(); });
-function client(tenant: string, era: 'modern' | 'legacy' = 'modern') {
-  const result = new MCPClient({ id: `test-${clients.length}`, servers: { returns: { url: new URL(`${server.baseUrl}/api/mcp/returns-${era}/mcp`), requestInit: { headers: { authorization: `Bearer workshop-${tenant}` } }, ...(era === 'legacy' ? { protocolVersion: '2025-11-25' as const } : {}) } } });
+function client(tenant: string) {
+  const result = new MCPClient({ id: `test-${clients.length}`, servers: { returns: { url: new URL(`${server.baseUrl}/api/mcp/returns-modern/mcp`), requestInit: { headers: { authorization: `Bearer workshop-${tenant}` } } } } });
   clients.push(result); return result;
 }
-test('allocated server registry reports resolved modern and explicit legacy revisions through curl', () => {
-  const registry = JSON.parse(execFileSync('curl', ['-fsS', `${server.baseUrl}/api/mcp/v0/servers`], { encoding: 'utf8' }));
-  expect(registry.servers).toEqual(expect.arrayContaining([
+test('allocated registry exposes one modern server', () => {
+  const registry = JSON.parse(execFileSync('curl', ['-fsS', '-H', 'Authorization: Bearer workshop-north', `${server.baseUrl}/api/mcp/v0/servers`], { encoding: 'utf8' }));
+  expect(registry.servers).toEqual([
     expect.objectContaining({ id: 'returns-modern', protocol_version: '2026-07-28' }),
-    expect.objectContaining({ id: 'returns-legacy', protocol_version: '2025-11-25' }),
-  ]));
+  ]);
 });
-test('modern and legacy clients discover and read authorized resources', async () => {
-  for (const era of ['modern', 'legacy'] as const) {
-    const connection = client('north', era);
+test('Studio lists registered tools while anonymous execution stays blocked', async () => {
+  const headers = { authorization: 'Bearer workshop-north' };
+  expect((await fetch(`${server.baseUrl}/api/mcp/returns-modern/tools`)).status).toBe(200);
+  const globalTools = await fetch(`${server.baseUrl}/api/tools`, { headers });
+  expect(globalTools.status).toBe(200);
+  expect(Object.keys(await globalTools.json())).toHaveLength(5);
+  const catalogue = await fetch(`${server.baseUrl}/api/mcp/returns-modern/tools`, { headers });
+  expect(catalogue.status).toBe(200);
+  expect((await catalogue.json()).tools).toHaveLength(5);
+  for (const path of ['/api/mcp/returns-modern/tools/getOrder', '/api/mcp/returns-modern/resources', '/api/tools/getOrder']) {
+    expect((await fetch(`${server.baseUrl}${path}`, { headers })).status).toBe(200);
+  }
+  for (const path of ['/api/mcp/returns-modern/tools/createReturn/execute', '/api/mcp/returns-modern/resources/read', '/api/tools/createReturn/execute']) {
+    expect((await fetch(`${server.baseUrl}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status).toBe(401);
+  }
+});
+test('client discovers and reads authorized resources', async () => {
+    const connection = client('north');
     const tools = await connection.listTools();
     expect(await tools.returns_getOrder.execute?.({ orderId: 'ORD-001' }, { observe: noopObserve })).toHaveProperty('id', 'ORD-001');
     const resource = await connection.resources.read('returns', 'returns://orders/ORD-001');
     expect(resource.contents[0]).toHaveProperty('text', JSON.stringify({ id: 'ORD-001', totalCents: 4900, ageDays: 5, status: 'delivered' }));
     expect((await connection.prompts.list()).returns).toHaveLength(1);
     expect((await connection.resources.templates()).returns).toHaveLength(1);
-  }
 });
 test('cross-tenant and unknown resource reads are rejected', async () => {
   const south = client('south');
@@ -40,12 +53,22 @@ test('cross-tenant and unknown resource reads are rejected', async () => {
 test('registered workflow executes through the real HTTP tool boundary', async () => {
   const connection = client('north');
   const tools = await connection.listTools();
-  const result = await tools.returns_run_processReturnWorkflow.execute?.({ orderId: 'ORD-001', reason: 'damaged', idempotencyKey: 'http-workflow-001' }, { observe: noopObserve });
-  const envelope = z.object({ isError: z.literal(false), content: z.array(z.object({ type: z.literal('text'), text: z.string() })).min(1) }).parse(result);
-  const workflowResult = JSON.parse(envelope.content[0].text);
-  expect(workflowResult.status).toBe('success');
-  expect(workflowResult.stepExecutionPath).toEqual(['eligibility', 'draft', 'completion']);
+  expect(tools.returns_run_processReturnWorkflow).toBeUndefined();
+  const result = processResultSchema.parse(await tools.returns_processReturn.execute?.({ orderId: 'ORD-001', reason: 'damaged', idempotencyKey: 'http-workflow-001' }, { observe: noopObserve }));
+  expect(result.status).toBe('completed');
+  expect(JSON.stringify(result)).not.toMatch(/stack|steps|node_modules/);
   expect((await connection.resources.read('returns', 'returns://orders/ORD-001')).contents[0]).toHaveProperty('text', JSON.stringify({ id: 'ORD-001', totalCents: 4900, ageDays: 5, status: 'returned' }));
+});
+test('workflow API cannot replace middleware identity with caller context', async () => {
+  const south = { tenantId: 'south', userId: 'support-south' };
+  const response = await fetch(`${server.baseUrl}/api/workflows/processReturnWorkflow/start-async`, {
+    method: 'POST', headers: { authorization: 'Bearer workshop-north', 'content-type': 'application/json' },
+    body: JSON.stringify({ inputData: { orderId: 'ORD-005', reason: 'damaged', idempotencyKey: 'forged-context-001' }, requestContext: { identity: south, mastra__user: south, authInfo: { extra: { user: south } } } }),
+  });
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({ status: 'failed', error: { code: 'FORBIDDEN' } });
+  const order = await client('south').resources.read('returns', 'returns://orders/ORD-005');
+  expect(JSON.stringify(order)).toContain('delivered');
 });
 test('raw MCP response never echoes sensitive request metadata', async () => {
   const raw = new Client({ name: 'metadata-proof', version: '1.0.0' }, { versionNegotiation: { mode: { pin: '2026-07-28' } } });

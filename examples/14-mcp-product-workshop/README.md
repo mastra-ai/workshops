@@ -4,7 +4,7 @@ Presenters: **Daniel Lew** and **Alex Booker**.
 
 Returns Desk wraps an existing local commerce service in bounded MCP tools, resources and a workflow-backed tool. REST, CLI and an optional embedded agent reuse the same business logic. The core path needs **no model key**.
 
-**Release status:** development preview, not launch-ready. The committed manifest uses published `@mastra/mcp@^1.17.3`; the modern demonstrations require the guarded local v2 overlay below until stable `^2.0.0` is published. Do not mistake a successful baseline install for modern-feature verification.
+**Package requirement:** this is a development preview. The committed manifest uses published `@mastra/mcp@^1.17.3`; the modern demonstrations require the guarded local v2 overlay below until stable `^2.0.0` is published. Do not mistake a successful baseline install for modern-feature verification.
 
 ## Setup
 
@@ -22,7 +22,7 @@ pnpm setup:local-v2
 
 The script builds MCP/dependencies, checks the core peer range, replaces only the generated MCP package symlink and invokes a Zod-backed tool across package instances. It prints the source commit and verifies unchanged manifest/lockfile hashes. Never commit that overlay. A fresh node_modules installation restores the published baseline. At release, use a registry-only `^2.0.0` install and remove this maintainer step from the participant path.
 
-## Five-minute reviewer path (after setup)
+## Try the demos (after setup)
 
 ```bash
 pnpm reset
@@ -33,41 +33,67 @@ pnpm demo:v2
 pnpm demo:failures
 ```
 
-Expected: shared REST/CLI order; six discoverable MCP tools (including generated workflow and live-event wrapper); workflow stages and returned order resource; green modern/legacy/stdio proof; zero unauthorized/cancelled writes and one write after retries. Each demo owns fresh server state and cleanup. Installation/build time is outside this five-minute path.
+Expected: shared REST/CLI order; five MCP tools; a failed shipping step, recovery without a duplicate return, and stored traces; green modern/legacy/stdio proof; auth and cancellation checks. Each script runs against synthetic data.
 
 For independent Inspector verification: `pnpm demo:inspector`. For the full automated gate: `pnpm typecheck`, `pnpm test`, `pnpm build`.
 
 ## Interactive clients
 
-Run `pnpm serve`. It prints the actual allocated base URL and writes `.runtime/server.env`. In another terminal in this directory:
+For real MCP OAuth, follow [WorkOS setup](docs/oauth.md) and run `pnpm serve:oauth`. It exposes only MCP and discovery through the development tunnel; Studio stays private. WorkOS login and the user-to-tenant mapping require a live rehearsal.
+
+For the keyless fixture demo, run `pnpm serve`. It prints the actual allocated base URL and writes `.runtime/server.env`. In another terminal in this directory:
 
 ```bash
 source .runtime/server.env
 curl -fsS "$MASTRA_BASE_URL/api/mcp/v0/servers"
 ```
 
-The URL is the origin, **without `/api` appended**. Client endpoints are `${MASTRA_BASE_URL}/api/mcp/returns-modern/mcp` and the explicit comparison `${MASTRA_BASE_URL}/api/mcp/returns-legacy/mcp`. The registry reports `2026-07-28` and `2025-11-25`, respectively.
+The URL is the origin, **without `/api` appended**. There is one MCP server: `${MASTRA_BASE_URL}/api/mcp/returns-modern/mcp`, using `2026-07-28`. The legacy server exists only inside `demo:v2` as a comparison fixture.
 
-[Client setup](docs/client-setup.md) includes Inspector, Cursor and generic HTTP/stdio templates. Use the local fixture authorization header described there; these are teaching credentials, not production secrets. Signed-in Cursor discovery/invocation remains a human release check.
+[Client setup](docs/client-setup.md) includes Inspector, Cursor and generic HTTP/stdio templates. Use the local fixture authorization header described there; these are teaching credentials, not production secrets. Rehearse discovery and invocation in your chosen host.
 
 REST: GET `/returns/orders/ORD-001`, POST `/returns`, with the same local authorization boundary. CLI: `RETURNS_TENANT=north pnpm exec tsx src/cli.ts get ORD-001`.
 
-**State:** each CLI process/server uses independent in-memory fixtures. Shared domain code does not mean shared persistence. Stop and restart a running server to reset it; `pnpm reset` cannot reset another process. Automatic demos always allocate their own listeners and use the returned URL; they intentionally do not mutate an unrelated interactive server selected by an inherited environment variable.
+**State:** orders and labels are process-local; restart to reset them. Traces persist in LibSQL under `.runtime/`; this is not durable business storage. Automated demos own their listeners. `demo:workflow` can explicitly use `MASTRA_BASE_URL` to leave traces visible in an interactive server.
+
+## Why Mastra: the live demo
+
+One typed tool calls a four-step workflow: **eligibility → create return → shipping label → instructions**. Mastra retries only the shipping step. A typed wrapper keeps workflow internals out of the MCP response and passes tracing context through to the workflow.
+
+Terminal 1:
+
+```bash
+SHIPPING_FAILURES=3 pnpm serve
+```
+
+Terminal 2:
+
+```bash
+source .runtime/server.env
+pnpm demo:workflow
+```
+
+The first call returns `needs_retry`; the next completes with the same return ID; a third replays the same result. Open the printed origin in Studio → Traces. Inspect the oldest `processReturn` trace: tool → workflow → failed `shipping-label` step. Compare the successful trace. The tool itself succeeded in returning a safe pending result; the nested workflow failed.
+
+The current Studio shows the failed step in Attributes; the stored trace API also contains the carrier error. MCP log/progress notifications are not tracing. Restart before repeating the failure demo. The carrier is simulated; no real shipping occurs.
+
+Studio and its trace APIs are local debugging surfaces, not tenant-scoped public APIs. Do not expose the entire dev server through a tunnel.
 
 ## Slide-to-code map
 
-The [deck](../../slides/mcp-product-workshop/index.tsx) has twelve setup slides, then one uninterrupted live demo, plus an optional closing slide. [FACILITATOR.md](FACILITATOR.md) contains timing, speaker notes, fallback commands and cleanup.
+The [deck](../../slides/mcp-product-workshop/index.tsx) follows ten sections across 11 slides (one extra session diagram), with a short ChatGPT demo before the protocol discussion and a longer auth-focused demo at the end. [FACILITATOR.md](FACILITATOR.md) contains the 90-minute timing, speaker notes, fallback commands and cleanup.
+
+For ChatGPT, use the OAuth setup and restricted public gateway, not local fixture tokens. Custom-app permissions and client features vary by account. Rehearse the connection before presenting; keep Studio private.
 
 | Slides | Concept | Source / demo |
 | --- | --- | --- |
-| 1–4 | Familiar assistant; embedded agent vs MCP; users, team capability and both | Facilitator decision questions; `docs/research.md`; optional `src/mastra/agents/support.ts` |
-| 5 | Shared rules, with CLI as another useful interface | `src/domain/service.ts`, CLI/API/tools; `demo:surfaces` |
-| 6–7 | Descriptions, schemas, outputs and actionable errors | `src/mastra/tools/`, `src/domain/schemas.ts`, `src/domain/service.ts`; contract lab |
-| 8 | Expose tools, resources and workflow-backed tools | `src/mastra/mcp/index.ts`, `src/mastra/workflows/returns.ts`; `demo:discover`, `demo:workflow` |
-| 9 | Connect an existing host; evaluate choices and recovery | `docs/client-setup.md`; Inspector and signed-in Cursor human check |
-| 10–11 | Simpler deployment and confirmation without protocol sessions | `scripts/protocol/`, `proof/expected/`; `demo:v2` |
-| 12 | Transition to one continuous application demo | All demo scripts; subscription and production-failure details are taught here, not extra setup slides |
-| 13 | Recap/questions | User, experience, capability, recovery |
+| 1–4 | Intro, definition, supplied growth tweet, workshop/protocol timeline | `docs/sources.md`; `src/mastra/mcp/index.ts` |
+| 5 | Your assistant versus your tools in their assistant | Use cases, adoption and maintenance explained aloud; optional `src/mastra/agents/support.ts` |
+| 6 | Short ChatGPT tools demo | OAuth setup and facilitator guide; Inspector fallback |
+| 7–8 | Previous → latest spec; before/now session diagram | Local spec research; `scripts/protocol/`; safety/deployment questions spoken |
+| 9 | Why now? | Primary product/governance evidence in `docs/sources.md` |
+| 10 | Five short best practices, including auth | Tool schemas, domain authorization, idempotency and real-host testing |
+| 11 | Auth demo and questions; no separate closing slide | `demo:surfaces`, `demo:discover`, `demo:workflow`, `demo:failures`, `demo:v2` |
 
 ## What is—and is not—new
 
@@ -77,7 +103,7 @@ The [deck](../../slides/mcp-product-workshop/index.tsx) has twelve setup slides,
 
 The stdio auto leg shows `server/discover`. The pinned HTTP leg does not require that probe. The subscription authorization spike showed that subscribing to a URI does not prove permission to read it: **only public policy updates are broadcast**, never tenant order changes.
 
-The optional `src/mastra/agents/support.ts` is not registered or required. It needs your own model credentials and server-established `RequestContext` identity. Do not let the model choose a tenant/user.
+`DEMO_AGENT=1 pnpm serve` registers the optional support agent with the same read tools and `processReturn`. Calling the model needs `OPENAI_API_KEY`; the core demo does not. Agent routes use the same bearer-token identity. Do not let the model choose a tenant/user.
 
 ## Troubleshooting
 
@@ -92,8 +118,11 @@ The optional `src/mastra/agents/support.ts` is not registered or required. It ne
 | Build after local overlay | Keep `bundler.externals: ['@mastra/mcp']`; do not modify manifests to absolute file dependencies. |
 | Offline Inspector | Pre-cache `demo:inspector` during setup; fall back to programmatic discovery and recorded sanitized proof. |
 
-## Proof and release
+## Further reading
 
-[Release checklist and handoff](RELEASE.md) records exact versions, release-mode commands and outstanding human checks. [Proof index](proof/README.md) maps automated assertions and transcript fixtures. [Production guidance](docs/production.md) covers authorization, cancellation, error redaction, durable idempotency, ingress, OAuth/CIMD and limitations.
+- [Protocol transcript fixtures](proof/README.md)
+- [Production guidance](docs/production.md)
+- [MCP and tool-design sources](docs/sources.md)
+- [OAuth setup](docs/oauth.md)
 
-Before public launch: released `@mastra/mcp@^2.0.0`, clean frozen install and complete rerun; signed-in Cursor recording; second-person five-minute rehearsal; owner timing/recording approval; final review with no must-fix findings. No local overlay is a substitute for those release gates.
+The local MCP overlay is a development setup, not a registry-only installation. Until the package requirement above is updated, the modern demos need that source build.

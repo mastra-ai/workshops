@@ -21,7 +21,7 @@ The second script covers elicitation decline/cancel and accepted replay. Do not 
 
 - Authenticate at every transport boundary, including retained SSE and direct execute routes. Authenticate identity; never take tenant/user/confirmation from tool arguments.
 - Authorize again in the domain. Resource listing is tenant-scoped, reads recheck the tenant, and returned data omits internal tenant fields.
-- The workflow is exposed through authenticated MCP only, not also registered as an independent native workflow API. Adding another surface requires reviewing its auth and request-context handling.
+- Tools and the workflow are registered with Mastra for private Studio use. Native execution routes require local fixture authentication. The public OAuth gateway exposes only the MCP endpoint and discovery metadata, not Studio, REST or native workflow execution.
 - Validate shape/ranges/enums with schemas. Runtime authorization, existence and conflicts remain domain checks.
 - Idempotency is keyed by tenant and a stable client key, bound to the request fingerprint. Different payloads with the same key fail. Production needs transactional uniqueness plus durable results; this in-memory Map is single-process only.
 - Replayed reads and preflight must be safe to repeat. Keep writes after accepted confirmation and after the final cancellation check.

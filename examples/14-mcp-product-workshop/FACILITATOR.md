@@ -1,17 +1,26 @@
 # MCP is so back! Build Tools for the Agents Your Users Already Use
 
-**Daniel Lew and Alex Booker** · 90-minute core + optional 30-minute extension.
+**Daniel Lew and Alex Booker** · 90 minutes, with an optional 30-minute extension.
 
-Present first, then leave the deck for one continuous live demo. Do not return to slides between features. Daniel drives the code/protocol; Alex hosts and collects questions. These are suggested facilitation roles, not biographical claims.
+## Run of show
 
-## Before the room opens
+| Section | Slides | Minutes |
+| --- | --- | --- |
+| Introduction and MCP concepts | 1–2 | 0–7 |
+| Adoption and timeline | 3–4 | 7–14 |
+| Embedded agent or MCP? | 5 | 14–22 |
+| Short ChatGPT demo | 6 | 22–30 |
+| Protocol changes and sessionless requests | 7–8 | 30–43 |
+| Why now and best practices | 9–10 | 43–53 |
+| Longer demo and questions | 11 | 53–90 |
 
-Follow the README setup, including the maintainer overlay until v2 is published. Capture its commit. Install Inspector while online. Close any previous workshop launcher with Ctrl-C; do not kill unrelated processes. Open the deck, editor and terminal side by side. Set terminal text large enough for the room. Keep `proof/expected/` and `proof/phase-5.md` open as offline fallbacks.
+Keep the diagrams on screen and explain the qualifications aloud. [Sources](docs/sources.md) provide further reading.
 
-Run from this example directory:
+## Preparation
+
+Follow the [README](README.md) setup, including its current package requirements. Stop interactive development servers before running the automated checks:
 
 ```bash
-pnpm reset
 pnpm typecheck
 pnpm test
 pnpm build
@@ -23,111 +32,100 @@ pnpm demo:v2
 pnpm demo:failures
 ```
 
-Each demo owns fresh state, allocates a port and closes its process/clients. `reset` cannot change an already-running server. The scripts do not depend on a pre-existing server. Their shared launcher supplies the allocated URL; the interactive launcher writes `.runtime/server.env`. Never copy a port from yesterday's terminal.
+Scripted demos use fresh fixtures and clean up their own listeners. For ChatGPT, configure [WorkOS OAuth and the restricted tunnel](docs/oauth.md). Rehearse sign-in and tool discovery in the presenting account. Keep the server and tunnel running throughout the demo; never tunnel the private Studio origin.
 
-## Presentation and setup: 00:00–25:00
+## Short demo: use the assistant you already know
 
-| Slide | Time | Speaker notes / question |
-| --- | --- | --- |
-| 1 · Cover + hosts | 1 min | Daniel Lew and Alex Booker. Four promises: choose an experience, design reliable tools, connect an agent, understand modern deployment. |
-| 2 · Coworkers | 2 min | Another agent is another collaborator to learn. Does the user want your guided experience or their familiar assistant? Not a universal preference. |
-| 3 · Embedded agent / MCP | 3 min | Compare owning UI/model/behavior with exposing capabilities to another host. Both require authorization and evaluation. Who should own the experience? |
-| 4 · Users and team | 2 min | Daniel/Shane example: internal support agent plus external MCP. Reverse the audiences to test the reasoning. Team expertise affects what you can maintain, not a fixed technology ranking. |
-| 5 · Shared capabilities / CLI | 2 min | Both can reuse the same business service through Mastra. Shell users or agents may prefer CLI help/pipes; compatible hosts may prefer MCP discovery. Direct APIs remain useful. No universal token comparison. |
-| 6 · Descriptions + schemas | 3 min | Introduce Returns Desk as the example. When should createReturn be selected? What does it change? Inspect ID format, enum values and key length. Contrast callApi; do not teach every endpoint as a tool. |
-| 7 · Outputs + errors | 3 min | What happened, and what should the agent do next? Explain result IDs/units, correction versus retry versus stop. Actual domain excerpts, not fabricated wire envelopes. |
-| 8 · Expose the pieces | 2 min | Tools execute, resources supply content, workflows run behind a tool. Prompts are optional. Show registration in the demo. |
-| 9 · Connect and evaluate | 2 min | Connect/authenticate, discover, then try a real task. Judge tool selection, inputs and recovery—not just a green connection indicator. Host compatibility must be checked. |
-| 10 · Deployment | 2 min | Independent requests remove protocol-session affinity, a simpler fit for serverless. Business data still needs storage; streams still have runtime limits. No claim of a deployed serverless benchmark. |
-| 11 · Interaction | 2 min | Request → needs confirmation → answer → complete. No protocol session to keep alive while the user decides. Authorization and confirmation remain application responsibilities. |
-| 12 · Transition | 1 min | Leave slides for one continuous build/demo. Returns Desk is the worked example, not the workshop subject. |
+Select Returns Desk in a new ChatGPT conversation:
 
-### Detail for the presenter, not the screen
+> Use Returns Desk to look up order ORD-001 and check whether I can return it. Don't create a return yet.
 
-The story follows the event promises: **choose the experience → design capabilities agents can use → connect them → understand how to run it**. Daniel’s coworker insight motivates the embedded-agent/MCP choice. Internal versus external and technical versus nontechnical are questions to investigate, not fixed rules. An embedded agent can be ideal for nontechnical customers; internal engineers may already prefer Cursor. Team capability changes the operational work you can support: agent behavior/evaluations, tool quality, authorization and client compatibility.
+Expected: a $49 order delivered five days ago, eligible under the 30-day policy. Inspect the actual tool calls, not just the conversational answer.
 
-The deck exports source-linked notes. [Workshop claims and sources](docs/research.md) retains the primary evidence and all nine spec changes as reference. Only slides 10–11 explain protocol changes. Subscriptions, discovery, request logging and retries stay in the live chapters or extension. Notion and GitHub illustrate real setup/catalog concerns, not universal host support or July-spec adoption.
+> Check return eligibility for ORD-003 and ORD-004. Don't change anything.
 
-For slide 10, keep the release distinctions precise:
+Expected: expired and already returned, respectively.
 
-| Newly defaulted in v2 | Supported before v2 | Not implemented in this workshop |
-| --- | --- | --- |
-| Omitted config selects 2026-07-28: stateless HTTP, replay-based elicitation and modern subscriptions | Tools, resources, prompts, workflow tools and Streamable HTTP; native 2026 behavior was opt-in | Tasks, sampling, completions, roots and a production OAuth authorization server |
+The customer stays in a familiar assistant; the product supplies facts and business rules. Connecting a custom ChatGPT app requires developer/workspace permissions. MCP compatibility alone does not put a product in an app directory.
 
-On slide 7, the success fields come from `returnSchema`; the error wording comes from `ReturnsService.authorizedOrder`. MCP schema validation can reject malformed input before that domain error. The slide does not promise an identical REST/MCP error envelope. Ineligible creation currently reports `INELIGIBLE` / `EXPIRED`; use eligibility and policy to explain the 30-day limit, and discuss that terse message as an improvement opportunity rather than pretending it is ideal. Keep sensitive internal errors redacted. A return record is not a real payment-provider refund.
+**Fallback:** run `pnpm demo:discover` and `pnpm demo:inspector`. Explain that this proves independent-client access, not ChatGPT's tool selection. Resources, prompts and elicitation may have different support in each host.
 
-On slide 9, distinguish an SDK invoking a known tool from an agent selecting the right tool. Inspector/programmatic checks are deterministic; signed-in Cursor task execution remains a human check. Ask the host to look up an order, check eligibility and explain the outcome before mutating. Inspect its actual choices; do not invent a successful host transcript.
+## Longer demo: why Mastra?
 
-On slide 11, teach only confirmation. During the wire chapter, separately show the public-policy `subscriptions/listen` stream. Workflow progress/logs belong to their request, not that subscription. `server/discover` is required on servers but optional for clients; only our stdio auto leg shows the opening probe. Modern POST responses can still use SSE framing.
+### 1. Existing product → useful tool (7 minutes)
 
-During the failure chapter, discuss a lost response: a **new JSON-RPC request ID** is not a **new business operation**. Keep the business idempotency key. Existing tests cover replay/concurrency and preflight cancellation, not a dropped post-commit response or durable multi-instance recovery. This is no longer a setup slide. Show the real failure summary at that point, not before the audience sees the application.
+Show `src/domain/service.ts`, then `src/mastra/tools/reads.ts`. REST, CLI and MCP reuse the domain layer. Explain the tool's name, description, input/output schemas and authorization boundary.
 
-## Continuous live demo: 25:00–85:00
+Show registration in `src/mastra/mcp/index.ts` and `src/mastra/index.ts`: the same tool instances are available through MCP and Studio, not separate implementations.
 
-For each chapter below: run `pnpm reset` first. Do not restart a manually running interactive server behind Cursor without reconnecting the host.
+### 2. One tool → a workflow (5 minutes)
 
-### 1. One product, multiple surfaces — 25:00–33:00 (8 min)
+Open `src/mastra/tools/process-return.ts` and `src/mastra/workflows/returns.ts`:
 
-- **State:** fresh fixtures, no external host required.
-- **Command:** `pnpm demo:surfaces`.
-- **Expected:** REST and CLI agree on ORD-001 (4900 cents, delivered). Show `src/domain/service.ts`, `src/cli.ts`, `src/mastra/api/returns.ts`, then the thin MCP read tool.
-- **Teaching point:** same code and policy, not duplicated business rules. Each process has independent fixture state.
-- **Fallback:** run `RETURNS_TENANT=north pnpm exec tsx src/cli.ts get ORD-001`; inspect API test assertions.
-- **Cleanup:** script closes its owned server. No manual deletion needed.
+```text
+eligibility → create return → shipping label → instructions
+```
 
-### 2. Tool design, discovery and real hosts — 33:00–55:00 (22 min)
+The external agent chooses the operation. The workflow controls its business sequence and shipping retries. The wrapper returns a concise completed, pending or rejected result instead of exposing internal workflow details.
 
-- **State:** fresh fixtures; Inspector package cached; signed-in Cursor only for optional human demonstration.
-- **Commands:** `pnpm demo:discover`, then `pnpm demo:inspector`.
-- **Expected:** six tools including generated `run_processReturnWorkflow` and live-event wrapper `processReturnWithProgress`, policy resource, order template, reply prompt; authorized order read. Registry curl asserts modern 2026-07-28 and explicit legacy 2025-11-25.
-- **Contract lab (8 min):** inspect `src/mastra/tools/mutations.ts` and `src/domain/schemas.ts`. Ask when the agent should select createReturn, which values it must supply, what changes and what it receives. Compare the test-only `callApi` contract. Show the actual return result and safe-error mapping; explain why field names, units and actionable errors matter. Do not add the broad tool to the server.
-- **Discovery + host (14 min):** run the two client scripts, inspect tool/resource/workflow registration, then follow the host chapter. Ask for an order lookup and eligibility explanation; inspect selection/arguments/results before the bounded mutation. If it chooses poorly, identify the missing description/schema/output information rather than silently retrying until success.
-- **Teaching point:** connection success is necessary, not sufficient. Schema tests prove deterministic contracts, not model task success. Resources are content; prompts are optional. Host behavior must be observed, not inferred from the SDK test.
-- **Host chapter:** run `pnpm serve` in a dedicated terminal. In another, `source .runtime/server.env`. Follow `docs/client-setup.md` exactly for Inspector UI / Cursor. Open Studio's MCP list and inspect both registered servers. This is a human checkpoint, not a claim that Cursor automation ran.
-- **Fallback:** programmatic client + Inspector CLI output. If signed-in Cursor is unavailable, skip its mutation; never burn wire/failure time troubleshooting login.
-- **Cleanup:** disconnect Cursor, stop `pnpm serve` with Ctrl-C. Its env file is removed.
+### 3. Shipping failure → trace → recovery (10 minutes)
 
-### 3. Workflow-backed capability — 55:00–65:00 (10 min)
+Start a fresh server with deliberate failure injection. For an OAuth-connected ChatGPT demo:
 
-- **State:** fresh ORD-001, not the order already mutated by a host.
-- **Command:** `pnpm demo:workflow`.
-- **Expected:** generated workflow result lists `eligibility`, `draft`, `completion`; the `processReturnWithProgress` wrapper then emits actual `WORKFLOW LOG` and `WORKFLOW PROGRESS` events (1/3 through 3/3), followed by the order resource now `returned`. The same idempotency key replays without another return.
-- **Teaching point:** automatic workflow exposure returns the final execution path; it does not automatically translate step events to MCP. The narrow wrapper uses public `mcp.log`/`mcp.progress` helpers and an ephemeral application-owned reporter to expose each completed stage. The client opts into per-request logging and progress. Do not persist this callback across durable suspension. Both paths run the same workflow; interactive `createReturn` still owns high-value confirmation.
-- **Fallback:** the real-HTTP workflow test in `tests/mcp-http.test.ts` and its asserted step path. Do not fabricate progress/log messages if a host doesn't display them.
-- **Cleanup:** script disconnects and closes the server. Explain process-local storage on restart.
+```bash
+SHIPPING_FAILURES=3 pnpm serve:oauth
+```
 
-### 4. What modern changes on the wire — 65:00–75:00 (10 min)
+Keep the separately started tunnel running. For local Inspector instead, use `SHIPPING_FAILURES=3 pnpm serve` with fixture authentication.
 
-- **State:** three isolated harness legs, modern overlay active (or released v2 at launch).
-- **Command:** `pnpm demo:v2`.
-- **Expected:** `V2 PROOF GREEN`; regenerated `.runtime/proof/modern.jsonl`, `legacy.jsonl`, `stdio.jsonl`.
-- **Walkthrough, in story order:** (1) the order request needs no initialize/session header; locate version/capabilities in `_meta`; (2) the high-value return needs confirmation—locate `resultType: "input_required"`, `inputRequests`, the retry’s `inputResponses` and final `complete`; accepted confirmation plus replay writes once, decline/cancel write none; (3) the public policy changes—locate `subscriptions/listen`, its acknowledgment/subscription ID and update, then show unsubscribed delivery stops; (4) compare legacy session headers and stdio auto’s `server/discover` probe with the modern-pin rejection. Scalar `structuredContent: 80` and safe trace correlation are brief bonus observations, not new stories.
-- **Teaching point:** the workflow’s earlier progress/log events belonged to its own request, not this subscription. Request logging requires an explicit `logLevel` opt-in. Only stdio auto demonstrates the opening probe here; HTTP is pinned. Spec-level changes and Mastra’s default adoption are different claims.
-- **Fallback:** committed sanitized `proof/expected/` plus `proof/phase-4.md`; identify it as recorded evidence, never a live run.
-- **Cleanup:** harness closes streams/transports/listeners in finally; no persistent app state.
+Ask ChatGPT:
 
-### 5. Production failure drill — 75:00–85:00 (10 min)
+> Use processReturn for ORD-001, reason "damaged", and idempotency key "workshop-long-001". If the result is needs_retry, stop and explain what succeeded and what is pending. Don't retry automatically.
 
-- **State:** fresh fixtures; no public fault-injection endpoint.
-- **Command:** `pnpm demo:failures`.
-- **Expected:** 401 missing token, 403 wrong tenant, 400 malformed input, 409 conflicting key; identical retries return the same result. Injected dependency error is redacted; an actual in-flight abort stops preflight with zero writes; twelve concurrent retries yield one write.
-- **Teaching point:** domain authorization, post-confirmation writes and durable idempotency—not the model—enforce safety. The injected loopback adapter is test infrastructure, not a deployable auth server. Cancellation cannot reverse an already committed transaction.
-- **Fallback:** `proof/phase-5.md`; explain both the positive and negative assertions.
-- **Cleanup:** restore dependency implementation, disconnect, close all listeners. Tests run this twice and require natural process exit.
+Expected: return created, label pending. The carrier failure is simulated. Open the launcher's private Studio address → Traces, select `processReturn`, and inspect the failed `shipping-label` step beneath the workflow. The root tool successfully returned a safe pending result even though the nested workflow failed.
 
-## Recap: 85:00–90:00
+Then ask:
 
-Optional slide 13. Ask participants which users they serve, which experience fits, which capability to expose, and which failure their agent should handle. Point to the five-minute README path. Collect questions. Do not claim release readiness while the release checklist remains open.
+> Retry processReturn with exactly the same order, reason and idempotency key.
 
-**If time is lost:** drop the optional reply prompt and live Cursor mutation first. Shorten source browsing next. **Never drop modern wire proof or the production failure drill.**
+Expected: completed return, label and instructions, with no duplicate return. Compare the successful trace. Explain that a lost response or partial failure does not mean nothing happened; retry safety belongs to the application.
 
-## Optional extension: +30 minutes
+For an automated version against a fixture-auth server, run:
 
-| Budget | Topic / source | Exercise / expected result |
-| --- | --- | --- |
-| 8 min | Workflow depth: `src/mastra/workflows/returns.ts` | Explain high-value rejection, step contracts and why durable storage matters. Discuss progress/log emission separately from the returned step path. |
-| 7 min | Cache / trace: `src/mastra/mcp/index.ts`, `proof/expected/modern.jsonl` | Locate policy cache hints and trace metadata. No mutable-order cache hints; only safe trace ID returned. |
-| 8 min | OAuth / CIMD: `docs/production.md` | Diagram host → authorization server → access token → resource server → domain authorization. CIMD vs DCR concerns client registration, not user/tenant permission. |
-| 7 min | Migration: modern vs legacy JSONL | Pin 2025-11-25 deliberately, inventory session-dependent features, then migrate a host. Do not recommend SSE as the new deployment path. |
+```bash
+source .runtime/server.env
+pnpm demo:workflow
+```
 
-Extension cleanup is the same as the core: stop only owned processes and reconnect hosts after restart. No OAuth server or unimplemented protocol feature is silently added to the lab.
+### 4. Sign-in → authorization (5 minutes)
+
+Show `src/mastra/mcp/oauth.ts`, then the domain's tenant check. WorkOS authenticates the user; token verification checks signature, issuer, audience and expiry; the application decides which orders that user may access. The demo's user-to-tenant map is not a production membership system.
+
+Ask ChatGPT to look up `ORD-005`. Expected: unavailable in this account, with no other tenant's order details returned.
+
+### 5. Reuse and questions (remaining time)
+
+Show `src/mastra/agents/support.ts`: the optional embedded agent reuses the same tools. No model call is required to explain the registration.
+
+Takeaway: MCP exposes capabilities to external agents; Mastra provides reusable tools, orchestration and execution tracing behind those capabilities.
+
+## Reset between rehearsals
+
+- Restart the interactive server after creating returns. `pnpm reset` does not reset a running process.
+- Restart with `SHIPPING_FAILURES=3` to repeat the carrier-failure demonstration.
+- Leave the tunnel running if its target remains port 4180; the public MCP URL does not change.
+- Start a new ChatGPT conversation to avoid cached conversational answers.
+- Read `.runtime/server.env` for the new private Studio port. Each server launch uses a new trace database.
+- Check `ORD-001` is delivered and eligible before presenting. A read-only rehearsal needs no state reset.
+
+## Protocol notes and optional extension
+
+- Modern MCP removes protocol-session affinity, not application storage, OAuth login sessions or conversation state. Older servers could already offer stateless modes.
+- Servers implement `server/discover`; clients need not call it before every request.
+- Elicitation remains the capability; MRTR carries the additional input across follow-up requests. Ordinary conversational confirmation is not proof of MCP elicitation.
+- Modern HTTP still uses SSE framing for streaming; the legacy SSE transport is not the recommendation.
+- Demonstrate `pnpm demo:v2` for modern HTTP, auto-negotiated stdio and explicit legacy comparison. Sanitized [transcripts](proof/README.md) are available as recorded fallbacks.
+- Broadcast only public policy updates. Subscribing to an order URI does not establish authorization to read it.
+- Write tools that fit the work. Discuss progressive discovery and sandboxed code mode as optional patterns; neither is implemented in this example.
+
+Stop owned servers and tunnels after the event. Keep secrets, recordings containing credentials, and real customer data out of the repository.

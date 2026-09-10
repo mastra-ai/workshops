@@ -2,4 +2,11 @@ node_modules/
 .mastra/
 .runtime/
 .env
+.env.*
+!.env.example
+!.env.*.example
 *.tgz
+*.pem
+*.key
+*.p12
+*.pfx

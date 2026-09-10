@@ -1,43 +1,44 @@
 import { createStep, createWorkflow } from '@mastra/core/workflows';
-import { z } from 'zod';
 import { identityFromContext } from '../../domain/auth.js';
 import { DomainError, returnRequestSchema, returnSchema } from '../../domain/schemas.js';
 import { returnsService } from '../../domain/service.js';
+import { instructionsSchema, shipmentSchema, shippingService } from '../../domain/shipping.js';
 
-import { reportStage } from './progress.js';
-
-const draftSchema = returnRequestSchema.extend({ refundCents: z.number().int().nonnegative() });
 const eligibility = createStep({
   id: 'eligibility', inputSchema: returnRequestSchema, outputSchema: returnRequestSchema,
   execute: async ({ inputData, requestContext }) => {
-    const result = returnsService.checkEligibility(identityFromContext(requestContext), inputData.orderId);
-    if (!result.eligible && !returnsService.previousReturn(identityFromContext(requestContext), inputData)) throw new DomainError('INELIGIBLE', result.reason);
-    if (result.requiresConfirmation) throw new DomainError('CONFIRMATION_REQUIRED', 'Use createReturn with interactive confirmation for high-value orders.');
-    await reportStage(requestContext, 'eligibility', 1);
+    const identity = identityFromContext(requestContext);
+    if (returnsService.previousReturn(identity, inputData)) return inputData;
+    const result = returnsService.checkEligibility(identity, inputData.orderId);
+    if (!result.eligible) throw new DomainError('INELIGIBLE', result.reason);
+    if (result.requiresConfirmation) throw new DomainError('CONFIRMATION_REQUIRED', 'Confirm with createReturn first, then reuse its idempotency key here.');
     return inputData;
   },
 });
-const draft = createStep({
-  id: 'draft', inputSchema: returnRequestSchema, outputSchema: draftSchema,
+const createReturn = createStep({
+  id: 'create-return', inputSchema: returnRequestSchema, outputSchema: returnSchema,
   execute: async ({ inputData, requestContext }) => {
-    const draft = { ...inputData, refundCents: returnsService.getOrder(identityFromContext(requestContext), inputData.orderId).totalCents };
-    await reportStage(requestContext, 'draft', 2);
-    return draft;
+    const signal = requestContext?.get('signal');
+    if (signal instanceof AbortSignal && signal.aborted) throw new DomainError('CANCELLED', 'Return cancelled before creation.');
+    return returnsService.createReturn(identityFromContext(requestContext), inputData);
   },
 });
-const completion = createStep({
-  id: 'completion', inputSchema: draftSchema, outputSchema: returnSchema,
+const shippingLabel = createStep({
+  id: 'shipping-label', inputSchema: returnSchema, outputSchema: shipmentSchema, retries: 2,
   execute: async ({ inputData, requestContext }) => {
-    const signal = requestContext?.get('returns.abortSignal');
-    if (signal instanceof AbortSignal && signal.aborted) throw new DomainError('CANCELLED', 'Return workflow cancelled before mutation.');
-    const { refundCents, ...request } = inputData;
-    const result = returnsService.createReturn(identityFromContext(requestContext), request);
-    await reportStage(requestContext, 'completion', 3);
-    return result;
+    const signal = requestContext?.get('signal');
+    const label = await shippingService.createLabel(identityFromContext(requestContext), inputData, signal instanceof AbortSignal ? signal : undefined);
+    return { return: inputData, label };
   },
 });
+const instructions = createStep({
+  id: 'instructions', inputSchema: shipmentSchema, outputSchema: instructionsSchema,
+  execute: async ({ inputData }) => ({ ...inputData, instructions: `Pack order ${inputData.return.orderId} and attach ${inputData.label.id}. Drop it at Demo Post. This is a simulated label.` }),
+});
+
 export const processReturnWorkflow = createWorkflow({
   id: 'processReturnWorkflow',
-  description: 'Process an eligible standard-value return through eligibility, draft and completion. Requires orderId, reason and idempotencyKey in the authenticated tenant. Writes a return only at completion. High-value orders must use interactive createReturn instead. Ineligible orders fail before mutation.',
-  inputSchema: returnRequestSchema, outputSchema: returnSchema,
-}).then(eligibility).then(draft).then(completion).commit();
+  description: 'Create a return and arrange its shipping label. Use for the complete return process, not lookup. Requires orderId, reason and idempotencyKey; authenticated tenant only. Carrier failure can leave the return created: retry with the same key. High-value orders require createReturn confirmation first. Shipping is simulated locally.',
+  inputSchema: returnRequestSchema, outputSchema: instructionsSchema,
+  retryConfig: { attempts: 0, delay: 100 },
+}).then(eligibility).then(createReturn).then(shippingLabel).then(instructions).commit();

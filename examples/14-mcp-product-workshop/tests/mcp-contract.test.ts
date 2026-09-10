@@ -1,27 +1,40 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { RequestContext } from '@mastra/core/request-context';
 import { z } from 'zod';
-import { returnsModern, returnsLegacy } from '../src/mastra/mcp/index.js';
+import { returnsModern } from '../src/mastra/mcp/index.js';
 import { returnsService } from '../src/domain/service.js';
 import { processReturnWorkflow } from '../src/mastra/workflows/returns.js';
-import { processReturnWithProgress } from '../src/mastra/tools/workflow.js';
-import { noopObserve } from '@mastra/core/tools';
+import { shippingService } from '../src/domain/shipping.js';
+import { supportAgent } from '../src/mastra/agents/support.js';
+import { processReturn } from '../src/mastra/tools/process-return.js';
 
 // Deliberately broad anti-contract: no operation semantics, authorization or side-effect boundary.
 const callApi = z.object({ method: z.string(), path: z.string(), body: z.unknown() });
 const context = () => new RequestContext<unknown>([['identity', { tenantId: 'north', userId: 'support-north' }]]);
-beforeEach(() => returnsService.reset());
-test('registry resolves modern default and explicitly pinned legacy', () => {
+beforeEach(() => { returnsService.reset(); shippingService.reset(); });
+test('the optional agent reuses the same workflow-backed tool', async () => {
+  expect((await supportAgent.listTools()).processReturn).toBe(processReturn);
+});
+test('registry resolves the modern default', () => {
   expect(returnsModern.getServerInfo().protocol_version).toBe('2026-07-28');
-  expect(returnsLegacy.getServerInfo().protocol_version).toBe('2025-11-25');
 });
 test('bounded catalogue excludes the generic API anti-contract', async () => {
   expect(callApi.safeParse({ method: 'DELETE', path: '/anything', body: {} }).success).toBe(true);
   const catalogue = await returnsModern.getToolListInfo();
   const names = catalogue.tools.map(tool => tool.name);
   expect(names).toEqual(expect.arrayContaining(['getOrder', 'checkReturnEligibility', 'createReturn', 'returnRiskScore']));
-  expect(names.some(name => name.includes('processReturnWorkflow'))).toBe(true);
+  expect(names).toContain('processReturn');
+  expect(names).toHaveLength(5);
   expect(names).not.toContain('callApi');
+});
+test.each([
+  ['ORD-003', 'INELIGIBLE'], ['ORD-005', 'FORBIDDEN'], ['ORD-002', 'CONFIRMATION_REQUIRED'],
+])('workflow tool safely rejects %s', async (orderId, code) => {
+  const result = await returnsModern.executeTool('processReturn', { orderId, reason: 'damaged', idempotencyKey: 'reject-001' }, { requestContext: context() });
+  expect(result).toMatchObject({ status: 'rejected', error: { code } });
+  expect(JSON.stringify(result)).not.toMatch(/stack|node_modules/);
+  expect(returnsService.mutationCount).toBe(0);
+  expect(shippingService.labelCount).toBe(0);
 });
 test('read and scalar contracts preserve public shapes', async () => {
   const options = { requestContext: context() };
@@ -45,14 +58,49 @@ test('mutating tool retries converge without bypassing high-value confirmation',
   await expect(returnsModern.executeTool('createReturn', { ...request, orderId: 'ORD-002', idempotencyKey: 'contract-002' }, options)).rejects.toThrow();
   expect(returnsService.mutationCount).toBe(1);
 });
-test('live workflow wrapper rejects cancellation and conflicting retries without another write', async () => {
-  const input = { orderId: 'ORD-001', reason: 'damaged' as const, idempotencyKey: 'wrapper-001' };
-  const controller = new AbortController(); controller.abort();
-  await expect(processReturnWithProgress.execute?.(input, { requestContext: context(), abortSignal: controller.signal, observe: noopObserve })).rejects.toMatchObject({ code: 'CANCELLED' });
+test('workflow rejects pre-cancellation and conflicting retries without another write', async () => {
+  const inputData = { orderId: 'ORD-001', reason: 'damaged' as const, idempotencyKey: 'workflow-retry-001' };
+  const run = async (data = inputData, requestContext = context()) => (await processReturnWorkflow.createRun()).start({ inputData: data, requestContext });
+  const cancelled = context(); cancelled.set('signal', AbortSignal.abort());
+  expect((await run(inputData, cancelled)).status).toBe('failed');
   expect(returnsService.mutationCount).toBe(0);
-  await returnsModern.executeTool('processReturnWithProgress', input, { requestContext: context() });
-  await expect(returnsModern.executeTool('processReturnWithProgress', { ...input, reason: 'wrong-item' }, { requestContext: context() })).rejects.toThrow('Idempotency key already used for a different request.');
+  expect((await run()).status).toBe('success');
+  const conflict = await run({ ...inputData, idempotencyKey: inputData.idempotencyKey, orderId: 'ORD-002' });
+  expect(conflict.status).toBe('failed');
   expect(returnsService.mutationCount).toBe(1);
+  expect(shippingService.labelCount).toBe(1);
+});
+test('unexpected workflow errors stay out of the tool result', async () => {
+  const spy = vi.spyOn(returnsService, 'previousReturn').mockImplementation(() => { throw new Error('PRIVATE_DATABASE_DETAIL'); });
+  try {
+    const result = await returnsModern.executeTool('processReturn', { orderId: 'ORD-001', reason: 'damaged', idempotencyKey: 'internal-workflow-001' }, { requestContext: context() });
+    expect(result).toMatchObject({ status: 'rejected', error: { code: 'INTERNAL' } });
+    expect(JSON.stringify(result)).not.toMatch(/PRIVATE|stack/);
+    expect(returnsService.mutationCount).toBe(0);
+  } finally { spy.mockRestore(); }
+});
+test('concurrent workflow calls converge on one return and label', async () => {
+  const input = { orderId: 'ORD-001', reason: 'damaged', idempotencyKey: 'concurrent-workflow-001' };
+  const results = await Promise.all(Array.from({ length: 12 }, () => returnsModern.executeTool('processReturn', input, { requestContext: context() })));
+  expect(results.every(result => JSON.stringify(result) === JSON.stringify(results[0]))).toBe(true);
+  expect(results[0]).toMatchObject({ status: 'completed' });
+  expect(returnsService.mutationCount).toBe(1);
+  expect(shippingService.labelCount).toBe(1);
+});
+test('cancellation after return creation leaves a recoverable label, not a false rollback', async () => {
+  const controller = new AbortController();
+  const requestContext = context(); requestContext.set('signal', controller.signal);
+  const original = shippingService.createLabel.bind(shippingService);
+  const spy = vi.spyOn(shippingService, 'createLabel').mockImplementationOnce((identity, result, signal) => { controller.abort(); return original(identity, result, signal); });
+  const input = { orderId: 'ORD-001', reason: 'damaged', idempotencyKey: 'cancel-shipping-001' };
+  try {
+    expect(await returnsModern.executeTool('processReturn', input, { requestContext })).toMatchObject({ status: 'needs_retry' });
+    expect(returnsService.mutationCount).toBe(1);
+    expect(shippingService.labelCount).toBe(0);
+    expect(await returnsModern.executeTool('processReturn', input, { requestContext: context() })).toMatchObject({ status: 'completed' });
+    expect(returnsService.mutationCount).toBe(1);
+    expect(shippingService.labelCount).toBe(1);
+  } finally { spy.mockRestore(); }
 });
 test('workflow reaches completion for standard orders and blocks ineligible orders', async () => {
   const run = await processReturnWorkflow.createRun();

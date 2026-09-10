@@ -7,7 +7,7 @@ try {
   const headers = { authorization: 'Bearer workshop-north', 'content-type': 'application/json' };
   assert.equal((await fetch(`${server.baseUrl}/returns/orders/ORD-001`)).status, 401);
   assert.equal((await fetch(`${server.baseUrl}/returns/orders/ORD-005`, { headers })).status, 403);
-  for (const path of ['/api/mcp/returns-modern/mcp', '/api/mcp/returns-legacy/sse', '/api/mcp/returns-modern/tools/createReturn/execute']) {
+  for (const path of ['/api/mcp/returns-modern/mcp', '/api/workflows/processReturnWorkflow/start', '/api/mcp/returns-modern/tools/createReturn/execute']) {
     assert.equal((await fetch(`${server.baseUrl}${path}`, { method: 'POST' })).status, 401);
   }
   assert.equal((await fetch(`${server.baseUrl}/returns`, { method: 'POST', headers, body: '{bad json' })).status, 400);

@@ -1,15 +1,16 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { once } from 'node:events';
-import { InternalMastraMCPClient } from '@mastra/mcp';
+import { InternalMastraMCPClient, MCPServer } from '@mastra/mcp';
 import { SdkError, SdkErrorCode } from '@modelcontextprotocol/client';
 import { noopObserve } from '@mastra/core/tools';
-import { returnsModern, returnsLegacy } from '../../src/mastra/mcp/index.js';
+import { capabilities, returnsModern } from '../../src/mastra/mcp/index.js';
 import { returnsService } from '../../src/domain/service.js';
 import { advancePublicPolicy, resetPublicPolicy } from '../../src/domain/public-policy.js';
 import { recorder, type WireEvent } from './wire.js';
 
 export async function runHttpProof() {
+  const returnsLegacy = new MCPServer({ ...capabilities, id: 'returns-legacy', name: 'Legacy test fixture', protocolVersion: '2025-11-25' });
   returnsService.reset(); resetPublicPolicy();
   const modern: WireEvent[] = [], legacy: WireEvent[] = [];
   const server = http.createServer(async (req, res) => {
