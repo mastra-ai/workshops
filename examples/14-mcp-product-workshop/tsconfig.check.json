@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": { "@mastra/core/*": ["./node_modules/@mastra/core/dist/*"] }
+  }
+}

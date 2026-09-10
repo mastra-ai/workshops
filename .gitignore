@@ -1,4 +1,11 @@
 node_modules/
+/slides/node_modules
+/.mastracode/proof/
+/.mastracode/plans/
+.env
+.env.*
+!.env.example
+!.env.*.example
 dist/
 .mastra/
 **/.mastra/

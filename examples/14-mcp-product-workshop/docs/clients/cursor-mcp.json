@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "returns-desk": {
+      "url": "${env:MASTRA_BASE_URL}/api/mcp/returns-modern/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:RETURNS_DESK_TOKEN}"
+      }
+    }
+  }
+}

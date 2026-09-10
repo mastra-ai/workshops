@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "returns-protocol-lab": {
+      "command": "pnpm",
+      "args": ["-C", "${env:RETURNS_DESK_PROJECT}", "exec", "tsx", "scripts/protocol/stdio-server.ts"]
+    }
+  }
+}
