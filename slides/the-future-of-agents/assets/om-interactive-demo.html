@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observational Memory — Interactive Demo</title>
+<style>
+/* ── Reset & Base ─────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:#0d1117;color:#c9d1d9;
+  display:grid;
+  grid-template-rows:1fr auto;
+  grid-template-columns:45% 55%;
+  gap:0;
+}
+
+/* ── Panels ───────────────────────────────────────────────── */
+#chat-panel{
+  grid-row:1;grid-column:1;
+  background:#161b22;
+  border-right:1px solid #30363d;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+#context-panel{
+  grid-row:1;grid-column:2;
+  background:#0d1117;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  transition:box-shadow .6s ease;
+}
+#context-panel.glow-blue{box-shadow:inset 0 0 60px rgba(56,139,253,.25),0 0 30px rgba(56,139,253,.15)}
+#context-panel.glow-purple{box-shadow:inset 0 0 60px rgba(163,113,247,.25),0 0 30px rgba(163,113,247,.15)}
+
+#bottom-bar{
+  grid-row:2;grid-column:1/3;
+  background:#161b22;
+  border-top:1px solid #30363d;
+  padding:14px 24px;
+  display:grid;
+  grid-template-columns:1fr 340px 180px;
+  align-items:center;gap:20px;
+  height:100px;
+}
+
+/* ── Panel Headers ────────────────────────────────────────── */
+.panel-header{
+  padding:12px 18px;
+  font-size:13px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;
+  border-bottom:1px solid #30363d;
+  color:#8b949e;
+  flex-shrink:0;
+  height:50px;
+  display:flex;align-items:center;
+}
+#context-panel .panel-header{
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+  justify-content:space-between;
+}
+#view-toggle{
+  position:relative;width:52px;height:26px;border-radius:13px;border:1px solid #30363d;
+  background:#21262d;cursor:pointer;transition:all .2s ease;
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+  text-transform:none;letter-spacing:0;padding:0;
+  flex-shrink:0;
+}
+#view-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:18px;height:18px;border-radius:50%;
+  background:#8b949e;transition:all .2s ease;
+}
+#view-toggle.active{background:#1f6feb;border-color:#1f6feb}
+#view-toggle.active::after{left:29px;background:#fff}
+.toggle-wrap{display:flex;align-items:center;gap:8px}
+.toggle-label{font-size:11px;color:#8b949e;font-weight:600;text-transform:none;letter-spacing:0}
+#json-content{
+  flex:1;overflow-y:auto;padding:14px 18px;
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+  font-size:11.5px;line-height:1.55;
+  white-space:pre-wrap;word-break:break-word;
+  display:none;
+  color:#8b949e;
+}
+#json-content .kw{color:#ff7b72}
+#json-content .str{color:#a5d6ff}
+#json-content .num{color:#79c0ff}
+#json-content .bool{color:#ff7b72}
+#json-content .role-developer{color:#f0883e}
+#json-content .role-user{color:#58a6ff}
+#json-content .role-assistant{color:#3fb950}
+#json-content .bracket{color:#6e7681}
+
+/* ── Chat ─────────────────────────────────────────────────── */
+#chat-messages{
+  flex:1;overflow-y:auto;padding:16px 18px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.msg{
+  padding:10px 14px;border-radius:10px;
+  max-width:88%;line-height:1.5;font-size:14px;
+  white-space:pre-wrap;
+  animation:msgIn .35s ease both;
+}
+.msg.user{background:#1f6feb;color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.msg.assistant{background:#21262d;color:#c9d1d9;align-self:flex-start;border-bottom-left-radius:3px}
+.msg.system{
+  background:transparent;border:1px dashed #30363d;
+  color:#8b949e;align-self:center;text-align:center;
+  font-size:13px;max-width:95%;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Chat Input ───────────────────────────────────────────── */
+#chat-input{
+  flex-shrink:0;
+  padding:12px 14px;
+  border-top:1px solid #30363d;
+  display:flex;align-items:center;gap:10px;
+}
+#input-preview{
+  flex:1;
+  padding:10px 14px;border-radius:10px;
+  background:#21262d;border:1px solid #30363d;
+  font-size:14px;color:#6e7681;
+  min-height:40px;
+  line-height:1.4;
+  white-space:pre-wrap;
+}
+#input-preview:empty::after{
+  content:'';
+}
+#btn-send{
+  padding:10px 20px;border-radius:10px;border:1px solid #30363d;
+  background:#21262d;color:#8b949e;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s ease;
+  flex-shrink:0;
+}
+#btn-send:hover{background:#30363d;color:#c9d1d9}
+#btn-send:disabled{opacity:.35;cursor:default}
+#btn-send.alt{background:#21262d;color:#8b949e;border:1px solid #30363d}
+#btn-send.alt:hover{background:#30363d;color:#c9d1d9}
+
+/* ── Context Viewer ───────────────────────────────────────── */
+#context-content{
+  flex:1;overflow-y:auto;padding:14px 18px;
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+  font-size:12.5px;line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;
+}
+.ctx-block{margin-bottom:14px;animation:ctxIn .4s ease both}
+@keyframes ctxIn{from{opacity:0}to{opacity:1}}
+
+.ctx-role{font-weight:700;margin-bottom:2px}
+.ctx-role.system{color:#f0883e}
+.ctx-role.user{color:#58a6ff}
+.ctx-role.assistant{color:#3fb950}
+.ctx-role.tool{color:#d2a8ff}
+.ctx-role.observation{color:#79c0ff}
+.ctx-role.reflection{color:#d2a8ff}
+
+.ctx-body{color:#8b949e;padding-left:12px;border-left:2px solid #30363d}
+.ctx-body .kw{color:#ff7b72}
+.ctx-body .str{color:#a5d6ff}
+.ctx-body .num{color:#79c0ff}
+.ctx-body .bool{color:#ff7b72}
+
+/* Tool call card (in chat) */
+.tool-card{
+  border:1px solid #30363d;border-radius:10px;
+  animation:msgIn .35s ease both;
+  align-self:stretch;
+  width:100%;
+  flex-shrink:0;
+}
+.tool-card-header{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;cursor:pointer;
+  background:#21262d;
+  transition:background .15s ease;
+}
+.tool-card-header:hover{background:#282e36}
+.tool-card-icon{color:#d2a8ff;font-size:14px;flex-shrink:0;display:flex}
+.tool-card-icon img,.inline-icon{width:20px;height:20px;vertical-align:middle;display:inline-block}
+.inline-icon.blue{color:#58a6ff}
+.inline-icon.purple{color:#d2a8ff}
+.inline-icon.green{color:#3fb950}
+.tool-card-name{
+  font-weight:600;color:#c9d1d9;font-size:12.5px;
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+}
+.tool-card-status{
+  font-size:11px;font-weight:600;
+  padding:2px 8px;border-radius:10px;
+  background:#1a3a2a;color:#3fb950;
+  display:flex;align-items:center;gap:4px;
+}
+.tool-card-status::before{content:'✓';font-size:10px}
+.tool-card-status.failed{background:#3d1a1a;color:#f85149}
+.tool-card-status.failed::before{content:'✕'}
+.tool-card-chevron{
+  margin-left:auto;color:#6e7681;font-size:14px;
+  transition:transform .2s ease;flex-shrink:0;
+}
+.tool-card.open .tool-card-chevron{transform:rotate(180deg)}
+.tool-card-body{
+  display:none;
+  border-top:1px solid #30363d;
+  padding:12px 14px;
+}
+.tool-card.open .tool-card-body{display:block}
+.tool-card-label{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:#6e7681;margin-bottom:6px;
+}
+.tool-card-json{
+  background:#0d1117;border:1px solid #21262d;border-radius:6px;
+  padding:10px 12px;
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+  font-size:11px;line-height:1.5;
+  white-space:pre-wrap;word-break:break-word;
+  color:#8b949e;max-height:300px;overflow-y:auto;
+}
+.tool-card-json .kw{color:#ff7b72}
+.tool-card-json .str{color:#a5d6ff}
+.tool-card-json .num{color:#79c0ff}
+.tool-card-json .bool{color:#ff7b72}
+
+.ctx-divider{
+  border:none;border-top:1px dashed #30363d;
+  margin:14px 0;position:relative;
+}
+.ctx-divider.cache::after{
+  content:'⟡ cache breakpoint';
+  position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  background:#0d1117;padding:0 10px;
+  font-size:11px;color:#f0883e;
+}
+
+/* Observation block */
+.obs-block{
+  background:#0d1b2e;border:1px solid #1f3a5f;border-radius:8px;
+  padding:12px 14px;margin:8px 0;
+}
+.obs-block .obs-header{color:#58a6ff;font-weight:700;margin-bottom:6px;font-size:13px}
+.obs-block .obs-line{color:#c9d1d9;margin:2px 0}
+.obs-block .obs-line .red{color:#f85149;cursor:help}
+.obs-block .obs-line .yellow{color:#d29922;cursor:help}
+.obs-block .obs-line .green{color:#3fb950;cursor:help}
+
+/* Priority tooltips */
+.pri{position:relative;cursor:help}
+.pri .pri-tip{
+  display:none;position:absolute;bottom:calc(100% + 6px);left:0;
+  background:#30363d;color:#e6edf3;font-size:11px;font-weight:500;
+  padding:4px 8px;border-radius:6px;white-space:nowrap;
+  border:1px solid #484f58;z-index:10;pointer-events:none;
+}
+.pri .pri-tip::after{
+  content:'';position:absolute;top:100%;left:8px;
+  border:5px solid transparent;border-top-color:#30363d;
+}
+.pri:hover .pri-tip{display:block}
+
+/* Reflection block */
+.ref-block{
+  background:#1b0d2e;border:1px solid #3d1f5f;border-radius:8px;
+  padding:12px 14px;margin:8px 0;
+}
+.ref-block .ref-header{color:#d2a8ff;font-weight:700;margin-bottom:6px;font-size:13px}
+.ref-block .ref-line{color:#c9d1d9;margin:2px 0}
+.ref-block .ref-line .red,.ref-block .ref-line .yellow,.ref-block .ref-line .green{cursor:help}
+.ref-block .ref-line .green{color:#3fb950}
+
+/* Shimmer overlay */
+#shimmer{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity .4s ease;
+}
+#shimmer.active-blue{
+  opacity:1;
+  background:linear-gradient(135deg,transparent 30%,rgba(56,139,253,.08) 50%,transparent 70%);
+  background-size:300% 300%;
+  animation:shimmerMove 1.5s ease infinite;
+}
+#shimmer.active-purple{
+  opacity:1;
+  background:linear-gradient(135deg,transparent 30%,rgba(163,113,247,.08) 50%,transparent 70%);
+  background-size:300% 300%;
+  animation:shimmerMove 1.5s ease infinite;
+}
+@keyframes shimmerMove{0%{background-position:100% 100%}100%{background-position:0% 0%}}
+
+/* Fade-out / fade-in helpers */
+.fade-out{animation:fadeOut .6s ease forwards}
+.fade-in{animation:fadeIn .5s ease forwards}
+@keyframes fadeOut{to{opacity:0;transform:scaleY(.92);max-height:0;margin:0;padding:0;overflow:hidden}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Rapid-fire montage messages */
+.msg.montage{animation:montageIn .25s ease both;font-size:13px;opacity:0.85}
+@keyframes montageIn{from{opacity:0;transform:translateY(6px)}to{opacity:0.85;transform:translateY(0)}}
+
+/* Collapsed messages divider */
+.collapsed-divider{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 0;align-self:center;width:85%;
+  animation:fadeIn .4s ease both;
+}
+.collapsed-divider::before,.collapsed-divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,#30363d,transparent);
+}
+.collapsed-divider span{
+  font-size:12px;color:#6e7681;white-space:nowrap;
+  font-style:italic;
+}
+
+/* ── Bottom Bar ───────────────────────────────────────────── */
+.progress-group{display:flex;flex-direction:column;gap:6px;min-width:0}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-label{font-size:11px;font-weight:600;width:90px;text-align:right;color:#8b949e;flex-shrink:0}
+.bar-track{
+  flex:1;height:16px;background:#21262d;border-radius:8px;overflow:hidden;position:relative;
+}
+.bar-fill{
+  height:100%;border-radius:8px;
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.bar-fill.messages{background:linear-gradient(90deg,#1f6feb,#388bfd)}
+.bar-fill.observations{background:linear-gradient(90deg,#8957e5,#a371f7)}
+.bar-fill.total{background:linear-gradient(90deg,#1f6feb,#8957e5,#da3633)}
+.bar-value{
+  font-size:11px;font-weight:600;width:110px;color:#c9d1d9;flex-shrink:0;
+  font-family:'CommitMono','SF Mono',Consolas,monospace;
+}
+
+
+#callout{
+  font-size:12.5px;color:#f0883e;
+  line-height:1.45;
+  transition:opacity .3s ease;
+}
+
+#controls{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+#btn-next{
+  padding:10px 0;border-radius:10px;border:none;
+  background:#1f6feb;color:#fff;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s ease;
+  width:180px;text-align:center;
+}
+#btn-next:hover{background:#388bfd}
+#btn-next:disabled{opacity:.35;cursor:default;pointer-events:none;background:#1f6feb}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:0;display:none}
+* {scrollbar-width:none}
+
+/* Overlay */
+#overlay{
+  position:fixed;inset:0;background:rgba(13,17,23,.92);
+  display:none;justify-content:center;align-items:center;
+  z-index:100;
+}
+#overlay.visible{display:flex}
+#overlay-content{
+  background:#161b22;border:1px solid #30363d;border-radius:16px;
+  padding:48px 56px;max-width:560px;text-align:center;
+}
+#overlay-content h2{font-size:24px;color:#f0883e;margin-bottom:20px}
+.stat-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0;
+}
+.stat-box{
+  background:#21262d;border-radius:10px;padding:16px;
+}
+.stat-box .stat-num{font-size:28px;font-weight:700;color:#58a6ff;font-family:'CommitMono','SF Mono',Consolas,monospace}
+.stat-box .stat-label{font-size:12px;color:#8b949e;margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- Left: Chat Panel -->
+<div id="chat-panel">
+  <div class="panel-header">Agent</div>
+  <div id="chat-messages"></div>
+  <div id="chat-input">
+    <div id="input-preview"></div>
+    <button id="btn-send">Send</button>
+  </div>
+</div>
+
+<!-- Right: Context Window -->
+<div id="context-panel">
+  <div class="panel-header"><span>Context Window</span><div class="toggle-wrap"><span class="toggle-label">JSON</span><button id="view-toggle"></button></div></div>
+  <div id="context-content"></div>
+  <div id="json-content"></div>
+  <div id="shimmer"></div>
+</div>
+
+<!-- Bottom Bar -->
+<div id="bottom-bar">
+  <div class="progress-group">
+    <div class="bar-row">
+      <span class="bar-label">Messages</span>
+      <div class="bar-track"><div class="bar-fill messages" id="bar-msg" style="width:0%"></div></div>
+      <span class="bar-value" id="val-msg">0 / 3K</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Observations</span>
+      <div class="bar-track"><div class="bar-fill observations" id="bar-obs" style="width:0%"></div></div>
+      <span class="bar-value" id="val-obs">0 / 5K</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Total Context</span>
+      <div class="bar-track"><div class="bar-fill total" id="bar-total" style="width:0%"></div></div>
+      <span class="bar-value" id="val-total">0 / 100K</span>
+    </div>
+  </div>
+  <div id="callout"></div>
+  <div id="controls">
+    <button id="btn-next">Next →</button>
+  </div>
+</div>
+
+<!-- Final Overlay -->
+<div id="overlay">
+  <div id="overlay-content">
+    <h2>Session Complete</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num">~45K</div><div class="stat-label">tokens processed</div></div>
+      <div class="stat-box"><div class="stat-num">~3,150</div><div class="stat-label">final context size</div></div>
+      <div class="stat-box"><div class="stat-num">~14×</div><div class="stat-label">compression ratio</div></div>
+      <div class="stat-box"><div class="stat-num">4 obs / 1 ref</div><div class="stat-label">cycles</div></div>
+    </div>
+    <p style="color:#8b949e;font-size:13px;margin-top:12px">Observational Memory keeps context lean while preserving everything that matters.</p>
+  </div>
+</div>
+
+<script>
+// ── Helpers ────────────────────────────────────────────────
+const $ = s => document.querySelector(s);
+const chatEl = $('#chat-messages');
+const ctxEl = $('#context-content');
+const shimmer = $('#shimmer');
+const shimmerAudio = new Audio('./shimmer.mp3');
+const shimmer2Audio = new Audio('./shimmer2.mp3');
+const sendAudio = new Audio('./message_send.mov');
+const receiveAudio = new Audio('./message_receive.mov');
+
+function playShimmer() { shimmerAudio.currentTime = 0; shimmerAudio.play(); }
+function playShimmer2() { shimmer2Audio.currentTime = 0; shimmer2Audio.play(); }
+
+const IC_TOOL = '<svg class="inline-icon green" width="20" height="20" fill="none" viewBox="0 0 24 24"><rect width="14.5" height="14.5" x="4.75" y="4.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" rx="2"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.75 10.75L11.25 13L8.75 15.25"/></svg>';
+const IC_OBS = '<svg class="inline-icon blue" width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.75 4.75H15.25C17.4591 4.75 19.25 6.54086 19.25 8.75V15.25C19.25 17.4591 17.4591 19.25 15.25 19.25H8.75C6.54086 19.25 4.75 17.4591 4.75 15.25V8.75C4.75 6.54086 6.54086 4.75 8.75 4.75Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.75 12.75C7.75 12.75 9 15.25 12 15.25C15 15.25 16.25 12.75 16.25 12.75"/><circle cx="14" cy="10" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/></svg>';
+const IC_REF = '<svg class="inline-icon purple" width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.75 4.75H15.25C17.4591 4.75 19.25 6.54086 19.25 8.75V15.25C19.25 17.4591 17.4591 19.25 15.25 19.25H8.75C6.54086 19.25 4.75 17.4591 4.75 15.25V8.75C4.75 6.54086 6.54086 4.75 8.75 4.75Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.75 12.75C7.75 12.75 9 15.25 12 15.25C15 15.25 16.25 12.75 16.25 12.75"/><circle cx="14" cy="10" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/></svg>';
+const IC_FF = '<svg class="inline-icon" width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 15.8603L4.75 18.25V5.75L8 8.13971"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.25 12L10.75 5.75V18.25L19.25 12Z"/></svg>';
+function playSend() { sendAudio.currentTime = 0; sendAudio.play(); }
+function playReceive() { receiveAudio.currentTime = 0; receiveAudio.play(); }
+
+function fmt(n) { return n.toLocaleString(); }
+
+function fmtK(n) { return n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'') + 'K' : String(n); }
+
+function setBars(msg, obs, total) {
+  $('#bar-msg').style.width = (msg / 3000 * 100) + '%';
+  $('#val-msg').textContent = fmtK(msg) + ' / 3K';
+  $('#bar-obs').style.width = (obs / 5000 * 100) + '%';
+  $('#val-obs').textContent = fmtK(obs) + ' / 5K';
+  $('#bar-total').style.width = (total / 100000 * 100) + '%';
+  $('#val-total').textContent = fmtK(total) + ' / 100K';
+}
+
+let lastChatRole = null;
+let stepFirstUserPlayed = false;
+
+function addChat(role, text) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.innerHTML = text;
+  chatEl.appendChild(d);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  if (role === 'user' && !stepFirstUserPlayed) { playSend(); stepFirstUserPlayed = true; }
+  lastChatRole = role;
+}
+
+function addCtx(role, text, extraClass) {
+  const d = document.createElement('div');
+  d.className = 'ctx-block' + (extraClass ? ' ' + extraClass : '');
+  d.innerHTML = `<div class="ctx-role ${role}">[${role}]</div><div class="ctx-body">${text}</div>`;
+  ctxEl.appendChild(d);
+  ctxEl.scrollTop = ctxEl.scrollHeight;
+  // Strip HTML for JSON model
+  const plain = text.replace(/<[^>]*>/g, '').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  pushCtxMsg(role, plain);
+  if (viewMode === 'json') renderJSON();
+}
+
+function addCtxRaw(html, extraClass) {
+  const d = document.createElement('div');
+  d.className = 'ctx-block' + (extraClass ? ' ' + extraClass : '');
+  d.innerHTML = html;
+  ctxEl.appendChild(d);
+  ctxEl.scrollTop = ctxEl.scrollHeight;
+  // Don't auto-push — caller handles contextMessages for raw blocks
+  if (viewMode === 'json') renderJSON();
+}
+
+function addDivider(cache) {
+  const hr = document.createElement('hr');
+  hr.className = 'ctx-divider' + (cache ? ' cache' : '');
+  ctxEl.appendChild(hr);
+  if (cache) pushCtxMsg('cache-breakpoint', '');
+  if (viewMode === 'json') renderJSON();
+}
+
+function addChatTool(toolName, obj) {
+  const d = document.createElement('div');
+  d.className = 'tool-card';
+  const jsonStr = highlightJSON(obj);
+  d.innerHTML = `<div class="tool-card-header" onclick="this.parentElement.classList.toggle('open')">
+  <span class="tool-card-name">${toolName}</span>
+  <span class="tool-card-status">Completed</span>
+  <span class="tool-card-chevron">▾</span>
+</div>
+<div class="tool-card-body">
+  <div class="tool-card-label">Response</div>
+  <div class="tool-card-json">${jsonStr}</div>
+</div>`;
+  chatEl.appendChild(d);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function addCtxTool(toolName, obj) {
+  addChatTool(toolName, obj);
+  addCtx('tool', highlightJSON(obj));
+  // Override the auto-pushed plain text with actual JSON
+  contextMessages[contextMessages.length - 1].content = JSON.stringify(obj, null, 2);
+}
+
+function addCtxToolFailed(toolName, obj) {
+  const d = document.createElement('div');
+  d.className = 'tool-card';
+  const jsonStr = highlightJSON(obj);
+  d.innerHTML = `<div class="tool-card-header" onclick="this.parentElement.classList.toggle('open')">
+  <span class="tool-card-name">${toolName}</span>
+  <span class="tool-card-status failed">Failed</span>
+  <span class="tool-card-chevron">▾</span>
+</div>
+<div class="tool-card-body">
+  <div class="tool-card-label">Response</div>
+  <div class="tool-card-json">${jsonStr}</div>
+</div>`;
+  chatEl.appendChild(d);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  addCtx('tool', highlightJSON(obj));
+  contextMessages[contextMessages.length - 1].content = JSON.stringify(obj, null, 2);
+}
+
+function highlightJSON(obj) {
+  let s = JSON.stringify(obj, null, 2);
+  s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/"([^"]+)":/g, '<span class="kw">"$1"</span>:');
+  s = s.replace(/: "(.*?)"/g, ': <span class="str">"$1"</span>');
+  s = s.replace(/: (\d+\.?\d*)/g, ': <span class="num">$1</span>');
+  s = s.replace(/: (true|false|null)/g, ': <span class="bool">$1</span>');
+  return s;
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setCallout(text) {
+  const el = $('#callout');
+  el.style.opacity = 0;
+  setTimeout(() => { el.innerHTML = text; el.style.opacity = text ? 1 : 0; }, 150);
+}
+
+// Remove elements with fade animation
+async function fadeRemoveClass(cls) {
+  const els = ctxEl.querySelectorAll('.' + cls);
+  els.forEach(e => e.classList.add('fade-out'));
+  await wait(650);
+  els.forEach(e => e.remove());
+}
+
+// ── JSON View Data Model ──────────────────────────────────
+const jsonEl = $('#json-content');
+let viewMode = 'visual'; // 'visual' or 'json'
+let contextMessages = []; // parallel array: { role, content, type? }
+
+const toolsDef = [
+  { type: "function", name: "get_weather", description: "Get weather forecast for a location and date range", parameters: { type: "object", properties: { location: { type: "string" }, dates: { type: "string" } }, required: ["location"] }, strict: false },
+  { type: "function", name: "search_flights", description: "Search for flights between airports", parameters: { type: "object", properties: { origin: { type: "string" }, destination: { type: "string" }, departure: { type: "string" }, return_date: { type: "string" }, passengers: { type: "number" } }, required: ["origin","destination","departure"] }, strict: false },
+  { type: "function", name: "search_hotels", description: "Search for hotels in a city", parameters: { type: "object", properties: { city: { type: "string" }, checkin: { type: "string" }, checkout: { type: "string" }, guests: { type: "number" }, area_preference: { type: "string" } }, required: ["city","checkin","checkout"] }, strict: false },
+];
+
+const omInstructions = `The following observations block contains your memory of past conversations with this user.
+
+IMPORTANT: When responding, reference specific details from these observations. Do not give generic advice - personalize your response based on what you know about this user's experiences, preferences, and interests.
+
+KNOWLEDGE UPDATES: When asked about current state, always prefer the MOST RECENT information. Observations include dates - if you see conflicting information, the newer observation supersedes the older one.
+
+MOST RECENT USER INPUT: Treat the most recent user message as the highest-priority signal for what to do next.`;
+
+function pushCtxMsg(role, content, meta) {
+  contextMessages.push({ role, content, ...(meta||{}) });
+}
+
+function renderJSON() {
+  const input = [];
+  for (const m of contextMessages) {
+    if (m.role === 'system') {
+      input.push({ role: "developer", content: m.content });
+    } else if (m.role === 'observation' || m.role === 'reflection') {
+      input.push({ role: "developer", content: m.content });
+    } else if (m.role === 'cache-breakpoint') {
+      // conceptual only — skip
+    } else if (m.role === 'tool') {
+      input.push({ role: "developer", content: "[tool_result]\n" + m.content });
+    } else if (m.role === 'user') {
+      input.push({ role: "user", content: [{ type: "input_text", text: m.content }] });
+    } else if (m.role === 'assistant') {
+      input.push({ role: "assistant", content: [{ type: "output_text", text: m.content }] });
+    }
+  }
+
+  let json = JSON.stringify(input, null, 2);
+
+  // Syntax highlight
+  json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  json = json.replace(/"([^"]+)"(?=\s*:)/g, '<span class="kw">"$1"</span>');
+  json = json.replace(/:\s*"((?:[^"\\]|\\.)*)"/g, (match, val) => {
+    if (val === 'developer') return ': <span class="role-developer">"developer"</span>';
+    if (val === 'user') return ': <span class="role-user">"user"</span>';
+    if (val === 'assistant') return ': <span class="role-assistant">"assistant"</span>';
+    return ': <span class="str">"' + val + '"</span>';
+  });
+  json = json.replace(/:\s*(\d+\.?\d*)([,\n\r\s\]}])/g, ': <span class="num">$1</span>$2');
+  json = json.replace(/:\s*(true|false|null)/g, ': <span class="bool">$1</span>');
+
+  jsonEl.innerHTML = json;
+  jsonEl.scrollTop = jsonEl.scrollHeight;
+}
+
+function toggleView() {
+  const btn = $('#view-toggle');
+  if (viewMode === 'visual') {
+    viewMode = 'json';
+    btn.classList.add('active');
+    ctxEl.style.display = 'none';
+    jsonEl.style.display = 'block';
+    renderJSON();
+  } else {
+    viewMode = 'visual';
+    btn.classList.remove('active');
+    ctxEl.style.display = 'block';
+    jsonEl.style.display = 'none';
+  }
+}
+
+$('#view-toggle').addEventListener('click', toggleView);
+
+// ── System prompt (always present) ────────────────────────
+const systemPrompt = `You are a helpful travel planning assistant. You have access to tools for searching flights, hotels, weather, and restaurants. Be helpful, concise, and proactive in suggesting options.`;
+
+// ── Step Definitions ──────────────────────────────────────
+let currentStep = 0;
+const snapshots = []; // { chatHTML, ctxHTML, msg, obs, total, callout }
+
+function saveSnapshot() {
+  snapshots[currentStep] = {
+    chatHTML: chatEl.innerHTML,
+    ctxHTML: ctxEl.innerHTML,
+    msg: currentBars.msg,
+    obs: currentBars.obs,
+    total: currentBars.total,
+    callout: $('#callout').innerHTML,
+    panelClass: $('#context-panel').className,
+    shimmerClass: shimmer.className,
+    ctxMessages: JSON.parse(JSON.stringify(contextMessages)),
+  };
+}
+
+function restoreSnapshot(n) {
+  const s = snapshots[n];
+  if (!s) return;
+  chatEl.innerHTML = s.chatHTML;
+  ctxEl.innerHTML = s.ctxHTML;
+  setBars(s.msg, s.obs, s.total);
+  $('#callout').innerHTML = s.callout;
+  $('#context-panel').className = s.panelClass || '';
+  shimmer.className = s.shimmerClass || '';
+  currentBars = { msg: s.msg, obs: s.obs, total: s.total };
+  contextMessages = JSON.parse(JSON.stringify(s.ctxMessages || []));
+  if (viewMode === 'json') renderJSON();
+}
+
+let currentBars = { msg: 0, obs: 0, total: 0 };
+function updateBars(msg, obs) {
+  const total = msg + obs;
+  currentBars = { msg, obs, total };
+  setBars(msg, obs, total);
+}
+
+// The big step runner
+const stepFns = [];
+const LAST_STEP = 13;
+
+// ── STEP 0: System prompt ─────────────────────────────────
+stepFns[0] = async () => {
+  addCtx('system', systemPrompt);
+  updateBars(0, 0);
+  setCallout('System prompt loaded.');
+};
+
+// ── STEP 1: User asks about Tokyo → verbose assistant reply ─
+stepFns[1] = async () => {
+  const userMsg = "Hey, can you help me plan a trip to Tokyo?";
+  addChat('user', userMsg);
+  addCtx('user', userMsg);
+  await wait(400);
+  const asstMsg = `Of course! I'd love to help you plan a trip to Tokyo! 🇯🇵
+
+Tokyo is an incredible destination with so much to offer. Here's a comprehensive overview to get us started:
+
+<b>Best Time to Visit:</b> Spring (March-May) for cherry blossoms, or Fall (October-November) for autumn foliage. Summer can be hot and humid, while winter is mild but cold.
+
+<b>Key Neighborhoods:</b> Shibuya for shopping and nightlife, Shinjuku for entertainment, Asakusa for traditional culture, Akihabara for electronics and anime, Harajuku for fashion, and Ginza for luxury.
+
+<b>Transportation:</b> Get a Suica or Pasmo card for seamless travel on trains and buses. Consider a Japan Rail Pass if traveling outside Tokyo. The metro system is extensive and efficient.
+
+<b>Must-See Attractions:</b> Senso-ji Temple, Meiji Shrine, Tokyo Skytree, Tsukiji Outer Market, Imperial Palace Gardens, teamLab exhibitions, and Shibuya Crossing.
+
+<b>Budget Considerations:</b> Tokyo can be affordable or luxurious. Budget travelers can manage on $100-150/day, mid-range $200-350/day, and luxury $500+/day.
+
+<b>Food:</b> Don't miss ramen, sushi (try Tsukiji), tempura, yakitori, tonkatsu, and conveyor belt sushi. Street food in Ameyoko market is great too.
+
+To give you more tailored recommendations, could you tell me:
+1. When are you planning to go?
+2. How many days?
+3. What's your approximate budget?
+4. What are your main interests?
+5. Have you been to Japan before?
+6. Any dietary restrictions?`;
+  addChat('assistant', asstMsg);
+  addCtx('assistant', asstMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+  updateBars(95, 0);
+  setCallout('');
+};
+
+// ── STEP 2: Brevity request → agent agrees ────────────────
+stepFns[2] = async () => {
+  const u1 = "Whoa, that's a lot. Can you keep responses short and to the point?";
+  addChat('user', u1);
+  addCtx('user', u1);
+  await wait(400);
+  const a1 = "Got it! Short and focused from now on. When are you going, and what's your budget?";
+  addChat('assistant', a1);
+  addCtx('assistant', a1);
+  updateBars(180, 0);
+  setCallout('');
+};
+
+// ── STEP 3: Trip details → weather check ──────────────────
+stepFns[3] = async () => {
+  const u1 = "Next week, 5 days, ~$3K budget, flying from SFO.";
+  addChat('user', u1);
+  addCtx('user', u1);
+  await wait(400);
+  const a1 = "Let me check the weather for Tokyo next week.";
+  addChat('assistant', a1);
+  addCtx('assistant', a1);
+  await wait(300);
+
+  const weatherJSON = {
+    tool: "get_weather", location: "Tokyo, Japan", dates: "2026-03-30 to 2026-04-04",
+    results: {
+      daily: [
+        { date: "2026-03-30", high_c: 19, low_c: 11, condition: "Partly Cloudy", precip_pct: 10, humidity: 55, wind_kph: 12 },
+        { date: "2026-03-31", high_c: 21, low_c: 12, condition: "Sunny", precip_pct: 5, humidity: 48, wind_kph: 8 },
+        { date: "2026-04-01", high_c: 22, low_c: 13, condition: "Partly Cloudy", precip_pct: 15, humidity: 52, wind_kph: 10 },
+        { date: "2026-04-02", high_c: 20, low_c: 11, condition: "Cloudy", precip_pct: 25, humidity: 60, wind_kph: 15 },
+        { date: "2026-04-03", high_c: 18, low_c: 10, condition: "Light Rain", precip_pct: 45, humidity: 68, wind_kph: 18 },
+        { date: "2026-04-04", high_c: 20, low_c: 12, condition: "Partly Cloudy", precip_pct: 15, humidity: 55, wind_kph: 11 }
+      ],
+      summary: "Generally mild, 18-22°C. Mostly dry with possible light rain mid-week.",
+      cherry_blossom_status: "Early bloom expected — peak viewing likely April 1-5"
+    }
+  };
+  addCtxTool('get_weather', weatherJSON);
+  await wait(300);
+  const a2 = "Weather looks good — 18-22°C, mostly dry. Possible light rain on Apr 3. Cherry blossoms should be starting!";
+  addChat('assistant', a2);
+  addCtx('assistant', a2);
+  updateBars(820, 0);
+  setCallout("This weather response is ~540 tokens but only a sentence of it is useful.");
+};
+
+// ── STEP 4: Flights + hotels ──────────────────────────────
+stepFns[4] = async () => {
+  const u1 = "Great! Can you find flights and hotels?";
+  addChat('user', u1);
+  addCtx('user', u1);
+  await wait(300);
+
+  const flightJSON = {
+    tool: "search_flights", origin: "SFO", destination: "NRT", departure: "2026-03-30", return: "2026-04-04", passengers: 1,
+    results: [
+      { airline: "United", flight: "UA837", depart: "11:15", arrive: "15:30+1", duration: "11h15m", stops: 0, price_usd: 680, cabin: "Economy", aircraft: "787-9", baggage: "2x23kg" },
+      { airline: "JAL", flight: "JL1", depart: "17:00", arrive: "21:15+1", duration: "11h15m", stops: 0, price_usd: 750, cabin: "Economy", aircraft: "777-300ER", baggage: "2x23kg" },
+      { airline: "ANA", flight: "NH7", depart: "18:30", arrive: "22:45+1", duration: "11h15m", stops: 0, price_usd: 820, cabin: "Economy", aircraft: "777-300ER", baggage: "2x23kg" },
+      { airline: "Delta", flight: "DL275", depart: "13:45", arrive: "20:00+1", duration: "13h15m", stops: 1, layover: "SEA (2h)", price_usd: 540, cabin: "Economy" },
+      { airline: "Korean Air", flight: "KE24", depart: "12:00", arrive: "22:30+1", duration: "17h30m", stops: 1, layover: "ICN (3h)", price_usd: 610, cabin: "Economy" }
+    ]
+  };
+  addCtxTool('search_flights', flightJSON);
+  await wait(400);
+
+  const hotelJSON = {
+    tool: "search_hotels", city: "Tokyo", checkin: "2026-03-31", checkout: "2026-04-04", guests: 1, area_preference: "Shibuya",
+    results: [
+      { name: "Park Hotel Tokyo", stars: 4, area: "Shiodome (15min to Shibuya)", price_per_night: 180, total: 720, rating: 8.6, amenities: ["WiFi","Gym","Restaurant","Concierge"], cancellation: "Free until Mar 28" },
+      { name: "Shibuya Stream Excel Hotel Tokyu", stars: 4, area: "Shibuya Station (2min walk)", price_per_night: 220, total: 880, rating: 8.9, amenities: ["WiFi","Restaurant","Laundry"], cancellation: "Free until Mar 28" },
+      { name: "Cerulean Tower Tokyu Hotel", stars: 5, area: "Shibuya (5min walk)", price_per_night: 250, total: 1000, rating: 9.1, amenities: ["WiFi","Pool","Spa","Gym","Restaurant","Bar","Concierge"], cancellation: "Free until Mar 25" },
+      { name: "Dormy Inn Shibuya", stars: 3, area: "Shibuya (8min walk)", price_per_night: 95, total: 380, rating: 8.2, amenities: ["WiFi","Onsen","Laundry"], cancellation: "Free until Mar 29" }
+    ]
+  };
+  addCtxTool('search_hotels', hotelJSON);
+  await wait(300);
+  const a1 = "Flights: United $680 direct, JAL $750 direct, ANA $820. Hotels near Shibuya: Park Hotel $180/n, Stream Excel $220/n, Cerulean Tower $250/n.";
+  addChat('assistant', a1);
+  addCtx('assistant', a1);
+  updateBars(2400, 0);
+  setCallout("Context filling fast with verbose API responses.");
+};
+
+// ── STEP 5: More exchanges → threshold ─────────────────────
+stepFns[5] = async () => {
+  const pairs = [
+    ["I like the United flight. What about hotels near Shibuya specifically?", "Park Hotel ($180/n) is great value. Shibuya Stream ($220/n) is right at the station. Both highly rated."],
+    ["Are there any good day trips from Tokyo?", "Kamakura (giant Buddha, 1hr train), Nikko (ornate shrines, 2hrs), or Hakone (hot springs + Mt Fuji views, 1.5hrs)."],
+    ["What about getting around Tokyo itself?", "Get a Suica card at the airport (~¥2K). Works on all trains and buses. Tokyo Metro is fast and cheap."],
+  ];
+  for (const [u, a] of pairs) {
+    addChat('user', u);
+    addCtx('user', u);
+    await wait(250);
+    addChat('assistant', a);
+    addCtx('assistant', a);
+    await wait(250);
+  }
+  updateBars(3100, 0);
+  setCallout("Messages crossed the 3K-token observation threshold.");
+};
+
+// ── STEP 6: Observer cycle 1 ──────────────────────────────
+stepFns[6] = async () => {
+  addChat('system', IC_OBS + ' Observer Agent Triggered');
+  playShimmer();
+  $('#context-panel').classList.add('glow-blue');
+  shimmer.className = 'active-blue';
+  await wait(1000);
+
+  const blocks = ctxEl.querySelectorAll('.ctx-block');
+  blocks.forEach(b => b.classList.add('fade-out'));
+  await wait(700);
+  ctxEl.querySelectorAll('.fade-out').forEach(e => e.remove());
+
+  const obs1Text = `Date: Mar 24, 2026 (today)
+* 🔴 (14:32) User wants help planning a trip to Tokyo
+* 🔴 (14:32) Trip: ~5 days, next week, ~$3K budget
+* 🔴 (14:33) User prefers short, concise responses
+* 🔴 (14:33) Flying from SFO, prefers direct flights
+* 🟡 (14:33) Tokyo weather: 18-22°C, partly cloudy, low rain chance
+* 🟢 (14:33) Cherry blossom season starting — good timing
+* 🟡 (14:34) Flights found at 14:34: United $680 (direct), JAL $750 (direct), ANA $820
+* 🔴 (14:35) User interested in United flight ($680 direct)
+* 🟡 (14:35) Hotels: Park Hotel $180/n, Shibuya Stream $220/n, Cerulean Tower $250/n
+* 🔴 (14:36) Day trips mentioned: Kamakura, Nikko, Hakone
+* 🟡 (14:38) Transport tip: Suica card at airport ~¥2K`;
+
+  const obsHTML = `<div class="obs-block fade-in">
+<div class="obs-header">${IC_OBS} Observations — Cycle 1 (14:32–14:38)</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:32 User wants help planning a trip to Tokyo</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:32 Trip: ~5 days, next week, ~$3K budget</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:33 User prefers short, concise responses</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:33 Flying from SFO, prefers direct flights</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:33 Tokyo weather: 18-22°C, partly cloudy, low rain chance</div>
+<div class="obs-line"><span class="green pri">🟢<span class="pri-tip">Info only — context, not actionable</span></span> 14:33 Cherry blossom season starting — good timing</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:34 Flights found at 14:34: United $680 (direct), JAL $750 (direct), ANA $820</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:35 User interested in United flight ($680 direct)</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:35 Hotels: Park Hotel $180/n, Shibuya Stream $220/n, Cerulean Tower $250/n</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:36 Day trips mentioned: Kamakura, Nikko, Hakone</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:38 Transport tip: Suica card at airport ~¥2K</div>
+</div>`;
+  addCtxRaw(obsHTML);
+
+  contextMessages = [contextMessages[0]];
+  pushCtxMsg('observation', omInstructions);
+  pushCtxMsg('observation', '<observations>');
+  pushCtxMsg('observation', obs1Text);
+
+  shimmer.className = '';
+  $('#context-panel').classList.remove('glow-blue');
+  if (viewMode === 'json') renderJSON();
+  updateBars(0, 480);
+  setCallout("3.1K → 480 tokens. Raw messages replaced by structured observations. User preference ('short responses') and flight price timestamps are captured.");
+};
+
+// ── STEP 7: More exchanges → threshold ─────────────────────
+stepFns[7] = async () => {
+  addDivider(true);
+  const u1 = "What are some must-try restaurants near Shibuya? I'm vegetarian.";
+  addChat('user', u1);
+  addCtx('user', u1);
+  await wait(250);
+  const a1 = "Let me search for vegetarian spots nearby.";
+  addChat('assistant', a1);
+  addCtx('assistant', a1);
+  await wait(300);
+
+  const failedJSON = {
+    tool: "search_restaurants",
+    location: "Shibuya",
+    dietary: "vegetarian",
+    radius_km: 2,
+    error: {
+      code: "AMBIGUOUS_LOCATION",
+      message: "Multiple matches for 'Shibuya'. Did you mean: Shibuya, Tokyo (JP), Shibuya, Yamashina (JP)? Please provide a more specific location.",
+      suggestions: ["Shibuya, Tokyo, Japan", "Shibuya, Yamashina, Kyoto, Japan"]
+    }
+  };
+  addCtxToolFailed('search_restaurants', failedJSON);
+  await wait(400);
+  const retry = "Hmm, ambiguous location. Let me retry with the full address.";
+  addChat('assistant', retry);
+  addCtx('assistant', retry);
+  await wait(300);
+
+  const restaurantJSON = {
+    tool: "search_restaurants",
+    location: "Shibuya, Tokyo",
+    dietary: "vegetarian",
+    radius_km: 2,
+    results: [
+      { name: "Ain Soph Ripple", cuisine: "Vegan burgers and café", rating: 4.6, price_range: "¥1,200-2,500", distance_km: 0.3, address: "1-13-8 Jinnan, Shibuya", hours: "11:00-22:00", reviews: 847, highlights: ["Best vegan burger in Tokyo", "Cozy atmosphere", "English menu available"], popular_dishes: ["Soy meat burger ¥1,400", "Vegan pancakes ¥1,200", "Matcha latte ¥650"] },
+      { name: "Nagi Shokudo", cuisine: "Fully vegan Japanese", rating: 4.5, price_range: "¥900-1,800", distance_km: 0.8, address: "2-7-7 Shibuya", hours: "11:30-21:00", reviews: 623, highlights: ["Rotating daily set menu", "All-you-can-eat lunch option", "Homestyle cooking"], popular_dishes: ["Daily vegan set ¥1,100", "Curry plate ¥1,000", "Seasonal bowl ¥1,200"] },
+      { name: "Brown Rice by Neal's Yard", cuisine: "Organic Japanese", rating: 4.4, price_range: "¥1,500-3,000", distance_km: 1.1, address: "5-1-8 Jingumae, Shibuya", hours: "11:30-22:30", reviews: 512, highlights: ["Omotesando location", "Beautiful interior", "Organic ingredients"], popular_dishes: ["Organic teishoku ¥1,800", "Brown rice bowl ¥1,500", "Tofu steak ¥1,600"] },
+      { name: "Afuri", cuisine: "Yuzu ramen (veg option)", rating: 4.3, price_range: "¥1,000-1,600", distance_km: 0.5, address: "1-1-7 Ebisu, Shibuya", hours: "10:00-23:00", reviews: 1203, highlights: ["Famous yuzu shio ramen", "Vegan broth available", "Quick counter service"], popular_dishes: ["Vegan yuzu ramen ¥1,200", "Tsukemen ¥1,300", "Gyoza (veg) ¥450"] }
+    ]
+  };
+  addCtxTool('search_restaurants', restaurantJSON);
+  await wait(300);
+  const a2 = "Great options near Shibuya! Ain Soph Ripple for vegan burgers, Nagi Shokudo for Japanese home cooking, and Brown Rice for organic teishoku.";
+  addChat('assistant', a2);
+  addCtx('assistant', a2);
+  await wait(250);
+
+  const exchanges = [
+    ["Can you help me plan a rough itinerary?", "Day 1-2: Shibuya, Harajuku, Shinjuku. Day 3: Kamakura day trip. Day 4: Akihabara + Asakusa. Day 5: Flex day."],
+    ["What about pocket WiFi vs SIM?", "eSIM is easiest — Ubigi or Airalo, ~$15 for 5 days. Activate before you land."],
+    ["Is tipping expected in Japan?", "No — tipping is actually considered rude. Service charges are included."],
+  ];
+  for (const [u, a] of exchanges) {
+    addChat('user', u);
+    addCtx('user', u);
+    await wait(250);
+    addChat('assistant', a);
+    addCtx('assistant', a);
+    await wait(250);
+  }
+  updateBars(3100, 480);
+  setCallout("Messages crossed the 3K threshold again.");
+};
+
+// ── STEP 8: Observer cycle 2 ──────────────────────────────
+stepFns[8] = async () => {
+  addChat('system', IC_OBS + ' Observer Agent Triggered');
+  playShimmer();
+  $('#context-panel').classList.add('glow-blue');
+  shimmer.className = 'active-blue';
+  await wait(800);
+
+  const blocks = ctxEl.querySelectorAll('.ctx-block');
+  const obsIdx = Array.from(blocks).findIndex(b => b.querySelector('.obs-block'));
+  blocks.forEach((b, i) => {
+    if (i > obsIdx && !b.querySelector('.obs-block') && !b.querySelector('.ref-block')) b.classList.add('fade-out');
+  });
+  ctxEl.querySelectorAll('.ctx-divider').forEach(d => d.classList.add('fade-out'));
+  await wait(700);
+  ctxEl.querySelectorAll('.fade-out').forEach(e => e.remove());
+
+  const obs2Text = `Date: Mar 24, 2026 (today)
+* 🔴 (14:39) User is vegetarian — important dietary restriction
+* 🟡 (14:40) Vegetarian restaurants near Shibuya: Ain Soph Ripple, Nagi Shokudo, Brown Rice by Neal's Yard
+* 🔴 (14:42) Itinerary: Shibuya/Shinjuku (2d), Kamakura day trip, Akihabara/Asakusa, flex day
+* 🟡 (14:44) eSIM recommendation: Ubigi or Airalo ~$15/5 days
+* 🟢 (14:46) No tipping in Japan — service included`;
+
+  const obsHTML = `<div class="obs-block fade-in">
+<div class="obs-header">${IC_OBS} Observations — Cycle 2 (14:39–14:48)</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:39 User is vegetarian — important dietary restriction</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:40 Vegetarian restaurants near Shibuya: Ain Soph Ripple, Nagi Shokudo, Brown Rice by Neal's Yard</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:42 Itinerary: Shibuya/Shinjuku (2d), Kamakura day trip, Akihabara/Asakusa, flex day</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:44 eSIM recommendation: Ubigi or Airalo ~$15/5 days</div>
+<div class="obs-line"><span class="green pri">🟢<span class="pri-tip">Info only — context, not actionable</span></span> 14:46 No tipping in Japan — service included</div>
+</div>`;
+  addCtxRaw(obsHTML);
+
+  contextMessages = contextMessages.filter(m => m.role === 'system' || m.role === 'observation');
+  pushCtxMsg('observation', obs2Text);
+
+  shimmer.className = '';
+  $('#context-panel').classList.remove('glow-blue');
+  if (viewMode === 'json') renderJSON();
+  updateBars(0, 720);
+  setCallout("3.1K of messages compressed into 240 tokens of observations (720 total). Two compact blocks now hold the entire conversation history.");
+};
+
+// ── STEP 9: Re-check flights (temporal awareness) ─────────
+stepFns[9] = async () => {
+  addDivider(true);
+  const u1 = "Can you check flights again? Prices might have changed.";
+  addChat('user', u1);
+  addCtx('user', u1);
+  await wait(400);
+  const a1 = "Good idea — those prices were from 2 hours ago. Let me re-check.";
+  addChat('assistant', a1);
+  addCtx('assistant', a1);
+  await wait(300);
+
+  const flightJSON2 = {
+    tool: "search_flights", origin: "SFO", destination: "NRT",
+    departure: "2026-03-30", return: "2026-04-04",
+    results: [
+      { airline: "United", flight: "UA837", price_usd: 720, stops: 0 },
+      { airline: "JAL", flight: "JL1", price_usd: 750, stops: 0 },
+      { airline: "ANA", flight: "NH7", price_usd: 795, stops: 0 }
+    ]
+  };
+  addCtxTool('search_flights', flightJSON2);
+  await wait(300);
+  const a2 = "United went up to $720 (was $680). JAL still $750. ANA dropped to $795. I'd book United soon if you want it.";
+  addChat('assistant', a2);
+  addCtx('assistant', a2);
+  updateBars(380, 720);
+  setCallout("Timestamps on observations enable temporal reasoning — the agent knows flight prices from 2 hours ago may be outdated.");
+};
+
+// ── STEP 10: Fast-forward → reflector ─────────────────────
+stepFns[10] = async () => {
+  // Rapid-fire montage: 3 real exchanges appear quickly
+  addChat('user', "I should mention — I'm vegetarian. Any restaurant recs?");
+  await wait(300);
+  addChat('assistant', "Noted! Ain Soph Ripple in Shibuya is excellent. Nagi Shokudo too.");
+  await wait(300);
+  // Collapsed messages indicator
+  const collapsed = document.createElement('div');
+  collapsed.className = 'collapsed-divider';
+  collapsed.innerHTML = '<span>14 more messages about itinerary, bookings and logistics</span>';
+  chatEl.appendChild(collapsed);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  await wait(600);
+
+  // System message for observer cycles
+  addChat('system', IC_FF + ' 3 more observer cycles ran — observations hit 5K tokens, Reflector ready');
+  await wait(400);
+
+  // Clear context (except last observation block)
+  const blocks = ctxEl.querySelectorAll('.ctx-block');
+  const lastObs = Array.from(blocks).reverse().find(b => b.querySelector('.obs-block'));
+  let pastLast = false;
+  blocks.forEach(b => { if (b === lastObs) { pastLast = true; return; } if (pastLast) b.classList.add('fade-out'); });
+  ctxEl.querySelectorAll('.ctx-divider').forEach(d => d.classList.add('fade-out'));
+  await wait(700);
+  ctxEl.querySelectorAll('.fade-out').forEach(e => e.remove());
+
+  contextMessages = contextMessages.filter(m => m.role === 'system' || m.role === 'observation');
+
+  const obs3Text = `Date: Mar 24, 2026 (today)
+* 🟡 (14:52) Updated flights (re-checked 16:30): United $720 (direct), JAL $750 (direct), ANA $795
+* 🔴 (14:55) User leaning toward United flight
+* 🔴 (15:00) User wants Park Hotel Tokyo — best value at $180/n
+* 🟡 (15:05) Booking links provided for United + Park Hotel
+* 🔴 (15:10) User asked about luggage packing tips for spring Tokyo
+* 🟡 (15:15) Pack layers, light rain jacket, comfortable walking shoes, portable umbrella`;
+
+  const obs4Text = `Date: Mar 24, 2026 (today)
+* 🔴 (15:22) User interested in Tsukiji outer market for breakfast
+* 🟡 (15:25) Tsukiji best before 10am, try tamagoyaki and fresh sashimi
+* 🔴 (15:35) User asked about cash vs card — most places take IC cards, some small shops cash only
+* 🟡 (15:40) Recommend ~¥30K cash (~$200) as backup for small vendors
+* 🔴 (15:45) User confirmed final itinerary order
+* 🟡 (15:50) Airport: Narita Express to Shibuya ~90min, ¥3,250`;
+
+  addCtxRaw(`<div class="obs-block fade-in">
+<div class="obs-header">${IC_OBS} Observations — Cycle 3 (14:50–15:20)</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 14:52 Updated flights (re-checked 16:30): United $720 (direct), JAL $750 (direct), ANA $795</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 14:55 User leaning toward United flight</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 15:00 User wants Park Hotel Tokyo — best value at $180/n</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 15:05 Booking links provided for United + Park Hotel</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 15:10 User asked about luggage packing tips for spring Tokyo</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 15:15 Pack layers, light rain jacket, comfortable walking shoes, portable umbrella</div>
+</div>`);
+  await wait(300);
+  addCtxRaw(`<div class="obs-block fade-in">
+<div class="obs-header">${IC_OBS} Observations — Cycle 4 (15:20–16:00)</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 15:22 User interested in Tsukiji outer market for breakfast</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 15:25 Tsukiji best before 10am, try tamagoyaki and fresh sashimi</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 15:35 User asked about cash vs card — most places take IC cards, some small shops cash only</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 15:40 Recommend ~¥30K cash (~$200) as backup for small vendors</div>
+<div class="obs-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> 15:45 User confirmed final itinerary order</div>
+<div class="obs-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> 15:50 Airport: Narita Express to Shibuya ~90min, ¥3,250</div>
+</div>`);
+  pushCtxMsg('observation', obs3Text);
+  pushCtxMsg('observation', obs4Text);
+
+  if (viewMode === 'json') renderJSON();
+  updateBars(0, 5100);
+  setCallout("3 more observer cycles compressed the ongoing conversation. Observations crossed the 5K-token reflection threshold.");
+};
+
+// ── STEP 11: Reflector ────────────────────────────────────
+stepFns[11] = async () => {
+  addChat('system', IC_REF + ' Reflector Agent Triggered');
+  playShimmer2();
+  $('#context-panel').classList.add('glow-purple');
+  shimmer.className = 'active-purple';
+  await wait(1000);
+
+  const obsBlocks = ctxEl.querySelectorAll('.obs-block');
+  obsBlocks.forEach(b => b.closest('.ctx-block')?.classList.add('fade-out'));
+  ctxEl.querySelectorAll('.ctx-divider').forEach(d => d.classList.add('fade-out'));
+  const allBlocks = ctxEl.querySelectorAll('.ctx-block');
+  let foundObs = false;
+  allBlocks.forEach(b => {
+    if (b.querySelector('.obs-block')) foundObs = true;
+    else if (foundObs && !b.querySelector('.ref-block')) b.classList.add('fade-out');
+  });
+  await wait(700);
+  ctxEl.querySelectorAll('.fade-out').forEach(e => e.remove());
+
+  const refText = `Date: Mar 24, 2026 (today)
+* 🔴 User preferences: short concise responses, vegetarian diet
+* 🔴 Trip: 5-day Tokyo trip from SFO next week, ~$3K budget, prefers direct flights, hotel near Shibuya
+* 🔴 Weather: 18-22°C, partly cloudy, cherry blossoms starting
+* 🟡 Updated flights (re-checked 16:30): United $720 (direct), JAL $750 (direct)
+* 🟡 Hotel: Park Hotel Tokyo $180/n (confirmed choice)
+* 🟡 Vegetarian restaurants: Ain Soph Ripple, Nagi Shokudo, Brown Rice
+* 🔴 Itinerary: Shibuya/Shinjuku (2d) → Kamakura day trip → Akihabara/Asakusa → flex day
+* 🟡 Logistics: Suica card ~¥2K at airport, Narita Express ~90min/¥3,250, eSIM (Ubigi/Airalo ~$15), ~¥30K cash backup
+* 🟡 To-do: Visit Tsukiji outer market early morning for breakfast`;
+
+  contextMessages = [contextMessages[0]];
+  pushCtxMsg('observation', omInstructions);
+  pushCtxMsg('observation', '<observations>');
+  pushCtxMsg('reflection', refText);
+
+  addCtxRaw(`<div class="ref-block fade-in">
+<div class="ref-header">${IC_REF} Consolidated Memory — Reflection 1</div>
+<div class="ref-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> <b>User preferences:</b> short concise responses, vegetarian diet</div>
+<div class="ref-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> <b>Trip:</b> 5-day Tokyo trip from SFO next week, ~$3K budget, prefers direct flights, hotel near Shibuya</div>
+<div class="ref-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> <b>Weather:</b> 18-22°C, partly cloudy, cherry blossoms starting</div>
+<div class="ref-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> <b>Updated flights</b> (re-checked 16:30): United $720 (direct), JAL $750 (direct)</div>
+<div class="ref-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> <b>Hotel:</b> Park Hotel Tokyo $180/n (confirmed choice)</div>
+<div class="ref-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> <b>Vegetarian restaurants:</b> Ain Soph Ripple, Nagi Shokudo, Brown Rice</div>
+<div class="ref-line"><span class="red pri">🔴<span class="pri-tip">Important — core fact or preference</span></span> <b>Itinerary:</b> Shibuya/Shinjuku (2d) → Kamakura day trip → Akihabara/Asakusa → flex day</div>
+<div class="ref-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> <b>Logistics:</b> Suica card ~¥2K at airport, Narita Express ~90min/¥3,250, eSIM (Ubigi/Airalo ~$15), ~¥30K cash backup</div>
+<div class="ref-line"><span class="yellow pri">🟡<span class="pri-tip">Maybe important — could become stale</span></span> <b>To-do:</b> Visit Tsukiji outer market early morning for breakfast</div>
+</div>`);
+
+  shimmer.className = '';
+  $('#context-panel').classList.remove('glow-purple');
+  if (viewMode === 'json') renderJSON();
+  updateBars(0, 1600);
+  setCallout("5.1K → 1.6K tokens. User preferences consolidated at top. Old flight prices replaced with updated ones — the reflector keeps the freshest data.");
+};
+
+// ── STEP 12: Final booking summary ────────────────────────
+stepFns[12] = async () => {
+  addDivider(true);
+  const u1 = "I think we're almost set. Can you double-check if I'm missing anything?";
+  addChat('user', u1);
+  addCtx('user', u1);
+  await wait(400);
+  const a1 = `Looks solid! Here's what I'd still lock down:
+
+1. ✅ Book United flight ($720) — prices trending up
+2. ✅ Reserve Park Hotel ($180/n × 4 nights = $720)
+3. ⬜ Visit Tsukiji market early for breakfast
+4. ⬜ Set up eSIM (Ubigi or Airalo)
+5. ⬜ Withdraw ~¥30K cash at airport
+
+Total estimated: $720 flight + $720 hotel + ~$560 food/transport/activities ≈ $2K. You'll be well under budget!`;
+  addChat('assistant', a1);
+  addCtx('assistant', a1);
+  await wait(400);
+  const u2 = "Perfect, this has been super helpful. Thanks!";
+  addChat('user', u2);
+  addCtx('user', u2);
+  await wait(400);
+  const a2 = "Have an amazing time in Tokyo! 🌸 Don't forget your rain jacket for Apr 3.";
+  addChat('assistant', a2);
+  addCtx('assistant', a2);
+  updateBars(450, 1600);
+  setCallout("Conversation continues smoothly with a compact, well-organized memory.");
+};
+
+// ── STEP 13: Stats summary ────────────────────────────────
+stepFns[13] = async () => {
+  updateBars(450, 1600);
+  setCallout("~45K tokens processed → final context ~2K. ~14× compression ratio. 4 observer cycles, 1 reflector cycle.");
+};
+
+// ── Navigation ────────────────────────────────────────────
+let animating = false;
+
+async function goToStep(n) {
+  if (n < 0 || n > LAST_STEP || animating) return;
+  animating = true;
+  nextBtn.disabled = true;
+
+  // Going backward
+  if (n < currentStep) {
+    currentStep = n;
+    restoreSnapshot(n);
+    updateUI();
+    animating = false;
+    return;
+  }
+
+  // Going forward: save current snapshot before advancing
+  saveSnapshot();
+  currentStep = n;
+  lastChatRole = null;
+  stepFirstUserPlayed = false;
+  await stepFns[n]();
+  if (lastChatRole === 'user') playSend();
+  else if (lastChatRole === 'assistant') playReceive();
+  saveSnapshot();
+  updateUI();
+  animating = false;
+}
+
+// Preview text for each step: what the user is "about to send"
+const inputPreviews = {
+  0: "Hey, can you help me plan a trip to Tokyo?",
+  1: "Whoa, that's a lot. Can you keep responses short and to the point?",
+  2: "Next week, 5 days, ~$3K budget, flying from SFO.",
+  3: "Great! Can you find flights and hotels?",
+  7: "What are some must-try restaurants near Shibuya?",
+  8: "Can you check flights again? Prices might have changed.",
+};
+
+const sendBtn = $('#btn-send');
+const inputPreview = $('#input-preview');
+const nextBtn = $('#btn-next');
+
+// Label describes what the NEXT click will do
+const nextLabels = {
+  0: 'Start',
+  1: 'Send reply',
+  2: 'Send details',
+  3: 'Search flights and hotels',
+  4: 'Keep chatting',
+  5: 'Run Observer',
+  6: 'Keep chatting',
+  7: 'Run Observer',
+  8: 'Re-check flights',
+  9: 'Fast-forward',
+  10: 'Run Reflector',
+  11: 'Wrap up',
+  12: 'Summary',
+};
+
+function updateUI() {
+  const done = currentStep >= LAST_STEP;
+  sendBtn.disabled = true;
+  nextBtn.disabled = done;
+  nextBtn.textContent = nextLabels[currentStep] || 'Next';
+
+  // Update input preview and button style
+  const preview = inputPreviews[currentStep] || '';
+  inputPreview.textContent = preview;
+  if (preview) {
+    sendBtn.classList.remove('alt');
+    sendBtn.textContent = 'Send';
+  } else {
+    sendBtn.classList.add('alt');
+    sendBtn.textContent = 'Next';
+  }
+}
+
+$('#btn-next').addEventListener('click', () => goToStep(currentStep + 1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goToStep(currentStep + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goToStep(currentStep - 1); }
+});
+
+// ── Init ──────────────────────────────────────────────────
+updateBars(0, 0);
+updateUI();
+saveSnapshot();
+</script>
+</body>
+</html>

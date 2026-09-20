@@ -1,442 +1,265 @@
-import type { DesignSystem, Page } from '@open-slide/core';
-import { useSlidePageNumber } from '@open-slide/core';
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useIsActivePage, type DesignSystem, type Page } from '@open-slide/core'
+import greed from '@assets/fonts/GreedVF.woff2'
+import wordmark from '@assets/Mastra wordmark black.svg'
+import mastraQr from '@assets/qr/mastra.png'
 
+// Copy the shared foundation and only the page recipes you need into a new deck.
 export const design: DesignSystem = {
-  palette: {
-    bg: '#07090b',
-    text: '#f3f5f7',
-    accent: '#7AFF78',
-  },
+  palette: { bg: '#f5f6f4', text: '#101813', accent: '#19783a' },
   fonts: {
-    display: '"Greed", "Inter", system-ui, -apple-system, sans-serif',
-    body: '"Greed", "Inter", system-ui, -apple-system, sans-serif',
+    display: '"Greed", "Inter", system-ui, sans-serif',
+    body: '"Greed", "Inter", system-ui, sans-serif',
   },
-  typeScale: {
-    hero: 108,
-    body: 34,
-  },
+  typeScale: { hero: 108, body: 34 },
   radius: 22,
-};
+}
 
-const styles = `
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to { opacity: 1; transform: translateY(0); }
+type Appearance = 'system' | 'light' | 'dark'
+// Lock this to light for a bright venue. System follows OS changes live through CSS.
+const appearance: Appearance = 'system'
+const mono = '"SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace'
+const darkTokens = `
+  --mt-bg: #07090b; --mt-text: #f3f5f7; --mt-accent: #7aff78;
+  --mt-shell: #040506; --mt-panel: #090c11; --mt-border: #29332d;
+  --mt-soft: #cfd6de; --mt-muted: #a2aca5; --mt-subtle: #111913;
+  --mt-pill: #142619; --mt-pill-strong: #23442b; --mt-quiet: #141918;
+  --mt-keyword: #d4adf0; --mt-string: #99deac; --mt-property: #9dc9fb;
+  --mt-highlight: rgba(255,222,70,.17); --mt-shadow: rgba(0,0,0,.3);
+  --mt-action: #7aff78; --mt-action-text: #102415; color-scheme: dark;
+`
+export const themeCss = `
+  @font-face { font-family: Greed; src: url(${greed}) format('woff2'); font-weight: 100 900; font-display: swap; }
+  .mastra-template {
+    --mt-bg: var(--osd-bg, #f5f6f4); --mt-text: var(--osd-text, #101813); --mt-accent: var(--osd-accent, #19783a);
+    --mt-shell: #e6ebe5; --mt-panel: #fff; --mt-border: #c4cec5;
+    --mt-soft: #25362b; --mt-muted: #46554b; --mt-subtle: #f3f7f1;
+    --mt-pill: #edf6e8; --mt-pill-strong: #d8efcf; --mt-quiet: #f3f5f2;
+    --mt-keyword: #75419a; --mt-string: #19783a; --mt-property: #245a96;
+    --mt-highlight: rgba(255,222,70,.26); --mt-shadow: rgba(16,24,19,.14);
+    --mt-action: #19783a; --mt-action-text: #fff; color-scheme: light;
+    width: 100%; height: 100%; position: relative; isolation: isolate;
+    background: var(--mt-bg); color: var(--mt-text);
+    font-family: var(--osd-font-body, Greed, system-ui, sans-serif); letter-spacing: .015em;
   }
-`;
+  .mastra-template, .mastra-template * { box-sizing: border-box; }
+  .mastra-template[data-appearance="dark"] { ${darkTokens} }
+  @media (prefers-color-scheme: dark) {
+    .mastra-template[data-appearance="system"] { ${darkTokens} }
+  }
+  .mastra-template a:focus-visible, .mastra-template button:focus-visible { outline: 4px solid var(--mt-accent); outline-offset: 6px; }
+  .mt-demo-button { background: var(--mt-action); color: var(--mt-action-text); box-shadow: 0 12px 40px var(--mt-shadow); transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease; }
+  .mt-demo-button:hover, .mt-demo-button:focus-visible { transform: translateY(-8px) scale(1.035); filter: brightness(1.08); box-shadow: 0 20px 52px var(--mt-shadow); }
+  .mt-demo-button span { transition: transform 220ms ease; }
+  .mt-demo-button:hover span, .mt-demo-button:focus-visible span { transform: translate(6px,-6px); }
+  @keyframes mt-pill-drift { 0%,100% { transform: translate(-5px,14px); } 50% { transform: translate(5px,-16px); } }
+  @keyframes mt-pill-quiet { 0%,100% { transform: translate(-2px,7px); } 50% { transform: translate(2px,-7px); } }
+  @keyframes mt-push-pull { 0%,100% { grid-template-columns: 50% 50%; } 25% { grid-template-columns: 52% 48%; } 75% { grid-template-columns: 48% 52%; } }
+  .mt-feature { animation: mt-pill-drift 6s ease-in-out infinite; }
+  .mt-feature[data-quiet] { animation-name: mt-pill-quiet; animation-duration: 9s; }
+  .mt-split { animation: mt-push-pull 16s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .mastra-template .mt-feature, .mastra-template .mt-split { animation: none !important; }
+    .mastra-template .mt-demo-button, .mastra-template .mt-demo-button span { transition: none; transform: none; }
+  }
+  @media print {
+    .mastra-template .mt-feature, .mastra-template .mt-split { animation: none !important; }
+    .mt-demo-button, .mt-demo-button span { transform: none !important; }
+  }
+`
+// One font/style registration; HMR replaces it instead of leaving stale rules.
+if (typeof document !== 'undefined') {
+  const id = 'mastra-template-styles'
+  const style = document.getElementById(id) ?? document.createElement('style')
+  style.id = id
+  if (style.textContent !== themeCss) style.textContent = themeCss
+  if (!style.isConnected) document.head.appendChild(style)
+}
 
-const fill = {
-  width: '100%',
-  height: '100%',
-  position: 'relative' as const,
-  overflow: 'hidden',
-  background: 'var(--osd-bg)',
-  color: 'var(--osd-text)',
-  fontFamily: 'var(--osd-font-body)',
-  letterSpacing: '0.015em',
-};
+export const MastraPage = ({ children, mode = appearance }: { children: ReactNode; mode?: Appearance }) => {
+  // Gallery-only query override for reviewing both palettes; no controls on a talk slide.
+  const preview = typeof location !== 'undefined' && location.pathname.startsWith('/themes/')
+    ? new URLSearchParams(location.search).get('appearance') : null
+  const resolved = preview === 'light' || preview === 'dark' || preview === 'system' ? preview : mode
+  return <div className="mastra-template" data-appearance={resolved}>{children}</div>
+}
 
-const Title = ({ children }: { children: React.ReactNode }) => (
-  <h1
-    style={{
-      margin: 0,
-      fontFamily: 'var(--osd-font-display)',
-      fontSize: 'var(--osd-size-hero)',
-      fontWeight: 520,
-      fontStretch: '112%',
-      letterSpacing: '0.015em',
-      lineHeight: 1.08,
-      color: 'var(--osd-text)',
-      textWrap: 'balance',
-    }}
-  >
-    {children}
-  </h1>
-);
+const Frame = ({ children }: { children: ReactNode }) => <>
+  <div style={{ position: 'absolute', inset: 56, borderRadius: 64, background: 'var(--mt-shell)' }} />
+  <div style={{ position: 'absolute', inset: 92, borderRadius: 42, border: '1px solid var(--mt-border)', background: 'var(--mt-panel)', padding: '88px 96px' }}>{children}</div>
+</>
+const Center = ({ children }: { children: ReactNode }) => <div style={{ position: 'absolute', inset: 96, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 36 }}>{children}</div>
+const Title = ({ children }: { children: ReactNode }) => <h1 style={{ margin: 0, maxWidth: 1300, fontFamily: 'var(--osd-font-display)', fontSize: 'var(--osd-size-hero, 108px)', fontWeight: 520, lineHeight: 1.1, textWrap: 'balance' }}>{children}</h1>
+const Heading = ({ children, size = 94 }: { children: ReactNode; size?: number }) => <h2 style={{ margin: 0, maxWidth: 1440, fontSize: size, fontWeight: 520, lineHeight: 1.15, textWrap: 'balance' }}>{children}</h2>
+const Wordmark = () => <div role="img" aria-label="Mastra" style={{ width: 332, height: 84, background: 'var(--mt-text)', mask: `url("${wordmark}") center / contain no-repeat`, WebkitMask: `url("${wordmark}") center / contain no-repeat` }} />
+const EventBadge = ({ children = 'Talk' }: { children?: ReactNode }) => <div style={{ display: 'inline-flex', border: '1px solid var(--mt-border)', background: 'var(--mt-subtle)', borderRadius: 999, padding: '12px 22px', fontSize: 28, letterSpacing: '.1em', textTransform: 'uppercase' }}>{children}</div>
 
-const Footer = ({ label = 'Mastra Workshop' }: { label?: string }) => {
-  const { current, total } = useSlidePageNumber();
+// Fixed overlay: deliberately white in both themes for scanning. Use a real generated QR asset.
+const QrOverlay = ({ src, href, side = 'left', opacity = .8 }: { src: string; href: string; side?: 'left' | 'right'; opacity?: number }) => <a href={href} target="_blank" rel="noreferrer" aria-label={`Scan or open ${href}`} style={{ position: 'absolute', bottom: 36, [side]: 36, zIndex: 2, opacity, padding: 24, borderRadius: 18, background: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,.16)' }}>
+  <img src={src} alt={`QR code for ${href}`} style={{ display: 'block', width: 200, height: 200, imageRendering: 'pixelated' }} />
+</a>
+const LiveSiteLink = ({ href }: { href: string }) => <a href={href} target="_blank" rel="noreferrer" style={{ position: 'absolute', bottom: 24, right: 24, zIndex: 2, opacity: .8, background: 'var(--mt-panel)', color: 'var(--mt-text)', border: '1px solid var(--mt-border)', borderRadius: 12, padding: '14px 22px', fontSize: 24, textDecoration: 'none' }}>Open live site ↗</a>
+const DemoLink = ({ href }: { href: string }) => <a className="mt-demo-button" href={href} target="_blank" rel="noreferrer" style={{ position: 'absolute', right: 64, bottom: 56, zIndex: 2, display: 'inline-flex', alignItems: 'center', gap: 32, padding: '32px 60px', borderRadius: 26, border: '2px solid var(--mt-panel)', fontSize: 72, fontWeight: 550, lineHeight: 1.2, textDecoration: 'none' }}>Demo <span aria-hidden>↗</span></a>
 
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 112,
-        right: 112,
-        bottom: 44,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: 24,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        color: '#8f97a3',
-      }}
-    >
-      <span>{label}</span>
-      <span>{String(current).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
-    </div>
-  );
-};
+const CodeLine = ({ children, highlight = false }: { children?: ReactNode; highlight?: boolean }) => <div style={{ minHeight: 48 }}><span style={highlight ? { background: 'linear-gradient(transparent 12%, var(--mt-highlight) 12%, var(--mt-highlight) 92%, transparent 92%)', borderRadius: 4 } : undefined}>{children}</span></div>
+const K = ({ children }: { children: ReactNode }) => <span style={{ color: 'var(--mt-keyword)' }}>{children}</span>
+const S = ({ children }: { children: ReactNode }) => <span style={{ color: 'var(--mt-string)' }}>{children}</span>
+const P = ({ children }: { children: ReactNode }) => <span style={{ color: 'var(--mt-property)' }}>{children}</span>
+const CodePanel = ({ children, command = false }: { children: ReactNode; command?: boolean }) => <pre style={{ margin: 0, padding: command ? '48px 56px' : '36px 44px', border: '1px solid var(--mt-border)', borderRadius: 24, background: 'var(--mt-subtle)', whiteSpace: 'pre', textAlign: 'left' }}><code style={{ fontFamily: mono, fontSize: command ? 64 : 34, lineHeight: command ? 1.4 : '48px', letterSpacing: '-.025em' }}>{children}</code></pre>
 
-const Eyebrow = ({ children }: { children: React.ReactNode }) => (
-  <div
-    style={{
-      fontSize: 24,
-      fontWeight: 500,
-      lineHeight: 1.4,
-      letterSpacing: '0.12em',
-      textTransform: 'uppercase',
-      color: '#8f97a3',
-    }}
-  >
-    {children}
+const FeaturePill = ({ children, x, y, width, size = 42, quiet = false, prominent = false, delay = 0 }: { children: ReactNode; x: number; y: number; width: number; size?: number; quiet?: boolean; prominent?: boolean; delay?: number }) => {
+  const active = useIsActivePage()
+  return <div style={{ position: 'absolute', left: x, top: y, width, transform: 'translate(-50%, -50%)' }}>
+    <div className="mt-feature" data-quiet={quiet ? '' : undefined} style={{ animationDelay: `${delay}s`, animationPlayState: active ? 'running' : 'paused', borderRadius: 999, padding: quiet ? '17px 20px' : '24px 24px', background: quiet ? 'var(--mt-quiet)' : prominent ? 'var(--mt-pill-strong)' : 'var(--mt-pill)', border: '1px solid var(--mt-border)', boxShadow: quiet ? 'none' : '0 10px 28px var(--mt-shadow)', color: quiet ? 'var(--mt-muted)' : 'var(--mt-accent)', textAlign: 'center', whiteSpace: 'nowrap', fontSize: quiet ? 28 : size, fontWeight: quiet ? 420 : 520, lineHeight: 1.2, letterSpacing: '-.015em' }}>{children}</div>
   </div>
-);
+}
+const AgentCard = ({ title, children }: { title: string; children: ReactNode }) => <div style={{ border: '1px solid var(--mt-border)', borderRadius: 22, background: 'var(--mt-subtle)', padding: '24px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}><h3 style={{ margin: 0, fontSize: 38, fontWeight: 520, color: 'var(--mt-accent)' }}>{title}</h3><p style={{ margin: 0, fontSize: 32, lineHeight: 1.4, color: 'var(--mt-soft)' }}>{children}</p></div>
 
-const WorkshopBadge = ({ compact = false }: { compact?: boolean }) => (
-  <div
-    style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: compact ? 8 : 10,
-      background: '#0d1219',
-      border: '2px solid #222222',
-      borderRadius: 999,
-      padding: compact ? '10px 18px' : '12px 22px',
-      fontSize: compact ? 22 : 28,
-      fontWeight: 500,
-      lineHeight: 1.5,
-      letterSpacing: '0.12em',
-      textTransform: 'uppercase',
-      color: '#e7ebef',
-    }}
-  >
-    <span
-      style={{
-        width: compact ? 20 : 24,
-        height: compact ? 20 : 24,
-        borderRadius: '50%',
-        border: '2px solid #e7ebef',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <span
-        style={{
-          width: compact ? 5 : 6,
-          height: compact ? 5 : 6,
-          borderRadius: '50%',
-          background: '#e7ebef',
-          display: 'inline-block',
-        }}
-      />
-    </span>
-    <span>Workshop</span>
-  </div>
-);
+// Visual fixture for the catalog, not a product screenshot. Replace with a supplied asset.
+const SampleScreen = ({ kind = 'product' }: { kind?: 'product' | 'profile' }) => <div aria-label={kind === 'product' ? 'Product screenshot slot' : 'Profile screenshot slot'} style={{ width: '100%', height: '100%', padding: '80px 64px', background: kind === 'product' ? 'var(--mt-subtle)' : 'var(--mt-panel)', color: 'var(--mt-text)', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 32 }}>
+  <div style={{ fontSize: 26, color: 'var(--mt-muted)', textTransform: 'uppercase', letterSpacing: '.1em' }}>{kind === 'product' ? 'Product screenshot' : 'Profile screenshot'}</div>
+  <div style={{ fontSize: 72, fontWeight: 520, lineHeight: 1.12 }}>{kind === 'product' ? 'Make something useful.' : 'Keep in touch.'}</div>
+  <div style={{ height: 2, background: 'var(--mt-border)' }} />
+  <div style={{ display: 'flex', gap: 18 }}><div style={{ width: 128, height: 128, borderRadius: 28, background: 'var(--mt-pill-strong)' }} /><div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 18, justifyContent: 'center' }}><div style={{ height: 18, background: 'var(--mt-border)', borderRadius: 8 }} /><div style={{ height: 18, width: '70%', background: 'var(--mt-border)', borderRadius: 8 }} /></div></div>
+</div>
 
-const Frame = ({ children }: { children: React.ReactNode }) => (
-  <>
-    <style>{styles}</style>
-    <div
-      style={{
-        position: 'absolute',
-        inset: 56,
-        borderRadius: 64,
-        background: '#040506',
-      }}
-    />
-    <div
-      style={{
-        position: 'absolute',
-        inset: 92,
-        borderRadius: 42,
-        border: '1px solid #1f2530',
-        background: '#090c11',
-        padding: '88px 96px',
-      }}
-    >
-      {children}
-    </div>
+// External pages may block framing. A static snapshot keeps the talk reliable.
+// Use this component only after checking the chosen page and its asset paths.
+const WebsiteSurface = ({ url, title, strategy = 'iframe', snapshot }: { url: string; title: string; strategy?: 'iframe' | 'static' | 'snapshot'; snapshot?: string }) => {
+  const [html, setHtml] = useState('')
+  const [failed, setFailed] = useState(false)
+  useEffect(() => {
+    setHtml(''); setFailed(false)
+    if (strategy !== 'static') return
+    const abort = new AbortController()
+    fetch(url, { signal: abort.signal }).then(response => {
+      if (!response.ok) throw new Error('Unavailable')
+      return response.text()
+    }).then(source => {
+      const page = new DOMParser().parseFromString(source, 'text/html')
+      page.querySelectorAll('script, base, meta[http-equiv="refresh"]').forEach(node => node.remove())
+      const base = page.createElement('base'); base.href = url; base.target = '_blank'; page.head.prepend(base)
+      setHtml('<!doctype html>' + page.documentElement.outerHTML)
+    }).catch(() => { if (!abort.signal.aborted) setFailed(true) })
+    return () => abort.abort()
+  }, [url, strategy])
+  const fallback = <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontSize: 40 }}>{failed ? 'Open the live site to continue.' : 'Loading…'}</div>
+  return <>
+    {strategy === 'snapshot' && snapshot ? <img src={snapshot} alt={title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : strategy === 'static' ? html ? <iframe title={title} srcDoc={html} sandbox="allow-popups allow-popups-to-escape-sandbox" style={{ width: '100%', height: '100%', border: 0 }} /> : fallback : strategy === 'iframe' ? <iframe title={title} src={url} style={{ width: '100%', height: '100%', border: 0 }} /> : <div style={{ padding: 120, fontSize: 40 }}>Add a screenshot for this page.</div>}
+    <LiveSiteLink href={url} />
   </>
-);
+}
+const VideoSurface = ({ src, poster }: { src: string; poster?: string }) => {
+  const active = useIsActivePage()
+  const ref = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    if (active) void video.play().catch(() => {})
+    else video.pause()
+    return () => video.pause()
+  }, [active])
+  return <video ref={ref} src={src} poster={poster} controls autoPlay={active} loop muted playsInline preload="metadata" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain', background: 'var(--mt-bg)' }} />
+}
 
-const MastraLogo = ({ size = 46 }: { size?: number }) => {
-  const dot = Math.round(size * 0.24);
+// Runnable, offline embed example. Real local demos go in the deck assets folder.
+const localDemo = `<!doctype html><html><head><meta charset="utf-8"><style>
+  :root { color-scheme: light dark; font-family: system-ui; }
+  * { box-sizing: border-box; } body { margin: 0; background: light-dark(#f5f6f4,#07090b); color: light-dark(#101813,#f3f5f7); }
+  main { height: 720px; padding: 80px; display: flex; flex-direction: column; justify-content: center; gap: 32px; }
+  h1 { margin: 0; font-size: 64px; font-weight: 520; } p { margin: 0; font-size: 30px; }
+  button { align-self: start; border: 0; border-radius: 14px; padding: 20px 30px; font-size: 28px; background: light-dark(#19783a,#7aff78); color: light-dark(white,#102415); cursor: pointer; }
+</style></head><body><main><h1>Interactive demo</h1><p id="count">0 ideas explored</p><button onclick="document.getElementById('count').textContent = (++window.count) + ' ideas explored'">Explore an idea</button></main><script>window.count = 0</script></body></html>`
 
-  return (
-    <div style={{ width: size, height: size, position: 'relative' }}>
-      <span style={{ position: 'absolute', left: 0, top: 0, width: dot, height: dot, borderRadius: '50%', background: '#f3f5f7' }} />
-      <span style={{ position: 'absolute', left: Math.round(size * 0.34), top: 0, width: dot, height: dot, borderRadius: '50%', background: '#f3f5f7' }} />
-      <span style={{ position: 'absolute', left: 0, top: Math.round(size * 0.34), width: dot, height: dot, borderRadius: '50%', background: '#f3f5f7' }} />
-      <span style={{ position: 'absolute', left: Math.round(size * 0.34), top: Math.round(size * 0.34), width: dot, height: dot, borderRadius: '50%', background: '#f3f5f7' }} />
-      <span style={{ position: 'absolute', left: Math.round(size * 0.6), top: Math.round(size * 0.18), width: Math.round(size * 0.34), height: Math.round(size * 0.5), borderRadius: 999, background: '#f3f5f7' }} />
+const Cover: Page = () => <MastraPage><Frame>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Wordmark /><EventBadge /></div>
+  <div style={{ position: 'absolute', top: 172, bottom: 88, left: 96, right: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}><Title>Build something<br />worth talking about</Title></div>
+</Frame></MastraPage>
+const Section: Page = () => <MastraPage><Frame><Center><Heading>Make moves<br />with your next idea</Heading></Center></Frame></MastraPage>
+const Statement: Page = () => <MastraPage><Frame><Center><Heading><span style={{ color: 'var(--mt-accent)' }}>1.</span> One clear prediction</Heading></Center></Frame></MastraPage>
+const Command: Page = () => <MastraPage><Frame><Center><CodePanel command><S>npm</S>{' '}<P>create</P>{' mastra'}<K>@latest</K></CodePanel></Center></Frame><QrOverlay src={mastraQr} href="https://mastra.ai/" /></MastraPage>
+const Code: Page = () => <MastraPage><Frame><Center><CodePanel>
+  <CodeLine><K>const</K>{' agent = '}<K>new</K>{' Agent({ ... })'}</CodeLine>
+  <CodeLine />
+  <CodeLine highlight><K>const</K>{' controller = '}<K>new</K>{' AgentController({'}</CodeLine>
+  <CodeLine highlight>{'  '}<P>id</P>{': '}<S>'research-harness'</S>{','}</CodeLine>
+  <CodeLine highlight>{'  agent,'}</CodeLine>
+  <CodeLine highlight>{'  storage,'}</CodeLine>
+  <CodeLine highlight>{'  '}<P>modes</P>{': [ ... ],'}</CodeLine>
+  <CodeLine highlight>{'})'}</CodeLine>
+  <CodeLine />
+  <CodeLine><K>await</K>{' controller.init()'}</CodeLine>
+</CodePanel></Center></Frame></MastraPage>
+const FeatureCloud: Page = () => <MastraPage><Frame>
+      <FeaturePill x={170} y={355} width={150} quiet delay={-2}>Auth</FeaturePill>
+      <FeaturePill x={530} y={800} width={280} quiet delay={-5}>Observability</FeaturePill>
+      <FeaturePill x={1500} y={165} width={160} quiet delay={-1}>Evals</FeaturePill>
+      <FeaturePill x={1475} y={495} width={230} quiet delay={-7}>Guardrails</FeaturePill>
+
+      <FeaturePill x={425} y={270} width={330} size={52} delay={-1} prominent>Memory</FeaturePill>
+      <FeaturePill x={1090} y={215} width={250} size={50} delay={-4} prominent>Skills</FeaturePill>
+      <FeaturePill x={1330} y={365} width={310} delay={-6}>Sandbox</FeaturePill>
+      <FeaturePill x={1365} y={635} width={330} size={40} delay={-2}>Filesystem</FeaturePill>
+
+      <FeaturePill x={285} y={550} width={285} size={44} delay={-5}>Browser</FeaturePill>
+      <FeaturePill x={575} y={655} width={280} size={40} delay={-2}>Task List</FeaturePill>
+      <FeaturePill x={935} y={610} width={225} size={50} delay={-4} prominent>Goals</FeaturePill>
+      <FeaturePill x={685} y={120} width={245} size={40} delay={-7}>Modes</FeaturePill>
+
+      <FeaturePill x={865} y={435} width={375} size={60} delay={-3} prominent>Harness</FeaturePill>
+      <FeaturePill x={460} y={415} width={300} size={40} delay={-6}>Knowledge</FeaturePill>
+      <FeaturePill x={1020} y={785} width={440} size={40} delay={-1}>Background Tasks</FeaturePill>
+      <FeaturePill x={235} y={130} width={180} size={38} delay={-5}>MCP</FeaturePill>
+
+      <FeaturePill x={1210} y={85} width={345} quiet delay={-6}>Human-in-the-Loop</FeaturePill>
+      <FeaturePill x={775} y={270} width={235} quiet delay={-3}>Code Mode</FeaturePill>
+      <FeaturePill x={235} y={725} width={330} quiet delay={-8}>Durable Execution</FeaturePill>
+      <FeaturePill x={1450} y={790} width={290} quiet delay={-4}>Slack Channels</FeaturePill>
+</Frame></MastraPage>
+const AgentGrid: Page = () => <MastraPage><Frame><Heading size={76}>Agents join the team</Heading>
+  <div style={{ marginTop: 56, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'repeat(3,170px)', gap: 22 }}>
+    <AgentCard title="Customer agent">Customer knowledge and requirements</AgentCard>
+    <AgentCard title="Marketing agent">GTM and product marketing</AgentCard>
+    <AgentCard title="Community agent">Open-source feedback and insights</AgentCard>
+    <AgentCard title="Workshop agent">Workshop management</AgentCard>
+    <div style={{ gridColumn: '1 / -1', display: 'grid' }}><AgentCard title="Factory agent">Software development in Slack</AgentCard></div>
+  </div>
+</Frame></MastraPage>
+const ScreenshotBesideText: Page = () => <MastraPage><Frame>
+  <div style={{ display: 'grid', gridTemplateColumns: '580px 1fr', gap: 48, height: '100%', alignItems: 'center' }}>
+    <Heading size={68}>Your next idea<br />in action</Heading>
+    <div style={{ height: 640, border: '1px solid var(--mt-border)', borderRadius: 24, overflow: 'hidden' }}><SampleScreen /></div>
+  </div>
+</Frame></MastraPage>
+const GridWithScreenshot: Page = () => <MastraPage><Frame><Heading size={76}>Agents join the team</Heading>
+  <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '600px 1fr', gap: 36, height: 596 }}>
+    <div style={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', gap: 18 }}>
+      <AgentCard title="Customer agent">Customer knowledge</AgentCard>
+      <AgentCard title="Community agent">Feedback and insights</AgentCard>
+      <AgentCard title="Factory agent">Development in Slack</AgentCard>
     </div>
-  );
-};
-
-const MastraWordmark = () => (
-  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
-    <MastraLogo size={56} />
-    <span style={{ fontSize: 66, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1 }}>mastra</span>
+    <div style={{ border: '1px solid var(--mt-border)', borderRadius: 24, overflow: 'hidden' }}><SampleScreen /></div>
   </div>
-);
-
-const CornerLogo = () => (
-  <div
-    style={{
-      position: 'absolute',
-      top: 90,
-      right: 118,
-      display: 'inline-flex',
-      alignItems: 'center',
-      opacity: 0.86,
-    }}
-  >
-    <MastraLogo size={50} />
-  </div>
-);
-
-const RightAnchor = () => (
-  <div
-    aria-hidden
-    style={{
-      position: 'absolute',
-      right: 154,
-      top: 286,
-      width: 392,
-      height: 392,
-      borderRadius: '50%',
-      border: '1px dashed #2a3340',
-      background: 'radial-gradient(circle at 50% 50%, rgba(122,255,120,0.1) 0%, rgba(122,255,120,0.02) 44%, rgba(122,255,120,0) 70%)',
-      opacity: 0.78,
-      pointerEvents: 'none',
-    }}
-  >
-    <div style={{ position: 'absolute', inset: 54, borderRadius: '50%', border: '1px dashed #253246', opacity: 0.84 }} />
-    <div style={{ position: 'absolute', right: 26, top: 210, width: 20, height: 20, borderRadius: '50%', background: 'var(--osd-accent)', boxShadow: '0 0 22px rgba(122,255,120,0.42)' }} />
-  </div>
-);
-
-const WhoAreWeAccent = () => (
-  <div
-    aria-hidden
-    style={{
-      position: 'absolute',
-      right: 122,
-      top: 350,
-      width: 360,
-      height: 246,
-      borderRadius: 24,
-      border: '1px solid rgba(122,255,120,0.12)',
-      background: 'linear-gradient(160deg, rgba(122,255,120,0.06) 0%, rgba(122,255,120,0.01) 34%, rgba(122,255,120,0) 74%)',
-      opacity: 0.74,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
-      pointerEvents: 'none',
-    }}
-  >
-    <div style={{ position: 'absolute', left: 28, right: 28, top: 54, height: 1, background: 'rgba(122,255,120,0.12)' }} />
-    <div style={{ position: 'absolute', left: 28, top: 86, width: 170, height: 10, borderRadius: 999, background: 'rgba(122,255,120,0.14)' }} />
-    <div style={{ position: 'absolute', left: 28, top: 118, width: 118, height: 10, borderRadius: 999, background: 'rgba(122,255,120,0.1)' }} />
-    <div style={{ position: 'absolute', right: 68, top: 104, width: 10, height: 10, borderRadius: '50%', background: 'rgba(122,255,120,0.68)' }} />
-    <div style={{ position: 'absolute', right: 52, top: 164, width: 8, height: 8, borderRadius: '50%', background: 'rgba(122,255,120,0.46)' }} />
-  </div>
-);
-
-const AgendaItem = ({ number, title }: { number: string; title: string }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 18,
-      padding: '18px 0',
-      borderBottom: '1px solid rgba(122,255,120,0.08)',
-    }}
-  >
-    <span
-      style={{
-        width: 46,
-        height: 46,
-        borderRadius: 14,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 28,
-        fontWeight: 610,
-        lineHeight: 1,
-        letterSpacing: '0.01em',
-        color: '#06210f',
-        background: 'linear-gradient(180deg, #86ff80 0%, #73f476 100%)',
-        boxShadow: '0 0 18px rgba(122,255,120,0.24)',
-      }}
-    >
-      {number}
-    </span>
-    <h3 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 46, fontWeight: 500, lineHeight: 1.12, letterSpacing: '0.002em', color: '#e2e8ee' }}>
-      {title}
-    </h3>
-  </div>
-);
-
-const AgendaInfo = ({ text }: { text: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '18px 0 10px' }}>
-    <span style={{ width: 46, height: 46, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 600, lineHeight: 1, color: '#8be889', background: 'rgba(122,255,120,0.1)', border: '1px solid rgba(122,255,120,0.2)' }} aria-hidden>
-      i
-    </span>
-    <p style={{ margin: 0, fontSize: 36, fontWeight: 470, lineHeight: 1.2, letterSpacing: '0.002em', color: '#b8c5d1' }}>{text}</p>
-  </div>
-);
-
-const HostCard = ({ name, role, note }: { name: string; role: string; note: string }) => (
-  <div
-    style={{
-      flex: 1,
-      borderRadius: 28,
-      padding: '18px 20px 18px',
-      background: 'linear-gradient(180deg, rgba(8,14,11,0.78) 0%, rgba(5,10,8,0.58) 100%)',
-      border: '1px solid rgba(122,255,120,0.16)',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'stretch', gap: 18 }}>
-      <div style={{ width: 216, minWidth: 216, height: 236, borderRadius: 20, border: '1px solid rgba(122,255,120,0.2)', padding: 8, background: 'linear-gradient(180deg, rgba(122,255,120,0.12) 0%, rgba(122,255,120,0.04) 100%)' }}>
-        <div style={{ width: '100%', height: '100%', borderRadius: 14, background: 'radial-gradient(circle at 50% 30%, #26313d 0%, #1a2129 45%, #101419 100%)' }} />
-      </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <h3 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 62, lineHeight: 1.02, fontWeight: 520, color: '#eef3f7' }}>{name}</h3>
-        <p style={{ margin: '14px 0 0 0', fontSize: 25, lineHeight: 1.24, color: '#a8b4bf', fontWeight: 450 }}>
-          <span style={{ color: 'var(--osd-accent)' }}>•</span> {role}
-        </p>
-        <p style={{ margin: '10px 0 0 0', fontSize: 25, lineHeight: 1.24, color: '#a8b4bf', fontWeight: 450 }}>
-          <span style={{ color: 'var(--osd-accent)' }}>•</span> {note}
-        </p>
-        <div style={{ marginTop: 'auto', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <div style={{ borderRadius: 999, padding: '7px 11px', color: '#a9b4bf', background: 'rgba(122,255,120,0.028)', border: '1px solid rgba(122,255,120,0.08)', fontSize: 18 }}>@handle</div>
-          <div style={{ borderRadius: 999, padding: '7px 11px', color: '#a9b4bf', background: 'rgba(122,255,120,0.028)', border: '1px solid rgba(122,255,120,0.08)', fontSize: 18 }}>linkedin</div>
-        </div>
-      </div>
+</Frame></MastraPage>
+const Website: Page = () => <MastraPage><WebsiteSurface url="https://mastra.ai/integrations" title="Mastra integrations" strategy="static" /></MastraPage>
+const Video: Page = () => <MastraPage><VideoSurface src="https://res.cloudinary.com/mastra-assets/video/upload/v1778051861/mastracode-demo_thoxc9.mp4" /></MastraPage>
+const LocalInteractive: Page = () => <MastraPage><iframe title="Local interactive demo" srcDoc={localDemo} sandbox="allow-scripts" style={{ width: 1280, height: 720, border: 0, display: 'block', transform: 'scale(1.5)', transformOrigin: 'top left', colorScheme: 'inherit' }} /></MastraPage>
+const ScreenshotDemo: Page = () => <MastraPage><SampleScreen /><DemoLink href="https://mastra.ai/factory" /></MastraPage>
+const Questions: Page = () => <MastraPage><Frame><Center><Heading>Questions?</Heading><div style={{ fontSize: 34, color: 'var(--mt-muted)', marginTop: 48 }}>Try it now · mastra.ai</div></Center></Frame><QrOverlay src={mastraQr} href="https://mastra.ai/" /><QrOverlay src={mastraQr} href="https://mastra.ai/" side="right" /></MastraPage>
+const SplitClosing: Page = () => {
+  const active = useIsActivePage()
+  return <MastraPage>
+    <div className="mt-split" style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '50% 50%', gridTemplateRows: 'minmax(0,1fr)', animationPlayState: active ? 'running' : 'paused' }}>
+      <div style={{ minWidth: 0, overflow: 'hidden' }}><SampleScreen /></div>
+      <div style={{ minWidth: 0, overflow: 'hidden' }}><SampleScreen kind="profile" /></div>
     </div>
-  </div>
-);
+    <QrOverlay src={mastraQr} href="https://mastra.ai/" /><QrOverlay src={mastraQr} href="https://mastra.ai/" side="right" />
+  </MastraPage>
+}
+const Welcome: Page = () => <MastraPage><Frame><EventBadge>Workshop</EventBadge><div style={{ marginTop: 120 }}><Heading>Welcome!</Heading><p style={{ fontSize: 41, lineHeight: 1.4, maxWidth: 1120, color: 'var(--mt-soft)' }}>Build one useful agent together.</p></div></Frame></MastraPage>
+const Agenda: Page = () => <MastraPage><Frame><Heading>What you’ll learn</Heading><div style={{ marginTop: 56, display: 'flex', flexDirection: 'column', gap: 34, fontSize: 46, lineHeight: 1.4 }}><div><span style={{ color: 'var(--mt-accent)' }}>1.</span> Build an agent</div><div><span style={{ color: 'var(--mt-accent)' }}>2.</span> Add a capability</div><div><span style={{ color: 'var(--mt-accent)' }}>3.</span> Put it to work</div></div></Frame></MastraPage>
+const Hosts: Page = () => <MastraPage><Frame><Heading>Meet your hosts</Heading><div style={{ marginTop: 56, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, height: 440 }}><AgentCard title="Host name">Session lead</AgentCard><AgentCard title="Host name">Product expert</AgentCard></div></Frame></MastraPage>
 
-const QuestionCard = ({ title, body }: { title: string; body: string }) => (
-  <div
-    style={{
-      width: 720,
-      borderRadius: 28,
-      border: '1px solid #26303c',
-      background: 'linear-gradient(170deg, rgba(12,17,22,0.92) 0%, rgba(7,10,14,0.88) 100%)',
-      padding: '28px 32px',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
-    }}
-  >
-    <div style={{ fontSize: 22, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8f97a3' }}>{title}</div>
-    <p style={{ margin: '18px 0 0 0', fontSize: 36, lineHeight: 1.22, color: '#dde5ec' }}>{body}</p>
-  </div>
-);
-
-const Cover: Page = () => (
-  <div style={fill}>
-    <Frame>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', animation: 'fadeUp 320ms ease forwards' }}>
-        <MastraWordmark />
-        <WorkshopBadge />
-      </div>
-      <div style={{ marginTop: 120, maxWidth: 1240, display: 'flex', flexDirection: 'column', gap: 30, animation: 'fadeUp 380ms ease forwards' }}>
-        <Title>Mastra Workshop System</Title>
-        <p style={{ margin: 0, fontSize: 41, lineHeight: 1.34, color: '#cfd6de', maxWidth: 1120 }}>
-          A single theme and layout system for repeatable workshop decks.
-        </p>
-      </div>
-      <div style={{ position: 'absolute', left: 96, right: 96, bottom: 84, display: 'flex', gap: 20, animation: 'fadeUp 440ms ease forwards' }}>
-        <div style={{ borderRadius: 999, border: '1px solid #1f2530', background: '#0f141b', padding: '14px 22px', fontSize: 26, color: '#d8e0e8' }}>Cover</div>
-        <div style={{ borderRadius: 999, border: '1px solid #1f2530', background: '#0f141b', padding: '14px 22px', fontSize: 26, color: '#d8e0e8' }}>Welcome</div>
-        <div style={{ borderRadius: 999, border: '1px solid #1f2530', background: '#0f141b', padding: '14px 22px', fontSize: 26, color: '#d8e0e8' }}>What you&apos;ll learn</div>
-        <div style={{ borderRadius: 999, border: '1px solid #1f2530', background: '#0f141b', padding: '14px 22px', fontSize: 26, color: '#d8e0e8' }}>Meet your hosts</div>
-        <div style={{ borderRadius: 999, border: '1px solid #1f2530', background: '#0f141b', padding: '14px 22px', fontSize: 26, color: '#d8e0e8' }}>Questions</div>
-      </div>
-    </Frame>
-    <Footer />
-  </div>
-);
-
-const Welcome: Page = () => (
-  <div style={fill}>
-    <style>{styles}</style>
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 102px' }}>
-      <RightAnchor />
-      <CornerLogo />
-      <div style={{ marginTop: 158, maxWidth: 1140, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <WorkshopBadge compact />
-        <h2 style={{ margin: '28px 0 0 0', fontSize: 108, fontWeight: 515, fontStretch: '112%', lineHeight: 1.08, letterSpacing: '0.015em', maxWidth: 860 }}>Welcome!</h2>
-        <p style={{ margin: '22px 0 0 0', fontSize: 41, lineHeight: 1.36, fontWeight: 400, color: '#cfd6de', maxWidth: 1100, textWrap: 'balance' }}>
-          Start every workshop with one clear orientation moment that sets the tone, names the goal, and points attendees to the live session flow.
-        </p>
-        <div style={{ marginTop: 44, display: 'inline-flex', alignItems: 'center', gap: 14, border: '1px solid rgba(122,255,120,0.24)', color: '#9afc96', borderRadius: 999, padding: '16px 30px 16px 20px', fontSize: 30, fontWeight: 500, lineHeight: 1, letterSpacing: '0.008em', background: 'linear-gradient(180deg, rgba(9,20,14,0.92) 0%, rgba(6,15,10,0.9) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 24px rgba(0,0,0,0.28)' }}>
-          <span style={{ width: 32, height: 32, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(122,255,120,0.08)', border: '1px solid rgba(122,255,120,0.2)' }}>→</span>
-          <span>Point people to the next action</span>
-        </div>
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-const WhatYouWillLearn: Page = () => (
-  <div style={fill}>
-    <style>{styles}</style>
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 96px' }}>
-      <CornerLogo />
-      <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 94, fontWeight: 530, lineHeight: 1.03, letterSpacing: '0.006em', color: '#f3f7f9' }}>What you&apos;ll learn</h2>
-      <div style={{ marginTop: 32, width: 1500, borderRadius: 30, padding: '12px 22px 6px', background: 'linear-gradient(180deg, rgba(8,14,11,0.64) 0%, rgba(5,9,8,0.42) 100%)', border: '1px solid rgba(122,255,120,0.12)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <AgendaItem number="1" title="What the session is about" />
-        <AgendaItem number="2" title="Which skills or concepts attendees should leave with" />
-        <AgendaItem number="3" title="How the live walkthrough will be structured" />
-        <AgendaItem number="4" title="Where the practical handoff or resources will land" />
-        <AgendaInfo text="Share questions in the chat anytime. We&apos;ll answer them throughout and at the end." />
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-const MeetYourHosts: Page = () => (
-  <div style={fill}>
-    <style>{styles}</style>
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 96px' }}>
-      <WhoAreWeAccent />
-      <CornerLogo />
-      <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 94, fontWeight: 530, lineHeight: 1.03, letterSpacing: '0.006em', color: '#f3f7f9' }}>Meet your hosts</h2>
-      <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 950 }}>
-        <HostCard name="Host One" role="Workshop lead" note="Add one credibility point or session responsibility" />
-        <HostCard name="Host Two" role="Product or platform expert" note="Add one short line about what they will cover" />
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-const Questions: Page = () => (
-  <div style={fill}>
-    <style>{styles}</style>
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 96px' }}>
-      <CornerLogo />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 980 }}>
-        <Eyebrow>Questions</Eyebrow>
-        <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 94, fontWeight: 530, lineHeight: 1.03, letterSpacing: '0.006em', color: '#f3f7f9' }}>Make space for discussion.</h2>
-        <p style={{ margin: 0, fontSize: 38, lineHeight: 1.3, color: '#cfd6de', maxWidth: 900 }}>
-          End with a calm facilitation slide that invites the next question, clarifies how to participate, and makes the handoff feel intentional.
-        </p>
-      </div>
-      <div style={{ marginTop: 42, display: 'flex', gap: 22 }}>
-        <QuestionCard title="Prompt" body="What would you like to see explained live before we wrap?" />
-        <QuestionCard title="Facilitation" body="Share questions in chat, unmute for discussion, or ask about implementation details." />
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-export default [Cover, Welcome, WhatYouWillLearn, MeetYourHosts, Questions] satisfies Page[];
+export const templateNames = ['Minimal talk cover', 'Section h2', 'Heading-only prediction', 'Command', 'Highlighted code', 'Floating feature pills', 'Agent grid', 'Text + screenshot', 'Grid + screenshot', 'Full-screen website', 'Autoplay video', 'Local interactive demo', 'Screenshot + Demo', 'Questions + QR', 'Split closing + fixed QR', 'Workshop welcome', 'Workshop agenda', 'Optional hosts']
+export const notes = ['', '', '', '', 'Abridged teaching example: restore imports and Agent configuration; supply persistent storage and valid modes. Verify current APIs before authoring a real example.', '', 'Example roles, not a required list for every talk.', 'Replace the catalog fixture with a supplied screenshot using objectFit: contain.', 'Keep the supplied screenshot readable; use compact cards on the left. Add only as many examples as fit.', 'Static HTML preserves the source site’s appearance. Use Open live site for script-driven interactions.', 'Autoplay is muted and active-page-only. Controls allow sound. The original video colors are preserved.', 'Replace srcDoc with imported HTML or a served URL; bundle relative assets. Never use file:// in a hosted deck.', 'Use a normal HTTPS destination by default. Test Chrome-specific launch separately when explicitly requested.', 'Replace the right QR with the presenter’s real profile QR; keep its href and encoded destination identical.', 'Replace both fixtures and the right QR with actual assets. Only the panels animate.', '', '', 'Host details are optional, never add a presenter name to a minimal talk cover without a request.']
+export default [Cover, Section, Statement, Command, Code, FeatureCloud, AgentGrid, ScreenshotBesideText, GridWithScreenshot, Website, Video, LocalInteractive, ScreenshotDemo, Questions, SplitClosing, Welcome, Agenda, Hosts] satisfies Page[]

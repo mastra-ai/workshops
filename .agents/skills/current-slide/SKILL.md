@@ -71,13 +71,19 @@ Path is relative to the repository root (the user's `cwd`). The runtime package 
 - The `apply-comments` workflow already finds the right file via `@slide-comment` markers; it doesn't need this skill.
 - For listing or discovering slides — read `slides/` directly.
 
+## Resolve conflicting signals
+
+Explicitly named content and the current default-export page array are authoritative for a numbered edit. Resolve the number against that array before acting; reordering changes it. If the user names a unique element (e.g. the Demo button), use that match and mention the current page number. If the number and content type conflict (e.g. “embedded website on 13” but 13 is a video and several website pages exist), ask one focused clarification before destructive replacement. Do not silently replace unrelated content.
+
+The file is written by navigation, including agent-created preview tabs. It is not proof of what the user deliberately selected. Treat the current user’s supplied page/context and screenshot as stronger evidence when the file conflicts. Keep `notes` in sync with the page array when adding/reordering.
+
 ## Staleness — verify before acting
 
 `updatedAt` is the last time the user navigated. Treat it like a cache:
 
 - **Fresh (under ~5 minutes old)**: trust it. Open `pagePath`, do the work.
-- **Older than ~5 minutes, or older than your last interaction with the user**: confirm with the user before editing. The dev server may not be running; the user may have switched contexts.
-- **Hours/days old**: ignore it. Ask the user which slide they mean.
+- **Older than ~5 minutes, or older than your last interaction with the user**: use the current request, named content, and source array to resolve the target. Ask only if it remains ambiguous.
+- **Hours/days old**: ignore the cursor. Use an explicit deck/content target if supplied; otherwise ask which slide they mean.
 
 A *newer* `updatedAt` than the one you saw last turn is the normal signal that the user has moved — switch to the new `slideId` / `pageIndex` / `selection` without asking.
 

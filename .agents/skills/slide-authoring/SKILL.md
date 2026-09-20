@@ -1,18 +1,22 @@
 ---
 name: slide-authoring
-description: Technical reference for writing or editing open-slide pages — file contract, 1920×1080 canvas, type scale, layout, palette/visual direction, and assets. Consult this whenever you are about to write or modify any file under `slides/<id>/`, including from inside the `create-slide` or `apply-comments` workflows, or for any ad-hoc slide edit. Triggers on phrases like "edit slide", "tweak this page", "fix the layout", "change the palette", "investigate the slide framework", "how do slides work here".
+description: Technical reference for writing or editing open-slide pages — file contract, 1920×1080 canvas, type scale, layout, palette/visual direction, and assets. Consult this whenever you are about to write or modify any file under a slide directory, including from inside the `create-slide` or `apply-comments` workflows, or for any ad-hoc slide edit. Triggers on phrases like "edit slide", "tweak this page", "fix the layout", "change the palette", "investigate the slide framework", "how do slides work here".
 ---
 
 # Authoring open-slide pages
 
 This skill is the **technical reference** for everything that happens inside `slides/<id>/index.tsx`. It does not own a workflow:
 
-- `create-slide` owns "draft a new deck" — it asks the user scoping questions, then delegates the *how* to this skill.
+- `create-slide` owns new decks and added pages — it resolves scope from the request and conversation, then uses this skill for the *how*.
 - `apply-comments` owns "process inspector markers" — it finds markers and applies edits, but the edits themselves follow the rules here.
 - `current-slide` resolves deictic references ("this page", "the slide I'm on") to a concrete `slideId` + `pageIndex`. Consult it **first** when the user references the current slide without naming it, then come back here for how to edit it.
 - Any ad-hoc slide edit (manual tweak, one-off fix) should also consult this skill before touching the file.
 
 When any of those paths reach the point of *writing React code for a page*, this is the source of truth. Do not duplicate the knowledge below into other skills — link here instead.
+
+## Repo patterns and recipes
+
+Before choosing a layout for a Mastra slide, read [presentation-patterns.md](references/presentation-patterns.md). It covers this repo’s defaults for minimal talk titles, code, feature pills, embeds, QR overlays, and speaker notes. Reuse the named recipes in `open-slide/themes/mastra.demo.tsx` with `open-slide/themes/mastra.md` as the catalog. New reusable pages support system/light/dark; preserve an existing deck’s explicit mode.
 
 ## Hard rules
 
@@ -143,11 +147,11 @@ The default is a system font stack — prefer it. When a deck genuinely needs a 
 
 ## Themes
 
-If `themes/<id>.md` exists at the project root and the slide is meant to follow it, **the theme file overrides the defaults in this skill** — its palette, typography, layout padding, and Title/Footer components are authoritative. Read the theme file before applying anything else in this section.
+If `open-slide/themes/<id>.md` exists and the slide is meant to follow it, **the theme file overrides the defaults in this skill** — its palette, typography, layout padding, and Title/Footer components are authoritative. Read the theme file before applying anything else in this section.
 
-Themes are produced by the `create-theme` skill and are pure documentation: copy the palette and the paste-ready Title / Footer / Eyebrow components straight into your slide. If the theme's frontmatter has `mode: dark` or `mode: light`, treat that as the slide's background mode (e.g. when picking which logo variant to import).
+Themes pair markdown guidance with a runnable `.demo.tsx` template catalog. Copy the needed recipe, shared foundation, and assets into the target deck; do not import another deck. The default appearance is `system`, using scoped CSS variables and `prefers-color-scheme`, with explicit light/dark overrides. A specific venue or user mode wins. The Mastra theme has no footer by default; use optional numbering only when requested.
 
-## Design system (opt-in, per-slide)
+## Design system (per-deck tokens)
 
 A slide can declare its own typed design tokens at the top of `index.tsx`:
 
@@ -167,7 +171,7 @@ export const design: DesignSystem = {
 
 `export` it (rather than plain `const`) so the framework can read the object and inject CSS variables at the canvas root automatically.
 
-The shape is intentionally minimal — it only covers what the Design panel can currently tweak. Anything outside this set (heading sizes, spacing, motion, extra palette colors) belongs as plain hard-coded constants in the slide file.
+The shape is intentionally minimal — it only covers what the Design panel can currently tweak. Keep heading sizes, spacing, and motion as local constants; put all mode-dependent colors in paired, scoped CSS variables. The Mastra catalog uses the Design palette as its light base and documents its separate dark overrides.
 
 There are **two consumption surfaces**, and you should mix them inside the same slide:
 
@@ -283,13 +287,13 @@ For URL-only access:
 const videoUrl = new URL('./assets/intro.mp4', import.meta.url).href;
 ```
 
-**Global assets** — anything reused across decks or themes (company logos, presenter avatars, recurring icons) — live in the project root `assets/` folder. Import them via the `@assets` alias:
+**Global assets** — anything reused across decks or themes (company logos, presenter avatars, recurring icons) — live in the `open-slide/assets/` folder. Import them via the `@assets` alias:
 
 ```tsx
 import logo from '@assets/logos/acme.svg';
 ```
 
-A `themes/*.md` file may name an asset path in its prose (e.g. "use `@assets/logos/acme.svg` in the title slot"); the slide imports it explicitly.
+An `open-slide/themes/*.md` file may name an asset path in its prose (e.g. "use `@assets/logos/acme.svg` in the title slot"); the slide imports it explicitly.
 
 Skip the `assets/` folder entirely for pure-text slides.
 
@@ -310,6 +314,10 @@ The user uploads the real file via the Assets panel, then clicks the placeholder
 **Do not use a placeholder** for decoration, generic "stock photo" filler, hero imagery on a text-heavy slide, or anywhere a typographic / iconographic / illustrative solution would do. If you can carry the page with type, layout, and color — do that. Empty placeholders the user has to fill are friction; only spend that friction when the alternative is worse.
 
 Size the placeholder to the slot it occupies. Pass `width`/`height` when the layout has a fixed image box; omit them when the placeholder fills a flex/grid cell. The `hint` should describe the *content* the user needs ("Q3 revenue chart") not the *role* ("hero image").
+
+## Page order and notes
+
+`export const notes = [...]` is positional: insert, move, or remove its entry with the page in the default export. Supplied explanations, sources, and qualifications belong here when the user asks for clean visuals. Map page numbers to the current array before editing; see `current-slide` for ambiguous targets. Keep cover text and `meta.title` aligned when renaming a deck without changing its URL slug unnecessarily.
 
 ## Page numbers
 
@@ -594,9 +602,9 @@ This applies whenever the *visual element* repeats, not whenever the *data* does
 - [ ] Content lives inside padding (no text kisses the edge).
 - [ ] **For every page, sum (font_size × line_height × lines) + gaps + 2×padding ≤ 1080px.** If close, split the page. No `overflow: auto` escape hatches.
 - [ ] No bullet wraps to a second line at the chosen font size.
-- [ ] One coherent visual direction across every page (palette + type scale).
+- [ ] One coherent visual direction across every page (palette + type scale). New templates are verified in light and dark; system mode follows OS preference, and explicit overrides win.
 - [ ] Slide declares a top-level `export const design: DesignSystem = { … }` and references the values via `var(--osd-X)` (use `design.X` only when you need a JS number for arithmetic). Only omit the `design` const for a one-off slide whose palette is intentionally locked.
-- [ ] One idea per page.
+- [ ] One idea per page. Page order and positional speaker notes match; no unsolicited footer or presenter line.
 - [ ] Visually repeated elements (cards, tiles, logo rows) are rendered as explicit `<Component />` instances, not via `array.map` over a data list.
 - [ ] All imported assets exist on disk — slide-local under `slides/<id>/assets/`, or global under `assets/` (imported via `@assets/...`).
 - [ ] Every `<ImagePlaceholder>` corresponds to a real image the user must supply — not decorative filler. If it could be replaced by typography or layout, it should be.
@@ -606,7 +614,7 @@ This applies whenever the *visual element* repeats, not whenever the *data* does
 
 ## Anti-patterns
 
-- ❌ Walls of text. If a page has more than ~40 words, split it.
+- ❌ Walls of text. Prefer concise copy; split dense prose. A readable code example or requested comparison is not governed by an arbitrary word count.
 - ❌ Using the full canvas for body copy. Respect 100–160px padding.
 - ❌ Overflowing 1080px vertically. Cropped content is invisible — split the page.
 - ❌ `overflow: auto` / `overflow: scroll` / `overflow: hidden` to "hide" too much content. The canvas doesn't scroll; you've just hidden the bug.

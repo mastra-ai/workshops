@@ -64,15 +64,13 @@ export default [Cover] satisfies Page[];
 
 The dashboard auto-discovers any deck under `slides/`.
 
-### Design conventions
+### Theme templates and authoring skills
 
-The four shipping decks share a brand palette so they feel like one talk series:
+Start from the [Mastra theme catalog](open-slide/themes/mastra.md) and its [runnable recipes](open-slide/themes/mastra.demo.tsx), previewed at [localhost:5173/themes/mastra](http://localhost:5173/themes/mastra). The [five-page workshop starter](slides/mastra-workshop-template/index.tsx) uses the same palettes. The catalog includes minimal covers, h2 statements, highlighted code, floating feature pills, screenshot/media layouts, and QR closers, plus optional workshop pages.
 
-- Background `#020202`, foreground `#d9d9d9`, accent `#18fb6f`.
-- Geist for display + body, Geist Mono for code.
-- Canvas is fixed at 1920×1080. Every slide must fit without scrolling.
+Every recipe supports light and dark appearance and follows the system by default. Set `appearance` to `light` or `dark` for a fixed venue/export choice. Theme previews accept `?appearance=light`, `?appearance=dark`, or `?appearance=system`. Source screenshots, videos, and external pages retain their own colors.
 
-Existing decks expose their tokens as named exports (`palette`, `font`, atoms like `Eyebrow`, `Footer`, `Pill`, `Stage`, `SectionTitle`, `SubTitle`). Copy from the most recent one when starting a new deck.
+The repo’s [slide-authoring skill](.agents/skills/slide-authoring/SKILL.md) and [presentation patterns](.agents/skills/slide-authoring/references/presentation-patterns.md) capture the content and layout conventions. Copy only the necessary recipe and its helpers into a deck. Keep bespoke timeline content and research in the talk that owns it. If updating skills from the upstream runtime with `sync:skills`, review the diff to retain these repo-specific conventions.
 
 ## Project Structure
 
@@ -84,6 +82,8 @@ Existing decks expose their tokens as named exports (`palette`, `font`, atoms li
 │   └── processors-workshop/
 ├── examples/                       # Workshop code examples
 ├── open-slide/                     # Presentation runtime
+│   ├── themes/                     # Theme docs + runnable template catalog
+│   ├── assets/                     # Shared brand assets and public QR codes
 │   ├── open-slide.config.ts
 │   ├── package.json
 │   └── tsconfig.json

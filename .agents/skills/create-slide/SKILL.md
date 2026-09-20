@@ -1,91 +1,46 @@
 ---
 name: create-slide
-description: Use this skill when the user wants to create, draft, author, or generate new slides / a presentation in this open-slide repo. Triggers on phrases like "make slides about X", "create a presentation", "draft slides for", "new slide", or when the user asks to add content under `slides/`. Do NOT use for editing the framework itself — only for authoring content inside `slides/<id>/`.
+description: Create or extend a presentation in this open-slide repo using its theme templates. Use for new decks, new pages, and slide content; not for framework implementation.
 ---
 
-# Create a slide in open-slide
+# Create or extend a deck
 
-This skill owns the **workflow** for drafting a new deck. The technical reference — file contract, 1920×1080 canvas, type scale, palette, layout, assets — lives in the **`slide-authoring`** skill. Read that skill whenever you need details on *how* a page is structured. This skill assumes you'll consult it before writing code.
+Use [slide-authoring](../slide-authoring/SKILL.md) for the file contract and canvas constraints. For Mastra layouts and talk conventions, read its [presentation patterns](../slide-authoring/references/presentation-patterns.md) and the theme catalog.
 
-You only write files under `slides/<id>/`. Never modify `open-slide/package.json`, `open-slide/open-slide.config.ts`, or existing slides.
+## Resolve the scope first
 
-## Step 1 — Pick a theme
+- New deck: create `slides/<id>/index.tsx` plus any local `assets/`.
+- Add a page to an existing deck: inspect its default page array, preserve its design and established preferences, and insert in the requested position. Move the matching `notes` entry with it.
+- For “this slide”, consult [current-slide](../current-slide/SKILL.md). If a numbered page conflicts with the named content (e.g. page 13 is a video but the user says “website embed”), resolve that conflict before replacing unrelated content.
+- Limit ordinary authoring edits to the requested deck. Theme/skill maintenance is a separate, explicitly requested workflow.
 
-List files under `themes/`. If any theme markdown files exist (anything other than `README.md`), call `AskUserQuestion` with each theme id as an option plus a final **"no theme — design from scratch"** option.
+## Reuse the actual theme
 
-- If the user picks a theme: read `themes/<id>.md` end-to-end. The theme's palette, typography, layout, and Title/Footer components are now authoritative — copy them directly into the slide. **Also set `theme: '<theme-id>'` on the `meta` export in `index.tsx`** (e.g. `export const meta: SlideMeta = { title: '…', theme: '<theme-id>' };`) so the slide back-links to the theme (chip on the slide card + listing on `/themes/<id>`). In Step 2, skip the **aesthetic direction** question (the theme already commits to one direction); you still need the topic itself, so confirm it before moving on. Page count, text density, and motion are independent of theme — ask those normally.
-- If the user picks "no theme", or `themes/` is empty (or contains only `README.md`): proceed to Step 2 unchanged.
+Themes live under **`open-slide/themes/`**, assets under **`open-slide/assets/`**. The installed runtime lives under `open-slide/`; repo slides live alongside it.
 
-If you skip the aesthetic question because a theme was picked, restate the theme name in Step 2 so the user can correct course before you start writing.
+When the user picks Mastra, read `open-slide/themes/mastra.md` and copy the needed recipe and its helpers from `open-slide/themes/mastra.demo.tsx`. The runnable demo is the template catalog, not merely loose inspiration. Set `meta.theme: 'mastra'`. Do not copy the whole catalog into a talk or import from another finished deck.
 
-## Step 2 — Clarify requirements (MUST ask before writing code)
+For a new deck without an established theme, list available themes and ask only if the choice cannot be inferred. Continue an existing deck in its current theme without asking again.
 
-**Before writing any code, lock in the four key style decisions below via `AskUserQuestion`.** They shape every downstream choice (layout, type scale, asset needs, motion code), so locking them in up front avoids rework. Only skip a question when the user's original message already gave an unambiguous answer for it — and if you skip, restate your assumption so they can correct it.
+## Clarify only the missing decisions
 
-**Topic comes first.** A meaningful aesthetic recommendation requires knowing what the deck is about. If the user's initial request is thin ("make me a deck", "draft some slides"), make a *separate* `AskUserQuestion` call first to gather topic, audience, and any draft outline. Skip this only if the topic is already clear from the user's message — in which case restate your reading of the topic in the next call so they can correct course.
+Use the request and conversation to determine topic/audience, approximate length, density, and motion. Ask concise questions only for choices that materially affect the result and are not already supplied. A request for one minimal title slide is enough to begin; do not ask the full new-deck questionnaire for an incremental edit.
 
-Then ask these four in a single `AskUserQuestion` call (multi-question form):
+Mastra defaults from this repo:
 
-1. **Aesthetic direction** — propose 3 visual directions tailored to *this* topic. Do **not** pull from a fixed preset list. Each option must combine a vibe word + a concrete visual cue (palette, typography, motif) so the user can picture it; bare labels like "minimal" or "corporate" alone are too vague. The three options should feel meaningfully different from each other — not three flavors of the same idea.
+- A talk uses a Talk badge, a centered title, no presenter line unless requested, and no deck-name or slide-count footer.
+- A workshop can use the optional welcome, agenda, and host recipes. “Talk” and “workshop” are not interchangeable.
+- New templates/decks support **system, light, and dark**, with system the default. A venue-specific request for light mode is an explicit override; preserve it.
+- Use h1 for the cover, h2 for section/statement slides. Heading-only means no explanatory body; put supplied elaboration in speaker notes.
+- Use restrained motion where it serves the layout. Keep QR codes fixed.
 
-   How options should shift with topic:
-   - *"Intro to Rust for backend engineers"* → **rust-orange technical editorial** (warm rust/charcoal, mono headings, code-grid layout) · **blueprint dev-doc** (cyan grid on near-black, monospace, schematic feel) · **brutalist terminal** (lime-on-black, ASCII rules, no-nonsense)
-   - *"Q2 product roadmap for stakeholders"* → **calm corporate clean** (off-white, single accent, generous whitespace) · **confident editorial** (large display serif, tight grid, one bold accent) · **data-forward dashboard** (charts as hero, muted neutrals + status colors)
-   - *"Kindergarten parent night"* → **playful crayon** (paper texture, hand-drawn accents, primary colors) · **soft pastel storybook** (peach/mint, rounded type, illustrated icons) · **warm photo-led** (full-bleed kid photos, simple captions)
+## Build and verify
 
-   Mark the option that best fits the topic and audience as "(Recommended)" so the user has a sensible default. (`AskUserQuestion` already auto-adds "Other" — don't add a generic catch-all yourself.)
+1. Choose the smallest set of recipes that carries the requested content. Timeline chronology and historical feature mapping are bespoke: don't seed future decks with this talk’s years, model names, or claims.
+2. Write a literal `meta.createdAt` only for a new deck, from `node -e "console.log(new Date().toISOString())"`. Preserve it when editing.
+3. Keep explicit JSX instances for cards/pills, one source node per editable instance. Use the theme’s shared components within the single deck file.
+4. Keep the default-export page order and `notes` array in sync after inserts, moves, and deletions.
+5. Verify the changed page at 1920×1080. New reusable layouts must work in both palettes and reduced motion. Check embeds actually render, imported assets resolve, QR destinations match their links, and videos pause off-slide.
+6. Reuse the running dev server. Start it only when authorized; prior authorization in the task persists. Don't start duplicate servers.
 
-2. **Page count** — rough length. Offer brackets: 3–5 (short), 6–10 (standard), 11–20 (deep dive), custom.
-3. **Text density per page** — how much copy lives on each page? Offer: minimal (one line / big number), light (heading + 2–3 bullets), standard (heading + 4–5 bullets or short paragraph), dense (multi-column / detailed). This directly drives type scale and layout.
-4. **Motion** — does the user want CSS/React animations and transitions, or a fully static deck? Offer: static (no motion), subtle (fades / entrance only), rich (keyframes, staggered reveals, looping visuals). If animated, plan to use CSS `@keyframes` / inline `style` + `useEffect`; no extra libraries.
-
-After those four, ask follow-ups **only if still unclear**: brand colors, required assets. Don't pad the conversation with questions already answered.
-
-## Step 3 — Pick a slide id
-
-Use **kebab-case**, short, descriptive. Examples: `rust-intro`, `q2-roadmap`, `team-offsite-2026`. Check `slides/` to avoid collisions.
-
-## Step 4 — Plan the structure
-
-Sketch the slide as a list of page roles before writing code. Common page types:
-
-| Role             | Purpose                                       |
-| ---------------- | --------------------------------------------- |
-| Cover            | Title + subtitle, strong visual               |
-| Agenda           | What's coming (3–5 items)                     |
-| Section divider  | Big label between chapters                    |
-| Content          | Heading + 2–5 bullets OR heading + one visual |
-| Big number       | One statistic the size of the canvas          |
-| Quote            | Pull-quote with attribution                   |
-| Comparison       | Two-column before/after or A vs B             |
-| Closing          | CTA, thanks, contact                          |
-
-**Rule of thumb**: one idea per page. If you're tempted to put two, split them.
-
-If the deck topic naturally calls for specific real images the user must supply (product screenshots, team photos, customer dashboards), plan where those go and use `<ImagePlaceholder>` from `@open-slide/core` — see the **Image placeholders** section in `slide-authoring`. Default is **no placeholders**: only insert one when a real image is genuinely required.
-
-## Step 5 — Commit to a visual direction
-
-Pick one coherent palette / type scale / aesthetic and hold it across every page. The full set of constraints (palette structure, type scale, padding, aesthetic options) lives in `slide-authoring` — apply it.
-
-**Default: declare a top-level `export const design: DesignSystem = { … }`** at the top of `index.tsx` (after imports) using the chosen palette / type scale, and reference the values via `var(--osd-X)` from inline styles. This keeps the slide tweakable from the Design panel after generation, which is what the user almost always wants. Only skip the `design` const for a one-off slide whose palette is intentionally locked and not meant to be re-themed — in that case, fall back to the local `palette` constants pattern. The "Design system" section of `slide-authoring` covers the format and available tokens.
-
-Consult the `frontend-design` skill for deeper aesthetic guidance if the user wants something bold.
-
-## Step 6 — Write `slides/<id>/index.tsx`
-
-Read the **`slide-authoring`** skill before writing — it covers the file contract, canvas rules, type scale, spacing, and asset imports, and it includes a starter template you can copy. Don't duplicate that knowledge here; use it.
-
-## Step 7 — Self-review
-
-Run the checklist in `slide-authoring` ("Self-review before finishing"). It covers structural correctness, layout discipline, and asset existence.
-
-## Step 8 — Hand off to the user
-
-Tell the user:
-
-- The slide id and file path you created.
-- That the dev server will hot-reload — they can open `http://localhost:5173/s/<id>` (or refresh the home page).
-- If dev isn't running: `pnpm --dir open-slide dev` from the repo root.
-
-Don't run the dev server yourself unless asked.
+Report the concrete result and a useful preview link. Keep simple edit responses short.

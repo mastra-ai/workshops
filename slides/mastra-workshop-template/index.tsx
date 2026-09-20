@@ -1,359 +1,101 @@
-import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
-import { ImagePlaceholder, useSlidePageNumber } from '@open-slide/core';
+import type { ReactNode } from 'react'
+import type { DesignSystem, Page, SlideMeta } from '@open-slide/core'
+import greed from '@assets/fonts/GreedVF.woff2'
+import wordmark from '@assets/Mastra wordmark black.svg'
+import mastraQr from '@assets/qr/mastra.png'
 
-import mastraLogoWhite from '@assets/Mastra logo white.svg';
-import mastraWordmarkWhite from '@assets/Mastra wordmark white.png';
-
+// Five-page workshop starter copied from the Mastra catalog. Host details are optional.
 export const design: DesignSystem = {
-  palette: {
-    bg: '#07090b',
-    text: '#f3f5f7',
-    accent: '#7AFF78',
-  },
+  palette: { bg: '#f5f6f4', text: '#101813', accent: '#19783a' },
   fonts: {
-    display: '"Greed", "Inter", system-ui, -apple-system, sans-serif',
-    body: '"Greed", "Inter", system-ui, -apple-system, sans-serif',
+    display: '"Greed", "Inter", system-ui, sans-serif',
+    body: '"Greed", "Inter", system-ui, sans-serif',
   },
-  typeScale: {
-    hero: 108,
-    body: 34,
-  },
+  typeScale: { hero: 108, body: 34 },
   radius: 22,
-};
+}
 
-const palette = {
-  shell: '#040506',
-  panel: '#090c11',
-  border: '#1f2530',
-  textSoft: '#cfd6de',
-  textMuted: '#8f97a3',
-} as const;
+type Appearance = 'system' | 'light' | 'dark'
+// Lock this to light for a bright venue. System follows OS changes live through CSS.
+const appearance: Appearance = 'system'
+const darkTokens = `
+  --mw-bg: #07090b; --mw-text: #f3f5f7; --mw-accent: #7aff78;
+  --mw-shell: #040506; --mw-panel: #090c11; --mw-border: #29332d;
+  --mw-soft: #cfd6de; --mw-muted: #a2aca5; --mw-subtle: #111913;
+  --mw-pill: #142619; --mw-pill-strong: #23442b; --mw-quiet: #141918;
+  --mw-keyword: #d4adf0; --mw-string: #99deac; --mw-property: #9dc9fb;
+  --mw-highlight: rgba(255,222,70,.17); --mw-shadow: rgba(0,0,0,.3);
+  --mw-action: #7aff78; --mw-action-text: #102415; color-scheme: dark;
+`
+export const themeCss = `
+  @font-face { font-family: Greed; src: url(${greed}) format('woff2'); font-weight: 100 900; font-display: swap; }
+  .mastra-workshop-template {
+    --mw-bg: var(--osd-bg, #f5f6f4); --mw-text: var(--osd-text, #101813); --mw-accent: var(--osd-accent, #19783a);
+    --mw-shell: #e6ebe5; --mw-panel: #fff; --mw-border: #c4cec5;
+    --mw-soft: #25362b; --mw-muted: #46554b; --mw-subtle: #f3f7f1;
+    --mw-pill: #edf6e8; --mw-pill-strong: #d8efcf; --mw-quiet: #f3f5f2;
+    --mw-keyword: #75419a; --mw-string: #19783a; --mw-property: #245a96;
+    --mw-highlight: rgba(255,222,70,.26); --mw-shadow: rgba(16,24,19,.14);
+    --mw-action: #19783a; --mw-action-text: #fff; color-scheme: light;
+    width: 100%; height: 100%; position: relative; isolation: isolate;
+    background: var(--mw-bg); color: var(--mw-text);
+    font-family: var(--osd-font-body, Greed, system-ui, sans-serif); letter-spacing: .015em;
+  }
+  .mastra-workshop-template, .mastra-workshop-template * { box-sizing: border-box; }
+  .mastra-workshop-template[data-appearance="dark"] { ${darkTokens} }
+  @media (prefers-color-scheme: dark) {
+    .mastra-workshop-template[data-appearance="system"] { ${darkTokens} }
+  }
+  .mastra-workshop-template a:focus-visible, .mastra-workshop-template button:focus-visible { outline: 4px solid var(--mw-accent); outline-offset: 6px; }
 
-const fill = {
-  width: '100%',
-  height: '100%',
-  position: 'relative' as const,
-  overflow: 'hidden',
-  background: 'var(--osd-bg)',
-  color: 'var(--osd-text)',
-  fontFamily: 'var(--osd-font-body)',
-  letterSpacing: '0.015em',
-};
+`
+// One font/style registration; HMR replaces it instead of leaving stale rules.
+if (typeof document !== 'undefined') {
+  const id = 'mastra-workshop-template-styles'
+  const style = document.getElementById(id) ?? document.createElement('style')
+  style.id = id
+  if (style.textContent !== themeCss) style.textContent = themeCss
+  if (!style.isConnected) document.head.appendChild(style)
+}
 
-const WorkshopBadge = ({ compact = false }: { compact?: boolean }) => (
-  <div
-    style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: compact ? 8 : 10,
-      background: '#0d1219',
-      border: '2px solid #222222',
-      borderRadius: 999,
-      padding: compact ? '10px 18px' : '12px 22px',
-      fontSize: compact ? 22 : 28,
-      fontWeight: 500,
-      lineHeight: 1.5,
-      letterSpacing: '0.12em',
-      textTransform: 'uppercase',
-      color: '#e7ebef',
-    }}
-  >
-    <span
-      style={{
-        width: compact ? 20 : 24,
-        height: compact ? 20 : 24,
-        borderRadius: '50%',
-        border: '2px solid #e7ebef',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <span
-        style={{
-          width: compact ? 5 : 6,
-          height: compact ? 5 : 6,
-          borderRadius: '50%',
-          background: '#e7ebef',
-          display: 'inline-block',
-        }}
-      />
-    </span>
-    <span>Workshop</span>
-  </div>
-);
+const MastraPage = ({ children, mode = appearance }: { children: ReactNode; mode?: Appearance }) => <div className="mastra-workshop-template" data-appearance={mode}>{children}</div>
 
-const Footer = ({ label = 'Mastra Workshop' }: { label?: string }) => {
-  const { current, total } = useSlidePageNumber();
+const Frame = ({ children }: { children: ReactNode }) => <>
+  <div style={{ position: 'absolute', inset: 56, borderRadius: 64, background: 'var(--mw-shell)' }} />
+  <div style={{ position: 'absolute', inset: 92, borderRadius: 42, border: '1px solid var(--mw-border)', background: 'var(--mw-panel)', padding: '88px 96px' }}>{children}</div>
+</>
+const Center = ({ children }: { children: ReactNode }) => <div style={{ position: 'absolute', inset: 96, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 36 }}>{children}</div>
+const Title = ({ children }: { children: ReactNode }) => <h1 style={{ margin: 0, maxWidth: 1300, fontFamily: 'var(--osd-font-display)', fontSize: 'var(--osd-size-hero, 108px)', fontWeight: 520, lineHeight: 1.1, textWrap: 'balance' }}>{children}</h1>
+const Heading = ({ children, size = 94 }: { children: ReactNode; size?: number }) => <h2 style={{ margin: 0, maxWidth: 1440, fontSize: size, fontWeight: 520, lineHeight: 1.15, textWrap: 'balance' }}>{children}</h2>
+const Wordmark = () => <div role="img" aria-label="Mastra" style={{ width: 332, height: 84, background: 'var(--mw-text)', mask: `url("${wordmark}") center / contain no-repeat`, WebkitMask: `url("${wordmark}") center / contain no-repeat` }} />
+const EventBadge = ({ children = 'Talk' }: { children?: ReactNode }) => <div style={{ display: 'inline-flex', border: '1px solid var(--mw-border)', background: 'var(--mw-subtle)', borderRadius: 999, padding: '12px 22px', fontSize: 28, letterSpacing: '.1em', textTransform: 'uppercase' }}>{children}</div>
 
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 112,
-        right: 112,
-        bottom: 44,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: 24,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        color: palette.textMuted,
-      }}
-    >
-      <span>{label}</span>
-      <span>{String(current).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
-    </div>
-  );
-};
+// Fixed overlay: deliberately white in both themes for scanning. Use a real generated QR asset.
+const QrOverlay = ({ src, href, side = 'left', opacity = .8 }: { src: string; href: string; side?: 'left' | 'right'; opacity?: number }) => <a href={href} target="_blank" rel="noreferrer" aria-label={`Scan or open ${href}`} style={{ position: 'absolute', bottom: 36, [side]: 36, zIndex: 2, opacity, padding: 24, borderRadius: 18, background: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,.16)' }}>
+  <img src={src} alt={`QR code for ${href}`} style={{ display: 'block', width: 200, height: 200, imageRendering: 'pixelated' }} />
+</a>
+const AgentCard = ({ title, children }: { title: string; children: ReactNode }) => <div style={{ border: '1px solid var(--mw-border)', borderRadius: 22, background: 'var(--mw-subtle)', padding: '24px 30px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}><h3 style={{ margin: 0, fontSize: 38, fontWeight: 520, color: 'var(--mw-accent)' }}>{title}</h3><p style={{ margin: 0, fontSize: 32, lineHeight: 1.4, color: 'var(--mw-soft)' }}>{children}</p></div>
 
-const Frame = ({ children }: { children: React.ReactNode }) => (
-  <>
-    <div style={{ position: 'absolute', inset: 56, borderRadius: 64, background: palette.shell }} />
-    <div
-      style={{
-        position: 'absolute',
-        inset: 92,
-        borderRadius: 42,
-        border: `1px solid ${palette.border}`,
-        background: palette.panel,
-        padding: '88px 96px',
-      }}
-    >
-      {children}
-    </div>
-    <Footer />
-  </>
-);
+const Cover: Page = () => <MastraPage><Frame>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Wordmark /><EventBadge>Workshop</EventBadge></div>
+  <div style={{ position: 'absolute', top: 172, bottom: 88, left: 96, right: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}><Title>Your workshop<br />title goes here</Title></div>
+</Frame></MastraPage>
+const Welcome: Page = () => <MastraPage><Frame><EventBadge>Workshop</EventBadge><div style={{ marginTop: 120 }}><Heading>Welcome!</Heading><p style={{ fontSize: 41, lineHeight: 1.4, maxWidth: 1120, color: 'var(--mw-soft)' }}>Build one useful agent together.</p></div></Frame></MastraPage>
+const Agenda: Page = () => <MastraPage><Frame><Heading>What you’ll learn</Heading><div style={{ marginTop: 56, display: 'flex', flexDirection: 'column', gap: 34, fontSize: 46, lineHeight: 1.4 }}><div><span style={{ color: 'var(--mw-accent)' }}>1.</span> Build an agent</div><div><span style={{ color: 'var(--mw-accent)' }}>2.</span> Add a capability</div><div><span style={{ color: 'var(--mw-accent)' }}>3.</span> Put it to work</div></div></Frame></MastraPage>
+const Hosts: Page = () => <MastraPage><Frame><Heading>Meet your hosts</Heading><div style={{ marginTop: 56, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, height: 440 }}><AgentCard title="Host name">Session lead</AgentCard><AgentCard title="Host name">Product expert</AgentCard></div></Frame></MastraPage>
 
-const CornerLogo = () => (
-  <a
-    href="https://mastra.ai"
-    target="_blank"
-    rel="noreferrer"
-    style={{ position: 'absolute', top: 90, right: 118, display: 'inline-flex', alignItems: 'center', opacity: 0.86 }}
-  >
-    <img src={mastraLogoWhite} alt="Mastra logo" style={{ width: 80, height: 48, objectFit: 'contain' }} />
-  </a>
-);
+const Questions: Page = () => <MastraPage><Frame><Center><Heading>Questions?</Heading><p style={{ margin: '48px 0 0', fontSize: 34, color: 'var(--mw-muted)' }}>Try it now</p></Center></Frame><QrOverlay src={mastraQr} href="https://mastra.ai/" /></MastraPage>
 
-const RightAnchor = () => (
-  <div
-    aria-hidden
-    style={{
-      position: 'absolute',
-      right: 154,
-      top: 286,
-      width: 392,
-      height: 392,
-      borderRadius: '50%',
-      border: '1px dashed #2a3340',
-      background: 'radial-gradient(circle at 50% 50%, rgba(122,255,120,0.1) 0%, rgba(122,255,120,0.02) 44%, rgba(122,255,120,0) 70%)',
-      opacity: 0.78,
-      pointerEvents: 'none',
-    }}
-  >
-    <div style={{ position: 'absolute', inset: 54, borderRadius: '50%', border: '1px dashed #253246', opacity: 0.84 }} />
-    <div style={{ position: 'absolute', right: 26, top: 210, width: 20, height: 20, borderRadius: '50%', background: 'var(--osd-accent)', boxShadow: '0 0 22px rgba(122,255,120,0.42)' }} />
-  </div>
-);
-
-const WhoAreWeAccent = () => (
-  <div
-    aria-hidden
-    style={{
-      position: 'absolute',
-      right: 122,
-      top: 350,
-      width: 360,
-      height: 246,
-      borderRadius: 24,
-      border: '1px solid rgba(122,255,120,0.12)',
-      background: 'linear-gradient(160deg, rgba(122,255,120,0.06) 0%, rgba(122,255,120,0.01) 34%, rgba(122,255,120,0) 74%)',
-      opacity: 0.74,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
-      pointerEvents: 'none',
-    }}
-  >
-    <div style={{ position: 'absolute', left: 28, right: 28, top: 54, height: 1, background: 'rgba(122,255,120,0.12)' }} />
-    <div style={{ position: 'absolute', left: 28, top: 86, width: 170, height: 10, borderRadius: 999, background: 'rgba(122,255,120,0.14)' }} />
-    <div style={{ position: 'absolute', left: 28, top: 118, width: 118, height: 10, borderRadius: 999, background: 'rgba(122,255,120,0.1)' }} />
-    <div style={{ position: 'absolute', right: 68, top: 104, width: 10, height: 10, borderRadius: '50%', background: 'rgba(122,255,120,0.68)' }} />
-    <div style={{ position: 'absolute', right: 52, top: 164, width: 8, height: 8, borderRadius: '50%', background: 'rgba(122,255,120,0.46)' }} />
-  </div>
-);
-
-const AgendaItem = ({ number, title }: { number: string; title: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '18px 0', borderBottom: '1px solid rgba(122,255,120,0.08)' }}>
-    <span
-      style={{
-        width: 46,
-        height: 46,
-        borderRadius: 14,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 28,
-        fontWeight: 610,
-        lineHeight: 1,
-        letterSpacing: '0.01em',
-        color: '#06210f',
-        background: 'linear-gradient(180deg, #86ff80 0%, #73f476 100%)',
-        boxShadow: '0 0 18px rgba(122,255,120,0.24)',
-      }}
-    >
-      {number}
-    </span>
-    <h3 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 46, fontWeight: 500, lineHeight: 1.12, letterSpacing: '0.002em', color: '#e2e8ee' }}>
-      {title}
-    </h3>
-  </div>
-);
-
-const AgendaInfo = ({ text }: { text: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '18px 0 10px' }}>
-    <span style={{ width: 46, height: 46, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 600, lineHeight: 1, color: '#8be889', background: 'rgba(122,255,120,0.1)', border: '1px solid rgba(122,255,120,0.2)' }} aria-hidden>
-      i
-    </span>
-    <p style={{ margin: 0, fontSize: 36, fontWeight: 470, lineHeight: 1.2, letterSpacing: '0.002em', color: '#b8c5d1' }}>{text}</p>
-  </div>
-);
-
-const HostCard = ({ name, role, detail, placeholderHint }: { name: string; role: string; detail: string; placeholderHint: string }) => (
-  <div
-    style={{
-      flex: 1,
-      borderRadius: 28,
-      padding: '18px 20px 18px',
-      background: 'linear-gradient(180deg, rgba(8,14,11,0.78) 0%, rgba(5,10,8,0.58) 100%)',
-      border: '1px solid rgba(122,255,120,0.16)',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'stretch', gap: 18 }}>
-      <div style={{ width: 216, minWidth: 216, height: 236, borderRadius: 20, border: '1px solid rgba(122,255,120,0.2)', padding: 8, background: 'linear-gradient(180deg, rgba(122,255,120,0.12) 0%, rgba(122,255,120,0.04) 100%)' }}>
-        <ImagePlaceholder hint={placeholderHint} width={200} height={220} />
-      </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <h3 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 62, lineHeight: 1.02, fontWeight: 520, color: '#eef3f7' }}>{name}</h3>
-        <p style={{ margin: '14px 0 0 0', fontSize: 25, lineHeight: 1.24, color: '#a8b4bf', fontWeight: 450 }}>
-          <span style={{ color: 'var(--osd-accent)' }}>•</span> {role}
-        </p>
-        <p style={{ margin: '10px 0 0 0', fontSize: 25, lineHeight: 1.24, color: '#a8b4bf', fontWeight: 450 }}>
-          <span style={{ color: 'var(--osd-accent)' }}>•</span> {detail}
-        </p>
-        <div style={{ marginTop: 'auto', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <div style={{ borderRadius: 999, padding: '7px 11px', color: '#a9b4bf', background: 'rgba(122,255,120,0.028)', border: '1px solid rgba(122,255,120,0.08)', fontSize: 18 }}>@handle</div>
-          <div style={{ borderRadius: 999, padding: '7px 11px', color: '#a9b4bf', background: 'rgba(122,255,120,0.028)', border: '1px solid rgba(122,255,120,0.08)', fontSize: 18 }}>linkedin</div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const QuestionCard = ({ title, body }: { title: string; body: string }) => (
-  <div style={{ width: 720, borderRadius: 28, border: '1px solid #26303c', background: 'linear-gradient(170deg, rgba(12,17,22,0.92) 0%, rgba(7,10,14,0.88) 100%)', padding: '28px 32px', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}>
-    <div style={{ fontSize: 22, letterSpacing: '0.12em', textTransform: 'uppercase', color: palette.textMuted }}>{title}</div>
-    <p style={{ margin: '18px 0 0 0', fontSize: 36, lineHeight: 1.22, color: '#dde5ec' }}>{body}</p>
-  </div>
-);
-
-const Cover: Page = () => (
-  <div style={fill}>
-    <Frame>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <img src={mastraWordmarkWhite} alt="Mastra wordmark" style={{ width: 332, height: 84, objectFit: 'contain' }} />
-        <WorkshopBadge />
-      </div>
-      <h1 style={{ margin: '120px 0 0 0', fontFamily: 'var(--osd-font-display)', fontSize: 'var(--osd-size-hero)', fontWeight: 520, fontStretch: '112%', letterSpacing: '0.015em', lineHeight: 1.1, maxWidth: 1280, textWrap: 'balance' }}>
-        Replace with your workshop title
-      </h1>
-      <p style={{ margin: '34px 0 0 0', fontSize: 41, lineHeight: 1.34, color: palette.textSoft, maxWidth: 1180 }}>
-        Add a one-sentence description explaining what attendees will learn and why this session matters.
-      </p>
-    </Frame>
-  </div>
-);
-
-const Welcome: Page = () => (
-  <div style={fill}>
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 102px' }}>
-      <RightAnchor />
-      <CornerLogo />
-      <div style={{ marginTop: 158, maxWidth: 1140, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <WorkshopBadge compact />
-        <h2 style={{ margin: '28px 0 0 0', fontSize: 108, fontWeight: 515, fontStretch: '112%', lineHeight: 1.08, letterSpacing: '0.015em', maxWidth: 860 }}>Welcome!</h2>
-        <p style={{ margin: '22px 0 0 0', fontSize: 41, lineHeight: 1.36, fontWeight: 400, color: palette.textSoft, maxWidth: 1100, textWrap: 'balance' }}>
-          Introduce the session, set expectations, and point attendees toward the chat, repo, or link you want them to use during the workshop.
-        </p>
-        <div style={{ marginTop: 44, display: 'inline-flex', alignItems: 'center', gap: 14, border: '1px solid rgba(122,255,120,0.24)', color: '#9afc96', borderRadius: 999, padding: '16px 30px 16px 20px', fontSize: 30, fontWeight: 500, lineHeight: 1, letterSpacing: '0.008em', background: 'linear-gradient(180deg, rgba(9,20,14,0.92) 0%, rgba(6,15,10,0.9) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 24px rgba(0,0,0,0.28)' }}>
-          <span style={{ width: 32, height: 32, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(122,255,120,0.08)', border: '1px solid rgba(122,255,120,0.2)' }}>→</span>
-          <span>Replace with the primary attendee action</span>
-        </div>
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-const WhatYouWillLearn: Page = () => (
-  <div style={fill}>
-    <CornerLogo />
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 96px' }}>
-      <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 94, fontWeight: 530, lineHeight: 1.03, letterSpacing: '0.006em', color: '#f3f7f9' }}>What you&apos;ll learn</h2>
-      <div style={{ marginTop: 32, width: 1500, borderRadius: 30, padding: '12px 22px 6px', background: 'linear-gradient(180deg, rgba(8,14,11,0.64) 0%, rgba(5,9,8,0.42) 100%)', border: '1px solid rgba(122,255,120,0.12)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <AgendaItem number="1" title="How to build an agent with Mastra" />
-        <AgendaItem number="2" title="New patterns shaping the future of agents" />
-        <AgendaItem number="3" title="Real production use cases for agents" />
-        <AgendaItem number="4" title="How to connect agents to your frontend" />
-        <AgendaItem number="5" title="How client-side tools unlock richer agentic assistants" />
-        <AgendaInfo text="Raise your hand anytime! We&apos;ll answer questions throughout and at the end." />
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-const MeetYourHosts: Page = () => (
-  <div style={fill}>
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 96px' }}>
-      <WhoAreWeAccent />
-      <CornerLogo />
-      <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 94, fontWeight: 530, lineHeight: 1.03, letterSpacing: '0.006em', color: '#f3f7f9' }}>Meet your hosts</h2>
-      <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 950 }}>
-        <HostCard name="Host One" role="Workshop lead" detail="Add one credibility point or facilitation role" placeholderHint="Host one headshot" />
-        <HostCard name="Host Two" role="Product or platform expert" detail="Add one short supporting detail about what they cover" placeholderHint="Host two headshot" />
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
-const Questions: Page = () => (
-  <div style={fill}>
-    <CornerLogo />
-    <div style={{ position: 'absolute', inset: 0, padding: '92px 112px 96px' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: 980 }}>
-        <div style={{ fontSize: 24, fontWeight: 500, lineHeight: 1.4, letterSpacing: '0.12em', textTransform: 'uppercase', color: palette.textMuted }}>Questions</div>
-        <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 94, fontWeight: 530, lineHeight: 1.03, letterSpacing: '0.006em', color: '#f3f7f9' }}>Open the floor.</h2>
-        <p style={{ margin: 0, fontSize: 38, lineHeight: 1.3, color: palette.textSoft, maxWidth: 900 }}>
-          Use this slide to invite questions, clarify how people should participate, and transition into discussion without inventing a bespoke interaction pattern.
-        </p>
-      </div>
-      <div style={{ marginTop: 42, display: 'flex', gap: 22 }}>
-        <QuestionCard title="Prompt" body="What would you like to see explained live before we wrap?" />
-        <QuestionCard title="Facilitation" body="Replace with your preferred Q&A instructions, follow-up CTA, or next-step handoff." />
-      </div>
-    </div>
-    <Footer />
-  </div>
-);
-
+export const notes = [
+  'Replace the title. Keep host names and subtitles off the cover unless requested.',
+  'Set expectations and share the workshop repo or primary attendee action verbally.',
+  'Replace these three goals with the actual workshop outcomes.',
+  'Optional host slide: replace the names and roles, or remove this page and its notes together.',
+  'Leave this up during questions. The QR code opens https://mastra.ai/.',
+]
 export const meta: SlideMeta = {
   title: 'Mastra Workshop Template',
   theme: 'mastra',
   createdAt: '2026-06-04T13:45:16.417Z',
-};
-
-export default [Cover, Welcome, WhatYouWillLearn, MeetYourHosts, Questions] satisfies Page[];
+}
+export default [Cover, Welcome, Agenda, Hosts, Questions] satisfies Page[]
