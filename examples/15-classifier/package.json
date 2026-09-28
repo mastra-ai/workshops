@@ -1,0 +1,33 @@
+{
+  "name": "15-classifier",
+  "type": "module",
+  "private": true,
+  "description": "Classifier workshop — score a lead with Jev, then route, guard, and grade in code",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "mastra dev",
+    "score": "tsx src/01-score-lead.ts",
+    "processor": "tsx src/02-processor.ts",
+    "workflow": "tsx src/03-workflow.ts",
+    "model-selection": "tsx src/04-model-selection.ts",
+    "approval": "tsx src/05-tool-approval.ts",
+    "scorer": "tsx src/06-scorer.ts",
+    "seed": "cd src/mastra/public && tsx ../../../src/07-seed-dataset.ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .mastra *.db",
+    "mastra": "mastra"
+  },
+  "dependencies": {
+    "@ai-sdk/typesafe-ai": "^3.0.6",
+    "@mastra/core": "latest",
+    "@mastra/libsql": "latest",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "mastra": "latest",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3"
+  },
+  "license": "Apache-2.0"
+}
