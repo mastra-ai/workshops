@@ -1,0 +1,462 @@
+MCP APPS / MASTRA STUDIO: ISSUES FOR REVIEW
+==========================================
+Prepared: October 8, 2026
+Project: mcp-apps-examples
+Purpose: Review the findings before deciding whether to open GitHub issues.
+
+This document does not submit anything. No GitHub issues have been opened by
+this work. Earlier reports were accepted by Mastra's feedback endpoint; those
+records are listed at the end and are not GitHub issue numbers.
+
+SUMMARY AND PROPOSED GITHUB DESTINATIONS
+----------------------------------------
+1. Browser SDK import crashes inside a blob: iframe.
+   Primary repository: modelcontextprotocol/typescript-sdk
+   Underlying dependency repository: cfworker/cfworker
+   Status: Reproduced in Studio; browser-only workaround installed here.
+
+2. Studio leaks REST response envelopes into MCP App tool results.
+   Repository: mastra-ai/mastra
+   Status: Observed adapter/data-shape issue; compatibility handling added here.
+
+3. Studio omits the message capability despite wiring an app-to-chat callback.
+   Primary repository: mastra-ai/mastra
+   Possible renderer follow-up: MCP-UI-Org/mcp-ui
+   Status: Confirmed capability mismatch; manual copy-into-chat workaround.
+
+There is also an UNCONFIRMED run-lifecycle observation, described separately.
+It should not be presented as a fourth confirmed bug.
+
+SCOPE, VERSIONS, AND EVIDENCE LIMITS
+----------------------------------
+The failures were investigated on October 8, 2026, using these versions:
+  - mastra CLI / bundled Studio: 1.33.0
+  - @mastra/core: 1.75.0
+  - @mastra/mcp: 2.2.0
+  - @modelcontextprotocol/ext-apps: 2.0.3
+  - Root @modelcontextprotocol/client: 2.3.1
+  - Node.js: 22.22.2 on macOS; browser verification used Chromium.
+
+package.json and package-lock.json establish the project versions. The lockfile
+also contains nested SDK dependencies; the root client version above identifies
+the browser import/workaround inspected here, not every SDK copy in the tree.
+
+The earlier upstream source review examined Mastra commit cfaeff3e03d6 and its
+locked @mcp-ui/client 7.1.1 renderer. Upstream paths and line numbers below refer
+to that review, not a claim about the latest branch head. Repository ownership
+has been checked, but later fixes and duplicate issues still need checking
+before filing. This document is not a fresh reproduction against newer releases.
+
+The local preview harness, actual Studio runs, installed dependency source,
+and upstream source review provide different kinds of evidence. They are
+identified separately below. No real ChatGPT or Claude host verification is
+claimed. The application currently includes workarounds, so a successful run
+with those workarounds does not prove that the upstream defects are fixed.
+
+
+ISSUE 1: BROWSER SDK IMPORT CRASHES IN BLOB DOCUMENTS
+===================================================
+Suggested title:
+  Browser SDK import throws Invalid URL in blob: iframe before initialization
+
+Where to file:
+  modelcontextprotocol/typescript-sdk
+  Issue tracker: https://github.com/modelcontextprotocol/typescript-sdk/issues
+
+Why this repository:
+The failing browser import comes through the MCP TypeScript SDK's default
+browser validator. The SDK package itself declares the tracker above. Mastra
+Studio's blob-based iframe exposes the failure, but tool registration and the
+Mastra MCP server are not the cause of this exception.
+
+The underlying URL-construction code belongs to cfworker/cfworker, in
+packages/json-schema/src/dereference.ts. A focused dependency issue there may
+also be appropriate. Start with the SDK integration report and cross-reference
+or split the dependency report if maintainers request it; these are two layers
+of one failure, not two unrelated Studio bugs.
+
+Observed behavior and impact:
+All three apps rendered their HTML shells in real Studio but remained at
+"Connecting to chat...". The browser reported:
+
+  Failed to construct 'URL': Invalid URL
+
+The tool calls themselves succeeded. Studio had discovered the tools, fetched
+the text/html;profile=mcp-app resource, and created a blob: iframe. The exception
+occurred while evaluating the JavaScript bundle, before app.connect() could
+complete. Consequently, none of the apps could initialize its bridge or enable
+normal interaction.
+
+Cause established by source inspection:
+The SDK browser shim eagerly imports CfWorkerJsonSchemaValidator. Its bundled
+cfworker code computes an initial schema base URI at module scope using:
+
+  new URL(self.location.origin + self.location.pathname + location.search)
+
+This branch runs when self.location.origin is not the string "null". For a
+blob URL backed by an HTTP origin, pathname contains the embedded origin and
+blob identifier. Concatenating origin and pathname as though this were a normal
+HTTP pathname produces an invalid URL and throws during import.
+
+The original srcdoc preview did not reproduce this problem because its location
+origin was "null", taking the dependency's fallback branch instead. That is
+why a working local preview initially hid the real Studio failure.
+
+Expected behavior:
+Importing the browser SDK in a blob document should not throw. Validator base
+URI initialization should handle non-HTTP document schemes safely, and the app
+should be able to complete bridge initialization.
+
+Reproduction using this project:
+1. Use the affected locked dependencies, preferably in a disposable copy.
+2. Remove ONLY the browser shim alias from scripts/build-apps.mjs:17-19 in that
+   copy. Leave the browser build target and ordinary ext-apps import unchanged.
+3. Run npm run test:ui -- --grep "Studio-style blob". The three tests load actual
+   app bundles in blob frames; without the workaround, expect a browser import
+   error and failure to reach "App connected".
+4. Alternatively, run npm run dev and request any app in MCP Apps Agent in
+   Studio. Inspect the iframe console and its initialization state. This path
+   needs a configured model API key and can incur provider charges.
+5. Restore the alias and rebuild; the apps should initialize normally.
+
+Local workaround:
+  scripts/build-apps.mjs:17-19 aliases
+    @modelcontextprotocol/client/_shims
+  to scripts/mcp-browser-shim.mjs:1-4, which exports:
+    AjvJsonSchemaValidator as DefaultJsonSchemaValidator
+    CORS_IS_POSSIBLE = true
+
+This is browser-build-only. It preserves platform: 'browser', retains the
+normal ext-apps import, and does not change server-side MCP validation. It is a
+compatibility workaround, not an upstream repair or a reason to disable schema
+validation.
+
+Evidence / source locations:
+  - node_modules/@modelcontextprotocol/client/dist/shimsBrowser.mjs:1-12
+  - node_modules/@modelcontextprotocol/client/dist/cfWorkerProvider-BylNJ1R5.mjs:78
+  - tests/host/host.ts:75-84 (blob versus srcdoc loading)
+  - tests/browser/apps.spec.ts:3-33 (three blob-frame regression scenarios)
+  - SDK upstream: packages/client/src/shimsBrowser.ts
+  - SDK upstream: packages/core-internal/src/validators/cfWorkerProvider.ts
+  - cfworker upstream: packages/json-schema/src/dereference.ts:68-75
+    (source review of published 4.1.1 code)
+
+Suggested upstream acceptance tests:
+  - Import and initialize the browser SDK inside an HTTP-origin blob iframe.
+  - Keep ordinary HTTP documents and srcdoc documents working.
+  - Verify schema validation still functions; merely avoiding the exception
+    by disabling validation would not be an adequate fix.
+
+
+ISSUE 2: STUDIO LEAKS REST ENVELOPES INTO MCP APP RESULTS
+======================================================
+Suggested title:
+  Studio MCP Apps leak REST envelopes and inconsistently preserve tool results
+
+Where to file:
+  mastra-ai/mastra
+  Issue tracker: https://github.com/mastra-ai/mastra/issues
+
+Why this repository:
+The inconsistent shape is introduced by Studio's REST-to-MCP-App adapter.
+It is not the loan/game/dashboard tool's data contract, and changing each app
+should not be necessary to understand a Studio-specific transport envelope.
+
+Observed behavior and impact:
+Initial results could arrive as JSON in a text content block, without the
+structuredContent our apps originally expected. App-initiated callback results
+could instead expose Studio's REST wrapper around the actual payload.
+
+Illustrative shapes (not a verbatim network capture):
+
+  Tool's intended application payload:
+    { "gameId": "<id>", "revision": 1, ... }
+
+  REST transport response:
+    { "result": { "gameId": "<id>", "revision": 1, ... } }
+
+  What the app could receive after Studio normalization:
+    {
+      "content": [{ "type": "text", "text": "<JSON of REST envelope>" }],
+      "structuredContent": {
+        "result": { "gameId": "<id>", "revision": 1, ... }
+      }
+    }
+
+An app reading structuredContent.gameId or another field at the documented
+payload level receives undefined. Initial rendering and later callbacks can
+therefore require different parsing logic even though they concern the same
+tool/data schema.
+
+Cause established by source inspection:
+  - mcp-app-tool-result.tsx returns the REST execute() response unchanged.
+  - mcp-app-viewer.tsx unwraps response.result only if it recognizes a nonempty
+    MCP content array inside it.
+  - If response.result is plain application data, that recognition fails and
+    the outer REST envelope becomes structuredContent.
+  - The initial-result normalization path can serialize plain data as JSON
+    text, creating another representation for the same app payload.
+
+Protocol distinction:
+A JSON text content block is not, by itself, evidence of an invalid MCP result.
+structuredContent is optional in the general result type; outputSchema
+requirements must be assessed separately. Our original structured-only reader
+was also too narrow for JSON-text results. The report should focus on REST
+wrapper leakage and inconsistent preservation/normalization, not claim that
+all text-only results violate MCP.
+
+Expected behavior:
+Unwrap the known REST transport response at the REST boundary. Pass an existing
+MCP result through without losing content, structuredContent, _meta, or isError.
+For plain application data, expose the actual payload rather than the REST
+wrapper, consistently across initial delivery and app callbacks.
+
+Reproduction using this project:
+1. Keep the browser alias from issue 1 enabled so the iframe can initialize.
+2. Run npm run dev, open MCP Apps Agent, and request the loan calculator.
+3. Inspect the initial tool-result notification in the iframe: note JSON text
+   versus structuredContent.
+4. Change calculator inputs and click Calculate payment. Inspect the Studio
+   REST execute response and the bridge result returned to callServerTool().
+5. Compare the payload nesting with the server output schema. Inspect the raw
+   bridge result before our shared dataFrom() compatibility handler unwraps it.
+6. For a deterministic simulation of the observed shapes without a model,
+   tests/host/host.ts:43-45 adds the callback envelope, and :67-69 removes initial
+   structuredContent when textOnly is set. This reproduces the data shape, not
+   an independent execution of Studio's adapter implementation.
+
+Local workaround:
+  src/apps/shared/client.ts:20-29
+  - Prefer structuredContent when present.
+  - Otherwise parse the JSON text content block used by these tools.
+  - Unwrap a top-level result field before handing data to the app.
+
+Important limitation: that last step is specific to these demo contracts.
+Blindly unwrapping every object with a result key is not a safe generic SDK fix:
+a legitimate application payload may itself contain a field named result.
+The upstream adapter should use its knowledge of the REST response boundary.
+
+Evidence / source locations:
+  - src/apps/shared/client.ts:20-29
+  - tests/host/host.ts:38-45 and :65-70
+  - tests/browser/apps.spec.ts:3-33
+  - Mastra upstream at the reviewed commit:
+      packages/playground-ui/src/domains/mcps/components/
+        mcp-app-tool-result.tsx:38-43
+        mcp-app-viewer.tsx:74-117
+  - Earlier inspection of the installed Studio bundle corroborated the
+    nonempty-content recognition and fallback normalization logic.
+
+Suggested upstream acceptance tests:
+  - REST envelope containing a plain tool payload.
+  - REST envelope containing an existing MCP CallToolResult.
+  - Existing results with an empty content array and structuredContent.
+  - Preservation of isError and _meta, as well as all content blocks.
+  - A legitimate application-level result field must not be mistaken for
+    another REST envelope.
+  - Equivalent initial and callback deliveries for the same tool.
+
+Empty-content, metadata, and error preservation are proposed regression cases
+from source analysis, not separate claims that all were observed failing live.
+
+
+ISSUE 3: STUDIO DOES NOT ADVERTISE ITS WIRED MESSAGE CAPABILITY
+============================================================
+Suggested title:
+  Studio omits message capability despite a wired MCP App chat callback
+
+Where to file:
+  mastra-ai/mastra
+  Issue tracker: https://github.com/mastra-ai/mastra/issues
+
+Optional follow-up repository:
+  MCP-UI-Org/mcp-ui
+  Component: sdks/typescript/client/src/components/AppRenderer.tsx
+
+Why Mastra is the primary destination:
+Studio knows whether its chat is writable and already supplies a send-message
+callback. It can explicitly advertise the matching capability in that case.
+Whether the renderer should infer capabilities from callbacks is a separate
+API/design question; supplying onMessage does not universally imply that every
+host intends to authorize messaging.
+
+Observed behavior and impact:
+The apps connected successfully after issue 1's workaround. In tic-tac-toe,
+clicking a cell successfully called play_human_move and saved X on the server.
+However, it did not start the agent's next turn. The app displayed:
+
+  This host cannot send chat messages. Copy into chat: ...
+
+app.getHostCapabilities() did not include message. Our app respected that
+negotiation and did not attempt an unsupported sendMessage request. The same
+limitation affects Explain this loan in chat and Reference this metric in chat.
+
+Cause established by source inspection:
+  - Studio's tool card provides a callback backed by useChatSend.
+  - mcp-app-tool-result.tsx forwards it when the view is not read-only.
+  - mcp-app-viewer.tsx provides an onMessage handler to the renderer but does
+    not pass an explicit matching capabilities configuration.
+  - The reviewed renderer's default capabilities omit message even though a
+    message handler is installed.
+
+This is more specific than saying "Studio has no messaging implementation."
+The writable-chat callback exists, but capability negotiation prevents a
+capability-respecting app from using it. We did not bypass the negotiation to
+claim direct sendMessage delivery was proven to work end to end.
+
+Expected behavior:
+When app-to-chat messaging is intended and a writable-chat callback is
+available, advertise the supported message capability and deliver the message
+to the active chat. Read-only views should not advertise writable messaging.
+If messaging is intentionally unsupported, make that limitation explicit
+rather than leaving a wired callback inaccessible through negotiation.
+
+Reproduction using the current project:
+1. Run npm run dev with a configured model API key and open MCP Apps Agent.
+2. Ask to start tic-tac-toe, with the human as X and agent as O.
+3. Wait for the initial agent generation to finish, then click an empty cell.
+4. Verify that X appears and the authoritative server revision advances.
+5. Observe the copy-into-chat fallback and the absence of a new automatic chat
+   turn. Inspect the negotiated host capabilities to confirm message is absent.
+6. Paste the supplied prompt, including the game ID and revision, into chat.
+   The real agent can then fetch the board and play O; polling updates the
+   original iframe. This last flow was successfully verified in real Studio.
+
+Local workaround:
+  src/apps/shared/client.ts:61-74 checks capabilities and produces a copyable
+  prompt when message is absent. The game can retry chat delivery without
+  replaying the already-committed human move.
+
+Manual copying is a workaround, not a complete fix for human/agent interaction.
+Do not bypass capability checks or automatically grant messaging in read-only
+contexts to make this demo appear to work.
+
+Evidence / source locations:
+  - src/apps/shared/client.ts:61-74
+  - tests/host/host.ts:28-31 and :47-52 (explicit capability and handler)
+  - tests/browser/apps.spec.ts:135-145 (unsupported-host fallback)
+  - .mastracode/plans/mcp-apps-agent.proof/demo.mjs:62-79
+  - Mastra upstream at the reviewed commit:
+      packages/playground-ui/src/domains/chat/tools/tool-card.tsx:79
+      packages/playground-ui/src/domains/mcps/components/
+        mcp-app-tool-result.tsx:61
+        mcp-app-viewer.tsx:119-132 and :162-175
+  - Renderer source: sdks/typescript/client/src/components/AppRenderer.tsx;
+    earlier review of @mcp-ui/client 7.1.1 identified capability defaults and
+    handler installation in dist/index.mjs:5772-5784.
+
+Suggested upstream acceptance tests:
+  - Writable chat advertises the intended message capability.
+  - An SDK app can send a supported text message and the active chat receives
+    it, triggering the expected agent turn.
+  - Read-only mode neither advertises nor performs writable chat actions.
+  - Unsupported/rejected messages remain visible to the app as failures.
+  - Sending a message does not depend on optional updateModelContext support.
+
+
+UNCONFIRMED OBSERVATION: SENDING TURNS DURING AN ACTIVE RUN
+========================================================
+Potential destination ONLY if independently reproduced: mastra-ai/mastra.
+Current recommendation: Do not file this as a confirmed defect yet.
+
+An early real-Studio proof submitted follow-up messages while an earlier run
+was still streaming. The same run ID was observed, and the expected game move
+was not seen before the run's six-step limit. There were also get_game failures
+reporting "Game not found or expired. Start a new game. Games reset when the
+server restarts." These observations did not establish one common root cause.
+
+The proof had incorrectly treated an empty/disabled composer as evidence that
+generation had finished. Waiting for the actual indicator fixed the proof:
+
+  [data-slot="composer-ring"][data-busy="false"]
+
+The later run successfully completed initial rendering, a loan-memory follow-up,
+and the pasted tic-tac-toe turn. That does not prove concurrent-turn handling
+has no issue, but it means the earlier timeout is insufficient evidence of one.
+
+Before reporting: build a minimal concurrent-turn test, record run/message IDs
+and event timing, and compare behavior with the intended queue/signal semantics.
+Avoid conflating this with issue 3 or with intentionally temporary game storage.
+
+Relevant local source: .mastracode/plans/mcp-apps-agent.proof/demo.mjs:20-23.
+
+
+LOCAL FIXES THAT SHOULD NOT BE REPORTED AS THESE UPSTREAM BUGS
+============================================================
+- The original preview iframe sandbox lacked allow-forms. Adding it in our
+  test host fixed our own form interaction setup; it did not prove a Studio
+  sandbox defect.
+- Dashboard startup could fetch a default dashboard and overwrite an incoming
+  compact metric-card result. We corrected our app's initial-load race.
+- Our initial structuredContent-only reader was too restrictive for JSON text
+  results. That compatibility fix is distinct from issue 2's REST envelope bug.
+- TypeScript test result parsing, missing Playwright browser installation, and
+  the proof's generation-complete wait were local setup/test corrections.
+- Game state is intentionally in memory, expires after an hour, and resets
+  on server restart. Those documented demo properties are not upstream bugs.
+
+
+VERIFICATION ALREADY RECORDED
+============================
+Earlier on October 8, 2026, after the workarounds:
+  - TypeScript checking passed.
+  - All 6 protocol/integration tests passed.
+  - All 12 Playwright UI tests passed, including blob-frame and result-shape
+    compatibility coverage.
+  - The production build succeeded with the embedded app bundles.
+  - A real Studio proof rendered all three apps, retained loan context from
+    $1,200 at 0% for 12 months ($100/month) to 24 months ($50/month), and completed
+    a human X / real-agent O exchange using the pasted fallback prompt.
+  - That real Studio proof recorded zero browser page errors and PROOF: GREEN.
+
+These are recorded results from the implementation session, not claims that
+all tests or model calls were re-run just to prepare this text document.
+
+Local proof material:
+  .mastracode/plans/mcp-apps-agent.proof/README.md:1-30
+  .mastracode/plans/mcp-apps-agent.proof/with.txt:1-6
+  .mastracode/plans/mcp-apps-agent.proof/demo.mjs:41-79
+
+The proof directory also contains local screenshots and a trace. Review and
+sanitize artifacts before publishing: traces can contain conversation data,
+network payloads, local identifiers, or credentials. Do not upload .env files,
+API keys, raw traces, or unrelated conversation history with an issue.
+
+Commands for a later verification pass:
+  npm run typecheck
+  npm test
+  npm run test:ui
+  npm run build
+
+Optional real-Studio proof (requires a running dev server and model credentials;
+makes real model calls that may incur provider charges):
+  node .mastracode/plans/mcp-apps-agent.proof/demo.mjs
+
+
+EARLIER FEEDBACK RECORDS AND FILING DECISION
+==========================================
+These were submitted earlier to POST https://mastra.ai/api/feedback and received
+HTTP 201 with the following record IDs:
+
+  Issue 1 / blob-frame SDK crash:
+    e83f283c-4019-4188-87a2-ea3e1d84bd38
+  Issue 2 / Studio result normalization:
+    84976627-568e-4cae-b207-8f379f94a3a8
+  Issue 3 / Studio message capability:
+    bc624f82-d8e2-4b35-a107-650c45df16ee
+
+These responses confirm acceptance by that endpoint, not public GitHub issue
+creation, maintainer triage, or a fix. No new reports were submitted while
+preparing this document. A GitHub filing decision remains with the user.
+
+If approved later, the proposed split is two independent Studio issues in
+mastra-ai/mastra and one browser SDK issue in modelcontextprotocol/typescript-sdk.
+Consider dependency/renderer follow-ups only when useful, rather than filing
+several duplicates for the same symptom.
+
+Before submitting any issue:
+  1. Check the target repository for an existing issue or merged fix.
+  2. Reproduce against a clearly stated version and attach a minimal example.
+  3. Distinguish observations, source-based explanations, and proposed tests.
+  4. Remove private data from all attachments.
+  5. Keep the unconfirmed active-run observation out of the confirmed reports.

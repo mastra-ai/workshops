@@ -5,8 +5,6 @@ description: Use this skill when the user wants to create, draft, author, or ext
 
 # Create a slide theme
 
-This repository configures `slidesDir` as `../slides`. When this skill references an existing `slides/...` path, resolve it as `../slides/...` from the OpenSlide project directory. Theme files remain under this project's `themes/` directory.
-
 This skill produces a **theme bundle** under `themes/`: two paired files that together describe a reusable visual identity.
 
 1. `themes/<id>.md` — agent-facing documentation: palette, typography, layout, fixed Title/Footer/Eyebrow components, motion. This is what `create-slide` reads when an author picks the theme.

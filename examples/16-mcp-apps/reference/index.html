@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="An interactive developer field guide to MCP Apps, ChatGPT plugins, and the path to a public plugin listing.">
+<title>Small App, Big Context — A Developer’s Field Guide to MCP Apps</title>
+<style>
+ :root{--paper:#f5f2e9;--ink:#203c35;--muted:#53675f;--line:#ccd1c5;--orange:#fc754b;--mint:#c7e6cf;--lemon:#f0e593;--white:#fffdf6;--dark:#193c34;--blue:#d9e6f2;--red:#9d3728;--shadow:0 14px 32px #203c3510;--rail:224px}
+ *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.55}
+ button,input,select,textarea{font:inherit}button,a,input,textarea,summary{touch-action:manipulation}button{cursor:pointer;color:inherit}button:disabled{cursor:default;opacity:.45}a{color:inherit;text-underline-offset:3px}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #be4828;outline-offset:4px}
+ button{border:1px solid var(--ink);background:transparent;border-radius:7px;padding:10px 16px}button:hover:not(:disabled){background:#203c3509}button.primary{background:var(--ink);color:var(--white);border-color:var(--ink)}button.primary:hover{background:#31574b}button.orange{background:var(--orange);color:#182d26;border-color:var(--orange)}button.plain{border-color:transparent;padding:8px 12px}
+ .skip{position:fixed;top:-80px;left:16px;z-index:100;background:var(--white);padding:10px}.skip:focus{top:8px}
+ header.site-header{height:76px;position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 26px;background:var(--paper);border-bottom:1px solid var(--line)}
+ .brand{display:flex;gap:11px;align-items:center;text-decoration:none;font-weight:740;letter-spacing:-.035em;font-size:20px;white-space:nowrap}
+ .mark{display:grid;place-items:center;width:31px;height:31px;border-radius:6px;background:var(--ink);color:var(--lemon);font-size:23px;line-height:1}
+ .header-actions{display:flex;align-items:center;gap:4px}.edition{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-right:12px}
+ .header-actions button{font-size:13px}.mobile-menu{display:none}
+ aside.rail{position:fixed;left:0;top:76px;bottom:0;width:var(--rail);border-right:1px solid var(--line);padding:23px 17px;background:var(--paper);overflow-y:auto;z-index:10}
+ .rail-label,.eyebrow,.mono-label{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+ .rail-label{color:var(--muted);padding:0 10px;margin:0 0 12px}.chapter-nav{display:flex;flex-direction:column;gap:3px}.chapter-nav button{display:flex;align-items:center;gap:10px;text-align:left;border:0;padding:8px 10px;font-size:12px;line-height:1.35;border-radius:5px;width:100%}.chapter-nav .num{font-family:ui-monospace,monospace;opacity:.7;font-size:11px;flex:0 0 22px}
+ .chapter-nav button[aria-current="step"]{background:var(--ink);color:var(--white)}.chapter-nav button.visited:not([aria-current="step"]) .num{color:#256343;font-weight:800;opacity:1}
+ .rail-foot{margin:22px 10px 0;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}.rail-foot strong{display:block;color:var(--ink);font-size:12px;margin-bottom:5px}
+ main{margin:76px 0 0 var(--rail);padding:40px 48px 110px;min-height:calc(100vh - 76px)}.slide{display:none;max-width:1100px;margin:0 auto;animation:arrive .25s ease-out}.slide.active{display:block}@keyframes arrive{from{opacity:.5;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+ .eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--muted)}.eyebrow:before{content:"";height:7px;width:7px;background:var(--orange);border-radius:2px;display:inline-block}
+ h1,h2,h3,p{margin:0}h1,h2{font-weight:560;font-family:Georgia,"Times New Roman",serif;letter-spacing:-.055em;line-height:1.04}h1{font-size:clamp(52px,5.3vw,83px)}h2{font-size:clamp(39px,3.9vw,61px);max-width:900px}h1 em,h2 em{font-weight:400;color:#b14528}h3{font-size:19px;line-height:1.25;letter-spacing:-.025em;font-weight:700}.lede{font-size:18px;line-height:1.55;max-width:800px;margin-top:20px;color:var(--muted)}.body-copy{font-size:15px;color:var(--muted)}p+p{margin-top:12px}
+ .grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:30px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-top:28px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}.span2{grid-column:span 2}
+ .panel{border:1px solid var(--line);background:var(--white);border-radius:12px;padding:23px}.panel p{margin-top:10px}.panel.mint{background:var(--mint);border-color:transparent}.panel.lemon{background:var(--lemon);border-color:transparent}.panel.dark{background:var(--dark);color:var(--white);border-color:var(--dark)}.panel.dark .body-copy{color:#c8dacf}.panel .number{font-family:Georgia,serif;font-size:36px;line-height:1;margin-bottom:18px;display:block}
+ .kicker{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:10px}.tag{display:inline-block;border:1px solid currentColor;padding:3px 8px;border-radius:4px;font-size:10px;letter-spacing:.065em;text-transform:uppercase;line-height:1.5}.tag.fill{background:var(--mint);border:0;color:var(--ink)}.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--paper);border:1px solid var(--line);border-radius:99px;padding:3px 8px;white-space:nowrap}.pill:before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+ .note{padding:14px 17px;border-left:3px solid var(--orange);font-size:14px;color:var(--muted);margin-top:25px;background:#ffffff4d}.note strong{color:var(--ink)}.source-note{margin-top:27px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center;font-size:11px;color:var(--muted)}.source-note span{text-transform:uppercase;letter-spacing:.08em;font-size:10px}.source-note a{text-decoration-thickness:1px}
+ .hero-grid{display:grid;grid-template-columns:1.07fr 1fr;gap:40px;align-items:center;min-height:490px}.hero .lede{max-width:490px}.hero-actions{display:flex;align-items:center;gap:20px;margin-top:28px}.hero-actions .small{max-width:140px}.small{font-size:12px;color:var(--muted)}.hero-bottom{display:flex;gap:24px;flex-wrap:wrap;margin-top:28px;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.03em}
+ .hero-art{position:relative;min-height:430px;display:flex;align-items:center;justify-content:center;background:radial-gradient(var(--line) .7px,transparent .7px);background-size:14px 14px;border-radius:50%}.orbit-label{position:absolute;top:12px;left:20px;transform:rotate(-7deg);font-family:ui-monospace,monospace;font-size:12px;background:var(--lemon);padding:7px 11px;border:1px solid var(--ink)}
+ .mock-window{width:100%;max-width:410px;background:var(--white);border:1px solid var(--ink);border-radius:12px;box-shadow:12px 14px 0 var(--mint);transform:rotate(2deg);overflow:hidden}.mock-top{padding:12px 16px;background:var(--ink);color:var(--white);display:flex;justify-content:space-between;font-size:11px}.mock-body{padding:20px}.bubble{background:var(--paper);border-radius:9px;padding:11px 13px;font-size:13px;margin-bottom:17px;max-width:94%}.mock-project{padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);font-size:13px}.mock-project:last-child{border-bottom:0}.mock-project b{display:block;font-size:14px}.mock-project small{color:var(--muted)}.status-ok{color:#266445}.status-warn{color:#934122}.hero-sticker{position:absolute;bottom:11px;right:0;background:var(--orange);color:var(--ink);border:1px solid var(--ink);padding:14px 19px;border-radius:50%;font-size:13px;font-weight:700;transform:rotate(-10deg)}
+ footer.deck-footer{position:fixed;left:var(--rail);right:0;bottom:0;z-index:15;background:var(--paper);border-top:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:18px;justify-content:space-between}.footer-progress{display:flex;align-items:center;gap:13px;font-size:12px;color:var(--muted)}.progress-track{width:105px;height:3px;background:var(--line)}.progress-bar{height:100%;background:var(--ink);transition:width .2s}.footer-nav{display:flex;gap:10px}.footer-nav button{font-size:13px;padding:9px 16px}.keyboard-hint{font-size:10px;font-family:ui-monospace,monospace;color:var(--muted)}
+ .choice-list{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.choice-list button{font-size:13px;background:var(--white)}.choice-list button[aria-pressed=true]{background:var(--ink);color:var(--white)}.feedback-box{min-height:89px;margin-top:17px;padding:17px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:14px}.feedback-box strong{display:block;margin-bottom:5px}.feedback-box p{color:var(--muted);font-size:14px}
+ .layer-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:26px;margin-top:30px}.layer-stack{display:flex;flex-direction:column;gap:10px}.layer{display:flex;align-items:center;gap:17px;text-align:left;padding:19px 21px;border:1px solid var(--ink);border-radius:8px;background:var(--white)}.layer:nth-child(2){background:var(--mint)}.layer:nth-child(3){background:var(--lemon)}.layer:nth-child(4){background:#fbd1be}.layer[aria-pressed=true]{box-shadow:5px 5px 0 var(--ink);transform:translate(-2px,-2px)}.layer .symbol{font-family:ui-monospace,monospace;font-size:26px;min-width:35px}.layer b{display:block;font-size:17px}.layer small{display:block;font-size:12px;color:#3e584b}.layer-detail{padding:30px;background:var(--ink);color:var(--white);border-radius:12px;display:flex;flex-direction:column;justify-content:center}.layer-detail h3{font-family:Georgia,serif;font-weight:400;font-size:34px;margin-bottom:16px}.layer-detail p{color:#d4e3d7;font-size:15px}.layer-detail .mono-label{color:var(--mint);margin-bottom:20px}.layer-detail .example{margin-top:25px;padding-top:18px;border-top:1px solid #ffffff30;font-family:ui-monospace,monospace;font-size:13px;color:var(--lemon)}
+ .usecase{padding:20px;border-top:2px solid var(--ink);background:var(--white);border-radius:0 0 8px 8px}.usecase h3{margin:14px 0 8px}.usecase p{font-size:13px;color:var(--muted)}.usecase a{font-size:12px;display:inline-block;margin-top:15px}.usecase .emoji{font-size:27px;line-height:1}
+ .demo-shell{margin-top:28px;border:1px solid var(--ink);border-radius:12px;background:var(--white);overflow:hidden}.demo-toolbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;background:var(--ink);color:var(--white);padding:15px 20px}.demo-toolbar b{font-size:17px}.demo-toolbar .tag{color:var(--mint)}.segmented{display:flex;gap:0;border:1px solid var(--ink);border-radius:6px;overflow:hidden}.segmented button{border:0;border-radius:0;font-size:12px;padding:8px 12px;background:var(--white)}.segmented button[aria-pressed=true]{background:var(--lemon)}.demo-content{display:grid;grid-template-columns:1.7fr 1fr;gap:0}.demo-main{padding:22px}.demo-side{padding:22px;border-left:1px solid var(--line);background:#f0f3eb}.demo-side h3{font-size:14px;margin:8px 0 12px}.demo-side code{font-size:11px;overflow-wrap:anywhere;color:#385243}.demo-side p{font-size:12px;color:var(--muted)}.demo-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.demo-controls input{min-width:120px;flex:1;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--white);font-size:13px}.demo-controls select{border:1px solid var(--line);border-radius:6px;background:var(--white);padding:8px;font-size:12px;max-width:100%}.demo-controls button{font-size:12px;padding:8px 12px}
+ .project-row{display:flex;gap:13px;align-items:center;justify-content:space-between;width:100%;padding:14px 12px;margin:6px 0;text-align:left;border:1px solid var(--line);background:var(--white)}.project-row .project-name{font-size:14px;font-weight:700}.project-row .project-meta{display:block;font-size:11px;color:var(--muted);margin-top:3px}.project-row:hover{border-color:var(--ink)}.project-status{display:flex;flex-direction:column;gap:4px;align-items:flex-end}.project-status small{font-size:10px;color:var(--muted)}.project-row .pill{font-size:10px}.demo-caption{font-size:11px;color:var(--muted);margin-top:12px}.demo-log{font-family:ui-monospace,monospace;font-size:11px;background:var(--white);border:1px solid var(--line);border-radius:6px;padding:11px;min-height:65px;margin-bottom:15px;overflow-wrap:anywhere}.demo-text{white-space:pre-wrap;line-height:1.8;font-family:ui-monospace,monospace;font-size:13px;padding:15px;background:var(--paper);border-radius:6px}
+ .flow-nav{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:28px 0 18px}.flow-nav button{font-size:11px;padding:11px 6px;border-color:var(--line);background:var(--white);min-height:65px}.flow-nav button span{display:block;font-family:ui-monospace,monospace;font-size:15px;margin-bottom:4px}.flow-nav button[aria-pressed=true]{background:var(--ink);color:var(--white);border-color:var(--ink)}.flow-stage{display:grid;grid-template-columns:1fr 1fr;gap:28px;background:var(--mint);border-radius:12px;padding:30px;min-height:235px}.flow-stage h3{font-size:24px;margin:7px 0 12px}.flow-stage p{font-size:14px}.flow-stage pre{margin:0;align-self:center}.flow-controls{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:15px}.flow-controls p{font-size:12px;color:var(--muted);max-width:600px}
+ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--ink);color:#e3f2e6;border-radius:8px;padding:20px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.7;margin:16px 0 0;overflow:auto;tab-size:2}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.code-comment{color:#b6c9bc}details{border:1px solid var(--line);border-radius:8px;padding:14px 17px;margin-top:20px;background:var(--white)}summary{cursor:pointer;font-size:13px;font-weight:650}details p{font-size:13px;color:var(--muted);margin-top:13px}
+ .location-flow{display:grid;grid-template-columns:1fr 30px 1fr 30px 1fr;align-items:center;gap:7px;margin-top:27px}.location-node{border:1px solid var(--ink);border-radius:10px;padding:20px;min-height:176px;background:var(--white)}.location-node:nth-of-type(3){background:var(--mint)}.location-node:nth-of-type(5){background:var(--lemon)}.location-node .mono-label{display:block;margin-bottom:15px;color:var(--muted)}.location-node h3{font-size:19px}.location-node p{font-size:13px;color:var(--muted);margin-top:9px}.arrow{font-size:25px;text-align:center}
+ .quiz{margin-top:25px;border-top:1px solid var(--line);padding-top:20px}.quiz .quiz-label{color:#8c482c;font-family:ui-monospace,monospace;font-size:10px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}.quiz h3{font-size:17px;font-weight:650}.quiz-options{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.quiz-options button{font-size:12px;padding:10px 13px;background:var(--white);text-align:left}.quiz-options button.correct{background:var(--mint);border-color:#3f7851}.quiz-options button.incorrect{background:#f9dbcc;border-color:var(--red)}.quiz-feedback{margin-top:11px;font-size:13px;min-height:24px;color:var(--muted)}.quiz-feedback:empty{display:none}.quiz-feedback.good{color:#255c3d}
+ .auth-chain{display:flex;align-items:stretch;gap:10px;margin-top:26px}.auth-step{flex:1;background:var(--white);border-top:2px solid var(--ink);padding:19px 17px;border-radius:0 0 8px 8px}.auth-step .n{font-family:ui-monospace,monospace;font-size:11px;color:var(--muted);display:block;margin-bottom:13px}.auth-step h3{font-size:17px}.auth-step p{font-size:13px;color:var(--muted);margin-top:8px}
+ .surface-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}.surface-tabs button{font-size:13px;border-color:var(--line);background:var(--white)}.surface-tabs button[aria-pressed=true]{background:var(--ink);color:var(--white)}.surface-display{display:grid;grid-template-columns:1.1fr 1fr;gap:25px;margin-top:18px;align-items:center}.surface-window{border:1px solid var(--ink);border-radius:9px;overflow:hidden;height:230px;background:var(--white)}.surface-window .top{font-size:10px;background:var(--ink);color:var(--white);padding:9px 13px}.surface-interior{display:flex;height:calc(100% - 34px)}.fake-sidebar{width:24%;background:#ebece3;padding:15px 10px;display:flex;flex-direction:column;gap:10px;font-size:9px}.fake-sidebar .selected{background:var(--mint);padding:6px;border-radius:3px}.fake-chat{padding:22px;flex:1;position:relative;font-size:11px;color:var(--muted)}.fake-chat .line{background:var(--line);height:5px;margin-bottom:10px;width:80%}.fake-chat .app-block{margin-top:16px;border:1px solid var(--ink);border-radius:5px;background:var(--mint);padding:15px;color:var(--ink);font-weight:600}.surface-copy h3{font-size:24px;margin-bottom:12px}.surface-copy p{font-size:14px;color:var(--muted)}
+ .recipe{display:grid;grid-template-columns:1fr 1.15fr;gap:30px;margin-top:26px}.steps{list-style:none;padding:0;margin:0;counter-reset:step}.steps li{padding:12px 0 12px 37px;border-bottom:1px solid var(--line);position:relative;font-size:13px;color:var(--muted)}.steps li:before{counter-increment:step;content:counter(step,decimal-leading-zero);position:absolute;left:0;top:13px;font-family:ui-monospace,monospace;color:#a74c2e;font-size:11px}.steps li strong{color:var(--ink);display:block;margin-bottom:3px}.recipe pre{margin-top:0}.tiny{font-size:11px;color:var(--muted)}
+ .check-list{list-style:none;padding:0;margin:15px 0 0}.check-list li{padding:7px 0 7px 20px;position:relative;font-size:13px;color:var(--muted)}.check-list li:before{content:"↳";position:absolute;left:0;color:#9a4c30}
+ .route-option{padding:19px;text-align:left;background:var(--white);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}.route-option[aria-pressed=true]{background:var(--mint);border-color:var(--ink)}.route-option b{font-size:18px}.route-option span{font-size:12px;color:var(--muted)}.route-details{padding:18px 22px;background:var(--ink);color:var(--white);border-radius:8px;margin-top:16px;font-size:14px;min-height:98px}
+ .passport{display:grid;grid-template-columns:1fr 1.12fr;gap:25px;margin-top:26px}.passport-stamp{padding:25px;background:var(--lemon);border-radius:12px;display:flex;flex-direction:column;justify-content:space-between}.passport-stamp h3{font-family:Georgia,serif;font-weight:400;font-size:36px;line-height:1.1;letter-spacing:-.045em}.stamp-circle{border:2px solid var(--ink);border-radius:50%;height:120px;width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;align-self:flex-end;transform:rotate(-12deg);margin-top:23px}.stamp-circle b{font-family:Georgia,serif;font-size:40px;line-height:1.1}.stamp-circle span{font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.1em}.passport-items{display:flex;flex-direction:column;gap:8px}.passport-items label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--white);border:1px solid var(--line);border-radius:6px;font-size:12px;cursor:pointer}.passport-items input{accent-color:var(--ink);margin-top:4px;width:16px;height:16px;flex:0 0 16px}.passport-items b{display:block;font-size:13px;margin-bottom:2px}.passport-items small{display:block;color:var(--muted);font-size:11px}
+ .launch-line{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:23px;font-size:11px;font-family:ui-monospace,monospace;flex-wrap:wrap}.launch-line b{font-weight:500;border-bottom:2px solid var(--orange);padding-bottom:4px}.launch-line span{color:var(--muted)}
+ .reality{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-top:26px}.reality h3{font-family:Georgia,serif;font-weight:400;font-size:33px;letter-spacing:-.04em}.reality .panel{padding:26px}.reality p{font-size:14px}.reality .big-word{font-size:11px;font-family:ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:14px}.reality ul{padding-left:18px;font-size:13px;color:var(--muted)}.reality li{margin:8px 0}
+ .release-table{width:100%;border-collapse:collapse;margin-top:25px;font-size:13px}.release-table th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid var(--ink);padding:12px 10px}.release-table td{padding:14px 10px;border-bottom:1px solid var(--line);vertical-align:top}.release-table td:first-child{font-weight:650;width:28%}.release-table td:nth-child(2){color:var(--muted)}.final-checks{display:grid;grid-template-columns:1fr 1fr;gap:20px}.final-checks .quiz{margin-top:18px}
+ .brief-layout{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-top:27px}.brief-form{display:flex;flex-direction:column;gap:13px}.brief-form label{font-size:11px;font-weight:700;letter-spacing:.03em}.brief-form input,.brief-form textarea{display:block;width:100%;margin-top:6px;background:var(--white);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:14px;color:var(--ink);resize:vertical}.brief-form input:focus,.brief-form textarea:focus{border-color:var(--ink)}.brief-output{background:var(--ink);color:var(--white);padding:27px;border-radius:12px;display:flex;flex-direction:column}.brief-output .mono-label{color:var(--mint)}.brief-output h3{font-family:Georgia,serif;font-size:32px;line-height:1.1;font-weight:400;margin:16px 0}.brief-output p{font-size:13px;color:#d2e2d7}.brief-output .brief-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:25px}.brief-output button{border-color:var(--mint);color:var(--white);font-size:12px}.brief-output button:hover{background:#ffffff15}.finish-line{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:25px;padding-top:20px;border-top:1px solid var(--line)}.finish-line p{font-size:13px;color:var(--muted)}
+ dialog{width:min(760px,calc(100% - 32px));max-height:85vh;overflow:auto;border:1px solid var(--ink);border-radius:14px;padding:28px;background:var(--paper);color:var(--ink);box-shadow:0 30px 80px #0003}dialog::backdrop{background:#17372bb0;backdrop-filter:blur(3px)}.dialog-head{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px}.dialog-head h2{font-size:36px}.dialog-head button{font-size:12px}.sources-list{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px}.sources-list a{display:block;padding:9px 0;font-size:13px;border-bottom:1px solid var(--line)}.sources-list small{display:block;font-size:10px;color:var(--muted);text-decoration:none;margin-top:3px}.print-sources{display:none}.inline-status{font-size:12px;margin-top:9px;color:var(--muted)}
+ [hidden]{display:none!important}.read-all .slide{display:block;animation:none;padding-bottom:45px;margin-bottom:50px;border-bottom:2px solid var(--line);scroll-margin-top:100px}.read-all .slide:last-child{border-bottom:0}.read-all main{padding-bottom:70px}.read-all .deck-footer{display:none}.read-all .hero-grid{min-height:initial}.read-all .source-note{margin-bottom:0}
+ @media(min-width:1550px){main{padding-top:55px;padding-left:70px;padding-right:70px}.hero-grid{min-height:540px}.rail-label{margin-bottom:18px}.chapter-nav button{padding-top:10px;padding-bottom:10px}}
+ @media(max-width:1150px){:root{--rail:196px}main{padding:32px 30px 110px}.hero-grid{gap:25px}.hero-art{min-height:370px}.hero h1{font-size:61px}.grid3{gap:13px}.flow-stage{gap:20px;padding:23px}.edition{display:none}}
+ @media(max-width:900px){:root{--rail:0px}aside.rail{display:none}.mobile-menu{display:inline-block}.site-header .brand{font-size:18px}main{padding:30px 26px 100px}.hero-grid{gap:30px;min-height:initial}.hero h1{font-size:57px}.hero-art{min-height:380px}.header-actions .print-button{display:none}.grid4{grid-template-columns:1fr 1fr}.footer-progress{gap:9px}.keyboard-hint{display:none}.passport{gap:18px}}
+ @media(max-width:650px){header.site-header{height:64px;padding:0 14px;gap:8px}.brand{font-size:16px!important}.mark{width:25px;height:25px;font-size:20px}.header-actions{gap:0}.header-actions button{padding:8px;font-size:11px}.header-actions .sources-button{display:none}main{margin-top:64px;padding:27px 20px 96px}.hero-grid,.grid2,.layer-layout,.flow-stage,.surface-display,.recipe,.passport,.reality,.brief-layout{grid-template-columns:1fr}.hero h1{font-size:55px}.hero-art{min-height:345px;margin:15px 13px 12px}.hero-sticker{bottom:-3px}.hero-actions{gap:14px}.hero-bottom{gap:11px;font-size:10px;margin-top:22px}.lede{font-size:16px;margin-top:17px}h2{font-size:43px}.grid3{grid-template-columns:1fr}.grid4{gap:10px}.panel{padding:20px}.usecase{padding:18px}.usecase h3{margin-top:9px}.usecase .emoji{font-size:23px}.usecase a{margin-top:8px}.grid2,.grid3,.grid4{margin-top:23px;gap:15px}.span2{grid-column:span 1}.source-note{margin-top:23px}.layer-detail{padding:23px;min-height:260px}.layer{padding:15px 17px}.demo-content{grid-template-columns:1fr}.demo-side{border-left:0;border-top:1px solid var(--line)}.demo-main,.demo-side{padding:17px}.demo-toolbar{padding:12px 15px}.project-row{gap:8px}.flow-nav{grid-template-columns:repeat(3,1fr);gap:7px}.flow-nav button{min-height:54px}.flow-stage{min-height:initial;gap:17px}.flow-controls{align-items:flex-start}.flow-controls button{flex-shrink:0;font-size:12px}.location-flow{grid-template-columns:1fr;gap:7px}.location-node{min-height:initial;padding:18px}.location-node .mono-label{margin-bottom:8px}.arrow{transform:rotate(90deg);line-height:1}.auth-chain{display:grid;grid-template-columns:1fr 1fr;gap:12px}.auth-step{padding:16px}.quiz-options{flex-direction:column;align-items:stretch}.quiz-options button{padding:13px}.surface-window{height:220px}.passport-stamp{min-height:240px}.passport-stamp h3{max-width:260px}.stamp-circle{margin-top:-45px;width:100px;height:100px}.final-checks{grid-template-columns:1fr;gap:0}.sources-list{grid-template-columns:1fr}.release-table{font-size:12px}.release-table th,.release-table td{padding:11px 7px}.finish-line{flex-direction:column;align-items:flex-start}.deck-footer{padding:12px 16px!important;gap:8px!important}.progress-track{width:50px}.footer-progress{font-size:11px}.footer-nav{gap:7px}.footer-nav button{padding:9px 12px;font-size:12px}.quiz-score{display:none}.brief-output{min-height:340px}.read-all .slide{scroll-margin-top:85px}.dialog-head h2{font-size:30px}dialog{padding:22px}}
+ @media(max-width:360px){h2{font-size:37px}.hero h1{font-size:48px}.header-actions button{padding:7px 5px}.brand{gap:6px}.footer-progress .progress-track{display:none}.auth-chain,.grid4{grid-template-columns:1fr}.project-row{flex-direction:column;align-items:flex-start}.project-status{align-items:flex-start;flex-direction:row;flex-wrap:wrap}}
+ @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+ @media print{@page{size:A4 landscape;margin:14mm}body{background:white;font-size:11px;color:#16332a}header.site-header,aside.rail,footer.deck-footer,.js-control,dialog,.skip,.hero-actions,.flow-controls{display:none!important}main{margin:0;padding:0}.slide,.slide.active{display:block!important;animation:none;break-before:page;page-break-before:always;max-width:none;border:0!important;margin:0!important;padding:0!important}.slide:first-child{break-before:auto;page-break-before:auto}h1{font-size:48px}h2{font-size:36px}.lede{font-size:13px;margin-top:12px}.panel p,.body-copy,.note,.auth-step p,.reality p{font-size:11px}.hero-grid{min-height:initial;gap:25px}.hero-art{min-height:320px}.hero h1{font-size:51px}.grid2,.grid3,.recipe,.passport{margin-top:16px}.source-note{font-size:9px;margin-top:17px;padding-top:10px}.source-note a{color:#24483c}button{padding:6px 8px;font-size:10px!important}.quiz{padding-top:12px;margin-top:15px}.quiz-options{margin-top:8px}.quiz-feedback{font-size:10px}.quiz h3{font-size:13px}pre{font-size:10px;padding:13px}.flow-stage{min-height:180px;padding:20px}.demo-side p,.demo-log{font-size:10px}.brief-output{padding:22px}.hero-sticker{bottom:8px}.print-sources{display:block;break-before:page}.print-sources h2{margin-bottom:20px}.print-sources ol{columns:2;column-gap:30px;font-size:9px}.print-sources li{break-inside:avoid;margin-bottom:12px;overflow-wrap:anywhere}.passport-items label{font-size:10px;padding:7px}.passport-items small{font-size:9px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.slide{break-inside:avoid}.flow-nav{margin-top:17px}.reality ul{font-size:11px}.usecase p{font-size:11px}.usecase h3{font-size:16px}.usecase a{font-size:10px}}
+ .segmented button{color:var(--ink)}
+ .orbit-label{z-index:2;top:0}
+ @media screen and (max-width:650px){.passport-stamp h3{font-size:30px}.stamp-circle{margin-top:18px}}
+ @media print{.source-note{display:none}.passport-stamp h3{font-size:28px}.stamp-circle{width:90px;height:90px;margin-top:12px}.stamp-circle b{font-size:32px}.demo-main,.demo-side{padding:14px}.project-row{padding:10px}.quiz-feedback{min-height:0}.finish-line{margin-top:14px;padding-top:12px}.brief-layout{margin-top:18px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the lesson</a>
+<header class="site-header">
+ <a class="brand" href="#welcome" aria-label="Small App, Big Context, first chapter"><span class="mark" aria-hidden="true">↗</span> Small App, Big Context</a>
+ <div class="header-actions">
+  <span class="edition">A developer field guide · 06 Oct 2026</span>
+  <button class="plain mobile-menu js-control" id="menu-button" aria-label="Open chapter menu">Chapters</button>
+  <button class="plain js-control" id="read-button" aria-pressed="false">Read all</button>
+  <button class="plain sources-button js-control" data-open-sources>Sources ↗</button>
+  <button class="plain print-button js-control" id="print-button" aria-label="Print the complete guide or save as PDF">Print / PDF</button>
+ </div>
+</header>
+<aside class="rail" aria-label="Guide navigation">
+ <p class="rail-label">From “huh?” to shipped.</p>
+ <nav class="chapter-nav" id="chapter-nav" aria-label="Chapters"></nav>
+ <div class="rail-foot"><strong>16 short chapters. Your pace.</strong>Try the controls. Get a question wrong. That’s part of the tour.<br><br><span id="rail-score">0 / 6 check-ins mastered</span></div>
+</aside>
+<main id="main">
+<section class="slide active hero" id="welcome" data-title="Welcome aboard" data-source="architecture,mcp">
+ <div class="eyebrow">Field guide 001 · MCP Apps → ChatGPT Plugins</div>
+ <div class="hero-grid">
+  <div>
+   <h1>Your next app<br>might live in<br><em>someone else’s<br>chat.</em></h1>
+   <p class="lede">A practical tour of interactive AI apps, the opportunity behind them, and the road to a ChatGPT plugin listing.</p>
+   <div class="hero-actions"><button class="orange js-control" data-go="1">Let’s build the mental model →</button><span class="small">About 15 minutes.<br>No protocol tattoo required.</span></div>
+  </div>
+  <div class="hero-art" aria-label="Illustration of a project-status app inside a conversation">
+   <span class="orbit-label">software, in the conversation</span>
+   <div class="mock-window">
+    <div class="mock-top"><span>● ● ●</span><span>AN AI CONVERSATION</span><span>↗</span></div>
+    <div class="mock-body">
+     <div class="bubble">“Anything I should worry about before our launch?”</div>
+     <span class="kicker">Launchpad / Projects</span>
+     <div class="mock-project"><div><b>Atlas API</b><small>Production · 2 environments</small></div><span class="pill status-ok">Running</span></div>
+     <div class="mock-project"><div><b>Orbit worker</b><small>Latest release needs a look</small></div><span class="pill status-warn">Attention</span></div>
+     <div class="mock-project"><div><b>Docs site</b><small>Production · Updated today</small></div><span class="pill status-ok">Running</span></div>
+    </div>
+   </div>
+   <span class="hero-sticker">less tab hopping<br>more doing</span>
+  </div>
+ </div>
+ <div class="hero-bottom"><span>01 / WHY BUILD ONE</span><span>02 / HOW THE PIECES WORK</span><span>03 / HOW TO GET LISTED</span></div>
+ <p class="small" style="margin-top:19px">Independent educational guide. Launchpad is fictional. Diagrams, project data, and simulations are illustrative; this page is not a live MCP App or an OpenAI product.</p>
+</section>
+
+<section class="slide" id="opportunity" data-title="The useful opportunity" data-source="mcp,review">
+ <div class="eyebrow">01 · Start with the person, not the protocol</div>
+ <h2>Meet users at the<br><em>moment they need you.</em></h2>
+ <p class="lede">Someone is already asking an assistant to solve a problem. Your app can bring the right data and controls into that moment.</p>
+ <div class="grid3">
+  <article class="panel mint"><span class="number">01</span><h3>Context is already there.</h3><p class="body-copy">The user has described the launch, trip, incident, or decision. A useful app picks up that thread and helps finish the job.</p></article>
+  <article class="panel lemon"><span class="number">02</span><h3>Some answers need a UI.</h3><p class="body-copy">A chart you can filter. A schedule you can rearrange. A draft you can inspect before sending. Conversation and controls can take turns.</p></article>
+  <article class="panel"><span class="number">03</span><h3>Bring your advantage.</h3><p class="body-copy">Your product’s data, workflow, integrations, or expertise should make the result more useful than a generic answer.</p></article>
+ </div>
+ <div class="note"><strong>Our product bet:</strong> start with one frequently useful task. A listing can help people find it; repeat use has to be earned.</div>
+ <div class="choice-list" id="fit-choices" aria-label="Choose a product idea">
+  <button data-fit="lookup" aria-pressed="false">“What’s my account ID?”</button>
+  <button data-fit="compare" aria-pressed="true">“Compare these deployments.”</button>
+  <button data-fit="homepage" aria-pressed="false">“Put our homepage in chat.”</button>
+ </div>
+ <div class="feedback-box" id="fit-feedback" aria-live="polite"><strong>Good candidate for an MCP App.</strong><p>A visual comparison can make status, timestamps, and differences easier to inspect. The tool gets the facts; the UI makes them explorable.</p></div>
+</section>
+
+<section class="slide" id="layers" data-title="Four pieces, one experience" data-source="architecture,skills,mcp">
+ <div class="eyebrow">02 · Vocabulary without the alphabet soup</div>
+ <h2>Four pieces.<br><em>One experience.</em></h2>
+ <p class="lede">“MCP server,” “MCP App,” “host,” and “plugin” describe different jobs. Click a layer to meet it.</p>
+ <div class="layer-layout">
+  <div class="layer-stack" aria-label="Explore the four layers">
+   <button class="layer" data-layer="server" aria-pressed="true"><span class="symbol">{ }</span><span><b>MCP server</b><small>Tools, data, and permission checks</small></span></button>
+   <button class="layer" data-layer="app" aria-pressed="false"><span class="symbol">▦</span><span><b>MCP App</b><small>An interactive UI attached to tools</small></span></button>
+   <button class="layer" data-layer="host" aria-pressed="false"><span class="symbol">⌘</span><span><b>Host</b><small>The application displaying the UI</small></span></button>
+   <button class="layer" data-layer="plugin" aria-pressed="false"><span class="symbol">↗</span><span><b>ChatGPT plugin</b><small>The installable package and integration</small></span></button>
+  </div>
+  <div class="layer-detail" id="layer-detail" aria-live="polite"><span class="mono-label">The capability layer</span><h3>A small API with a shared language.</h3><p>An MCP server advertises operations such as list_projects, accepts structured inputs, and returns results. Your backend decides what the caller may access.</p><div class="example">Launchpad → list_projects()</div></div>
+ </div>
+ <div class="note"><strong>And a skill?</strong> Reusable instructions for a workflow: “review project risks, then draft a launch update.” A plugin can package skills, MCP capabilities, or both. A custom UI is optional.</div>
+</section>
+
+<section class="slide" id="examples" data-title="What people build" data-source="claude,monitor,pdf,scenario">
+ <div class="eyebrow">03 · Six reasons to give a tool a face</div>
+ <h2>Put the mouse<br><em>to work.</em></h2>
+ <p class="lede">These are documented product integrations and runnable reference demos. The common thread: people need to interact with the result.</p>
+ <div class="grid3">
+  <article class="usecase"><span class="tag fill">Product integration</span><h3>Explore the numbers.</h3><p>Amplitude and Hex in Claude bring interactive charts and tables into data questions.</p><a href="https://claude.com/resources/articles/interactive-tools-in-claude" target="_blank" rel="noopener noreferrer">See the integrations ↗</a></article>
+  <article class="usecase"><span class="tag fill">Product integration</span><h3>Shape the plan.</h3><p>Asana in Claude turns conversations into tasks, projects, and timelines people can work with.</p><a href="https://claude.com/resources/articles/interactive-tools-in-claude" target="_blank" rel="noopener noreferrer">See the integration ↗</a></article>
+  <article class="usecase"><span class="tag fill">Product integration</span><h3>Review, then send.</h3><p>Slack in Claude lets users format and inspect message drafts before posting them.</p><a href="https://claude.com/resources/articles/interactive-tools-in-claude" target="_blank" rel="noopener noreferrer">See the integration ↗</a></article>
+  <article class="usecase"><span class="tag">Official reference demo</span><h3>Watch the system.</h3><p>A CPU and memory dashboard polls a server tool to update its charts every two seconds.</p><a href="https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/system-monitor-server" target="_blank" rel="noopener noreferrer">Explore System Monitor ↗</a></article>
+  <article class="usecase"><span class="tag">Official reference demo</span><h3>Read together.</h3><p>A PDF viewer shares the current page’s context so the assistant can answer questions about it.</p><a href="https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/pdf-server" target="_blank" rel="noopener noreferrer">Explore the PDF viewer ↗</a></article>
+  <article class="usecase"><span class="tag">Official React demo</span><h3>Try “what if?”</h3><p>A SaaS modeler uses sliders to explore growth, churn, costs, and changing projections.</p><a href="https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/scenario-modeler-server" target="_blank" rel="noopener noreferrer">Explore the modeler ↗</a></article>
+ </div>
+</section>
+
+<section class="slide" id="playground" data-title="Try a tiny app" data-source="patterns,pdf">
+ <div class="eyebrow">04 · A small, deliberately fictional playground</div>
+ <h2>Don’t just read it.<br><em>Click around.</em></h2>
+ <p class="lede">Launchpad answers “How are my projects doing?” Try filtering, refreshing, and selecting a project. Watch what each action would require.</p>
+ <div class="demo-shell">
+  <div class="demo-toolbar"><b>↗ Launchpad</b><span class="tag">Local simulation · invented data</span><div class="segmented" aria-label="Demo presentation"><button data-demo-view="ui" aria-pressed="true">MCP App</button><button data-demo-view="text" aria-pressed="false">Text result</button></div></div>
+  <div class="demo-content">
+   <div class="demo-main">
+    <div id="demo-ui">
+     <div class="demo-controls"><input id="project-search" aria-label="Search demo projects" placeholder="Find a project…"><select id="project-filter" aria-label="Filter demo projects"><option value="all">All projects</option><option value="attention">Needs attention</option></select><button id="refresh-demo">Refresh ↻</button></div>
+     <div id="project-list"></div>
+     <p class="demo-caption" id="demo-refresh-label">Snapshot A · Click a row to inspect its handoff.</p>
+    </div>
+    <div id="demo-text" class="demo-text" hidden>Atlas API: running; latest deploy succeeded.
+Orbit worker: running; latest deploy failed.
+Docs site: sleeping; latest deploy succeeded.
+
+3 projects in the Example Team workspace.</div>
+   </div>
+   <aside class="demo-side" aria-label="What the demo interaction does">
+    <span class="mono-label">Under the hood</span>
+    <h3>Last interaction</h3><div class="demo-log" id="demo-log" aria-live="polite">Initial data → render project cards.</div>
+    <h3>Explicit assistant context</h3><div class="demo-log" id="demo-context" aria-live="polite">No project selected.</div>
+    <p>The real UI can share a selection with the assistant. It does not automatically expose every pixel, click, or local state value.</p>
+   </aside>
+  </div>
+ </div>
+ <p class="note"><strong>Notice the split:</strong> search is local UI state. Refresh would call the backend through the host. Opening management can hand off to a browser. No AI-generated reply is needed for each click.</p>
+</section>
+
+<section class="slide" id="protocol" data-title="Follow a tool call" data-source="sdk,patterns">
+ <div class="eyebrow">05 · The packet’s-eye view</div>
+ <h2>A tool call walks<br><em>into a chat…</em></h2>
+ <p class="lede">Step through the conversation-driven path. Sidebar entry points can also launch an app without starting from a typed prompt.</p>
+ <div class="flow-nav" aria-label="Tool call stages">
+  <button data-stage="0" aria-pressed="true"><span>01</span>Intent</button><button data-stage="1" aria-pressed="false"><span>02</span>Discovery</button><button data-stage="2" aria-pressed="false"><span>03</span>Execution</button><button data-stage="3" aria-pressed="false"><span>04</span>UI resource</button><button data-stage="4" aria-pressed="false"><span>05</span>Rendering</button><button data-stage="5" aria-pressed="false"><span>06</span>Interaction</button>
+ </div>
+ <div class="flow-stage" id="flow-stage" aria-live="polite"><div><span class="mono-label">01 / A person has a goal</span><h3>“Show my projects.”</h3><p>The host’s assistant has a reason to use Launchpad. The user’s words express the job; the integration supplies the capability.</p></div><pre>USER → ASSISTANT
+
+“Show my projects.
+Which ones need attention?”</pre></div>
+ <div class="flow-controls"><p>Teaching sequence, not a timing guarantee: hosts can cache or preload the UI, and discovery usually happens before an individual request.</p><button id="next-stage">Next packet →</button></div>
+ <details><summary>Developer detail: two connections, different jobs</summary><p>The host talks to the MCP server using MCP transport, such as Streamable HTTP. The embedded UI talks to the host through the MCP Apps bridge using messages. The host mediates tool calls; UI code does not receive a universal pass to your backend.</p></details>
+</section>
+
+<section class="slide" id="ui-home" data-title="Where the UI lives" data-source="ui,sdk">
+ <div class="eyebrow">06 · The question everyone asks</div>
+ <h2>Ships with you.<br><em>Runs with them.</em></h2>
+ <p class="lede">React source is authored in your repository. Its compiled output is delivered by your integration. The host runs the interface in an isolated frame.</p>
+ <div class="location-flow">
+  <div class="location-node"><span class="mono-label">Your repository</span><h3>React + components</h3><p>Reuse a design system. Separate display components from website routing and cookie-dependent data hooks.</p></div>
+  <span class="arrow" aria-hidden="true">→</span>
+  <div class="location-node"><span class="mono-label">Your deployment</span><h3>HTML / JS / CSS</h3><p>The MCP server exposes a UI resource. The bundle can be inlined; allowed external assets may live on a CDN.</p></div>
+  <span class="arrow" aria-hidden="true">→</span>
+  <div class="location-node"><span class="mono-label">The host</span><h3>Sandboxed UI</h3><p>ChatGPT, Claude, or another compatible host renders the view and supplies its communication bridge.</p></div>
+ </div>
+ <div class="note"><strong>No new hosting empire required.</strong> The MCP route and UI bundle can join an existing backend deployment. Some desktop hosts also support local servers over stdio; public ChatGPT distribution uses a reachable HTTPS service.</div>
+ <div class="quiz" data-quiz="ui-home" data-correct="1" data-explanation="The bundle is delivered by your integration; interactive UI code executes in the host’s sandbox. The server still runs your tool handlers.">
+  <div class="quiz-label">Check-in 1 / 6</div><h3>Where does the project card’s click handler execute?</h3>
+  <div class="quiz-options"><button data-answer="0">Inside the language model</button><button data-answer="1">Inside the host’s UI sandbox</button><button data-answer="2">Only on your MCP server</button></div><p class="quiz-feedback" aria-live="polite"></p>
+ </div>
+</section>
+
+<section class="slide" id="auth" data-title="Who gets to see what?" data-source="auth,security">
+ <div class="eyebrow">07 · A real customer, a new connection</div>
+ <h2>“It’s me” and<br><em>“I’m allowed”</em><br>are different checks.</h2>
+ <div class="auth-chain">
+  <div class="auth-step"><span class="n">01 / CONNECT</span><h3>The host starts OAuth.</h3><p>It discovers your authorization server and begins account linking.</p></div>
+  <div class="auth-step"><span class="n">02 / SIGN IN</span><h3>Your identity provider.</h3><p>The person authenticates and grants consent. Existing account identities can be reused.</p></div>
+  <div class="auth-step"><span class="n">03 / CALL</span><h3>The host sends a token.</h3><p>Authenticated MCP requests carry the access token. Keep credentials out of UI props.</p></div>
+  <div class="auth-step"><span class="n">04 / ENFORCE</span><h3>Your server decides.</h3><p>Validate the token, its audience and scopes, then check access to the requested organization and records.</p></div>
+ </div>
+ <div class="note"><strong>For an existing SaaS:</strong> plan a proper OAuth connection for the integration. A browser’s website session and the plugin’s authorization are separate. A project deep link may still require website sign-in.</div>
+ <details><summary>Implementation checklist, minus the OAuth rabbit hole</summary><p>Use authorization code + PKCE, publish discovery metadata, register the correct resource/audience, and use the callback URI shown by the host. Check signature, issuer, expiry, scopes, and product permissions on the server. Treat model- and UI-supplied identifiers as untrusted inputs.</p></details>
+ <div class="quiz" data-quiz="permission" data-correct="2" data-explanation="An organization ID is a requested scope of data, not proof of access. Validate the caller’s token and actual membership/permissions on every protected call.">
+  <div class="quiz-label">Check-in 2 / 6</div><h3>The UI sends an organization ID. Is that enough to authorize access?</h3>
+  <div class="quiz-options"><button data-answer="0">Yes, the UI picked it</button><button data-answer="1">Yes, if the model chose it</button><button data-answer="2">No, the backend must verify access</button></div><p class="quiz-feedback" aria-live="polite"></p>
+ </div>
+</section>
+
+<section class="slide" id="hosts" data-title="A core, many entrances" data-source="extensions,hosts,vscode">
+ <div class="eyebrow">08 · The standard travels; the front door changes</div>
+ <h2>Build a core.<br><em>Choose your entrances.</em></h2>
+ <p class="lede">Compatible hosts such as Claude, VS Code Copilot, and Microsoft 365 Copilot can render MCP Apps. ChatGPT adds product-specific entry points around that foundation.</p>
+ <div class="surface-tabs" aria-label="Explore ChatGPT surfaces">
+  <button data-surface="sidebar" aria-pressed="true">Sidebar app</button><button data-surface="panel" aria-pressed="false">Conversation panel</button><button data-surface="file" aria-pressed="false">File viewer</button><button data-surface="mention" aria-pressed="false">Composer mention</button>
+ </div>
+ <div class="surface-display">
+  <div class="surface-window" aria-label="Conceptual illustration of the selected ChatGPT surface"><div class="top">CONCEPTUAL HOST · NOT AN EXACT PRODUCT SCREENSHOT</div><div class="surface-interior"><div class="fake-sidebar"><span>New chat</span><span>Recent work</span><span class="selected" id="surface-nav-label">↗ Launchpad</span></div><div class="fake-chat" id="surface-visual"><div class="line"></div><div class="line" style="width:55%"></div><div class="app-block">Launchpad<br><small>All your projects, one view.</small></div></div></div></div>
+  <div class="surface-copy" id="surface-copy" aria-live="polite"><h3>A place users can return to.</h3><p>A global sidebar entry launches the app fullscreen. It suits a project dashboard users want to reopen.</p><p class="small" style="margin-top:13px">Optional extension metadata chooses the entry point.</p></div>
+ </div>
+ <div class="note"><strong>Portable does not mean identical.</strong> Detect host capabilities and test each client. Sidebar registration, authentication setup, display modes, and distribution can differ. As of this guide’s date, OpenAI documents composer mentions as desktop-only and web extension rollout limits for Free/Go.</div>
+</section>
+
+<section class="slide" id="build" data-title="Build the first useful slice" data-source="tools,server,ui">
+ <div class="eyebrow">09 · The build recipe</div>
+ <h2>One goal. One tool.<br><em>One useful screen.</em></h2>
+ <p class="lede">For Launchpad: “Help me spot project issues, then open the web app for management.” Keep the first release easy to understand and test.</p>
+ <div class="recipe">
+  <ol class="steps">
+   <li><strong>Choose the outcome.</strong>What can the person finish here? Write the success condition before designing the card.</li>
+   <li><strong>Build the tool contract.</strong>Define list_projects, a clear description, input/output schemas, and truthful annotations.</li>
+   <li><strong>Connect existing business logic.</strong>Reuse project services; enforce permissions before retrieving data.</li>
+   <li><strong>Build and register the view.</strong>Compile React, register its UI resource, and connect it to the tool.</li>
+   <li><strong>Handle the unglamorous states.</strong>Loading, empty accounts, errors, expired auth, and stale data are part of the product.</li>
+  </ol>
+  <div>
+   <pre><span class="code-comment">// Descriptor excerpt — not a complete server</span>
+{
+  name: "list_projects",
+  description: "List project health for the connected workspace.",
+  annotations: { readOnlyHint: true },
+  _meta: {
+    ui: {
+      resourceUri: "ui://launchpad/projects-v1.html"
+    }
+  }
+}
+
+<span class="code-comment">// Handler returns model-readable data as well</span>
+{
+  structuredContent: {
+    projects: [ /* authorized records */ ]
+  }
+}</pre>
+   <p class="tiny" style="margin-top:11px">Add schemas, authentication, transport, resource registration, and error handling using the current SDK docs. This is the relationship between the pieces, not copy-and-run scaffolding.</p>
+  </div>
+ </div>
+ <div class="note"><strong>A useful tool should still work without its UI.</strong> The assistant can summarize project health from structured results. The view adds inspection and navigation.</div>
+</section>
+
+<section class="slide" id="test" data-title="Test and deploy" data-source="test,server,reference">
+ <div class="eyebrow">10 · Before the launch confetti</div>
+ <h2>Make it work<br><em>in the actual host.</em></h2>
+ <div class="grid2">
+  <article class="panel mint"><span class="kicker">Deploy = run your code</span><h3>Your infrastructure.</h3><p class="body-copy">Build the UI, include its resources with the server, and expose a stable HTTPS MCP endpoint for public distribution. A tunnel can support early testing.</p><ul class="check-list"><li>Use a separate test environment and sample accounts.</li><li>Check tool calls directly with MCP Inspector.</li><li>Verify error handling, logs, and service availability.</li></ul></article>
+  <article class="panel"><span class="kicker">Connect = try the experience</span><h3>Inside ChatGPT.</h3><p class="body-copy">Go to Plugins → plus → Add custom MCP server. Enter the endpoint or tunnel, configure authentication, then create and install the plugin. Account and workspace policies apply.</p><ul class="check-list"><li>Start a new conversation and invoke the plugin.</li><li>Test both tool results and rendered UI.</li><li>Refresh the custom connection after metadata changes.</li></ul></article>
+ </div>
+ <div class="panel" style="margin-top:20px"><h3>Our Launchpad test lap</h3><p class="body-copy">Authorized projects only → status matches the web app → empty and expired-login states work → Refresh updates the view → a project link reaches the correct browser page.</p></div>
+ <p class="note"><strong>Browser handoff is a first-class feature.</strong> Use the host’s supported link-opening API and required destination metadata. Test both signed-in and signed-out website sessions.</p>
+</section>
+
+<section class="slide" id="package" data-title="Package and distribute" data-source="package,architecture">
+ <div class="eyebrow">11 · Wrap the experience people install</div>
+ <h2>The package is<br><em>the introduction.</em></h2>
+ <p class="lede">It tells the host what the plugin is and how to connect. Your deployed server continues to supply live tools and UI.</p>
+ <div class="grid2">
+  <pre style="margin-top:0">launchpad/
+├── plugin.json     <span class="code-comment"># identity + listing metadata</span>
+├── mcp.json        <span class="code-comment"># remote MCP endpoint</span>
+├── assets/
+│   └── icon.png
+└── skills/         <span class="code-comment"># optional workflows</span>
+
+<span class="code-comment">UI bundle → shipped with the server
+Secrets   → server configuration</span></pre>
+  <div class="panel lemon"><h3>Use the current package format.</h3><p class="body-copy">New portable packages use a root plugin.json. OpenAI presentation fields live under extensions.com.openai. A root mcp.json declares remote connections.</p><p class="body-copy">This tree is an outline; public submission needs the required listing and review fields. Existing compatibility formats also exist.</p></div>
+ </div>
+ <div class="grid3" style="gap:10px" aria-label="Distribution options">
+  <button class="route-option" data-route="personal" aria-pressed="true"><b>Personal / local</b><span>Develop and test your integration.</span></button>
+  <button class="route-option" data-route="workspace" aria-pressed="false"><b>Workspace</b><span>Make it available to your team.</span></button>
+  <button class="route-option" data-route="public" aria-pressed="false"><b>Public directory</b><span>Reach customers beyond your workspace.</span></button>
+ </div>
+ <div class="route-details" id="route-details" aria-live="polite">Connect a custom MCP server or install from a local marketplace to test. A local marketplace is a catalog of package locations; creating one does not create a public listing.</div>
+</section>
+
+<section class="slide" id="publish" data-title="Get the public listing" data-source="submission,errors">
+ <div class="eyebrow">12 · Your launch passport</div>
+ <h2>Deployed → reviewed<br><em>→ published.</em></h2>
+ <p class="lede">For a public remote-MCP plugin, prepare a working service and a complete submission package. Tick these to rehearse the launch process.</p>
+ <div class="passport">
+  <div class="passport-stamp">
+   <div><span class="kicker">Public submission route</span><h3>Upload the ZIP.<br>Connect the MCP.<br>Resolve findings.<br>Submit for review.<br>Publish after approval.</h3><p class="body-copy" style="margin-top:17px">The OpenAI Platform Plugins portal handles the draft, domain check, tool scan, review, and final publish action.</p></div>
+   <div class="stamp-circle" aria-live="polite"><b id="passport-count">0/7</b><span>items rehearsed</span></div>
+  </div>
+  <div class="passport-items">
+   <label><input type="checkbox"><span><b>Publishing identity and access</b><small>Verified individual or business; owner or Apps Management Write access.</small></span></label>
+   <label><input type="checkbox"><span><b>Working production connection</b><small>Stable HTTPS endpoint, authentication, and domain verification.</small></span></label>
+   <label><input type="checkbox"><span><b>Complete listing and package</b><small>Name, description, icon, version, and website/support/privacy/terms URLs.</small></span></label>
+   <label><input type="checkbox"><span><b>Successful automated checks</b><small>Resolve required metadata, connection, and tool-scan findings.</small></span></label>
+   <label><input type="checkbox"><span><b>Reviewer access</b><small>A dedicated sample-data account that reviewers can actually use.</small></span></label>
+   <label><input type="checkbox"><span><b>Five positive + three negative cases</b><small>Test expected successes and requests the integration should not complete.</small></span></label>
+   <label><input type="checkbox"><span><b>Walkthrough and release details</b><small>Demo video, release notes, and required policy attestations.</small></span></label>
+  </div>
+ </div>
+ <div class="launch-line"><b>DEPLOY</b><span>→</span><b>UPLOAD</b><span>→</span><b>VERIFY + SCAN</b><span>→</span><b>REVIEW</b><span>→</span><b>PUBLISH</b></div>
+ <p class="tiny" id="passport-note" aria-live="polite" style="margin-top:12px">Practice checklist only. These controls do not validate a service, submit a package, or confer approval.</p>
+</section>
+
+<section class="slide" id="marketplace" data-title="The App Store reality check" data-source="review,guidelines">
+ <div class="eyebrow">13 · Opportunity, with the fine print in normal-sized type</div>
+ <h2>A listing is<br><em>a starting line.</em></h2>
+ <div class="reality">
+  <article class="panel mint"><span class="big-word">Distribution</span><h3>Findable ≠ featured.</h3><p>Published plugins can be found by name or through their directory link. Featured placement and proactive suggestions are selective, not guaranteed.</p><ul><li>Give people a concrete reason to connect.</li><li>Show a starter prompt that produces a useful result.</li><li>Our suggested metrics: connection success, task completion, and return use.</li></ul></article>
+  <article class="panel lemon"><span class="big-word">Monetization · checked 06 Oct 2026</span><h3>Read today’s rules.</h3><p>Current guidelines restrict plugin commerce to physical goods. They prohibit selling digital products or subscriptions and promoting upgrades.</p><p>People may sign in to an existing paid account and use already-included features. Don’t design your SaaS launch around an assumed in-plugin checkout.</p></article>
+ </div>
+ <div class="note"><strong>A developer’s hypothesis:</strong> a useful integration may strengthen an existing product’s adoption and retention. That is something to measure—not a promise of installs, revenue, or marketplace payouts.</div>
+ <div class="quiz" data-quiz="listing" data-correct="0" data-explanation="Approval is followed by a separate publish action. A published listing is discoverable; featured placement is selective. Plan your own onboarding and customer outreach.">
+  <div class="quiz-label">Check-in 3 / 6</div><h3>“Once approved, our plugin automatically gets featured.”</h3>
+  <div class="quiz-options"><button data-answer="0">False — publish, then earn usage</button><button data-answer="1">True — approval includes promotion</button></div><p class="quiz-feedback" aria-live="polite"></p>
+ </div>
+</section>
+
+<section class="slide" id="maintenance" data-title="Keep it working" data-source="submission,ui,security">
+ <div class="eyebrow">14 · Launch day is version one</div>
+ <h2>Ship improvements.<br><em>Keep your promises.</em></h2>
+ <table class="release-table"><thead><tr><th>What changed?</th><th>What you do</th></tr></thead><tbody>
+  <tr><td>Backend behavior</td><td>Deploy the fix while preserving the approved tool contract.</td></tr>
+  <tr><td>Tools or their metadata</td><td>Deploy, request a rescan, and check availability. Eligible updates pass automated checks; keep the old contract working meanwhile.</td></tr>
+  <tr><td>UI bundle</td><td>Rebuild and deploy. Give breaking UI changes a new resource URI and update its tool reference.</td></tr>
+  <tr><td>Packaged metadata or skills</td><td>Upload a new package version and follow its checks, review, and publication process.</td></tr>
+ </tbody></table>
+ <div class="final-checks">
+  <div class="quiz" data-quiz="annotation" data-correct="1" data-explanation="readOnlyHint describes behavior to the host. It is not an authorization mechanism; the server must enforce permissions and the operation itself must actually be read-only.">
+   <div class="quiz-label">Check-in 4 / 6</div><h3>Does readOnlyHint secure your endpoint?</h3><div class="quiz-options"><button data-answer="0">Yes, it blocks forbidden calls</button><button data-answer="1">No, it describes behavior</button></div><p class="quiz-feedback" aria-live="polite"></p>
+  </div>
+  <div class="quiz" data-quiz="publish" data-correct="0" data-explanation="Deployment makes your service run. Public distribution also requires the directory submission, review, and publish steps.">
+   <div class="quiz-label">Check-in 5 / 6</div><h3>You deployed /mcp. Are you listed?</h3><div class="quiz-options"><button data-answer="0">No, distribution is another step</button><button data-answer="1">Yes, hosting creates the listing</button></div><p class="quiz-feedback" aria-live="polite"></p>
+  </div>
+ </div>
+ <div class="quiz" data-quiz="scope" data-correct="2" data-explanation="A focused task gives you a clear success condition and a manageable permission surface. For Launchpad: inspect status, then hand off to the website for deeper management.">
+  <div class="quiz-label">Check-in 6 / 6 · Product judgment</div><h3>What is our recommended first release for Launchpad?</h3><div class="quiz-options"><button data-answer="0">Every screen from the website</button><button data-answer="1">An attractive landing page</button><button data-answer="2">A useful project-status workflow</button></div><p class="quiz-feedback" aria-live="polite"></p>
+ </div>
+</section>
+
+<section class="slide" id="your-brief" data-title="Your turn to build" data-source="tools,architecture">
+ <div class="eyebrow">15 · Take a small idea seriously</div>
+ <h2>Build a useful<br><em>moment.</em></h2>
+ <p class="lede">Before scaffolding a repo, finish this brief. If the UI has a clear job and the first tool has a clear boundary, you have somewhere to start.</p>
+ <div class="brief-layout">
+  <form class="brief-form" id="brief-form">
+   <label>APP NAME<input name="name" id="brief-name" maxlength="70" value="Launchpad"></label>
+   <label>WHEN A USER ASKS…<textarea name="goal" id="brief-goal" rows="2" maxlength="300">Which of my projects need attention?</textarea></label>
+   <label>THE UI MAKES IT EASIER TO…<textarea name="value" id="brief-value" rows="2" maxlength="300">Scan health, compare environments, and open the right project.</textarea></label>
+   <label>THE FIRST TOOL IS…<input name="tool" id="brief-tool" maxlength="100" value="list_projects — read only, scoped to an authorized organization"></label>
+  </form>
+  <div class="brief-output">
+   <span class="mono-label">Your first-release brief</span><h3 id="brief-preview-name">Launchpad</h3>
+   <p id="brief-preview-goal">For people asking: “Which of my projects need attention?”</p>
+   <p id="brief-preview-value">The UI helps them scan health, compare environments, and open the right project.</p>
+   <p id="brief-preview-tool">First capability: list_projects — read only, scoped to an authorized organization.</p>
+   <p style="margin-top:16px;color:var(--mint)">Prove one end-to-end task with a real test account. Then prepare the public listing.</p>
+   <div class="brief-actions js-control"><button id="download-brief">Download brief ↓</button><button data-open-sources>Open the source shelf ↗</button></div>
+  </div>
+ </div>
+ <div class="finish-line"><p id="finish-score">You’ve reached the build brief. Six check-ins are available along the way.</p><button class="primary js-control" id="review-checks">Review the check-ins →</button></div>
+ <p class="small" style="margin-top:18px">This file works offline. Interactions stay in this page; nothing is sent to an AI or backend. Reloading resets the exercises. Links open the original documentation. Use Read all or Print / PDF for a continuous version.</p>
+</section>
+<section class="print-sources"><h2>Source shelf</h2><p>Official sources consulted for this guide. Guidance researched 6 October 2026; recheck availability and submission rules before shipping.</p><ol id="print-source-list"></ol></section>
+</main>
+<footer class="deck-footer">
+ <div class="footer-progress"><span id="slide-count">01 / 16</span><div class="progress-track" role="progressbar" aria-label="Chapter progress" aria-valuemin="1" aria-valuemax="16" aria-valuenow="1" id="progress-track"><div class="progress-bar" id="progress-bar" style="width:6.25%"></div></div><span class="keyboard-hint">← → to explore</span><span class="quiz-score" id="footer-score"></span></div>
+ <div class="footer-nav"><button id="previous-slide" disabled aria-label="Previous chapter">← Back</button><button class="primary" id="next-slide">Next chapter →</button></div>
+</footer>
+<dialog id="sources-dialog" aria-labelledby="sources-title"><div class="dialog-head"><h2 id="sources-title">The source shelf.</h2><button data-close-dialog>Close ✕</button></div><p class="body-copy">Primary documentation, product announcements, and official demos. Facts are sourced; product recommendations and Launchpad are teaching examples. Research date: <strong>6 October 2026</strong>. Availability and portal wording can change.</p><div class="sources-list" id="sources-list" style="margin-top:17px"></div></dialog>
+<dialog id="menu-dialog" aria-labelledby="menu-title"><div class="dialog-head"><h2 id="menu-title">Pick a chapter.</h2><button data-close-dialog>Close ✕</button></div><nav class="chapter-nav" id="mobile-chapter-nav" aria-label="All chapters"></nav><button data-open-sources style="margin-top:15px">Source shelf ↗</button></dialog>
+<dialog id="project-dialog" aria-labelledby="project-title"><div class="dialog-head"><h2 id="project-title">Project handoff</h2><button data-close-dialog>Close ✕</button></div><p id="project-handoff" class="body-copy"></p><div class="note">In the real integration, a user-initiated action would request the host’s external-link API with your project’s management URL. This teaching demo opens no external project and sends no data.</div><pre id="project-url"></pre></dialog>
+<noscript><style>.slide{display:block;margin-bottom:70px}.js-control,.deck-footer,.rail{display:none}main{margin-left:0}.print-sources{display:block}</style><p style="padding:20px">JavaScript is disabled. The reading material remains available; interactive exercises require JavaScript.</p></noscript>
+<script>
+ (function(){
+ 'use strict';
+ const SOURCES={
+  mcp:{title:'MCP Apps overview',url:'https://modelcontextprotocol.io/extensions/apps/overview',publisher:'Model Context Protocol'},
+  sdk:{title:'MCP Apps SDK & architecture',url:'https://github.com/modelcontextprotocol/ext-apps',publisher:'Official MCP repository'},
+  patterns:{title:'Interaction and polling patterns',url:'https://apps.extensions.modelcontextprotocol.io/api/documents/patterns.html',publisher:'MCP Apps SDK'},
+  architecture:{title:'Plugin architecture',url:'https://developers.openai.com/plugins/concepts/plugins',publisher:'OpenAI Developers'},
+  skills:{title:'How skills complement tools',url:'https://developers.openai.com/plugins/concepts/skills',publisher:'OpenAI Developers'},
+  ui:{title:'Build and deliver the UI',url:'https://developers.openai.com/plugins/build/chatgpt-ui',publisher:'OpenAI Developers'},
+  auth:{title:'Authentication',url:'https://developers.openai.com/plugins/build/auth',publisher:'OpenAI Developers'},
+  security:{title:'Security and privacy',url:'https://developers.openai.com/plugins/guides/security-privacy',publisher:'OpenAI Developers'},
+  extensions:{title:'ChatGPT extension entry points',url:'https://developers.openai.com/plugins/build/extensions',publisher:'OpenAI Developers'},
+  hosts:{title:'MCP Apps in Microsoft 365 Copilot',url:'https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/plugin-mcp-apps',publisher:'Microsoft Learn'},
+  vscode:{title:'MCP Apps in VS Code',url:'https://code.visualstudio.com/docs/agent-customization/mcp-servers',publisher:'Visual Studio Code'},
+  claude:{title:'Interactive connectors in Claude',url:'https://claude.com/resources/articles/interactive-tools-in-claude',publisher:'Anthropic'},
+  monitor:{title:'System Monitor reference demo',url:'https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/system-monitor-server',publisher:'Official MCP repository'},
+  pdf:{title:'PDF viewer reference demo',url:'https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/pdf-server',publisher:'Official MCP repository'},
+  scenario:{title:'SaaS Scenario Modeler demo',url:'https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/scenario-modeler-server',publisher:'Official MCP repository'},
+  tools:{title:'Define tools',url:'https://developers.openai.com/plugins/plan/define-tools',publisher:'OpenAI Developers'},
+  server:{title:'Build and deploy an MCP server',url:'https://developers.openai.com/plugins/build/mcp-server',publisher:'OpenAI Developers'},
+  reference:{title:'UI APIs and external links',url:'https://developers.openai.com/plugins/reference',publisher:'OpenAI Developers'},
+  test:{title:'Connect and test a plugin',url:'https://developers.openai.com/plugins/deploy/connect-chatgpt',publisher:'OpenAI Developers'},
+  package:{title:'Package and distribute a plugin',url:'https://developers.openai.com/plugins/build/plugins',publisher:'OpenAI Developers'},
+  submission:{title:'Upload, review, publish, update',url:'https://developers.openai.com/plugins/deploy/submission',publisher:'OpenAI Developers'},
+  errors:{title:'Submission requirements and validation',url:'https://developers.openai.com/plugins/deploy/submission-errors',publisher:'OpenAI Developers'},
+  review:{title:'Review and directory discovery',url:'https://developers.openai.com/plugins/deploy/app-review',publisher:'OpenAI Developers'},
+  guidelines:{title:'Plugin guidelines, including commerce',url:'https://developers.openai.com/plugins/plugin-guidelines',publisher:'OpenAI Developers'}
+ };
+ const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+ const slides=$$('.slide'), visited=new Set(), quizState=new Map();
+ let current=0, readAll=false, stage=0, snapshot=0, textMode=false;
+ const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function makeLink(source){const a=document.createElement('a');a.href=source.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=source.title;return a;}
+ slides.forEach((slide,i)=>{
+  ['chapter-nav','mobile-chapter-nav'].forEach(id=>{
+   const b=document.createElement('button');b.dataset.go=i;b.innerHTML='<span class="num">'+String(i+1).padStart(2,'0')+'</span><span>'+escapeHTML(slide.dataset.title)+'</span>';b.setAttribute('aria-label','Chapter '+(i+1)+': '+slide.dataset.title);document.getElementById(id).appendChild(b);
+  });
+  const note=document.createElement('div');note.className='source-note';const label=document.createElement('span');label.textContent='Read the source';note.appendChild(label);
+  slide.dataset.source.split(',').forEach(key=>{if(SOURCES[key])note.appendChild(makeLink(SOURCES[key]));});slide.appendChild(note);
+ });
+ Object.values(SOURCES).forEach(source=>{
+  const a=makeLink(source),small=document.createElement('small');small.textContent=source.publisher;a.appendChild(small);$('#sources-list').appendChild(a);
+  const li=document.createElement('li');li.textContent=source.title+' — '+source.url;$('#print-source-list').appendChild(li);
+ });
+ function showSlide(index,options){
+  options=options||{};current=Math.max(0,Math.min(slides.length-1,index));visited.add(current);
+  slides.forEach((s,i)=>s.classList.toggle('active',i===current));
+  $$('.chapter-nav button').forEach(b=>{const n=Number(b.dataset.go);if(n===current)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');b.classList.toggle('visited',visited.has(n));});
+  $('#slide-count').textContent=String(current+1).padStart(2,'0')+' / '+slides.length;
+  $('#progress-bar').style.width=((current+1)/slides.length*100)+'%';$('#progress-track').setAttribute('aria-valuenow',current+1);
+  $('#previous-slide').disabled=current===0;$('#next-slide').disabled=current===slides.length-1;$('#next-slide').textContent=current===slides.length-2?'Your build brief →':'Next chapter →';
+  if(options.hash!==false){try{history.replaceState(null,'','#'+slides[current].id);}catch(e){}}
+  if(options.scroll!==false){if(readAll)slides[current].scrollIntoView({behavior:'auto',block:'start'});else window.scrollTo({top:0,behavior:'instant'});}
+  document.title=slides[current].dataset.title+' · Small App, Big Context';
+  if(options.focus){const h=slides[current].querySelector('h1,h2');h.setAttribute('tabindex','-1');h.focus({preventScroll:true});}
+ }
+ document.addEventListener('click',event=>{
+  const go=event.target.closest('[data-go]');if(go){const d=go.closest('dialog');if(d)d.close();showSlide(Number(go.dataset.go),{focus:true});}
+  const open=event.target.closest('[data-open-sources]');if(open){const d=open.closest('dialog');if(d)d.close();$('#sources-dialog').showModal();}
+  const close=event.target.closest('[data-close-dialog]');if(close)close.closest('dialog').close();
+ });
+ $('#previous-slide').addEventListener('click',()=>showSlide(current-1,{focus:true}));
+ $('#next-slide').addEventListener('click',()=>showSlide(current+1,{focus:true}));
+ $('.brand').addEventListener('click',e=>{e.preventDefault();showSlide(0,{focus:true});});
+ $('#menu-button').addEventListener('click',()=>$('#menu-dialog').showModal());
+ $('#print-button').addEventListener('click',()=>window.print());
+ $('#read-button').addEventListener('click',()=>{
+  readAll=!readAll;document.body.classList.toggle('read-all',readAll);$('#read-button').textContent=readAll?'Slide mode':'Read all';$('#read-button').setAttribute('aria-pressed',String(readAll));showSlide(current);
+ });
+ document.addEventListener('keydown',e=>{
+  if($('dialog[open]')||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+  const t=e.target;if(t.closest('input,textarea,select,[contenteditable],.quiz-options,.flow-nav,.surface-tabs,.choice-list'))return;
+  if(readAll)return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();showSlide(current+1,{focus:true});}
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();showSlide(current-1,{focus:true});}
+ });
+ window.addEventListener('hashchange',()=>{const n=slides.findIndex(s=>s.id===location.hash.slice(1));if(n>=0)showSlide(n,{hash:false});});
+ const FIT={
+  lookup:['Start with a tool. A UI might be unnecessary.','A short, authenticated answer can complete this job. Add a view only when it improves a real interaction.'],
+  compare:['Good candidate for an MCP App.','A visual comparison can make status, timestamps, and differences easier to inspect. The tool gets the facts; the UI makes them explorable.'],
+  homepage:['Find the useful task hiding behind the homepage.','What can a person do here? Pick a workflow such as comparing options or checking an order. A promotional page alone is a weak reason to install.']
+ };
+ $$('[data-fit]').forEach(b=>b.addEventListener('click',()=>{const item=FIT[b.dataset.fit];$$('[data-fit]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#fit-feedback').innerHTML='<strong>'+item[0]+'</strong><p>'+item[1]+'</p>';}));
+ const LAYERS={
+  server:['The capability layer','A small API with a shared language.','An MCP server advertises operations such as list_projects, accepts structured inputs, and returns results. Your backend decides what the caller may access.','Launchpad → list_projects()'],
+  app:['The interaction layer','A useful tool gets a useful interface.','The tool references an HTML resource. A compatible host loads the view, delivers data, and mediates its requests. The UI can be React, another web framework, or plain JavaScript.','Launchpad → project cards, filters, refresh'],
+  host:['The environment layer','Someone has to run the room.','The host manages the conversation and renders supported apps. It controls the sandbox and bridge. ChatGPT is one host; other products can implement the same standard.','Examples → ChatGPT, Claude, VS Code Copilot'],
+  plugin:['The installation layer','The thing a person adds.','A ChatGPT plugin packages its identity, connections, and optional skills. ChatGPT-specific extensions can add entry points such as a sidebar app. A plugin can also work with no custom UI.','Launchpad → listing + MCP connection + optional skill']
+ };
+ $$('[data-layer]').forEach(b=>b.addEventListener('click',()=>{const x=LAYERS[b.dataset.layer];$$('[data-layer]').forEach(t=>t.setAttribute('aria-pressed',String(t===b)));$('#layer-detail').innerHTML='<span class="mono-label">'+x[0]+'</span><h3>'+x[1]+'</h3><p>'+x[2]+'</p><div class="example">'+x[3]+'</div>';}));
+ const PROJECTS=[{id:'atlas',name:'Atlas API',env:'Production · 2 environments',runtime:'Running',deploy:'Deploy succeeded',attention:false},{id:'orbit',name:'Orbit worker',env:'Production · 1 environment',runtime:'Running',deploy:'Latest deploy failed',attention:true},{id:'docs',name:'Docs site',env:'Production · 1 environment',runtime:'Sleeping',deploy:'Deploy succeeded',attention:false}];
+ function renderProjects(){
+  const term=$('#project-search').value.toLowerCase(),onlyAttention=$('#project-filter').value==='attention';
+  const rows=PROJECTS.map(p=>Object.assign({},p,p.id==='orbit'&&snapshot===1?{deploy:'Retry succeeded',attention:false}:{})).filter(p=>p.name.toLowerCase().includes(term)&&(!onlyAttention||p.attention));
+  const list=$('#project-list');list.replaceChildren();
+  rows.forEach(p=>{const b=document.createElement('button');b.className='project-row';b.dataset.project=p.id;b.innerHTML='<span><span class="project-name">'+p.name+'</span><span class="project-meta">'+p.env+'</span></span><span class="project-status"><span class="pill status-ok">'+p.runtime+'</span><small'+(p.attention?' style="color:var(--red)"':'')+'>'+p.deploy+' ↗</small></span>';b.addEventListener('click',()=>selectProject(p));list.appendChild(b);});
+  if(!rows.length){const p=document.createElement('p');p.className='body-copy';p.textContent='No projects match. Try a different search or filter.';list.appendChild(p);}
+  $('#demo-text').textContent=PROJECTS.map(p=>p.name+': '+p.runtime.toLowerCase()+'; '+(p.id==='orbit'&&snapshot===1?'retry succeeded':p.deploy.toLowerCase())+'.').join('\n')+'\n\n3 projects in the Example Team workspace.';
+ }
+ function selectProject(p){
+  $('#demo-log').textContent='Select '+p.name+' → share selected record + request browser handoff.';
+  $('#demo-context').textContent='Explicit update: selectedProject = "'+p.id+'" ('+p.name+').';
+  $('#project-title').textContent=p.name;$('#project-handoff').textContent='You selected '+p.name+'. Its runtime is '+p.runtime.toLowerCase()+'. '+p.deploy+'. In a real release, the next destination is the project’s management page.';
+  $('#project-url').textContent='Example destination only:\nhttps://app.example.com/orgs/example/projects/'+p.id;
+  $('#project-dialog').showModal();
+ }
+ $('#project-search').addEventListener('input',()=>{renderProjects();$('#demo-log').textContent='Search → local filtering. No tool call; no model turn.';});
+ $('#project-filter').addEventListener('change',()=>{renderProjects();$('#demo-log').textContent='Filter → local state. Existing data stays in the UI.';});
+ $('#refresh-demo').addEventListener('click',()=>{snapshot=1-snapshot;renderProjects();$('#demo-log').textContent='Refresh → host → list_projects → authorized backend → new results. Simulated here.';$('#demo-refresh-label').textContent='Snapshot '+(snapshot?'B':'A')+' · '+(snapshot?'Orbit’s retry is now successful.':'Orbit’s latest deploy failed; the previous runtime is still running.');});
+ $$('[data-demo-view]').forEach(b=>b.addEventListener('click',()=>{textMode=b.dataset.demoView==='text';$$('[data-demo-view]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#demo-ui').hidden=textMode;$('#demo-text').hidden=!textMode;}));
+ const STAGES=[
+  ['01 / A person has a goal','“Show my projects.”','The host’s assistant has a reason to use Launchpad. The user’s words express the job; the integration supplies the capability.','USER → ASSISTANT\n\n“Show my projects.\nWhich ones need attention?”'],
+  ['02 / The host knows the tools','A descriptor tells it what exists.','Tool metadata describes the operation and its input shape. A UI resource reference associates the tool with its interactive view.','TOOL DESCRIPTOR (excerpt)\n\nname: list_projects\n_meta.ui.resourceUri:\n  ui://launchpad/projects-v1.html'],
+  ['03 / The backend does the work','Permissions first. Projects second.','The host calls the tool. Your server validates the caller and request, retrieves authorized data, and returns a structured result the assistant can use.','HOST → MCP SERVER\n  tools/call: list_projects\n\nSERVER → HOST\n  structuredContent: { projects: […] }'],
+  ['04 / A view is available','HTML arrives as an MCP resource.','The host reads the registered UI resource. The returned document contains the interface and may include its compiled JavaScript and CSS.','HOST → MCP SERVER\n  resources/read:\n  ui://launchpad/projects-v1.html\n\nSERVER → HOST\n  text/html;profile=mcp-app'],
+  ['05 / The host renders it','Your UI gets a sandbox.','The host loads the HTML, initializes the MCP Apps bridge, and delivers the tool result to the view. React renders the cards.','HOST → SANDBOXED VIEW\n  initialize bridge\n  deliver tool result\n\nVIEW\n  render(projects)'],
+  ['06 / The person takes over','Some clicks stay local. Some call tools.','Sorting can run in the UI. Refresh can request a server tool through the host. The app can explicitly update model context when a selection matters.','VIEW → HOST → SERVER\n  callServerTool(list_projects)\n\nVIEW → HOST\n  updateModelContext(selection)']
+ ];
+ function setStage(n){stage=(n+STAGES.length)%STAGES.length;const s=STAGES[stage];$$('[data-stage]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.stage)===stage)));$('#flow-stage').innerHTML='<div><span class="mono-label">'+s[0]+'</span><h3>'+s[1]+'</h3><p>'+s[2]+'</p></div><pre>'+escapeHTML(s[3])+'</pre>';$('#next-stage').textContent=stage===5?'Replay →':'Next packet →';}
+ $$('[data-stage]').forEach(b=>b.addEventListener('click',()=>setStage(Number(b.dataset.stage))));$('#next-stage').addEventListener('click',()=>setStage(stage+1));
+ const SURFACES={
+  sidebar:['A place users can return to.','A global sidebar entry launches the app fullscreen. It suits a project dashboard users want to reopen.','Optional extension metadata chooses the entry point.','↗ Launchpad','Launchpad<br><small>All your projects, one view.</small>'],
+  panel:['Keep the discussion beside the work.','A conversation panel gives the app space alongside a thread. It suits reviewing a project while discussing what to do next.','Support and placement depend on the host surface.','Conversations','Chat on the left →<br><small>Project view beside the discussion</small>'],
+  file:['Open a file with the right tool.','A file viewer or editor can handle supported file types in a side panel. Think of a specialized diagram, model, or report viewer.','This is an additional extension, not required for a project list.','Files','release-plan.diagram<br><small>Specialized viewer / editor</small>'],
+  mention:['Bring an item into the prompt.','Composer mentions help users search and select content from the plugin while writing a message. A project can become context for the request.','OpenAI currently documents composer mentions as desktop-only.','New chat','“Check @Launchpad / Atlas API”<br><small>A selected item becomes context.</small>']
+ };
+ $$('[data-surface]').forEach(b=>b.addEventListener('click',()=>{const x=SURFACES[b.dataset.surface];$$('[data-surface]').forEach(t=>t.setAttribute('aria-pressed',String(t===b)));$('#surface-copy').innerHTML='<h3>'+x[0]+'</h3><p>'+x[1]+'</p><p class="small" style="margin-top:13px">'+x[2]+'</p>';$('#surface-nav-label').textContent=x[3];$('#surface-visual').innerHTML='<div class="line"></div><div class="line" style="width:55%"></div><div class="app-block">'+x[4]+'</div>';}));
+ const ROUTES={
+  personal:'Connect a custom MCP server or install from a local marketplace to test. A local marketplace is a catalog of package locations; creating one does not create a public listing.',
+  workspace:'A workspace admin can publish to selected workspace roles, subject to organization policy. Distribution stays inside that workspace boundary.',
+  public:'Submit a complete package and remote MCP endpoint through the public process. Publication creates a directory listing shared across supported ChatGPT and Codex surfaces; capabilities still vary by surface.'
+ };
+ $$('[data-route]').forEach(b=>b.addEventListener('click',()=>{$$('[data-route]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#route-details').textContent=ROUTES[b.dataset.route];}));
+ $$('.passport-items input').forEach(c=>c.addEventListener('change',()=>{const n=$$('.passport-items input:checked').length;$('#passport-count').textContent=n+'/7';$('#passport-note').textContent=n===7?'Launch route rehearsed. Actual readiness requires real evidence and OpenAI’s checks and review.':'Practice checklist only. These controls do not validate a service, submit a package, or confer approval.';}));
+ function updateScore(){
+  const passed=Array.from(quizState.values()).filter(Boolean).length,total=$$('.quiz').length;
+  $('#rail-score').textContent=passed+' / '+total+' check-ins mastered';$('#footer-score').textContent=passed?passed+'/'+total+' checked':'';
+  $('#finish-score').textContent=passed===total?'All six ideas checked. Now test your product idea with a real user.':passed+' of '+total+' check-ins mastered. You can revisit the rest whenever you like.';
+ }
+ $$('.quiz').forEach(q=>q.querySelectorAll('[data-answer]').forEach(b=>b.addEventListener('click',()=>{
+  const correct=b.dataset.answer===q.dataset.correct;quizState.set(q.dataset.quiz,correct);
+  q.querySelectorAll('[data-answer]').forEach(x=>{x.classList.remove('correct','incorrect');x.setAttribute('aria-pressed',String(x===b));});b.classList.add(correct?'correct':'incorrect');
+  const feedback=q.querySelector('.quiz-feedback');feedback.classList.toggle('good',correct);feedback.textContent=(correct?'Exactly. ':'Not quite. ')+q.dataset.explanation;updateScore();
+ })));
+ $('#review-checks').addEventListener('click',()=>{const first=$$('.quiz').find(q=>!quizState.get(q.dataset.quiz))||$('.quiz');showSlide(slides.indexOf(first.closest('.slide')),{focus:true});first.scrollIntoView({block:'center',behavior:'auto'});});
+ const briefFields=['name','goal','value','tool'];
+ function briefData(){return Object.fromEntries(briefFields.map(k=>[k,$('#brief-'+k).value.trim()]));}
+ function updateBrief(){const b=briefData();$('#brief-preview-name').textContent=b.name||'Your app';$('#brief-preview-goal').textContent='For people asking: “'+(b.goal||'Describe a real user request.')+'”';$('#brief-preview-value').textContent='The UI helps them '+(b.value||'complete a specific task.');$('#brief-preview-tool').textContent='First capability: '+(b.tool||'Name one bounded tool.');}
+ briefFields.forEach(k=>$('#brief-'+k).addEventListener('input',updateBrief));$('#brief-form').addEventListener('submit',e=>e.preventDefault());
+ $('#download-brief').addEventListener('click',()=>{
+  const b=briefData();const text=(b.name||'My MCP App')+' — first-release brief\n\nUser request:\n'+b.goal+'\n\nWhy a UI helps:\n'+b.value+'\n\nFirst tool:\n'+b.tool+'\n\nNext steps:\n1. Define the tool contract and authorization boundary.\n2. Build the tool and a small MCP Apps view.\n3. Test one end-to-end task in the target host.\n4. Deploy the server and package the plugin.\n5. Follow current review and publication requirements.\n\nGuide researched 6 October 2026.\nOfficial submission guide: '+SOURCES.submission.url+'\n';
+  const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='mcp-app-build-brief.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ });
+ renderProjects();updateScore();updateBrief();
+ const initial=slides.findIndex(s=>s.id===location.hash.slice(1));showSlide(initial>=0?initial:0,{scroll:false,hash:false});
+ })();
+</script>
+</body>
+</html>

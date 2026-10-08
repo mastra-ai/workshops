@@ -1,0 +1,20 @@
+<My App> — first-release brief
+
+User request:
+Which of my projects need attention?
+
+Why a UI helps:
+Scan health, compare environments, and open the right project.
+
+First tool:
+list_projects — read only, scoped to an authorized organization
+
+Next steps:
+1. Define the tool contract and authorization boundary.
+2. Build the tool and a small MCP Apps view.
+3. Test one end-to-end task in the target host.
+4. Deploy the server and package the plugin.
+5. Follow current review and publication requirements.
+
+Guide researched 6 October 2026.
+Official submission guide: https://developers.openai.com/plugins/deploy/submission
