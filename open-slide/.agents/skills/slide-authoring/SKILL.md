@@ -5,8 +5,6 @@ description: Technical reference for writing or editing open-slide pages — fil
 
 # Authoring open-slide pages
 
-This repository configures `slidesDir` as `../slides`. Throughout this skill, resolve every `slides/...` path as `../slides/...` from the OpenSlide project directory. Global `assets/` paths remain inside the OpenSlide project.
-
 This skill is the **technical reference** for everything that happens inside `slides/<id>/index.tsx`. It does not own a workflow:
 
 - `create-slide` owns "draft a new deck" — it asks the user scoping questions, then delegates the *how* to this skill.

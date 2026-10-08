@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Loan calculator</title><!-- APP_STYLES --></head>
+<body><main>
+  <div class="header"><div><p class="eyebrow">01 / Money, made understandable</p><h1>Find your monthly payment.</h1></div><span class="badge">Fictional demo</span></div>
+  <p class="subtitle muted">Explore a scenario, talk it through with your agent, then try a pretend sign-up.</p>
+  <fieldset data-controls disabled><div class="columns">
+    <section class="panel"><h2>Your loan scenario</h2><form id="calculator">
+      <label for="principal">Loan amount · USD</label><input id="principal" type="number" min="100" max="10000000" step="0.01" value="25000" required>
+      <label for="rate">Annual interest rate · % (not APR)</label><input id="rate" type="number" min="0" max="40" step="0.01" value="6.5" required>
+      <label for="months">Term · months</label><input id="months" type="number" min="1" max="360" step="1" value="60" required>
+      <div class="actions"><button class="primary" type="submit">Calculate payment</button></div>
+    </form></section>
+    <section class="panel" aria-label="Loan estimate"><p class="metric-label">Estimated monthly payment</p><p class="number hero-number" id="payment">—</p>
+      <p class="muted" id="terms">Waiting for a loan scenario from chat.</p><hr class="divider">
+      <div class="row"><span class="muted">Total interest</span><strong id="interest">—</strong></div><div class="row" style="margin-top:14px"><span class="muted">Total repayment</span><strong id="total">—</strong></div>
+      <div class="actions"><button id="ask" disabled>Explain this loan in chat</button><button id="start" disabled>Try demo sign-up</button></div>
+    </section>
+  </div>
+  <section class="panel" id="onboarding" hidden style="margin-top:20px"><p class="eyebrow">Demo sign-up · no real application</p><h2 id="step-title">1. Choose a fictional profile</h2>
+    <form id="profile-form"><label for="profile">Demo profile (no personal information)</label><select id="profile"><option value="alex-demo">Alex · fictional applicant</option><option value="sam-demo">Sam · fictional applicant</option></select><label for="purpose">Purpose</label><select id="purpose"><option value="home-improvement">Home improvement</option><option value="education">Education</option><option value="other">Other</option></select><div class="actions"><button type="submit">Review demo application</button><button type="button" id="cancel">Cancel</button></div></form>
+    <form id="review-form" hidden><p id="review" class="subtitle"></p><label><input id="confirm" type="checkbox" required>I understand this is a simulation, not an actual loan application.</label><div class="actions"><button type="button" id="back">Back</button><button class="primary" type="submit">Submit fake application</button></div></form>
+    <div id="receipt" hidden><p id="receipt-text" class="subtitle"></p><button id="receipt-share">Discuss next steps in chat</button></div>
+  </section></fieldset>
+  <details class="panel" id="schedule-panel" hidden style="margin-top:20px"><summary>Estimated balance over time</summary><div class="table-wrap"><table><thead><tr><th>Month</th><th>Remaining balance</th></tr></thead><tbody id="schedule"></tbody></table></div></details>
+  <p class="notice" id="disclaimer" style="margin-top:18px">Demo only. Estimates exclude fees, taxes and insurance. No real applications or credit checks.</p>
+  <p id="status" role="status" aria-live="polite">Connecting to chat…</p>
+</main><!-- APP_SCRIPT --></body></html>

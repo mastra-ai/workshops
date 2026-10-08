@@ -5,8 +5,6 @@ description: Apply pending @slide-comment markers written by the open-slide insp
 
 # Apply slide comments
 
-This repository configures `slidesDir` as `../slides`. Throughout this skill, resolve every `slides/...` path as `../slides/...` from the OpenSlide project directory.
-
 The open-slide editor has an inspector tool that lets the user click on a rendered page element and attach a textual comment (e.g. *"make this red"*, *"change to 'Open Slide Rocks'"*). Each comment is persisted as an in-source JSX marker inside `slides/<slideId>/index.tsx`.
 
 Your job: read those markers, perform the described edits, and delete the markers.
@@ -79,6 +77,6 @@ You can run this inline via `node -e '...'` if you need to inspect a payload; ot
 
 ## Do not
 
-- Do not touch `package.json`, `open-slide.config.ts`, or files outside `../slides/`.
+- Do not touch `package.json`, `open-slide.config.ts`, or files outside `slides/`.
 - Do not add dependencies.
 - Do not re-introduce markers or leave `TODO` breadcrumbs — the user already has a record in git.

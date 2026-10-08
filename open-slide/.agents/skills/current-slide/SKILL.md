@@ -35,7 +35,7 @@ Path is relative to the project root (the user's `cwd`, the directory that conta
   "totalPages": 8,
   "slideTitle": "Q2 Roadmap",
   "view": "slides",
-  "pagePath": "../slides/q2-roadmap/index.tsx",
+  "pagePath": "slides/q2-roadmap/index.tsx",
   "selection": {
     "line": 42,
     "column": 6,
@@ -49,7 +49,7 @@ Path is relative to the project root (the user's `cwd`, the directory that conta
 - `slideId` — folder name under `slides/`. Use as-is for any `/__slides/<id>/...` API or as the URL segment.
 - `pageIndex` — 0-based, for use with the page array in `index.tsx` (`export default [Cover, Body, ...]`).
 - `pageNumber` — 1-based, for use in messages to the user ("page 3 of 8") and for the URL `?p=N`.
-- `pagePath` — path to the slide source relative to this OpenSlide project. Hand it straight to `Read` / `Edit`.
+- `pagePath` — relative path to the slide source. Hand straight to `Read` / `Edit`.
 - `view` — `"slides"` (canvas view) or `"assets"` (asset manager). If `"assets"`, the user is browsing files for that slide rather than viewing a page.
 - `selection` — `null` if nothing is selected. Otherwise, the JSX element the user picked in the inspector overlay:
   - `line` (1-indexed) and `column` (0-indexed) point to the JSX opening tag inside `pagePath`. This is the canonical handle — match against the source line, not the rendered DOM.
@@ -92,7 +92,7 @@ User: "tighten the spacing on this page"
 
 1. Read `node_modules/.open-slide/current.json`.
 2. Check `updatedAt` is recent.
-3. Read `pagePath` (e.g. `../slides/q2-roadmap/index.tsx`).
+3. Read `pagePath` (e.g. `slides/q2-roadmap/index.tsx`).
 4. Identify the page at `pageIndex` in the default-exported array.
 5. Consult the `slide-authoring` skill for spacing rules, then edit that page in place.
 
