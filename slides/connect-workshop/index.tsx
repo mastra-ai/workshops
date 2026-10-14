@@ -164,7 +164,7 @@ const Agenda: Page = () => <MastraPage><Frame>
   <div style={{ marginTop: 56, display: 'flex', flexDirection: 'column', gap: 34 }}>
     <Bullet n="1.">What Connect is: tools, channels, credentials</Bullet>
     <Bullet n="2.">Why it exists, and why now</Bullet>
-    <Bullet n="3.">Demo 1: deploy a personal agent from a template</Bullet>
+    <Bullet n="3.">Demo 1: deploy a Company Brain from a template</Bullet>
     <Bullet n="4.">How it works under the hood</Bullet>
     <Bullet n="5.">Demo 2: add Connect to an existing project</Bullet>
   </div>
@@ -244,7 +244,8 @@ const ValueProp: Page = () => <MastraPage><Frame>
 // 8 — Demo 1 divider
 const Demo1: Page = () => <MastraPage><Frame><Center>
   <EventBadge>Live demo 1</EventBadge>
-  <Heading>Deploy a personal agent<br />from a template</Heading>
+  <Heading>Deploy a Company Brain</Heading>
+  <p style={{ margin: '36px 0 0', fontSize: 38, color: 'var(--mt-soft)' }}>One agent, connected to the tools your company runs on</p>
 </Center></Frame></MastraPage>
 
 // 9 — Demo 1 follow-along commands
@@ -376,8 +377,8 @@ export const notes = [
   'Grok Bot, Dots, Muse showed how much users value agents that can touch real tools and data. That\'s now the baseline expectation for internal agents too. Mastra platform began as hosting + o11y; Connect is part of maturing into one place with everything you need.',
   'The pain: per-provider OAuth apps, token stores, refresh jobs, secret sprawl, and hand-rolled tool definitions. Connect moves accounts and credentials to the platform; you add or replace connections without touching agent code or redeploying.',
   'Value prop: fastest path to working provider tools; a toolset you can filter/extend/gate (vs. taking whatever an MCP server exposes); live resolver picks up connection changes as caches refresh.',
-  'DEMO 1 framing: a personal agent, from nothing to deployed on Mastra platform, using the template-connect-agent template. Seeing is believing — target: under 5 minutes. Prereqs done off-screen: platform project, `mastra auth login`, Gateway API key.',
-  'Demo 1 script: scaffold from the template, fill .env (MASTRA_PLATFORM_ACCESS_TOKEN from `mastra auth tokens create`, MASTRA_PROJECT_ID), `mastra connect add linear` walks the OAuth flow in the browser, `mastra deploy` ships it to the platform. Then open Studio and ask it to list your Linear issues.',
+  'DEMO 1 framing: a Company Brain — one agent wired into the tools the company runs on (Linear, GitHub, Notion, Slack...), able to answer "what shipped last week?" or "what\'s blocking the release?" from real data. From nothing to deployed on Mastra platform via template-connect-agent. Seeing is believing — target: under 5 minutes. Prereqs done off-screen: platform project, `mastra auth login`, Gateway API key.',
+  'Demo 1 script: scaffold from the template, fill .env (MASTRA_PLATFORM_ACCESS_TOKEN from `mastra auth tokens create`, MASTRA_PROJECT_ID), `mastra connect add linear` walks the OAuth flow in the browser (one command per extra provider — notion, github — to grow the brain), `mastra deploy` ships it. Then open Studio and ask the brain something only your Linear knows.',
   'tools() with no options = every connected provider with a supported toolset. Mastra calls the resolver per generate/stream; 30s TTL cache, stale-while-revalidate. Tool keys look like linear_list_issues.',
   'channels() registers channel providers + their webhook/OAuth routes at construction; credentials bind dynamically. Then connect the channel to an agent in Studio — two separate steps. Slack channels use an app-config token (slack-channels provider, distinct from slack tools).',
   'Scoping per request: the tools function reads request context (role set server-side from the authenticated user) and builds the toolset for THIS request. Viewers get read-only list tools; everyone else gets the full set but deletes pause for human approval. allowTools/requireApproval take globs and FAIL on typos — never silently widen. Note: constructing the resolver inside the callback trades the 30s cache for simplicity; hoist it if that matters. You can also merge your own tools into the returned object.',
