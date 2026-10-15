@@ -110,7 +110,7 @@ const CodeLine = ({ children, highlight = false }: { children?: ReactNode; highl
 const K = ({ children }: { children: ReactNode }) => <span style={{ color: 'var(--mt-keyword)' }}>{children}</span>
 const S = ({ children }: { children: ReactNode }) => <span style={{ color: 'var(--mt-string)' }}>{children}</span>
 const P = ({ children }: { children: ReactNode }) => <span style={{ color: 'var(--mt-property)' }}>{children}</span>
-const CodePanel = ({ children, command = false }: { children: ReactNode; command?: boolean }) => <pre style={{ margin: 0, padding: command ? '48px 56px' : '36px 44px', border: '1px solid var(--mt-border)', borderRadius: 24, background: 'var(--mt-subtle)', whiteSpace: 'pre', textAlign: 'left' }}><code style={{ fontFamily: mono, fontSize: command ? 64 : 34, lineHeight: command ? 1.4 : '48px', letterSpacing: '-.025em' }}>{children}</code></pre>
+const CodePanel = ({ children, command = false, size }: { children: ReactNode; command?: boolean; size?: number }) => <pre style={{ margin: 0, padding: command ? '48px 56px' : '36px 44px', border: '1px solid var(--mt-border)', borderRadius: 24, background: 'var(--mt-subtle)', whiteSpace: 'pre', textAlign: 'left' }}><code style={{ fontFamily: mono, fontSize: command ? 64 : (size ?? 34), lineHeight: command ? 1.4 : '48px', letterSpacing: '-.025em' }}>{children}</code></pre>
 
 // `logo` adds a brand mark before the label; `mono` tints a black mark with the
 // pill's text color via mask so it stays visible in dark mode.
@@ -250,12 +250,12 @@ const Demo1: Page = () => <MastraPage><Frame><Center>
 
 // 9 — Demo 1 follow-along commands
 const QuickStart: Page = () => <MastraPage><Frame>
-  <Heading size={68}>Follow along</Heading>
+  <Heading size={68}>Getting Started</Heading>
   <div style={{ position: 'absolute', top: 240, bottom: 88, left: 96, right: 96, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <CodePanel>
       <code style={{ fontFamily: mono, fontSize: 46, lineHeight: '84px', letterSpacing: '-.025em' }}>
-        <S>npx</S>{' create-mastra@latest \\'}{'\n'}
-        {'  '}<P>--template</P>{' template-connect-agent'}{'\n'}
+        <S>pnpm</S>{' create mastra@latest'}{'\n'}
+        <S>pnpm</S>{' install '}<P>@mastra/connect</P>{'\n'}
         <S>mastra</S>{' connect add '}<P>linear</P>{'\n'}
         <S>mastra</S>{' deploy'}
       </code>
@@ -301,21 +301,40 @@ const ChannelsCode: Page = () => <MastraPage><Frame>
 const ScopeCode: Page = () => <MastraPage><Frame>
   <Heading size={68}>Scope it to what you trust</Heading>
   <div style={{ position: 'absolute', top: 240, bottom: 88, left: 96, right: 96, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <CodePanel>
-      <CodeLine><K>export const</K>{' opsAgent = '}<K>new</K>{' Agent({'}</CodeLine>
-      <CodeLine>{'  '}<span style={{ color: 'var(--mt-soft)' }}>{'// ...id, instructions, model'}</span></CodeLine>
-      <CodeLine>{'  '}<P>tools</P>{': '}<K>async</K>{' ctx => {'}</CodeLine>
-      <CodeLine>{'    '}<K>const</K>{' role = ctx.requestContext?.get('}<S>'role'</S>{')'}</CodeLine>
-      <CodeLine>{'    '}<K>return</K>{' tools({'}</CodeLine>
-      <CodeLine>{'      '}<P>providers</P>{': {'}</CodeLine>
-      <CodeLine highlight>{'        '}<P>linear</P>{': role === '}<S>'viewer'</S></CodeLine>
-      <CodeLine highlight>{'          ? { '}<P>allowTools</P>{': ['}<S>'linear_list_*'</S>{'] }'}</CodeLine>
-      <CodeLine highlight>{'          : { '}<P>requireApproval</P>{': ['}<S>'linear_delete_*'</S>{'] },'}</CodeLine>
-      <CodeLine>{'      },'}</CodeLine>
-      <CodeLine>{'    })(ctx)'}</CodeLine>
-      <CodeLine>{'  },'}</CodeLine>
-      <CodeLine>{'})'}</CodeLine>
-    </CodePanel>
+    <div style={{ display: 'flex', alignItems: 'stretch', gap: 28 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 26, lineHeight: '34px', color: 'var(--mt-soft)' }}>Permissions are tool globs</div>
+      <CodePanel size={28}>
+        <CodeLine><K>import</K>{' { StaticRBACProvider }'}</CodeLine>
+        <CodeLine>{'  '}<K>from</K>{' '}<S>'@mastra/core/auth/ee'</S></CodeLine>
+        <CodeLine />
+        <CodeLine><K>const</K>{' rbac = '}<K>new</K>{' StaticRBACProvider({'}</CodeLine>
+        <CodeLine>{'  '}<P>roleMapping</P>{': {'}</CodeLine>
+        <CodeLine highlight>{'    '}<P>engineering</P>{': ['}<S>'linear_*'</S>{'],'}</CodeLine>
+        <CodeLine highlight>{'    '}<P>support</P>{': ['}<S>'linear_list_*'</S>{'],'}</CodeLine>
+        <CodeLine>{'    '}<P>_default</P>{': [],'}</CodeLine>
+        <CodeLine>{'  },'}</CodeLine>
+        <CodeLine>{'  '}<P>getUserRoles</P>{': user => user.roles,'}</CodeLine>
+        <CodeLine>{'})'}</CodeLine>
+      </CodePanel>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 26, lineHeight: '34px', color: 'var(--mt-soft)' }}>Pass them straight to allowTools</div>
+      <CodePanel size={28}>
+        <CodeLine><K>export const</K>{' opsAgent = '}<K>new</K>{' Agent({'}</CodeLine>
+        <CodeLine>{'  '}<span style={{ color: 'var(--mt-soft)' }}>{'// ...id, instructions, model'}</span></CodeLine>
+        <CodeLine>{'  '}<P>tools</P>{': '}<K>async</K>{' ctx => {'}</CodeLine>
+        <CodeLine>{'    '}<K>const</K>{' user = ctx.requestContext?.get('}<S>'user'</S>{')'}</CodeLine>
+        <CodeLine>{'    '}<K>return</K>{' tools({'}</CodeLine>
+        <CodeLine highlight>{'      '}<P>allowTools</P>{': '}<K>await</K>{' rbac.getPermissions(user),'}</CodeLine>
+        <CodeLine>{'      '}<P>requireApproval</P>{': ['}<S>'linear_delete_*'</S>{'],'}</CodeLine>
+        <CodeLine>{'    })(ctx)'}</CodeLine>
+        <CodeLine>{'  },'}</CodeLine>
+        <CodeLine>{'})'}</CodeLine>
+        <CodeLine />
+      </CodePanel>
+    </div>
+    </div>
   </div>
 </Frame></MastraPage>
 
@@ -377,11 +396,11 @@ export const notes = [
   'Grok Bot, Dots, Muse showed how much users value agents that can touch real tools and data. That\'s now the baseline expectation for internal agents too. Mastra platform began as hosting + o11y; Connect is part of maturing into one place with everything you need.',
   'The pain: per-provider OAuth apps, token stores, refresh jobs, secret sprawl, and hand-rolled tool definitions. Connect moves accounts and credentials to the platform; you add or replace connections without touching agent code or redeploying.',
   'Value prop: fastest path to working provider tools; a toolset you can filter/extend/gate (vs. taking whatever an MCP server exposes); live resolver picks up connection changes as caches refresh.',
-  'DEMO 1 framing: a Company Brain — one agent wired into the tools the company runs on (Linear, GitHub, Notion, Slack...), able to answer "what shipped last week?" or "what\'s blocking the release?" from real data. From nothing to deployed on Mastra platform via template-connect-agent. Seeing is believing — target: under 5 minutes. Prereqs done off-screen: platform project, `mastra auth login`, Gateway API key.',
-  'Demo 1 script: scaffold from the template, fill .env (MASTRA_PLATFORM_ACCESS_TOKEN from `mastra auth tokens create`, MASTRA_PROJECT_ID), `mastra connect add linear` walks the OAuth flow in the browser (one command per extra provider — notion, github — to grow the brain), `mastra deploy` ships it. Then open Studio and ask the brain something only your Linear knows.',
+  'DEMO 1 framing: a Company Brain — one agent wired into the tools the company runs on (Linear, GitHub, Notion, Slack...), able to answer "what shipped last week?" or "what\'s blocking the release?" from real data. From nothing to deployed on Mastra platform: scaffold with create mastra, add @mastra/connect. Seeing is believing — target: under 5 minutes. Prereqs done off-screen: platform project, `mastra auth login`, Gateway API key.',
+  'Demo 1 script: `pnpm create mastra@latest` to scaffold, `pnpm install @mastra/connect`, fill .env (MASTRA_PLATFORM_ACCESS_TOKEN from `mastra auth tokens create`, MASTRA_PROJECT_ID), `mastra connect add linear` walks the OAuth flow in the browser (one command per extra provider — notion, github — to grow the brain), `mastra deploy` ships it. Then open Studio and ask the brain something only your Linear knows.',
   'tools() with no options = every connected provider with a supported toolset. Mastra calls the resolver per generate/stream; 30s TTL cache, stale-while-revalidate. Tool keys look like linear_list_issues.',
   'channels() registers channel providers + their webhook/OAuth routes at construction; credentials bind dynamically. Then connect the channel to an agent in Studio — two separate steps. Slack channels use an app-config token (slack-channels provider, distinct from slack tools).',
-  'Scoping per request: the tools function reads request context (role set server-side from the authenticated user) and builds the toolset for THIS request. Viewers get read-only list tools; everyone else gets the full set but deletes pause for human approval. allowTools/requireApproval take globs and FAIL on typos — never silently widen. Note: constructing the resolver inside the callback trades the 30s cache for simplicity; hoist it if that matters. You can also merge your own tools into the returned object.',
+  'Scoping per request with Mastra RBAC: the trick is that permissions ARE Connect tool globs. StaticRBACProvider (from @mastra/core/auth/ee) maps roles to globs — engineering gets linear_*, support linear_list_*, unknown roles nothing (_default: [], and an empty allowTools means zero tools, not all tools). The tools function reads the authenticated user from request context and passes rbac.getPermissions(user) straight into allowTools — no branching, add a role by editing the mapping. Top-level allowTools/requireApproval are lenient: a glob that matches nothing for this user just does not apply, so requireApproval on deletes is safe even for read-only roles. Note: constructing the resolver inside the callback trades the 30s cache for simplicity; hoist it if that matters.',
   'Technical credibility moment. App holds ONE platform token. The proxy strips caller auth, injects the provider credential, refreshes OAuth, records the call (no args/results logged), and only allows the provider\'s API hosts. MCP providers: platform proxies the protocol to the hosted server; tools discovered at runtime, namespaced <provider>_<tool>.',
   'The "look at the shit we do so you don\'t have to" list. Mention multi-connection routing: with 2+ connections, agents get <provider>__list_connections and a connection_name input per call — or pin with connectionId. needs_reauth connections are skipped with a warning, not errors.',
   'DEMO 2: take an existing Mastra project and add Connect — npm install @mastra/connect, env vars, swap tools: tools() into an existing agent, show new tools appear in Studio. Then attach another connection on the platform and show it arrive live, without a redeploy. Optionally show requireApproval pausing a mutation.',
