@@ -99,15 +99,15 @@ const Hosts: Page = () => <MastraPage><Frame><div style={{ display: 'flex', flex
   </div>
 </div></Frame></MastraPage>
 
-const AgentsChanged: Page = () => <Story chapter="01 / The mismatch" title="Agents stopped being one-shot requests">
-  <Quote>They keep working, watching, and responding after the first call returns.</Quote>
+const AgentsChanged: Page = () => <Story chapter="01 / The mismatch" title="We treated agents like functions">
+  <Quote>One request in. One answer out. That worked for turn-based chat.</Quote>
 </Story>
-const InterfaceDidNot: Page = () => <Story chapter="01 / The mismatch" title="But we still reach them like a function">
-  <Card label="Old contract">Send a prompt → wait for an answer → start over.</Card>
-  <Card label="New reality">The thread remains addressable even when no run is active.</Card>
+const InterfaceDidNot: Page = () => <Story chapter="01 / The mismatch" title="Now agents are long-running">
+  <Card label="The work continues">Goals, tools, and outside events outlast a single request.</Card>
+  <Card label="Threads are live inboxes">The thread stays reachable, even when no run is active.</Card>
 </Story>
-const NewPrimitive: Page = () => <Story chapter="01 / The mismatch" title="The thread needs an address">
-  <Quote>A signal sends typed input into an existing thread. It can join an active run or wake an idle thread.</Quote>
+const NewPrimitive: Page = () => <Story chapter="01 / The mismatch" title="New input reaches the same thread">
+  <Quote>A signal sends typed input into that thread. It can join an active run or wake an idle thread.</Quote>
 </Story>
 const Loop: Page = () => <Story chapter="01 / The mismatch" title="More than a chat message" path={<SignalPath />}>
   <Card label="Input">A person, processor, or outside system has something new to say.</Card>
@@ -210,11 +210,11 @@ export const meta: SlideMeta = {
   createdAt: '2026-10-21T18:13:58.363Z',
 }
 export const notes = [
-  'Introduce Signals for Long-Running Agents (LRA). Abhi and Tyler are presenting. Agents have become long-running processes, but our input model still assumes one request, one answer. This is a story about the primitive, not a single PR scenario. Based on the Signals guides in PR #28022.',
+  'Introduce Signals for Long-Running Agents (LRA). Abhi and Tyler are presenting. The story moves from agents as functions, to long-running agents with reachable threads, to Signals as the way new input arrives. Based on the Signals guides in PR #28022.',
   'Introduce Abhi Aiyer and Tyler Barnes before starting the story.',
-  'The first agent.stream() call is only the beginning. Long-running agents work with goals, tools, users, and outside events. Let the mismatch land before presenting APIs.',
-  'The old request/response boundary makes new information feel like a new invocation, even when the work belongs to an existing thread. The thread remains addressable across active and idle runs. Review feedback on a PR is just one illustration.',
-  'Define Signals as typed input into an existing agent thread after the initial stream call. Delivery depends on agent state: sendSignal defaults to deliver during an active run and wake when idle; callers can override both paths. A thread is not the same as a continuously running agent.',
+  'We used to treat agents like functions: call one with a prompt, get an answer, finish the turn. That was a useful interface for turn-based chat. Let it feel reasonable before explaining what changed.',
+  'Now agents can work across turns, tools, people, and outside events. Their threads are like live inboxes: new input can reach the same thread during a run or while idle. Live describes reachability, not a continuously running model or a durable notification inbox.',
+  'Define Signals as typed input into an existing agent thread after the initial stream call. Delivery depends on agent state: sendSignal defaults to deliver during an active run and wake when idle; callers can override both paths.',
   'Introduce the persistent visual anchor: outside event → thread → next agent step. User messages are also signals; the primitive is broader than a chat bubble or an output stream.',
   'Subscribe to the thread before sending new input, because a signal may cause a run. The Agent and client SDK both expose thread subscriptions. Code is an abbreviated teaching snippet; supply the actual threadId and handle the returned stream in a demo.',
   'Thread streams carry output and lifecycle chunks, including approvals and failures. With initial history, the observer can read stored messages first and then live events. Group chunks by run where needed; do not confuse unsubscribing with aborting a run.',
