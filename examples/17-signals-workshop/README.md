@@ -28,13 +28,9 @@ pnpm demo4 # split page: builder left, read-only reviewer right
 
 Demo 1 and 4 pause for Enter. Demo 2 sets up a thread and lets you click/type. Demo 3 gives click/type cues. Each makes fresh memory threads. `--auto` runs scripted checks without pauses; redirected/non-TTY input also enables auto mode. `--no-open` suppresses browser opening; otherwise `open` is used on macOS. On Linux use `OPEN_CMD=xdg-open`, or open the printed URL yourself. Keep only the current demo tab open: Studio subscriptions hold long-lived connections, which can exhaust a browser's per-origin HTTP/1 connection pool.
 
-## Published packages versus the live workshop build
+## Dependencies
 
-This example installs published **Core 1.79.0**, **Memory 1.39.0**, **LibSQL 1.27.0**, and **CLI `mastra` 1.35.0**, with a standalone lockfile. There are no local overrides or vendored framework builds.
-
-The live Oct 22 demo instead linked Core **and the CLI's bundled Studio** to a local main-based build with unpublished changes. Those changes emitted pending steer/queued-message events at acceptance, removed cancelled queued bubbles, reconciled the eventual echo, and added Option/Alt+Enter queueing plus queued-bubble labels in Studio. **This published setup does not promise those UI features.** Steers are still processed within the active run, but the user bubble may appear only after the tool returns; queued/cancelled follow-ups may not be visible while waiting. Use the terminal checks as the authoritative send/queue/cancel result. The example does not install the live patch or instruct you to link an unreleased build.
-
-Typechecking against the published pins establishes API compatibility, not end-to-end model/browser behavior. Rehearse with your own provider before presenting; old workshop recordings are not proof of this portable setup.
+This project pins **Core 1.79.0**, **Memory 1.39.0**, **LibSQL 1.27.0**, and **CLI `mastra` 1.35.0**, with a standalone lockfile.
 
 ## What to inspect
 
@@ -84,10 +80,10 @@ pnpm send notify "CI failed" --agent assistant --thread THREAD_ID --priority hig
 
 The server creates `workshop.db` and possibly SQLite sidecars, `.mastra/`, and `peer-workspace/`. These, `.env*` secrets, logs and queued IDs are ignored; do not contribute them. Stop only servers you own before backing up/resetting local state. Preserve the database and generated work before any reset. No reset command is automatic.
 
-If a page appears to load forever, first close other Studio/demo tabs and retry. Check the server terminal and browser console/network before concluding that storage is stale. The workshop had a recovery after a local state reset, but its exact cause was not established; deleting data is not a general fix. A busy research tool intentionally waits up to the 90-second safety cap; the runner normally releases it five seconds after steering.
+If a page appears to load forever, close other Studio/demo tabs and retry, then check the server terminal and browser console/network. The research tool intentionally waits up to a 90-second safety cap; the runner normally releases it five seconds after steering.
 
 The demo routes are unauthenticated and designed for a trusted loopback environment only. Do not expose this project to the internet, attach real home controls, use sensitive data, or treat its simulated emergency instructions as safety advice.
 
 ## Offline fallback
 
-The captured CLI replay kits referenced during the private workshop were **not part of this source snapshot** and are not included here. No command in this example replays a recorded model run. Without provider access, use the [presenter walkthrough](PRESENTER.md#offline-walkthrough) and local state tests to explain the flow; do not call them a live demo. Full per-demo recorded fallbacks remain a publication follow-up.
+Without provider access, use the [source walkthrough](PRESENTER.md#offline-walkthrough) and run `pnpm test` to explore state snapshots, cart updates and work-item transitions locally. These tests do not require a model key or a running server.
