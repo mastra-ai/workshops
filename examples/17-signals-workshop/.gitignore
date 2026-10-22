@@ -1,0 +1,12 @@
+node_modules/
+.mastra/
+.env
+.env.*
+!.env.example
+*.db*
+peer-workspace/
+*.log
+.queued-ids.json
+dist/
+build/
+rehearsal/

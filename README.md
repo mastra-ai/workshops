@@ -19,7 +19,7 @@ All decks are React modules served by [open-slide](https://github.com/1weiho/ope
 | **Trace Intelligence**<br>Uses an intentionally imperfect support agent and evaluation dataset to find and group recurring production behaviors. | [`trace-intelligence`](slides/trace-intelligence/) | [`13-support-agent`](examples/13-support-agent/) |
 | **Agent Learning**<br>Explains how traces become signals, themes, investigations, evaluated changes, and pull requests in a closed improvement loop. | [`agent-learning`](slides/agent-learning/) | None |
 | **Multiplayer Agents with Channels**<br>Demonstrates how multiple Slack participants can share one attributable and steerable agent conversation. | [`multiplayer-channels`](slides/multiplayer-channels/) | None |
-| **Agent Signals**<br>Presents reactive, state, and notification signals for watching, steering, and waking running agents. | [`signals-workshop`](slides/signals-workshop/) | None |
+| **Agent Signals**<br>Presents reactive, state, and notification signals for watching, steering, and waking running agents. | [`signals-workshop`](slides/signals-workshop/) | [`17-signals-workshop`](examples/17-signals-workshop/) |
 | **Software Factory**<br>Presents a maturity model for automating controlled software-development feedback loops with agents, workflows, and human gates. | [`software-factory`](slides/software-factory/) | None |
 | **Real-Time Voice Agents**<br>Covers LiveKit integration, lifecycle hooks, observability, and Mastra memory for browser-to-phone voice agents. | [`voice-agents`](slides/voice-agents/) | None |
 
