@@ -23,7 +23,7 @@ const darkTokens = `
 `
 export const themeCss = `
   @font-face { font-family: Greed; src: url(${greed}) format('woff2'); font-weight: 100 900; font-display: swap; }
-  .signals-ongoing {
+  .signals-long-running {
     --mt-bg: var(--osd-bg, #f5f6f4); --mt-text: var(--osd-text, #101813); --mt-accent: var(--osd-accent, #19783a);
     --mt-shell: #e6ebe5; --mt-panel: #fff; --mt-border: #c4cec5;
     --mt-soft: #25362b; --mt-muted: #46554b; --mt-subtle: #f3f7f1;
@@ -32,14 +32,14 @@ export const themeCss = `
     background: var(--mt-bg); color: var(--mt-text);
     font-family: var(--osd-font-body, Greed, system-ui, sans-serif);
   }
-  .signals-ongoing, .signals-ongoing * { box-sizing: border-box; }
-  .signals-ongoing[data-appearance="dark"] { ${darkTokens} }
+  .signals-long-running, .signals-long-running * { box-sizing: border-box; }
+  .signals-long-running[data-appearance="dark"] { ${darkTokens} }
   @media (prefers-color-scheme: dark) {
-    .signals-ongoing[data-appearance="system"] { ${darkTokens} }
+    .signals-long-running[data-appearance="system"] { ${darkTokens} }
   }
 `
 if (typeof document !== 'undefined') {
-  const id = 'signals-ongoing-styles'
+  const id = 'signals-long-running-styles'
   const style = document.getElementById(id) ?? document.createElement('style')
   style.id = id
   if (style.textContent !== themeCss) style.textContent = themeCss
@@ -47,7 +47,7 @@ if (typeof document !== 'undefined') {
 }
 
 const mono = '"SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace'
-const MastraPage = ({ children }: { children: ReactNode }) => <div className="signals-ongoing" data-appearance={appearance}>{children}</div>
+const MastraPage = ({ children }: { children: ReactNode }) => <div className="signals-long-running" data-appearance={appearance}>{children}</div>
 const Frame = ({ children }: { children: ReactNode }) => <>
   <div style={{ position: 'absolute', inset: 56, borderRadius: 64, background: 'var(--mt-shell)' }} />
   <div style={{ position: 'absolute', inset: 92, borderRadius: 42, border: '1px solid var(--mt-border)', background: 'var(--mt-panel)', padding: '88px 96px' }}>{children}</div>
@@ -87,7 +87,16 @@ const FlowArrow = () => <span aria-hidden="true" style={{ fontSize: 48, color: '
 
 const Cover: Page = () => <MastraPage><Frame><div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Wordmark /><Badge>Workshop</Badge></div>
-  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}><h1 style={{ margin: 0, maxWidth: 1350, fontSize: 'var(--osd-size-hero, 108px)', lineHeight: 1.1, fontWeight: 520, letterSpacing: '-.035em' }}>Signals for ongoing agents</h1></div>
+  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}><h1 style={{ margin: 0, maxWidth: 1350, fontSize: 'var(--osd-size-hero, 108px)', lineHeight: 1.1, fontWeight: 520, letterSpacing: '-.035em' }}>Signals for Long-Running Agents (LRA)</h1></div>
+  <div style={{ textAlign: 'center', fontSize: 30, color: 'var(--mt-muted)' }}>Abhi Aiyer · Tyler Barnes</div>
+</div></Frame></MastraPage>
+
+const Hosts: Page = () => <MastraPage><Frame><div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+  <h2 style={{ margin: 0, fontSize: 80, fontWeight: 520, lineHeight: 1.15 }}>Meet your hosts</h2>
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, flex: 1, alignItems: 'center' }}>
+    <Card label="Presenter"><strong style={{ display: 'block', color: 'var(--mt-text)', fontWeight: 520, fontSize: 48, marginBottom: 16 }}>Abhi Aiyer</strong>CTO &amp; Co-Founder, Mastra</Card>
+    <Card label="Presenter"><strong style={{ display: 'block', color: 'var(--mt-text)', fontWeight: 520, fontSize: 48, marginBottom: 16 }}>Tyler Barnes</strong>Founding Principal Engineer, Mastra</Card>
+  </div>
 </div></Frame></MastraPage>
 
 const AgentsChanged: Page = () => <Story chapter="01 / The mismatch" title="Agents stopped being one-shot requests">
@@ -191,17 +200,18 @@ const Ownership: Page = () => <Story chapter="04 / Beyond one process" title="On
   <Quote>Leases coordinate who runs the thread. Shared storage and PubSub make delivery and recovery possible across processes.</Quote>
 </Story>
 const Close: Page = () => <MastraPage><Frame><div style={{ display: 'flex', height: '100%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 50 }}>
-  <h2 style={{ margin: 0, maxWidth: 1400, fontSize: 94, lineHeight: 1.12, fontWeight: 520 }}>An ongoing agent needs an ongoing way in.</h2>
+  <h2 style={{ margin: 0, maxWidth: 1400, fontSize: 94, lineHeight: 1.12, fontWeight: 520 }}>Long-running agents need a way in between requests.</h2>
   <div style={{ width: '100%' }}><SignalPath outside="watch / send" thread="state / events" next="across processes" /></div>
 </div></Frame></MastraPage>
 
 export const meta: SlideMeta = {
-  title: 'Signals for ongoing agents',
+  title: 'Signals for Long-Running Agents',
   theme: 'mastra',
   createdAt: '2026-10-21T18:13:58.363Z',
 }
 export const notes = [
-  'Open on the thesis: agents have become long-running processes, but our input model still assumes one request, one answer. This is a story about the primitive, not a single PR scenario. Based on the Signals guides in PR #28022.',
+  'Introduce Signals for Long-Running Agents (LRA). Abhi and Tyler are presenting. Agents have become long-running processes, but our input model still assumes one request, one answer. This is a story about the primitive, not a single PR scenario. Based on the Signals guides in PR #28022.',
+  'Introduce Abhi Aiyer and Tyler Barnes before starting the story.',
   'The first agent.stream() call is only the beginning. Long-running agents work with goals, tools, users, and outside events. Let the mismatch land before presenting APIs.',
   'The old request/response boundary makes new information feel like a new invocation, even when the work belongs to an existing thread. The thread remains addressable across active and idle runs. Review feedback on a PR is just one illustration.',
   'Define Signals as typed input into an existing agent thread after the initial stream call. Delivery depends on agent state: sendSignal defaults to deliver during an active run and wake when idle; callers can override both paths. A thread is not the same as a continuously running agent.',
@@ -218,6 +228,6 @@ export const notes = [
   'Signal providers are an optional connector abstraction for outside systems. They register resource subscriptions, watch through polling or webhooks, and send relevant notifications to matching threads. For a single direct event, manually sending a signal may be simpler.',
   'A process that receives a signal is not necessarily the owner of the agent run. Shared PubSub routes to the current owner. PubSub alone is not a durable system of record; use shared storage and design for duplicates and crashes.',
   'Thread leases enforce a single active owner. On failure, another process can claim ownership; use shared storage and matching configuration across processes. In serverless environments in-memory queues are fragile. See Running across processes for topology and shutdown considerations.',
-  'Return to the thesis and the same path. Watch the thread, steer it, keep state current, react to events, and route input across processes. One primitive lets an ongoing agent stay reachable.',
+  'Return to the thesis and the same path. Watch the thread, steer it, keep state current, react to events, and route input across processes. One primitive lets a long-running agent stay reachable.',
 ]
-export default [Cover, AgentsChanged, InterfaceDidNot, NewPrimitive, Loop, Observe, ThreadStream, Send, Queue, DifferentInput, SystemContext, State, StateRefresh, Notifications, Providers, ProcessBoundary, Ownership, Close] satisfies Page[]
+export default [Cover, Hosts, AgentsChanged, InterfaceDidNot, NewPrimitive, Loop, Observe, ThreadStream, Send, Queue, DifferentInput, SystemContext, State, StateRefresh, Notifications, Providers, ProcessBoundary, Ownership, Close] satisfies Page[]
