@@ -1,0 +1,32 @@
+{
+  "name": "signals-studio-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "send": "tsx scripts/send.ts",
+    "test": "tsx --test tests/*.test.mjs",
+    "rehearse": "node scripts/verify-runners.mjs",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "demo1": "tsx scripts/demo.ts demo1",
+    "demo2": "tsx scripts/demo.ts demo2",
+    "demo3": "tsx scripts/demo.ts demo3",
+    "demo4": "tsx scripts/demo.ts demo4"
+  },
+  "dependencies": {
+    "@mastra/core": "1.79.0",
+    "@mastra/libsql": "1.27.0",
+    "@mastra/memory": "1.39.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "mastra": "1.35.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
