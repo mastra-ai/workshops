@@ -1,3 +1,13 @@
+import customerMongoDB from './assets/customer-mongodb.svg';
+import customerReplit from './assets/customer-replit.svg';
+import customerSalesforce from './assets/customer-salesforce.svg';
+import customerSoftBank from './assets/customer-softbank.svg';
+import customerWorkday from './assets/customer-workday.svg';
+import customerMarsh from './assets/customer-marsh-mclennan.svg';
+import customerFactorial from './assets/customer-factorial.svg';
+import customerRange from './assets/customer-range.svg';
+import customerSanity from './assets/customer-sanity.svg';
+import mastraAgentBooks from './assets/mastra-agent-books.png';
 import { useEffect, useRef, useState } from 'react';
 import { useIsActivePage } from '@open-slide/core';
 import type { DesignSystem, Page, SlideMeta } from '@open-slide/core';
@@ -10,8 +20,26 @@ import closingXProfile from './assets/closing-x-profile.png';
 import factoryProductHunt from './assets/factory-product-hunt.png';
 import omInteractiveDemo from './assets/om-interactive-demo.html?raw';
 import factoryWorkBoard from './assets/factory-work-board.png';
-import agentsSlackExample from './assets/agents-slack-example.png';
 import alexandriaKnowledgeBase from './assets/alexandria-knowledge-base.png';
+import mastraPlatform from './assets/mastra-platform.png';
+import mastraDownloads from './assets/mastra-downloads.png';
+import factoryTriageSkill from './assets/factory-triage-skill.png';
+import factoryBuild from './assets/factory-build.png';
+import mastraBooth from './assets/mastra-booth.png';
+import companyLogoWall from './assets/company-logo-wall.png';
+import buildYourFactory from './assets/build-your-factory.png';
+import observationalMemoryResearch from './assets/observational-memory-research.png';
+import factoryKnowledgeGraph from './assets/factory-knowledge-graph.png';
+import intakeLinear from './assets/intake-linear.svg';
+import intakeSlack from './assets/intake-slack.svg';
+import intakeGithub from './assets/intake-github.svg';
+import mastraFactoryIntroduction from './assets/mastra-factory-introduction.png';
+import mastraHomepage from './assets/mastra-homepage.png';
+import softwareFactoryLoop from './assets/software-factory-loop.png';
+import stripeLogo from './assets/company-stripe-wordmark.svg';
+import rampLogo from './assets/company-ramp.svg';
+import spotifyLogo from './assets/company-spotify-wordmark.svg';
+import cursorLogo from './assets/company-cursor.svg';
 
 export const design: DesignSystem = {
   palette: {
@@ -139,6 +167,12 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
   </>
 );
 
+const MastraQrOverlay = () => (
+  <a href="https://mastra.ai" target="_blank" rel="noreferrer" aria-label="Scan or open Mastra" style={{ position: 'absolute', bottom: 36, left: 36, zIndex: 2, opacity: 0.8, padding: 20, borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 24px rgba(0,0,0,0.16)' }}>
+    <img src={mastraQr} alt="QR code linking to https://mastra.ai/" style={{ width: 160, height: 160, display: 'block', imageRendering: 'pixelated' }} />
+  </a>
+);
+
 const Cover: Page = () => (
   <div style={fill}>
     <Frame>
@@ -160,10 +194,11 @@ const Cover: Page = () => (
           textWrap: 'balance',
         }}
       >
-        Mastra and the Future of Agents
+        Software Factories and the Future of Agents
       </h1>
       </div>
     </Frame>
+    <MastraQrOverlay />
   </div>
 );
 
@@ -219,7 +254,167 @@ const MastraSite = ({ url, title, showQr = false }: { url: string; title: string
   );
 };
 
-const MastraWebsite: Page = () => <MastraSite url="https://mastra.ai/ai-agent-framework" title="Mastra AI agent framework" showQr />;
+const CustomerUseCase = ({ company, logo, children }: { company: string; logo: string; children: React.ReactNode }) => (
+  <div style={{ padding: '24px 0', borderTop: '1px solid #30352f', height: 170, boxSizing: 'border-box' }}>
+    <img src={logo} alt={company} style={{ width: 240, height: 62, objectFit: 'contain', objectPosition: 'left center', display: 'block', marginBottom: 18 }} />
+    <div style={{ fontSize: 30, lineHeight: 1.35, color: '#b8c0b4' }}>{children}</div>
+  </div>
+);
+
+const CustomerCategory = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section style={{ minWidth: 0 }}>
+    <h3 style={{ margin: '0 0 28px', fontSize: 40, fontWeight: 520, color: '#b6f78c' }}>{title}</h3>
+    {children}
+  </section>
+);
+
+const MastraCustomers: Page = () => (
+  <div style={{ ...fill, background: '#10120f', color: '#ffffff' }}>
+    <div style={{ position: 'absolute', top: 160, left: 120, right: 120 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 72 }}>
+        <CustomerCategory title="Customer-facing">
+          <CustomerUseCase company="Sanity" logo={customerSanity}>Create and edit CMS content</CustomerUseCase>
+          <CustomerUseCase company="Range" logo={customerRange}>Personalized financial advice</CustomerUseCase>
+          <CustomerUseCase company="Factorial" logo={customerFactorial}>HR assistance across products</CustomerUseCase>
+        </CustomerCategory>
+        <CustomerCategory title="Internal">
+          <CustomerUseCase company="Marsh" logo={customerMarsh}>Company knowledge and tools</CustomerUseCase>
+          <CustomerUseCase company="Workday" logo={customerWorkday}>Security alert triage</CustomerUseCase>
+          <CustomerUseCase company="SoftBank" logo={customerSoftBank}>Document creation with Satto</CustomerUseCase>
+        </CustomerCategory>
+        <CustomerCategory title="Developer platform">
+          <CustomerUseCase company="Salesforce" logo={customerSalesforce}>Agentforce Vibes coding harness</CustomerUseCase>
+          <CustomerUseCase company="Replit" logo={customerReplit}>Generate agents and workflows</CustomerUseCase>
+          <CustomerUseCase company="MongoDB" logo={customerMongoDB}>CI log analysis and triage</CustomerUseCase>
+        </CustomerCategory>
+      </div>
+    </div>
+    <MastraQrOverlay />
+  </div>
+);
+
+const MastraAgentBooks: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={mastraAgentBooks} alt="Principles of Building AI Agents and Patterns for Building AI Agents books" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+    <MastraQrOverlay />
+  </div>
+);
+
+const MastraHomepage: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={mastraHomepage} alt="Mastra homepage: Build AI agents" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+    <MastraQrOverlay />
+  </div>
+);
+
+const MastraFactoryIntroduction: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={mastraFactoryIntroduction} alt="Introducing Mastra Factory: Intake, Triage, In Progress, Review" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+  </div>
+);
+
+const MastraDownloads: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={mastraDownloads} alt="Mastra weekly downloads chart: 600k in April and 1.2m in July" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+    <MastraQrOverlay />
+  </div>
+);
+
+const IntakeSource = ({ src, name }: { src: string; name: string }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 36 }}>
+    <img src={src} alt={name} style={{ width: 144, height: 144, objectFit: 'contain' }} />
+    <span style={{ fontSize: 44, fontWeight: 500 }}>{name}</span>
+  </div>
+);
+
+const HowWorkStarts: Page = () => (
+  <div style={fill}>
+    <Frame>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 110 }}>
+        <h2 style={{ margin: 0, fontSize: 84, fontWeight: 520, lineHeight: 1.15 }}>Intake</h2>
+        <div style={{ width: 1200, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 100 }}>
+          <IntakeSource src={intakeLinear} name="Linear" />
+          <IntakeSource src={intakeSlack} name="Slack" />
+          <IntakeSource src={intakeGithub} name="GitHub" />
+        </div>
+      </div>
+    </Frame>
+  </div>
+);
+
+const FactoryTriage: Page = () => (
+  <div style={{ ...fill, background: '#fafafa', padding: '64px 96px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 32 }}>
+    <h2 style={{ margin: 0, fontSize: 76, fontWeight: 520, lineHeight: 1.15 }}>Triage and Plan</h2>
+    <img src={factoryTriageSkill} alt="Factory Triage and Planning skills in Mastra Factory settings" style={{ width: '100%', flex: 1, minHeight: 0, objectFit: 'contain', display: 'block' }} />
+  </div>
+);
+
+const FactoryBuild: Page = () => (
+  <div style={{ ...fill, background: '#fafafa', padding: '64px 96px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 32 }}>
+    <h2 style={{ margin: 0, fontSize: 76, fontWeight: 520, lineHeight: 1.15 }}>Build</h2>
+    <img src={factoryBuild} alt="Mastra Factory build session reproducing an issue, editing code, and running tests" style={{ width: '100%', flex: 1, minHeight: 0, objectFit: 'contain', display: 'block' }} />
+  </div>
+);
+
+const FactoryReview: Page = () => (
+  <div style={fill}>
+    <Frame>
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <h2 style={{ margin: 0, fontSize: 112, fontWeight: 520, lineHeight: 1.15 }}>Review</h2>
+      </div>
+    </Frame>
+  </div>
+);
+
+const FactoryShip: Page = () => (
+  <div style={fill}>
+    <Frame>
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <h2 style={{ margin: 0, fontSize: 112, fontWeight: 520, lineHeight: 1.15 }}>Ship</h2>
+      </div>
+    </Frame>
+  </div>
+);
+
+const ObservationalMemoryScreenshot: Page = () => (
+  <div style={{ ...fill, background: '#0a0a0a' }}>
+    <img src={observationalMemoryResearch} alt="Observational Memory research: 95% on LongMemEval" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+  </div>
+);
+
+const FactoryKnowledgeGraph: Page = () => (
+  <div style={{ ...fill, background: '#fafafa' }}>
+    <img src={factoryKnowledgeGraph} alt="Mastra Factory knowledge graph" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+  </div>
+);
+
+const BuildYourFactory: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={buildYourFactory} alt="Build your factory today: npm create factory" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+  </div>
+);
+
+const CompanyLogoWall: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={companyLogoWall} alt="Company logos" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+  </div>
+);
+
+const MastraBooth: Page = () => (
+  <div style={{ ...fill, background: '#ffffff', display: 'grid', gridTemplateColumns: '70% 30%' }}>
+    <img src={mastraBooth} alt="Mastra booth at the venue" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain', background: '#000000' }} />
+    <a href="https://mastra.ai" target="_blank" rel="noreferrer" aria-label="Scan or open Mastra" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 36, boxSizing: 'border-box', background: '#ffffff' }}>
+      <img src={mastraQr} alt="QR code linking to https://mastra.ai/" style={{ width: '100%', height: 'auto', display: 'block', imageRendering: 'pixelated' }} />
+    </a>
+  </div>
+);
+
+const MastraPlatform: Page = () => (
+  <div style={{ ...fill, background: '#000000' }}>
+    <img src={mastraPlatform} alt="Mastra Platform: Build, Observe, Improve, Deploy" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+    <MastraQrOverlay />
+  </div>
+);
 
 const Milestone = ({ time, children }: { time: string; children: React.ReactNode }) => (
   <div style={{ position: 'relative', flex: '1 1 0', minWidth: 0, textAlign: 'center' }}>
@@ -244,64 +439,92 @@ const AgentTimeline: Page = () => (
           <Milestone time="Early 2025">Reasoning models and agent loops</Milestone>
           <Milestone time="Late 2025">Opus 4.5</Milestone>
           <Milestone time="Early 2026">OpenClaw</Milestone>
-          <Milestone time="2026">Harnesses and factories</Milestone>
+          <Milestone time="2026">Factories</Milestone>
         </div>
       </div>
     </Frame>
   </div>
 );
 
-const CapabilityMoment = ({ year, moment, children }: { year: string; moment: string; children: React.ReactNode }) => (
-  <li style={{ position: 'relative', display: 'grid', gridTemplateColumns: '250px 64px 1fr', alignItems: 'center', minHeight: 110 }}>
-    <div style={{ paddingLeft: 64, paddingRight: 24, textAlign: 'left' }}>
-      <div style={{ fontSize: 24, lineHeight: 1.4, color: 'var(--osd-accent)', marginBottom: 5 }}>{year}</div>
-      <div style={{ fontSize: 32, fontWeight: 500, lineHeight: 1.25, letterSpacing: 0 }}>{moment}</div>
+const AgentTimelineRecap: Page = () => (
+  <div style={fill}>
+    <Frame>
+      <div style={{ position: 'absolute', left: 96, right: 96, top: 350 }}>
+        <div aria-hidden style={{ position: 'absolute', left: 128, right: 128, top: 78, height: 4, background: '#9bbda3' }} />
+        <div style={{ display: 'flex' }}>
+          <Milestone time="2023">Single-turn LLM calls</Milestone>
+          <Milestone time="2024">Multi-turn chatbots</Milestone>
+          <Milestone time="Early 2025">Reasoning models and agent loops</Milestone>
+          <Milestone time="Late 2025">Opus 4.5</Milestone>
+          <Milestone time="Early 2026">OpenClaw</Milestone>
+          <Milestone time="2026">Factories</Milestone>
+        </div>
+      </div>
+    </Frame>
+  </div>
+);
+
+const AgentTimelinePerspective: Page = () => (
+  <div style={fill}>
+    <Frame>
+      <div style={{ position: 'absolute', left: 96, right: 96, top: 350 }}>
+        <div aria-hidden style={{ position: 'absolute', left: 128, right: 128, top: 78, height: 4, background: '#9bbda3' }} />
+        <div style={{ display: 'flex' }}>
+          <Milestone time="2023">Single-turn LLM calls</Milestone>
+          <Milestone time="2024">Multi-turn chatbots</Milestone>
+          <Milestone time="Early 2025">Reasoning models and agent loops</Milestone>
+          <Milestone time="Late 2025">Opus 4.5</Milestone>
+          <Milestone time="Early 2026">OpenClaw</Milestone>
+          <Milestone time="2026">Factories</Milestone>
+        </div>
+      </div>
+      <p style={{ position: 'absolute', bottom: 88, left: 96, right: 96, margin: 0, textAlign: 'center', fontSize: 64, fontWeight: 520, color: '#19783a' }}>Just 36 months</p>
+    </Frame>
+  </div>
+);
+
+const SoftwareFactoryDefinition: Page = () => (
+  <div style={fill}>
+    <Frame>
+      <div style={{ height: '100%', display: 'grid', gridTemplateColumns: '560px 1fr', alignItems: 'center', gap: 40 }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 76, fontWeight: 520, lineHeight: 1.15 }}>Factory</h2>
+          <p style={{ margin: '36px 0 0', fontSize: 42, lineHeight: 1.4, color: palette.textSoft }}>A <em>system</em> of agents that continuously builds, ships, and improves software.</p>
+        </div>
+        <img src={softwareFactoryLoop} alt="Continuous feedback loop: Signals, Triage, Plan, Build, Test, Review, Secure, Ship, Monitor, then back to Signals" style={{ width: '100%', height: 718, objectFit: 'contain', display: 'block' }} />
+      </div>
+    </Frame>
+  </div>
+);
+
+const FactoryExample = ({ logo, company, children, wordmark = false }: { logo: string; company: string; children: React.ReactNode; wordmark?: boolean }) => (
+  <div style={{ padding: '30px 36px', borderRadius: 24, border: '1px solid #dce4d9', background: '#f7f9f5' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 18, height: 52 }}>
+      <img src={logo} alt={company} style={{ width: wordmark ? 142 : 48, height: 48, objectFit: 'contain', objectPosition: 'left center', filter: 'grayscale(1) brightness(0)' }} />
+      {!wordmark && <span style={{ fontSize: 40, fontWeight: 550 }}>{company}</span>}
     </div>
-    <div aria-hidden style={{ position: 'relative', width: 20, height: 20, borderRadius: '50%', background: 'var(--osd-accent)', outline: '7px solid #ffffff', zIndex: 1 }} />
-    <div style={{ padding: '10px 28px', borderRadius: 18, background: '#f2f6f0', fontSize: 32, lineHeight: 1.4, letterSpacing: 0, color: palette.textSoft }}>{children}</div>
-  </li>
-);
-
-const MastraCapabilities: Page = () => (
-  <div style={fill}>
-    <Frame>
-      <div style={{ position: 'absolute', top: 50, left: 96, right: 96 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '314px 1fr', alignItems: 'center', marginBottom: 20, height: 46 }}>
-          <div style={{ paddingLeft: 64, textAlign: 'left', fontSize: 30, fontWeight: 550 }}>Moment</div>
-          <div style={{ fontSize: 30, fontWeight: 550, color: 'var(--osd-accent)' }}>Mastra</div>
-        </div>
-        <div style={{ position: 'relative' }}>
-          <div aria-hidden style={{ position: 'absolute', left: 258, top: 55, bottom: 55, width: 4, borderRadius: 4, background: '#a6c5ab' }} />
-        <ol aria-label="Industry timeline and supporting Mastra capabilities" style={{ position: 'relative', listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <CapabilityMoment year="2023" moment="LLMs">Model routing · Structured output · RAG</CapabilityMoment>
-          <CapabilityMoment year="2024" moment="Chatbots">Message history · Working memory<br />Semantic recall</CapabilityMoment>
-          <CapabilityMoment year="Early 2025" moment="Agents">Tool calling · Workflows · Human-in-the-loop<br />Evals · Tracing</CapabilityMoment>
-          <CapabilityMoment year="Late 2025" moment="Opus 4.5">Workspaces · Filesystem · Sandbox · Skills</CapabilityMoment>
-          <CapabilityMoment year="Early 2026" moment="OpenClaw">Observational Memory · Channels · Schedules</CapabilityMoment>
-          <CapabilityMoment year="2026" moment="Factories">Harness · Goals · Background tasks<br />Durable agents · Mastra Factory</CapabilityMoment>
-        </ol>
-        </div>
-      </div>
-    </Frame>
+    <div style={{ marginTop: 26, fontSize: 34, lineHeight: 1.35, color: palette.textSoft }}>{children}</div>
   </div>
 );
 
-const CreateMastra: Page = () => (
+const FactoryExamples: Page = () => (
   <div style={fill}>
     <Frame>
-      <div style={{ position: 'absolute', inset: 96, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <pre style={{ margin: 0, padding: '48px 56px', borderRadius: 24, border: '1px solid #c4cec5', background: '#f5f7f3', whiteSpace: 'pre' }}>
-          <code style={{ fontFamily: '"SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace', fontSize: 64, fontWeight: 500, lineHeight: 1.4, letterSpacing: '-0.025em' }}>
-            <span style={{ color: '#19783a' }}>npm</span>{' '}
-            <span style={{ color: '#245a96' }}>create</span>{' '}
-            <span style={{ color: '#101813' }}>mastra</span><span style={{ color: '#6e3f91' }}>@latest</span>
-          </code>
-        </pre>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '290px 290px', gap: 24, height: '100%', alignContent: 'center' }}>
+        <FactoryExample logo={stripeLogo} company="Stripe" wordmark>
+          “We ship <strong style={{ fontWeight: 600 }}>1,300</strong> reviewed PRs a week.”
+        </FactoryExample>
+        <FactoryExample logo={rampLogo} company="Ramp" wordmark>
+          “Our agent writes <strong style={{ fontWeight: 600 }}>30%</strong> of merged PRs across frontend and backend repos.”
+        </FactoryExample>
+        <FactoryExample logo={spotifyLogo} company="Spotify" wordmark>
+          “Honk migrated our backend services to a new Java version in <strong style={{ fontWeight: 600 }}>3 days</strong>.”
+        </FactoryExample>
+        <FactoryExample logo={cursorLogo} company="Cursor">
+          “I shipped <strong style={{ fontWeight: 600 }}>2,500</strong> PRs last month to production.”
+        </FactoryExample>
       </div>
     </Frame>
-    <a href="https://mastra.ai" target="_blank" rel="noreferrer" aria-label="Scan or open Mastra" style={{ position: 'absolute', bottom: 36, left: 36, opacity: 0.8, padding: 24, borderRadius: 18, background: '#ffffff', boxShadow: '0 4px 24px rgba(0,0,0,0.16)' }}>
-      <img src={mastraQr} alt="QR code linking to https://mastra.ai/" style={{ width: 200, height: 200, display: 'block', imageRendering: 'pixelated' }} />
-    </a>
   </div>
 );
 
@@ -336,7 +559,7 @@ const MinimalAgent: Page = () => (
   </div>
 );
 
-const ExampleCode = ({ children }: { children: React.ReactNode }) => (
+const ExampleCode = ({ children, showQr = false }: { children: React.ReactNode; showQr?: boolean }) => (
   <div style={fill}>
     <Frame>
       <div style={{ position: 'absolute', inset: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -345,6 +568,7 @@ const ExampleCode = ({ children }: { children: React.ReactNode }) => (
         </pre>
       </div>
     </Frame>
+    {showQr && <MastraQrOverlay />}
   </div>
 );
 
@@ -355,42 +579,22 @@ const ExampleLine = ({ children, highlight = false }: { children?: React.ReactNo
 );
 
 const SandboxAndBrowser: Page = () => (
-  <ExampleCode>
-    <ExampleLine><Keyword>import</Keyword>{' { Workspace } '}<Keyword>from</Keyword>{' '}<CodeString>'@mastra/core/workspace'</CodeString></ExampleLine>
-    <ExampleLine><Keyword>import</Keyword>{' { DaytonaSandbox } '}<Keyword>from</Keyword>{' '}<CodeString>'@mastra/daytona'</CodeString></ExampleLine>
-    <ExampleLine><Keyword>import</Keyword>{' { AgentBrowser } '}<Keyword>from</Keyword>{' '}<CodeString>'@mastra/agent-browser'</CodeString></ExampleLine>
-    <ExampleLine />
+  <ExampleCode showQr>
     <ExampleLine><Keyword>const</Keyword>{' agent = '}<Keyword>new</Keyword>{' Agent({'}</ExampleLine>
-    <ExampleLine><span style={{ color: palette.textMuted }}>{'  ...'}</span></ExampleLine>
-    <ExampleLine highlight>{'  '}<Property>workspace</Property>{': '}<Keyword>new</Keyword>{' Workspace({'}</ExampleLine>
-    <ExampleLine highlight>{'    '}<Property>sandbox</Property>{': '}<Keyword>new</Keyword>{' DaytonaSandbox({ '}<Property>language</Property>{': '}<CodeString>'typescript'</CodeString>{' }),'}</ExampleLine>
-    <ExampleLine highlight>{'  }),'}</ExampleLine>
-    <ExampleLine highlight>{'  '}<Property>browser</Property>{': '}<Keyword>new</Keyword>{' AgentBrowser({ '}<Property>headless</Property>{': '}<Keyword>false</Keyword>{' }),'}</ExampleLine>
+    <ExampleLine>{'  '}<Property>instructions</Property>{': '}<CodeString>'Research ideas and build working prototypes.'</CodeString>{','}</ExampleLine>
+    <ExampleLine>{'  '}<Property>model</Property>{': '}<CodeString>'openai/gpt-6-astra'</CodeString>{','}</ExampleLine>
+    <ExampleLine>{'  '}<Property>tools</Property>{': { webFetchTool },'}</ExampleLine>
+    <ExampleLine>{'  '}<Property>workspace</Property>{': '}<Keyword>new</Keyword>{' Workspace({'}</ExampleLine>
+    <ExampleLine>{'    '}<Property>sandbox</Property>{': '}<Keyword>new</Keyword>{' DaytonaSandbox({ '}<Property>language</Property>{': '}<CodeString>'typescript'</CodeString>{' }),'}</ExampleLine>
+    <ExampleLine>{'  }),'}</ExampleLine>
+    <ExampleLine>{'  '}<Property>browser</Property>{': '}<Keyword>new</Keyword>{' AgentBrowser({ '}<Property>headless</Property>{': '}<Keyword>false</Keyword>{' }),'}</ExampleLine>
     <ExampleLine>{'})'}</ExampleLine>
+    <ExampleLine />
+    <ExampleLine><Keyword>await</Keyword>{' agent.stream('}<CodeString>'Research arxiv.org and build a demo'</CodeString>{')'}</ExampleLine>
   </ExampleCode>
 );
 
 const IntegrationsWebsite: Page = () => <MastraSite url="https://mastra.ai/integrations" title="Mastra integrations" />;
-
-const AgentHarness: Page = () => (
-  <ExampleCode>
-    <ExampleLine><Keyword>import</Keyword>{' { AgentController } '}<Keyword>from</Keyword>{' '}<CodeString>'@mastra/core/agent-controller'</CodeString></ExampleLine>
-    <ExampleLine />
-    <ExampleLine><Keyword>const</Keyword>{' agent = '}<Keyword>new</Keyword>{' Agent({ ... })'}</ExampleLine>
-    <ExampleLine highlight><Keyword>const</Keyword>{' controller = '}<Keyword>new</Keyword>{' AgentController({'}</ExampleLine>
-    <ExampleLine highlight>{'  '}<Property>id</Property>{': '}<CodeString>'research-harness'</CodeString>{','}</ExampleLine>
-    <ExampleLine highlight>{'  agent,'}</ExampleLine>
-    <ExampleLine highlight>{'  storage,'}</ExampleLine>
-    <ExampleLine highlight>{'  '}<Property>modes</Property>{': ['}</ExampleLine>
-    <ExampleLine highlight>{'    { '}<Property>id</Property>{': '}<CodeString>'plan'</CodeString>{', '}<Property>name</Property>{': '}<CodeString>'Plan'</CodeString>{', '}<Property>instructions</Property>{': '}<CodeString>'Explore ideas.'</CodeString>{' },'}</ExampleLine>
-    <ExampleLine highlight>{'    { '}<Property>id</Property>{': '}<CodeString>'build'</CodeString>{', '}<Property>name</Property>{': '}<CodeString>'Build'</CodeString>{', '}<Property>instructions</Property>{': '}<CodeString>'Make it real.'</CodeString>{' },'}</ExampleLine>
-    <ExampleLine highlight>{'  ],'}</ExampleLine>
-    <ExampleLine highlight>{'})'}</ExampleLine>
-    <ExampleLine><Keyword>await</Keyword>{' controller.init()'}</ExampleLine>
-    <ExampleLine><Keyword>const</Keyword>{' session = '}<Keyword>await</Keyword>{' controller.createSession({ '}<Property>resourceId</Property>{': '}<CodeString>'alex'</CodeString>{' })'}</ExampleLine>
-    <ExampleLine><Keyword>await</Keyword>{' session.sendMessage({ '}<Property>content</Property>{': '}<CodeString>'Build a research digest'</CodeString>{' })'}</ExampleLine>
-  </ExampleCode>
-);
 
 const FeaturePill = ({ children, x, y, width, quiet = false, delay = 0, prominent = false, size = 42 }: {
   children: React.ReactNode; x: number; y: number; width: number; quiet?: boolean; delay?: number; prominent?: boolean; size?: number;
@@ -448,6 +652,8 @@ const FeatureCloud: Page = () => (
       <FeaturePill x={685} y={120} width={245} size={40} delay={-7}>Modes</FeaturePill>
 
       <FeaturePill x={865} y={435} width={375} size={60} delay={-3} prominent>Harness</FeaturePill>
+      <FeaturePill x={650} y={545} width={270} size={40} delay={-2} prominent>Subagents</FeaturePill>
+      <FeaturePill x={1210} y={515} width={270} size={40} delay={-2} prominent>Workflows</FeaturePill>
       <FeaturePill x={460} y={415} width={300} size={40} delay={-6}>Knowledge</FeaturePill>
       <FeaturePill x={1020} y={785} width={440} size={40} delay={-1}>Background Tasks</FeaturePill>
       <FeaturePill x={235} y={130} width={180} size={38} delay={-5}>MCP</FeaturePill>
@@ -473,7 +679,7 @@ const FactoryTitle: Page = () => (
 );
 
 const TeamAgentCard = ({ name, children }: { name: string; children: React.ReactNode }) => (
-  <div style={{ border: '1px solid #dce5db', borderRadius: 20, background: '#f3f7f1', padding: '12px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
+  <div style={{ border: '1px solid #dce5db', borderRadius: 20, background: '#f3f7f1', padding: '28px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
     <h3 style={{ margin: 0, fontSize: 34, fontWeight: 520, lineHeight: 1.2, color: 'var(--osd-accent)' }}>{name}</h3>
     <p style={{ margin: 0, fontSize: 28, lineHeight: 1.3, color: palette.textSoft }}>{children}</p>
   </div>
@@ -484,7 +690,7 @@ const FuturePredictions: Page = () => (
     <Frame>
       <div style={{ position: 'absolute', inset: 96, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 36 }}>
         <h1 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 108, fontWeight: 520, lineHeight: 1.1 }}>The future of agents</h1>
-        <h2 style={{ margin: 0, fontSize: 64, fontWeight: 450, lineHeight: 1.2, color: 'var(--osd-accent)' }}>4 predictions</h2>
+        <h2 style={{ margin: 0, fontSize: 64, fontWeight: 450, lineHeight: 1.2, color: 'var(--osd-accent)' }}>6 predictions</h2>
       </div>
     </Frame>
   </div>
@@ -502,20 +708,22 @@ const PredictionHeading = ({ number, children }: { number: string; children: Rea
   </div>
 );
 
-const ContinuousWork: Page = () => <PredictionHeading number="2">Ambient agents</PredictionHeading>;
+const ContinuousWork: Page = () => <PredictionHeading number="3">Ambient agents</PredictionHeading>;
 const ContextTeams: Page = () => (
   <div style={fill}>
     <Frame>
       <div style={{ display: 'grid', gridTemplateColumns: '580px 1fr', gap: 48, height: '100%', alignItems: 'center' }}>
         <h2 style={{ margin: 0, fontFamily: 'var(--osd-font-display)', fontSize: 68, fontWeight: 520, lineHeight: 1.15 }}>
-          <span style={{ color: 'var(--osd-accent)' }}>3.</span> Company<br />knowledge bases<br />will become your<br />most valuable asset
+          <span style={{ color: 'var(--osd-accent)' }}>2.</span> Company<br />knowledge bases<br />will become your<br />most valuable asset
         </h2>
         <img src={alexandriaKnowledgeBase} alt="Mastra’s Alexandria repository on GitHub, a shared company knowledge base" style={{ display: 'block', width: '100%', maxHeight: 716, objectFit: 'contain', borderRadius: 24 }} />
       </div>
     </Frame>
   </div>
 );
-const BeyondSoftware: Page = () => <PredictionHeading number="4">Factories spread<br />beyond software</PredictionHeading>;
+const BeyondSoftware: Page = () => <PredictionHeading number="6">Factories spread<br />beyond software</PredictionHeading>;
+const SignalsStartWork: Page = () => <PredictionHeading number="4">Signals kick off work</PredictionHeading>;
+const EconomicViability: Page = () => <PredictionHeading number="5">Agents become more<br />economically viable</PredictionHeading>;
 
 const AgentsJoinTheTeam: Page = () => (
   <div style={fill}>
@@ -523,15 +731,12 @@ const AgentsJoinTheTeam: Page = () => (
       <h2 style={{ margin: '0 0 32px', fontFamily: 'var(--osd-font-display)', fontSize: 76, fontWeight: 520, lineHeight: 1.2 }}>
         <span style={{ color: 'var(--osd-accent)' }}>1.</span> Agents join the team
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '600px 1fr', gap: 36, height: 596 }}>
-        <div style={{ display: 'grid', gridTemplateRows: 'repeat(5, 108px)', gap: 14 }}>
-          <TeamAgentCard name="Customer agent">Customer knowledge and requirements</TeamAgentCard>
-          <TeamAgentCard name="Marketing agent">GTM and product marketing</TeamAgentCard>
-          <TeamAgentCard name="Community agent">Open-source feedback and insights</TeamAgentCard>
-          <TeamAgentCard name="Workshop agent">Workshop management</TeamAgentCard>
-          <TeamAgentCard name="Factory agent">Software development in Slack</TeamAgentCard>
-        </div>
-        <img src={agentsSlackExample} alt="Mastra teammates asking the Vox agent in Slack to summarize customer calls" style={{ width: '100%', height: 596, objectFit: 'contain', borderRadius: 16 }} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: 172, gap: 24 }}>
+        <TeamAgentCard name="Customer">Customer call transcripts and CRM data</TeamAgentCard>
+        <TeamAgentCard name="GTM">GTM and product marketing</TeamAgentCard>
+        <TeamAgentCard name="Community">Open-source feedback and insights</TeamAgentCard>
+        <TeamAgentCard name="Events">Event management</TeamAgentCard>
+        <TeamAgentCard name="Software Factory">Software development in Slack</TeamAgentCard>
       </div>
     </Frame>
   </div>
@@ -672,6 +877,27 @@ const XProfile: Page = () => {
 
 export const notes = [
   '',
+  'Mastra homepage screenshot supplied by the presenter.',
+  'Mastra downloads chart supplied by the presenter.',
+  'Mastra agent example combining instructions, model, tools, workspace, and browser. The required id and name fields are omitted for presentation brevity. Imports are omitted for readability: Agent from @mastra/core/agent, webFetchTool from @mastra/core/tools, Workspace from @mastra/core/workspace, DaytonaSandbox from @mastra/daytona, and AgentBrowser from @mastra/agent-browser. Configure OPENAI_API_KEY for the model. Daytona requires DAYTONA_API_KEY and @mastra/daytona. AgentBrowser requires @mastra/agent-browser and Chromium; this browser runs locally, separately from the remote sandbox. References: https://mastra.ai/docs/sandbox/overview and https://mastra.ai/docs/browser.',
+  'Mastra building blocks: animated feature pills, with essential operational capabilities shown more quietly.',
+  'Company logo screenshot supplied by the presenter.',
+  `Customer examples grouped by the use case shown, not exclusive company categories. Sources checked September 22, 2026.
+Customer-facing:
+Sanity — CMS content creation/editing: https://mastra.ai/customers/sanity
+Range — Rai financial advice: https://mastra.ai/customers/range
+Factorial — permission-aware HR agent: https://mastra.ai/customers/factorial
+Internal:
+Marsh — LenAI company knowledge and MCP tools: https://mastra.ai/customers/marsh
+Workday — security operations alert triage: https://mastra.ai/customers/workday
+SoftBank — Satto Workspace document productivity: https://mastra.ai/customers/softbank
+Developer platform:
+Salesforce — Mastra powers the non-Claude harness in Agentforce Vibes; Claude models use the Claude Agent SDK: https://mastra.ai/customers/salesforce
+Replit — Agent 3 generates Mastra agents/workflows; this does not claim Replit Agent itself runs on Mastra: https://mastra.ai/customers/replit
+MongoDB — Sage internal developer platform, Parsley AI CI analysis and triage: https://mastra.ai/customers/mongodb
+`,
+  '',
+  'Photo of Mastra agent books supplied by the presenter.',
   `2023 — Single-turn LLM calls
 Backend logic calls a model for a specific task, like summarizing a PDF.
 
@@ -689,88 +915,58 @@ Persistent personal agents capture widespread attention.
 
 2026 — Harnesses and factories
 Agents run ongoing operations across software development, SRE, GTM, security, and more.`,
+  `A software factory coordinates agents, tools, shared context, and checks across an ongoing software delivery process. The circular loop runs through Signals, Triage, Plan, Build, Test, Review, Secure, Ship, and Monitor. Monitoring shipped software produces new signals, and the loop continues. Review and test feedback can also send work back for another iteration. Each stage can be automatic or require human approval; a factory does not imply unreviewed deployments. In Mastra Factory, GitHub, Linear, and Slack feed configurable boards, and agents investigate, plan, implement, and move work toward review in sandboxed environments.
+Reference: https://mastra.ai/blog/announcing-mastra-factory-beta`,
+  `Examples and reported snapshots, rather than directly comparable productivity measures. Stripe, Ramp, and Spotify card copy is paraphrased for presentation, not verbatim quotation; quotation marks indicate a conversational presentation style. The Cursor card preserves the user-supplied Lauren Tan quote.
+Stripe Minions: approximately 1,300 merged PRs per week, reviewed by humans. Source: https://stripe.dev/blog/minions-stripes-one-shot-end-to-end-coding-agents-part-2
+Ramp Inspect: 30% of merged frontend/backend PRs in the week reported by its builder Zach Bruggeman, not a permanent or current ceiling. Sources: https://builders.ramp.com/post/why-we-built-our-background-agent and https://www.linkedin.com/posts/zachbruggeman_the-craft-of-engineering-is-rapidly-changing-activity-7416509951386259456-O193
+Spotify: Honk performed code modifications within Fleet Management; the backend Java migration took three days. Xirp is the later agentic development environment, not simply a rename of Honk. Sources: https://www.engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint and https://portal.spotify.com/blog/introducing-xirp
+Cursor: user-supplied quote attributed to Lauren Tan, her personal self-report, not Cursor company-wide output. Original post: https://x.com/poteto/status/2102050467505430555 (direct access blocked during verification). The figure was corroborated by an indexed copy, not independently audited. Do not imply she was at Cursor at the time.
+Logo assets: Cursor from https://simpleicons.org; Stripe from https://commons.wikimedia.org/wiki/File:Stripe_Logo,_revised_2016.svg; Spotify from https://commons.wikimedia.org/wiki/File:2024_Spotify_Logo_(black).svg; Ramp from https://commons.wikimedia.org/wiki/File:Ramp_Business_Corporation_Logo.svg.`,
   '',
-  `This is a capability map to the industry moments on slide 2, not a claim that Mastra shipped every feature in the year on the left. The milestones are the talk's framing; mapping features to them is our editorial synthesis. Do not imply that Mastra launched in 2023, or that later features were available at the Opus 4.5 or OpenClaw milestone.
-
-2023 — Single-turn LLM calls
-Mastra now offers model routing, structured output, and retrieval-augmented generation (RAG): choose a model, return typed data, and ground responses in your own knowledge. The public beta announcement on February 20, 2025 already described agents and a RAG pipeline.
-https://mastra.ai/docs/agents/overview
-https://mastra.ai/blog/beta-launch
+  'The full-screen Mastra Code demo autoplays muted and loops while this slide is active. Use the controls to enable sound. Video source: https://res.cloudinary.com/mastra-assets/video/upload/v1778051861/mastracode-demo_thoxc9.mp4',
+  'Mastra Factory introduction screenshot supplied by the presenter.',
+  'Work can start in Linear, Slack, or GitHub. Logo sources: Linear and GitHub from Simple Icons; Slack from https://commons.wikimedia.org/wiki/File:Slack_icon_2019.svg.',
+  'Triage: the Factory Triage skill, shown in the screenshot supplied by the presenter.',
+  'Build: a Mastra Factory coding session, shown in the screenshot supplied by the presenter.',
+  '',
+  '',
+  'Observational Memory research screenshot supplied by the presenter.',
+  'Mastra Factory knowledge graph screenshot supplied by the presenter.',
+  'Product Hunt blocks third-party iframe embedding with X-Frame-Options: SAMEORIGIN. This slide uses a local snapshot of the launch details, captured September 19, 2026. Click the slide or Open live site to visit the interactive page: https://www.producthunt.com/products/mastra/launches/mastra-factory',
+  'Build your factory today screenshot supplied by the presenter.',
+  '',
+  'Agents join the team: examples from Mastra. Customer — customer call transcripts and CRM data. GTM — GTM and product marketing. Community — open-source feedback and insights. Events — event management. Software Factory — software development in Slack.',
+  'We make goals, decisions, ownership, and constraints explicit so agents can act without constantly asking us.',
+  'They monitor, investigate, and move tasks forward between human interactions.',
+  'Signals such as incidents and user questions kick off work.',
+  'Agents and software factories become more economically viable.',
+  'The same pattern extends to SRE, security, GTM, and other ongoing operations.',
+  `2023 — Single-turn LLM calls
+Backend logic calls a model for a specific task, like summarizing a PDF.
 
 2024 — Multi-turn chatbots
-Message history carries a conversation across turns. Working memory retains useful facts, and semantic recall retrieves relevant past messages. These are distinct memory mechanisms. The February 2025 beta already discussed conversation history and retrieval; the Observational Memory announcement places working memory and semantic recall releases in March/April 2025.
-https://mastra.ai/docs/memory/message-history
-https://mastra.ai/docs/memory/working-memory
-https://mastra.ai/docs/memory/semantic-recall
-https://mastra.ai/blog/observational-memory
+Apps carry context across messages so users can have ongoing conversations.
 
 Early 2025 — Reasoning models and agent loops
-An agent can repeatedly call tools and use their results. Workflows make multi-step execution explicit; suspend/resume supports human review. Evals and tracing help assess behavior. Agents, workflows, human-in-the-loop, evals, and tracing were described in the February 20, 2025 public beta announcement.
-https://mastra.ai/blog/beta-launch
-https://mastra.ai/docs/agents/overview
+Agents become better at taking actions, checking results, and deciding what to do next.
 
 Late 2025 — Opus 4.5
-The coding-delegation moment creates demand for environments where agents can work with files, run commands, and follow reusable skills. Mastra announced Workspaces on February 5, 2026, after this milestone. Workspace capabilities include filesystem access, sandbox execution, search, and skills, with configurable tool permissions and approvals. A local sandbox executes locally; use a remote sandbox provider when isolation is required.
-https://mastra.ai/blog/introducing-mastra-workspaces
+Delegating substantial coding tasks starts to feel practical.
 
 Early 2026 — OpenClaw
-Persistent personal agents need longer-lived context, familiar communication surfaces, and scheduled work. Observational Memory was announced February 9, 2026 and compresses conversation history into observations and reflections. Channels were announced April 28, 2026, schedules July 8, and Harness Channels September 1. These support the pattern; they were not all available at the start of 2026.
-https://mastra.ai/blog/observational-memory
-https://mastra.ai/blog/category/features
-https://mastra.ai/docs/channels
-https://mastra.ai/docs/harness/schedules
-https://mastra.ai/blog/introducing-harness-channels
+Persistent personal agents capture widespread attention.
 
 2026 — Harnesses and factories
-The Harness announcement on June 18, 2026 introduced session management, modes, model switching, approvals, persistence, and subagents; the current API is AgentController. Background Tasks were announced May 7 for progress during long-running tool calls. Goals were announced July 15 for durable objectives with a judge and budget. Durable agents support resumable execution; crash recovery requires the appropriate persistence and recovery configuration. Mastra Factory was announced July 27, with a beta announcement September 8, orchestrating software work from issues through validation and release.
-https://mastra.ai/blog/announcing-agent-harness
-https://mastra.ai/docs/harness/agent-controller
-https://mastra.ai/blog/introducing-background-tasks
-https://mastra.ai/blog/introducing-goals
-https://mastra.ai/docs/harness/durable-agents
-https://mastra.ai/blog/announcing-mastra-factory
-
-Research index: https://mastra.ai/llms.txt
-Documentation: https://mastra.ai/docs
-Research checked September 19, 2026.`,
-  'The instructions field provides the system instruction. Tools are capabilities the model can call; webFetchTool is built into @mastra/core/tools and fetches the text of a public URL. Give the agent a research article URL to explore. Mastra requires an id and name. The model uses the provider/model format: openai/gpt-6-astra. Running this example requires OPENAI_API_KEY. References: https://mastra.ai/blog/introducing-built-in-tools and https://mastra.ai/reference/agents/agent and https://developers.openai.com/api/docs/models/gpt-6-astra',
-  '',
-  `Pick Sandbox and Browser from the feature cloud and add them to the same agent. The ellipsis represents the existing id, name, instructions, model, and tools; Agent is imported on the earlier code slide. This is an abridged teaching snippet, not a standalone file.
-
-DaytonaSandbox provides remote command execution through Workspace; set DAYTONA_API_KEY and install @mastra/daytona. AgentBrowser supplies browser tools automatically; install @mastra/agent-browser and its Chromium binary. The browser here runs locally, separately from the remote sandbox. The example assumes trusted, single-user use; scope environments appropriately in a multi-user application.
-
-Suggested demo prompt: Read a research article in the browser, then use the sandbox to turn the findings into a small HTML digest.
-
-References: https://mastra.ai/docs/sandbox/overview
-https://mastra.ai/integrations/sandboxes/daytona
-https://mastra.ai/docs/browser
-https://mastra.ai/integrations/browsers/agent-browser`,
-  'Embedded integrations page: https://mastra.ai/integrations. Scripts are disabled for reliable rendering; use Open live site for full interactions.',
-  `Now pick Harness and Modes. The abridged Agent definition is the same agent from earlier: import Agent from @mastra/core/agent and restore its id, name, instructions, model, tools, workspace, and browser. The controller receives that agent and creates a session for Alex. storage is an already configured persistent store, for example: new LibSQLStore({ id: 'harness-storage', url: 'file:./mastra.db' }), imported from @mastra/libsql. Setup and UI event handling are abridged for the slide.
-
-Initialize the controller once. createSession is get-or-create by resourceId and optional scope. In the UI, subscribe to session events to render progress. Modes change instructions while sharing the conversation. Switch explicitly with await session.mode.switch({ modeId: 'build' }); these short instructions alone do not enforce a read-only planning phase or automatic transitions. Add availableTools and permission policies when required. AgentController is currently a beta API.
-
-Reference: https://mastra.ai/docs/harness/agent-controller`,
-  '',
-  '',
-  'Embedded HTML fetched from https://mastra.ai/factory. Scripts are disabled for reliable rendering inside the slide; use Open live site for full website interactions.',
-  'Product Hunt blocks third-party iframe embedding with X-Frame-Options: SAMEORIGIN. This slide uses a local snapshot of the launch details, captured September 19, 2026. Click the slide or Open live site to visit the interactive page: https://www.producthunt.com/products/mastra/launches/mastra-factory',
-  'The full-screen Mastra Code demo autoplays muted and loops while this slide is active. Use the controls to enable sound. Video source: https://res.cloudinary.com/mastra-assets/video/upload/v1778051861/mastracode-demo_thoxc9.mp4',
-  'Embedded research page: https://mastra.ai/research/observational-memory. Scripts are disabled for reliable rendering; use Open live site for full interactions.',
-  'Interactive demo bundled from /Users/booker/Code/om-interactive-demo/index.html. Runs locally inside this slide with its original controls and scripts.',
-  'The Demo button uses Google Chrome’s registered direct-launch URL scheme so you can authenticate in Chrome. Destination: https://shipyard.factory.mastra.cloud/factories/7d5175c3-3a20-42ac-aba9-756f183136f4/work',
-  '',
-  'Agents join the team: examples from Mastra. Customer agent — customer knowledge and requirements. Marketing agent — GTM and product marketing. Community agent — open-source feedback and insights. Workshop agent — workshop management. Factory agent — software development in Slack.',
-  'They monitor, investigate, and move tasks forward between human interactions.',
-  'We make goals, decisions, ownership, and constraints explicit so agents can act without constantly asking us.',
-  'The same pattern extends to SRE, security, GTM, and other ongoing operations.',
-  '',
+Agents run ongoing operations across software development, SRE, GTM, security, and more.`,
+  '2023 to 2026 spans three years: (2026 - 2023) × 12 = 36 months, comparing equivalent points in each year. The timeline uses year-level dates, not exact launch dates. Perspective prompt: what will change in the next 36 months?',
+  'Mastra booth photo supplied by the presenter. QR code links to https://mastra.ai/.',
 ];
 
 export const meta: SlideMeta = {
-  title: 'Mastra and the Future of Agents',
+  title: 'Software Factories and the Future of Agents',
   theme: 'mastra',
   createdAt: '2026-09-19T11:37:47.364Z',
 };
 
-export default [Cover, AgentTimeline, MastraWebsite, MastraCapabilities, MinimalAgent, FeatureCloud, SandboxAndBrowser, IntegrationsWebsite, AgentHarness, CreateMastra, FactoryTitle, FactoryWebsite, FactoryProductHunt, MastraCodeVideo, ObservationalMemoryWebsite, ObservationalMemoryDemo, FactoryScreenshot, FuturePredictions, AgentsJoinTheTeam, ContinuousWork, ContextTeams, BeyondSoftware, XProfile] satisfies Page[];
+export default [Cover, MastraHomepage, MastraDownloads, SandboxAndBrowser, FeatureCloud, CompanyLogoWall, MastraCustomers, MastraPlatform, MastraAgentBooks, AgentTimeline, SoftwareFactoryDefinition, FactoryExamples, FactoryTitle, MastraCodeVideo, MastraFactoryIntroduction, HowWorkStarts, FactoryTriage, FactoryBuild, FactoryReview, FactoryShip, ObservationalMemoryScreenshot, FactoryKnowledgeGraph, FactoryProductHunt, BuildYourFactory, FuturePredictions, AgentsJoinTheTeam, ContextTeams, ContinuousWork, SignalsStartWork, EconomicViability, BeyondSoftware, AgentTimelineRecap, AgentTimelinePerspective, MastraBooth] satisfies Page[];
