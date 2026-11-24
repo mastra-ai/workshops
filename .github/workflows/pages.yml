@@ -41,6 +41,8 @@ jobs:
       - name: Support direct slide URLs
         run: cp open-slide/dist/index.html open-slide/dist/404.html
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: open-slide/dist
